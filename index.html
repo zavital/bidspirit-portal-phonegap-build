@@ -39,6 +39,10 @@
 		
 		<div id="remoteScript">(remotescript)</div>
 		
+		<div id="dynamicScript">(dynamicScript)</div>
+		
+		
+		
 		
 		<script>
 			document.getElementById("jsp").innerHTML="jsp";
@@ -95,6 +99,10 @@
         </dl>
         
         <div onClick="loadJs()">Load js</div>
+        
+        <div onClick="saveJs()">wtite js</div>
+        
+        <div onClick="runJs()">Run js</div>
 		
 		
 		
@@ -169,12 +177,32 @@
             return false;
         }
         
+        function saveJs() {
+        	var d = 1;
+        	var fail = function(){alert("failed "+d);}
+        	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs){
+        		d++;        		
+        		fs.root.getFile("z.js", {create: true, exclusive: false}, function(fileEntry){
+        			d++;
+        			alert("got file entry");
+        			fileEntry.createWriter(function(fileWriter){
+        				fileWriter.object.onwriteend = function (evt) {
+        					fileWriter.available = true;
+        					fileWriter.object.seek(0);
+                        }
+        				fileWriter.object.write('document.getElementById("dynamicScript").innerHTML="dynamicScript";');
+        			}, fail);
+        		},fail);
+        	},fail);
+        				
+        }
+        
         function loadJs(){
         	var d = 1;
         	var fail = function(){alert("failed "+d);}
         	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs){
         		d++;        		
-        		fs.root.getFile("test.js", {create: true, exclusive: false}, function(fileEntry){
+        		fs.root.getFile("z.js", {create: true, exclusive: false}, function(fileEntry){
         			d++;
         			alert("got file entry");
         			fileEntry.file(function(file){
@@ -188,6 +216,10 @@
         			});
         		}, fail);
         	}, fail);
+        }
+        
+        function runJs(){
+        	loadjscssfile("//localhost/persistent/z.js","js");
         }
     </script>
 		
