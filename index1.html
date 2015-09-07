@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+   
+
+<html>
+
+	<head>
+		 <!--[if lte IE 8]>
+		      <script>
+		        document.createElement('bs-form-group');
+		        document.createElement('bs-houses-carousel');
+		        document.createElement('bs-form-validation-message');
+		        
+		      </script>
+    	<![endif]-->
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge" >
+		<meta name="viewport" content="width=device-width">
+		<meta name="fragment" content="!">
+		<meta charset="utf-8">
+		
+		<title >Bidspirit - auction houses in Israel</title>
+<meta name="description" content="The Bidspirit portal is your gate to the auction houses’ arena in Israel trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more" /> 
+<link rel="canonical" href="https://il.bidspirit.com" itemprop="url" />
+<!--  languague:EN, region:IL --> 		       
+ <script type="application/ld+json">
+    {  "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : "BidSpirit Israel",       
+       "url" : "https://il.bidspirit.com"
+    }
+ </script>
+ 
+ <script src="phonegap.js"></script>
+ 
+ <!-- Twitter Card data -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@BidspiritIsrael">
+<meta name="twitter:title" content="Bidspirit - auction houses in Israel">
+<meta name="twitter:description" content="The Bidspirit portal is your gate to the auction houses’ arena in Israel trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more">
+<meta name="twitter:image" content="http://s3.amazonaws.com/bidspirit-portal/images/logo.png">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Bidspirit - auction houses in Israel" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://il.bidspirit.com" />
+<meta property="og:image" content="http://s3.amazonaws.com/bidspirit-portal/images/logo.png" />
+<meta property="og:description" content="The Bidspirit portal is your gate to the auction houses’ arena in Israel trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more" /> 
+<meta property="og:site_name" content="BidSpirit Israel" />
+<meta property="fb:admins" content="522102642,525494874" />
+
+
+ 
+ 
+ <script type="application/ld+json">{
+			"@context": "http://schema.org",
+			"@type": "Organization",
+	      	"url": "https://il.bidspirit.com",
+      		"logo": "http://s3.amazonaws.com/bidspirit-portal/images/logo.png",
+			"sameAs" : [ "https://www.facebook.com/pages/Bidspirit-Israel/280735812128712", "https://twitter.com/bidspiritisrael"],
+ 			"contactPoint" : [{
+				    "@type" 		: "ContactPoint",
+			      	"telephone" : "+972-50-229-3374",
+      				"contactType" : "customer service"
+    			} , {
+	      			"@type" : "ContactPoint",
+      				"telephone" : "+7 (919) 763-01-76",
+      				"contactType" : "customer service",
+					"areaServed" : "RU"
+				}
+			]
+    		
+    	}
+</script>   		
+		
+
+
+<link rel="shortcut icon" href="http://bidspirit.com/common/images/system/favicon.png" />
+
+
+
+<script>
+		var GlobalConfig={
+			apiBase : "/services/",
+			staticFilesBase : "//bidspirit-portal.global.ssl.fastly.net/",
+			cachedApiBase : "//bidspirit-portal.global.ssl.fastly.net//services/",
+			
+			jsFilesBase : "//bidspirit-portal.global.ssl.fastly.net/",
+			templatesBase : "/",
+			pageLoadTime : new Date().getTime(),
+			appVersion : "0.419",
+			referer:  "http://bidspirit.com/portal/",
+			envName : "prod"
+		}	
+		
+		
+		GlobalConfig.appName = "portal";
+		
+		if (GlobalConfig.envName=='dev'){
+			GlobalConfig.jsCacheVersion = GlobalConfig.cssCacheVersion = GlobalConfig.templatesCacheVersion =  GlobalConfig.pageLoadTime;
+		} else if ((window.location+"").indexOf("debug.jsp")!=-1){
+			GlobalConfig.jsCacheVersion = GlobalConfig.cssCacheVersion =  GlobalConfig.pageLoadTime;
+			GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion;
+		} else {
+			GlobalConfig.jsCacheVersion = GlobalConfig.appVersion+"-js";
+			GlobalConfig.cssCacheVersion = GlobalConfig.appVersion+"-css";
+			GlobalConfig.templatesCacheVersion =  GlobalConfig.appVersion;
+		}
+		
+		 
+		
+        var require = {
+       		baseUrl: GlobalConfig.jsFilesBase,
+        	urlArgs : "v="+GlobalConfig.jsCacheVersion,
+        	waitSeconds:120
+	    };
+			
+</script>
+		
+
+
+		
+	</head>	
+	
+	<body>
+	
+	 
+		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main">
+		 	<div  ui-view class="view"></div>
+		</div>
+		
+		<script 
+			data-main="portal/js/all" 
+			src='//bidspirit-portal.global.ssl.fastly.net/common/js/lib/require.js'>
+		</script>
+				
+				
+		<img 
+			style="margin:20px auto;display:block;" 
+			src="//bidspirit-portal.global.ssl.fastly.net/common/images/system/pagePreLoader.gif" 
+			id="pagePreLoader"
+		>
+		
+	</body>
+</Html>
+
+			
+	  	
