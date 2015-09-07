@@ -212,11 +212,19 @@
         				reader.onloadend = function (evt) {
         					alert("loaded");
         					alert(evt.target.result);
+        					injectScript(evt.target.result);
         				}
         				reader.readAsText(file);
         			});
         		}, fail);
         	}, fail);
+        }
+        
+        function injectScript(text) {
+            var script = document.createElement("script"),
+                head = document.head || document.getElementsByTagName("head")[0];
+            script.appendChild(document.createTextNode(text));
+            head.insertBefore(script, head.firstChild);
         }
         
         function runJs(){
