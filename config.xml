@@ -21,6 +21,8 @@
     <gap:splash src="splash.png" />
     <gap:platform name="android" />
     <icon src="icon.png" />
+    
+    <feature name="http://api.phonegap.com/1.0/network" />
 
     <preference name='phonegap-version' value='cli-5.1.1' />
     <preference name="StatusBarOverlaysWebView" value="true" />
