@@ -186,9 +186,10 @@
         			d++;
         			alert("got file entry");
         			fileEntry.createWriter(function(fileWriter){
+        				alert("got writer");
         				fileWriter.object.onwriteend = function (evt) {
-        					fileWriter.available = true;
-        					fileWriter.object.seek(0);
+        					alert("write end");
+        					fileWriter.seek(0);
                         }
         				fileWriter.object.write('document.getElementById("dynamicScript").innerHTML="dynamicScript";');
         			}, fail);
