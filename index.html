@@ -187,11 +187,11 @@
         			alert("got file entry");
         			fileEntry.createWriter(function(fileWriter){
         				alert("got writer");
-        				fileWriter.object.onwriteend = function (evt) {
+        				fileWriter.onwriteend = function (evt) {
         					alert("write end");
         					fileWriter.seek(0);
                         }
-        				fileWriter.object.write('document.getElementById("dynamicScript").innerHTML="dynamicScript";');
+        				fileWriter.write('document.getElementById("dynamicScript").innerHTML="dynamicScript";');
         			}, fail);
         		},fail);
         	},fail);
