@@ -27,7 +27,7 @@
     <preference name="fullscreen" value="false" />
     <preference name="webviewbounce" value="false" />
     <preference name="DisallowOverscroll" value="true"/>
-    <preference name="AutoHideSplashScreen" value="false"/>ß
+    <preference name="AutoHideSplashScreen" value="false"/>
     <preference name="SplashScreen" value="splash" />
     <preference name="SplashScreenDelay" value="20000" />
     <preference name="orientation" value="portrait" />
