@@ -212,7 +212,7 @@
         				reader.onloadend = function (evt) {
         					alert("loaded");
         					alert(evt.target.result);
-        					injectScript(evt.target.result);
+        					injectScript(evt.target.result+"");
         				}
         				reader.readAsText(file);
         			});
@@ -225,10 +225,16 @@
                 head = document.head || document.getElementsByTagName("head")[0];
             script.appendChild(document.createTextNode(text));
             head.insertBefore(script, head.firstChild);
+            alert("injected "+text);
         }
         
         function runJs(){
-        	loadjscssfile("//localhost/persistent/z.js","js");
+        	//loadjscssfile("//localhost/persistent/z.js","js");
+        	injectScript('document.getElementById("dynamicScript").innerHTML="dynamicScript";')
+        	setTimeout(function(){
+        		injectScript('function f(){document.getElementById("dynamicScript").innerHTML="dynamicScript-fun";}')
+        		setTimeout(f,1000);
+        	},1000);
         }
     </script>
 		
