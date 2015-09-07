@@ -3,6 +3,11 @@
    
 
 <html>
+	<style>
+		
+		div{ margin:30px;}
+		
+	</style>
 
 	<head>
 		<meta name="viewport" content="width=device-width">
@@ -11,6 +16,8 @@
 		<title >Bidspirit - auction houses in Israel</title>
 		<meta name="description" content="The Bidspirit portal is your gate to the auction houses’ arena in Israel trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more" /> 
 		<link rel="canonical" href="https://il.bidspirit.com" itemprop="url" />
+		<link rel="stylesheet" href="http://54.210.154.63:8080/c.css" />
+		<link rel="stylesheet" href="t.css" />
  		       
  
 		 <script src="phonegap.js"></script>
@@ -19,19 +26,36 @@
 	
 	<body>	 
 	 
-		<script>
-			alert("z");
-		</script>
 		
 		
-		zzzz
+		
 				
+		<div id="jsp">(jsp)</div>
+		
+		<div id="localScript">(localscript)</div>
+		
+		<div id="remoteScript">(remotescript)</div>
+		
+		
+		<script>
+			document.getElementById("jsp").innerHTML="jsp";
+		</script>
+
+		<script src="http://54.210.154.63:8080/z.js"> </script>
+		
+		<script src="./test.js">		 </script>
+		
+		
+		
 				
 		<img 
 			style="margin:20px auto;display:block;" 
-			src="//bidspirit-portal.global.ssl.fastly.net/common/images/system/pagePreLoader.gif" 
+			src="pagePreLoader.gif" 
 			id="pagePreLoader"
 		>
+		
+		
+		
 		
 	</body>
 </Html>
