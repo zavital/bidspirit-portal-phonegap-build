@@ -9465,8 +9465,7 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
         return {
             response: function(response) {            	
                 if (isApiRequest(response.config)) {
-                    if (!angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data),
-                     
+                    if (!angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data),                     
                     response.data = {
                         errorType: "INVALID_RESPONSE",
                         message: "Invalid response from server"
@@ -9519,7 +9518,7 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
             "postForm" == options.method && (request.headers = {
                 "Content-Type": "application/x-www-form-urlencoded"
             }, request.method = "POST", request.data = serializeData(request.data));
-            dddebug("calling api "+url+", method:"+method+", params:"+JSON.stringify(params)+", data:"+JSON.stringify(data));            
+            //dddebug("calling api "+url+", method:"+method+", params:"+JSON.stringify(params)+", data:"+JSON.stringify(data));            
             
             var promise = $http(request);
             
@@ -10053,6 +10052,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
             var lang;
             lang = getLangForSnapshot($rootScope.searchAgentRequest ? preferredLang : preferredLang), 
             isSupportedLang(lang) || (lang = DEFAULT_LANG);
+            alert("lang is "+lang);
             var promise = setLang(lang);
             return lang != DEFAULT_LANG ? $q.all([ promise, loadLang(DEFAULT_LANG) ]) : promise;
         }
@@ -10074,8 +10074,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
                 url: mResourcePathFn(lang),
                 cache: !0
             });
-            return promise.success(function(texts) {
-            	alert("got texts"+texts);
+            return promise.success(function(texts) {            	
                 setTexts(lang, texts.split(/\n/m));
             }), promise;
         }
@@ -11371,7 +11370,7 @@ define("common/js/modules/catalogUtils/catalogUtilsModule", [ "angular" ], funct
 define("commonModules", [ "angular", "ngdir/angular-ui-router", "common/js/modules/strings/index", "common/js/modules/utils/index", "common/js/modules/domUtils/index", "common/js/modules/api/index", "common/js/modules/system/index", "common/js/modules/paths/index", "common/js/modules/i18n/index", "common/js/modules/dialogs/index", "common/js/modules/asyncButton/index", "common/js/modules/bsForm/index", "common/js/modules/validate/index", "common/js/modules/animations/index", "common/js/modules/cloudinary/index", "common/js/modules/socialPlugins/index", "common/js/modules/log/index", "common/js/modules/catalogUtils/index" ], function(ng) {
     return ng.module("commonModules", [ "ui.router", "commonModules.strings", "commonModules.utils", "commonModules.api", "commonModules.system", "commonModules.paths", "commonModules.cloudinary", "commonModules.socialPlugins", "commonModules.dialogs", "commonModules.asyncButton", "commonModules.bsForm", "commonModules.i18n", "commonModules.validate", "commonModules.log", "commonModules.animations", "commonModules.domUtils", "commonModules.catalogUtils" ]).config(function($stateProvider, $sceDelegateProvider, $httpProvider, $sceProvider) {
         angular.module("commonModules").$stateProvider = $stateProvider, $sceDelegateProvider.resourceUrlWhitelist([ "self", GlobalConfig.staticFilesBase + "**", GlobalConfig.jsFilesBase + "**" ]), 
-        /*$httpProvider.interceptors.push("ApiInterceptor"),*/ $sceProvider.enabled(!1);
+        $httpProvider.interceptors.push("ApiInterceptor"), $sceProvider.enabled(!1);
     }).run(function($rootScope, $state, $stateParams) {
         $rootScope.$on("$stateChangeSuccess", function(event, toState, toParams, fromState) {
             $state.previous = fromState;
@@ -11494,7 +11493,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             });
         }
         function initTirggers() {
-        	alert("init tiggers");
+        	dddebug("init tiggers");
             $scope.$on("$stateChangeStart", function(event, toState, toArgs, fromState, fromArgs) {
                 "app.mobileMenu" != fromState.name && ($rootScope.$previousState = fromState, $rootScope.$previousState.args = fromArgs), 
                 trackPageView(), StructuredDataService.resetStructuredDataMetaTags();
@@ -11557,7 +11556,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         function init(region) {
             return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {
-            	alert(JSON.stringify(portalInfo));
+            	dddebug("ok");            	
                 SessionsService.setSessionInfo(portalInfo.sessionInfo);
             });
         }
@@ -11566,8 +11565,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 persistentSession: SessionsService.hasPersistentSession(),
                 region: region
             };
-            return ApiService.callApi("/portal/getPortalInfo", params).success(function(portalInfo) {
-            	dddebug("ok");
+            return ApiService.callApi("/portal/getPortalInfo", params).success(function(portalInfo) {            	
                 angular.copy(portalInfo, mInfo), initHouses(portalInfo.houses, portalInfo.sites, portalInfo.housesResources, portalInfo.housesDetails), 
                 initAuctions(portalInfo.auctions, portalInfo.auctionsResources);
             });
