@@ -15212,7 +15212,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
         config.isBuild ? onLoad(null) : domReady(onLoad);
     }, domReady;
 }), window.location.hash && -1 != window.location.hash.indexOf("%21") && (window.location.hash = window.location.hash.replace("%21", "!")), 
-define('portal/js/all', [ "require", "angular", "app", "commonModules", "domReady" ], function(require, ng) {
+define('all', [ "require", "angular", "app", "commonModules", "domReady" ], function(require, ng) {
     require([ "domReady!" ], function(document) {
     	alert("domReady");
         window.BIDSPIRIT_SNAPSHOT || ng.bootstrap(document, [ "app" ]);
