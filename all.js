@@ -11476,8 +11476,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var lastVisit = LocalStorageService.load("lastVisit");
             $scope.firstVisit = lastVisit ? !1 : !0, LocalStorageService.store("lastVisit", new Date().getTime());
         }
-        function checkAllResourcesLoaded() {
-        	alert("css: "+CssLoaderService.isCssLoaded()+", lang:"+I18nService.getCurrentLang());
+        function checkAllResourcesLoaded() {        	
             CssLoaderService.isCssLoaded() && I18nService.getCurrentLang() && onInit();
         }
         function portalI18nResoucePath(lang) {
