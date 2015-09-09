@@ -226,12 +226,12 @@
             alert("injected "+text);
         }
         
-        function injectCss(text) {
+        function injectCss() {
             var style = document.createElement("style"),
                 head = document.head || document.getElementsByTagName("head")[0];
-            script.appendChild(document.createTextNode("div{background:green}"));
-            head.insertBefore(script, head.firstChild);
-            alert("injected "+text);
+            style.appendChild(document.createTextNode("div{background:green}"));
+            head.insertBefore(style, head.firstChild);
+            alert("injected ");
         }
         
         
