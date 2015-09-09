@@ -11477,11 +11477,10 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var pathBase = SessionsService.isOldIe() ? GlobalConfig.apiBase : GlobalConfig.cachedApiBase;
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
-        function init() {
-        	alert("main c init");
+        function init() {        	
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
-            checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss(GlobalConfig.staticFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
+            checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
             PortalInfoService.init(PathsService.getRegionByDomain()).success(function() {
                 I18nService.init(portalI18nResoucePath).then(checkAllResourcesLoaded);
             }).error(function(error) {
