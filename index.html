@@ -6,61 +6,42 @@
 
 	<head>
 		 
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge" >
-		<meta name="viewport" content="width=device-width">
-		<meta name="fragment" content="!">
-		<meta charset="utf-8">
+		
 
- 		<script src="phonegap.js"></script>
+	<style>
+		
+		div{ margin:30px;border:1px solid brown;}
+		
+	</style>
+<script>
+		function init(){
+			$("#z").html("zzz");
+			$.get("http://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",function(response){
+				$("#d").html(response.response.storageBase);
+			});
+		}
+		
 
-		<script>
-				var GlobalConfig={
-					apiBase : "https://bidspirit.com/services/",
-					staticFilesBase : "./",
-					cachedApiBase : "https://bidspirit-portal.global.ssl.fastly.net//services/",					
-					jsFilesBase : "./",
-					templatesBase : "/",
-					pageLoadTime : new Date().getTime(),
-					appVersion : "0.419",					
-					envName : "prod",
-					appMode:true,
-					appName:"portal"
-				}
-				
-				GlobalConfig.jsCacheVersion = "";
-				GlobalConfig.cssCacheVersion = "";
-				GlobalConfig.templatesCacheVersion =  GlobalConfig.appVersion;
-				
-		        var require = {
-		       		baseUrl: GlobalConfig.jsFilesBase,		        	
-		        	waitSeconds:120
-			    };
-					
+		
 		</script>
-		
-
-
-		
 	</head>	
 	
-	<body>
+	<body onLoad="init()">
 	
 	 
-		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main">
-		 	<div  ui-view class="view"></div>
-		</div>
 		
-		<script 
-			data-main="all" 
-			src='require.js'>
+		
+		<script src='jquery-2.1.4.min.js'>
 		</script>
+		
+		<div id="z"></div>
+		
+		<div id="d">
+			
+		</div>
 				
 				
-		<img 
-			style="margin:20px auto;display:block;" 
-			src="pagePreLoader.gif" 
-			id="pagePreLoader"
-		>
+		
 		
 	</body>
 </Html>
