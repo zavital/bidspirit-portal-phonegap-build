@@ -9515,11 +9515,14 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
                 data: data,
                 params: params
             };
-            dddebug("calling api "+url);
+            
             "postForm" == options.method && (request.headers = {
                 "Content-Type": "application/x-www-form-urlencoded"
             }, request.method = "POST", request.data = serializeData(request.data));
+            dddebug("calling api "+url+", method:"+method+", params:"+JSON.stringify(params)+", data:"+JSON.stringify(data));            
+            return $http.get('https://bidspirit.com/services/portal/getPortalInfo');
             var promise = $http(request);
+            
             return promise;
         }
         function serializeData(data) {
@@ -11481,12 +11484,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var pathBase = SessionsService.isOldIe() ? GlobalConfig.apiBase : GlobalConfig.cachedApiBase;
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
-        function init() {
-        alert("loading..");
-        	 $http.get('https://bidspirit.com/services/portal/getPortalInfo').
-			  then(function(response) {
-				  alert(response.data.sessionInfo.sessionId)});        	
-        	return;
+        function init() {        	 
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
@@ -11570,6 +11568,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 region: region
             };
             return ApiService.callApi("/portal/getPortalInfo", params).success(function(portalInfo) {
+            	dddebug("ok");
                 angular.copy(portalInfo, mInfo), initHouses(portalInfo.houses, portalInfo.sites, portalInfo.housesResources, portalInfo.housesDetails), 
                 initAuctions(portalInfo.auctions, portalInfo.auctionsResources);
             });
