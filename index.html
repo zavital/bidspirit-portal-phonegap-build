@@ -183,10 +183,8 @@
         	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs){
         		d++;        		
         		fs.root.getFile("z.js", {create: true, exclusive: false}, function(fileEntry){
-        			d++;
-        			alert("got file entry");
-        			fileEntry.createWriter(function(fileWriter){
-        				alert("got writer");
+        			d++;        			
+        			fileEntry.createWriter(function(fileWriter){        				
         				fileWriter.onwriteend = function (evt) {
         					alert("write end");
         					fileWriter.seek(0);
@@ -204,10 +202,8 @@
         	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs){
         		d++;        		
         		fs.root.getFile("z.js", {create: true, exclusive: false}, function(fileEntry){
-        			d++;
-        			alert("got file entry");
-        			fileEntry.file(function(file){
-        				alert("got file");
+        			d++;        			
+        			fileEntry.file(function(file){        				
         				var reader = new FileReader();
         				reader.onloadend = function (evt) {
         					alert("loaded");
