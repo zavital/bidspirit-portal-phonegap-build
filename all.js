@@ -9707,10 +9707,11 @@ define("common/js/modules/system/systemModule", [ "angular", "../utils/index" ],
             };
         }
         function loadCss(cssPath) {
+        	alert(cssPath);
             mPastLoadInfo = getCssPastLoadInfo(), mCssLoadStart = new Date().getTime();
             var fileref = document.createElement("link");
             return fileref.setAttribute("rel", "stylesheet"), fileref.setAttribute("type", "text/css"), 
-            fileref.setAttribute("href", cssPath + "?v=" + GlobalConfig.cssCacheVersion + "&load=" + getCssLoadVersion()), 
+            fileref.setAttribute("href", cssPath), 
             document.getElementsByTagName("head")[0].appendChild(fileref), waitForCssLoad(), 
             mDeferred.promise;
         }
@@ -11477,6 +11478,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
         function init() {
+        	alert("main c init");
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss(GlobalConfig.staticFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
@@ -15074,7 +15076,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
     return angular.module("app", [ "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
-        $locationProvider.hashPrefix("!"), -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && (AnalyticsProvider.setAccount("UA-56607963-1"), 
+        $locationProvider.hashPrefix("!"), -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && !GlobalConfig.appMode (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
     }).run(function($templateCache) {
         $templateCache.put("/common/templates/forms/asyncButton.html?0.419", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
@@ -15214,8 +15216,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 }), window.location.hash && -1 != window.location.hash.indexOf("%21") && (window.location.hash = window.location.hash.replace("%21", "!")), 
 define('all', [ "require", "angular", "app", "commonModules", "domReady" ], function(require, ng) {
     require([ "domReady!" ], function(document) {
-    	alert("domReady");
+    	alert("domReady appMode:"+GlobalConfig.appMode);
         window.BIDSPIRIT_SNAPSHOT || ng.bootstrap(document, [ "app" ]);
     });
 });
-alert("all");
