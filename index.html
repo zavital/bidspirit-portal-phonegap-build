@@ -13,7 +13,7 @@
 		div{ margin:30px;border:1px solid brown;}
 		
 	</style>
-<script>
+	<script>
 		function init(){
 			$("#z").html("zzz");
 			$.get("https://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",function(response){
@@ -23,6 +23,8 @@
 			$.get("https://bidspirit.com/services/portal/getPortalInfo",function(response){
 				$("#b").html(response.sessionInfo.sessionId);
 			});
+			
+			
 		}
 		
 
@@ -35,7 +37,20 @@
 	 
 		
 		
-		<script src='jquery-2.1.4.min.js'>
+		<script src='jquery-2.1.4.min.js'>		</script>
+		
+		<script src='angular.js'>		</script>
+		
+		<script>
+		angular.module('zApp', [])
+		  .controller('zController', function($scope, $http) {
+			  $scope.name="zzz";
+			  $http.get('https://bidspirit.com/services/portal/getPortalInfo').
+			  then(function(response) {	
+				  console.log(response);
+				  $scope.name=response.data.sessionInfo.sessionId;  
+			  });
+		  });
 		</script>
 		
 		<div id="z"></div>
@@ -43,6 +58,14 @@
 		<div id="c">	</div>
 		
 		<div id="b">	</div>
+		
+		<div ng-app="zApp">
+			<div ng-controller="zController">
+		      <label>Name:</label>		      
+		      <hr>
+		      <h1>Hello {{name}}!</h1>
+		    </div>
+		</div>
 				
 				
 		
