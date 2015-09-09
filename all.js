@@ -10052,7 +10052,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
             var lang;
             lang = getLangForSnapshot($rootScope.searchAgentRequest ? preferredLang : preferredLang), 
             isSupportedLang(lang) || (lang = DEFAULT_LANG);
-            alert("lang is "+lang);
+            dddebug("lang is "+lang);
             var promise = setLang(lang);
             return lang != DEFAULT_LANG ? $q.all([ promise, loadLang(DEFAULT_LANG) ]) : promise;
         }
@@ -10069,7 +10069,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
             }), defered.promise;
         }
         function loadLang(lang) {
-        	alert("Loading lang from "+mResourcePathFn(lang));  
+        	dddebug("Loading lang from "+mResourcePathFn(lang));  
             var promise = $http({
                 url: mResourcePathFn(lang),
                 cache: !0
@@ -15228,5 +15228,5 @@ define('all', [ "require", "angular", "app", "commonModules", "domReady" ], func
 });
 
 function dddebug(str){
-	alert(str);
+	//alert(str);
 }

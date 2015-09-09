@@ -32,14 +32,5 @@
     <feature name="http://api.phonegap.com/1.0/device" />
 
     <preference name='phonegap-version' value='cli-5.1.1' />
-    <preference name="StatusBarOverlaysWebView" value="true" />
-    <preference name="fullscreen" value="false" />
-    <preference name="webviewbounce" value="false" />
-    <preference name="DisallowOverscroll" value="true"/>
-    <preference name="AutoHideSplashScreen" value="false"/>
-    <preference name="SplashScreen" value="splash" />
-    <preference name="SplashScreenDelay" value="20000" />
-    <preference name="orientation" value="portrait" />
-    <preference name="KeyboardShrinksView" value="false" />
     
 </widget>
