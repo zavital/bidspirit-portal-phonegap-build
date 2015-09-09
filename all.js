@@ -11445,6 +11445,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             initRegions(), initTirggers());
         }
         function initLog() {
+        	alert("init log");
             LogService.init(SettingsService.get("logEntriesToken"));
             var osInfo = SessionsService.getOsInfo();
             "unknown" == osInfo.browser && (osInfo = {
@@ -11458,6 +11459,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             user && (eventInfo.user = user.email), LogService.logEvent(eventInfo), $rootScope.debugLog = "";
         }
         function initRegions() {
+        	alert("init regions");
             $rootScope.regions = SettingsService.get("regions").slice();
             var domainRegion = PathsService.getRegionByDomain();
             $rootScope.devMode || "ALL" == domainRegion || ArraysService.remove($rootScope.regions, "ALL"), 
@@ -11471,6 +11473,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             $scope.firstVisit = lastVisit ? !1 : !0, LocalStorageService.store("lastVisit", new Date().getTime());
         }
         function checkAllResourcesLoaded() {
+        	alert("css: "+CssLoaderService.isCssLoaded()+", lang:"+I18nService.getCurrentLang());
             CssLoaderService.isCssLoaded() && I18nService.getCurrentLang() && onInit();
         }
         function portalI18nResoucePath(lang) {
@@ -11488,6 +11491,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             });
         }
         function initTirggers() {
+        	alert("init tiggers");
             $scope.$on("$stateChangeStart", function(event, toState, toArgs, fromState, fromArgs) {
                 "app.mobileMenu" != fromState.name && ($rootScope.$previousState = fromState, $rootScope.$previousState.args = fromArgs), 
                 trackPageView(), StructuredDataService.resetStructuredDataMetaTags();
