@@ -9460,12 +9460,15 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
 }), define("common/js/modules/api/apiInterceptor", [ "./apiModule", "angular" ], function(module) {
     module.factory("ApiInterceptor", [ "$q", "$location", "$log", "$rootScope", function($q, $location, $log, $rootScope) {
         function isApiRequest(config) {
+        	dddebug("checking api request "+config.url+","+GlobalConfig.apiBase);
             return -1 == config.url.indexOf(GlobalConfig.apiBase) ? !1 : -1 != config.url.split("?")[0].indexOf(".properties") ? !1 : !0;
         }
         return {
             response: function(response) {
+            	dddebug(JSON.stringify(response));
                 if (isApiRequest(response.config)) {
-                    if (!angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data), 
+                    if (!angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data),
+                     
                     response.data = {
                         errorType: "INVALID_RESPONSE",
                         message: "Invalid response from server"
@@ -9514,7 +9517,7 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
                 data: data,
                 params: params
             };
-            alert("calling api "+url);
+            dddebug("calling api "+url);
             "postForm" == options.method && (request.headers = {
                 "Content-Type": "application/x-www-form-urlencoded"
             }, request.method = "POST", request.data = serializeData(request.data));
@@ -15085,7 +15088,9 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/index", "./auth/index", "./userDetails/index", "./alerts/index", "./info/index", "./auctions/index", "./houses/index", "./account/index", "./nudges/index", "./components/index", "./navigation/index" ], function(ng) {
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
-    return angular.module("app", [ "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
+    return angular.module("app", [ "$httpProvider", "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
+    	 $httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
         $locationProvider.hashPrefix("!"), -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && !GlobalConfig.appMode (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
     }).run(function($templateCache) {
