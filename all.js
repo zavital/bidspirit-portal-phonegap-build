@@ -11440,7 +11440,7 @@ define("commonModules", [ "angular", "ngdir/angular-ui-router", "common/js/modul
 define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
     return ng.module("app.main", []);
 }), define("portal/js/modules/main/portalMainController", [ "./portalMainModule" ], function(module) {
-    module.controller("MainController", [ "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "AnalyticsService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "StructuredDataService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", function($scope, $rootScope, $state, $timeout, ArraysService, AnalyticsService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, StructuredDataService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService) {
+    module.controller("MainController", [ "$http", "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "AnalyticsService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "StructuredDataService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", function($http, $scope, $rootScope, $state, $timeout, ArraysService, AnalyticsService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, StructuredDataService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService) {
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
@@ -11481,7 +11481,12 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var pathBase = SessionsService.isOldIe() ? GlobalConfig.apiBase : GlobalConfig.cachedApiBase;
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
-        function init() {        	
+        function init() {
+        alert("loading..");
+        	 $http.get('https://bidspirit.com/services/portal/getPortalInfo').
+			  then(function(response) {
+				  alert(response.data.sessionInfo.sessionId)});        	
+        	return;
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
