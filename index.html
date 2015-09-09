@@ -16,8 +16,12 @@
 <script>
 		function init(){
 			$("#z").html("zzz");
-			$.get("http://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",function(response){
-				$("#d").html(response.response.storageBase);
+			$.get("https://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",function(response){
+				$("#c").html(response.response.storageBase);
+			});
+			
+			$.get("https://bidspirit.com/services/portal/getPortalInfo",function(response){
+				$("#b").html(response.sessionInfo.sessionId);
 			});
 		}
 		
@@ -36,9 +40,9 @@
 		
 		<div id="z"></div>
 		
-		<div id="d">
-			
-		</div>
+		<div id="c">	</div>
+		
+		<div id="b">	</div>
 				
 				
 		
