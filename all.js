@@ -9514,6 +9514,7 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
                 data: data,
                 params: params
             };
+            alert("calling api "+url);
             "postForm" == options.method && (request.headers = {
                 "Content-Type": "application/x-www-form-urlencoded"
             }, request.method = "POST", request.data = serializeData(request.data));
@@ -9949,6 +9950,7 @@ define("common/js/modules/paths/pathsModule", [ "angular" ], function(ng) {
             return GlobalConfig.apiBase + path + "?sessionId=" + SessionInfo.sessionId;
         }
         function getRegionByDomain() {
+        	return "ALL";
             var region = getQueryParam("region");
             return region || (region = window.location.host.split(".")[0]), region = region.toUpperCase().replace(/[^A-Z]/g, ""), 
             -1 != [ "IL", "RU", "ALL" ].indexOf(region) ? region : null;
@@ -11555,6 +11557,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             mAuctionsMap = ArraysService.listToMapById(mAuctions), ArraysService.setPropertyFromMapById(mAuctions, "resources", resourcesMap, {});
         }
         function init(region) {
+        	dddebug("init portal info");
+        	dddebug( SessionsService.loadPreviousSessionId());        	
             return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {
             	alert(JSON.stringify(portalInfo));
                 SessionsService.setSessionInfo(portalInfo.sessionInfo);
@@ -15225,3 +15229,7 @@ define('all', [ "require", "angular", "app", "commonModules", "domReady" ], func
         window.BIDSPIRIT_SNAPSHOT || ng.bootstrap(document, [ "app" ]);
     });
 });
+
+function dddebug(str){
+	alert(str);
+}
