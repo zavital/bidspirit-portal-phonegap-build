@@ -15215,7 +15215,6 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 }), window.location.hash && -1 != window.location.hash.indexOf("%21") && (window.location.hash = window.location.hash.replace("%21", "!")), 
 define('all', [ "require", "angular", "app", "commonModules", "domReady" ], function(require, ng) {
     require([ "domReady!" ], function(document) {
-    	alert("domReady appMode:"+GlobalConfig.appMode);
         window.BIDSPIRIT_SNAPSHOT || ng.bootstrap(document, [ "app" ]);
     });
 });
