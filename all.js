@@ -9959,8 +9959,7 @@ define("common/js/modules/paths/pathsModule", [ "angular" ], function(ng) {
             -1 != [ "IL", "RU", "ALL" ].indexOf(region) ? region : null;
         }
         function validateHttps() {
-            return "dev" == SettingsService.get("envName") || "https:" == window.location.protocol || $rootScope.searchAgentRequest ? !0 : (window.location = window.location.href.replace("http:", "https:"), 
-            !1);
+            return true;
         }
         function reloadAfterDelay(delay) {
             $timeout.cancel(mReloadTimer), mReloadTimer = $timeout($state.reload, delay);
@@ -15088,9 +15087,9 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/index", "./auth/index", "./userDetails/index", "./alerts/index", "./info/index", "./auctions/index", "./houses/index", "./account/index", "./nudges/index", "./components/index", "./navigation/index" ], function(ng) {
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
-    return angular.module("app", [ "$httpProvider", "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
-    	 $httpProvider.defaults.useXDomain = true;
-        delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    return angular.module("app", [  "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($httpProvider,$locationProvider, AnalyticsProvider) {
+ 		 $httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];   	 
         $locationProvider.hashPrefix("!"), -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && !GlobalConfig.appMode (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
     }).run(function($templateCache) {
