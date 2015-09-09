@@ -9459,13 +9459,11 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
     return ng.module("commonModules.api", [ "commonModules.utils" ]);
 }), define("common/js/modules/api/apiInterceptor", [ "./apiModule", "angular" ], function(module) {
     module.factory("ApiInterceptor", [ "$q", "$location", "$log", "$rootScope", function($q, $location, $log, $rootScope) {
-        function isApiRequest(config) {
-        	dddebug("checking api request "+config.url+","+GlobalConfig.apiBase);
+        function isApiRequest(config) {        	
             return -1 == config.url.indexOf(GlobalConfig.apiBase) ? !1 : -1 != config.url.split("?")[0].indexOf(".properties") ? !1 : !0;
         }
         return {
-            response: function(response) {
-            	dddebug(JSON.stringify(response));
+            response: function(response) {            	
                 if (isApiRequest(response.config)) {
                     if (!angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data),
                      
@@ -9710,8 +9708,7 @@ define("common/js/modules/system/systemModule", [ "angular", "../utils/index" ],
                 status: "init"
             };
         }
-        function loadCss(cssPath) {
-        	alert(cssPath);
+        function loadCss(cssPath) {        	
             mPastLoadInfo = getCssPastLoadInfo(), mCssLoadStart = new Date().getTime();
             var fileref = document.createElement("link");
             return fileref.setAttribute("rel", "stylesheet"), fileref.setAttribute("type", "text/css"), 
@@ -11371,7 +11368,7 @@ define("common/js/modules/catalogUtils/catalogUtilsModule", [ "angular" ], funct
 define("commonModules", [ "angular", "ngdir/angular-ui-router", "common/js/modules/strings/index", "common/js/modules/utils/index", "common/js/modules/domUtils/index", "common/js/modules/api/index", "common/js/modules/system/index", "common/js/modules/paths/index", "common/js/modules/i18n/index", "common/js/modules/dialogs/index", "common/js/modules/asyncButton/index", "common/js/modules/bsForm/index", "common/js/modules/validate/index", "common/js/modules/animations/index", "common/js/modules/cloudinary/index", "common/js/modules/socialPlugins/index", "common/js/modules/log/index", "common/js/modules/catalogUtils/index" ], function(ng) {
     return ng.module("commonModules", [ "ui.router", "commonModules.strings", "commonModules.utils", "commonModules.api", "commonModules.system", "commonModules.paths", "commonModules.cloudinary", "commonModules.socialPlugins", "commonModules.dialogs", "commonModules.asyncButton", "commonModules.bsForm", "commonModules.i18n", "commonModules.validate", "commonModules.log", "commonModules.animations", "commonModules.domUtils", "commonModules.catalogUtils" ]).config(function($stateProvider, $sceDelegateProvider, $httpProvider, $sceProvider) {
         angular.module("commonModules").$stateProvider = $stateProvider, $sceDelegateProvider.resourceUrlWhitelist([ "self", GlobalConfig.staticFilesBase + "**", GlobalConfig.jsFilesBase + "**" ]), 
-        $httpProvider.interceptors.push("ApiInterceptor"), $sceProvider.enabled(!1);
+        /*$httpProvider.interceptors.push("ApiInterceptor"),*/ $sceProvider.enabled(!1);
     }).run(function($rootScope, $state, $stateParams) {
         $rootScope.$on("$stateChangeSuccess", function(event, toState, toParams, fromState) {
             $state.previous = fromState;
@@ -11450,8 +11447,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
             initRegions(), initTirggers());
         }
-        function initLog() {
-        	alert("init log");
+        function initLog() {        	
             LogService.init(SettingsService.get("logEntriesToken"));
             var osInfo = SessionsService.getOsInfo();
             "unknown" == osInfo.browser && (osInfo = {
@@ -11464,8 +11460,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             }, osInfo), user = SessionsService.getSessionUser();
             user && (eventInfo.user = user.email), LogService.logEvent(eventInfo), $rootScope.debugLog = "";
         }
-        function initRegions() {
-        	alert("init regions");
+        function initRegions() {        	
             $rootScope.regions = SettingsService.get("regions").slice();
             var domainRegion = PathsService.getRegionByDomain();
             $rootScope.devMode || "ALL" == domainRegion || ArraysService.remove($rootScope.regions, "ALL"), 
@@ -11559,8 +11554,6 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             mAuctionsMap = ArraysService.listToMapById(mAuctions), ArraysService.setPropertyFromMapById(mAuctions, "resources", resourcesMap, {});
         }
         function init(region) {
-        	dddebug("init portal info");
-        	dddebug( SessionsService.loadPreviousSessionId());        	
             return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {
             	alert(JSON.stringify(portalInfo));
                 SessionsService.setSessionInfo(portalInfo.sessionInfo);
@@ -15088,8 +15081,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
     return angular.module("app", [  "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($httpProvider,$locationProvider, AnalyticsProvider) {
- 		 $httpProvider.defaults.useXDomain = true;
-        delete $httpProvider.defaults.headers.common['X-Requested-With'];   	 
+ 		   	 
         $locationProvider.hashPrefix("!"), -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && !GlobalConfig.appMode (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
     }).run(function($templateCache) {
