@@ -10065,11 +10065,13 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
             }), defered.promise;
         }
         function loadLang(lang) {
+        	alert("Loading lang from "+mResourcePathFn(lang));  
             var promise = $http({
                 url: mResourcePathFn(lang),
                 cache: !0
             });
             return promise.success(function(texts) {
+            	alert("got texts"+texts);
                 setTexts(lang, texts.split(/\n/m));
             }), promise;
         }
@@ -11554,6 +11556,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         function init(region) {
             return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {
+            	alert(JSON.stringify(portalInfo));
                 SessionsService.setSessionInfo(portalInfo.sessionInfo);
             });
         }
