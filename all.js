@@ -9520,7 +9520,7 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
                 "Content-Type": "application/x-www-form-urlencoded"
             }, request.method = "POST", request.data = serializeData(request.data));
             dddebug("calling api "+url+", method:"+method+", params:"+JSON.stringify(params)+", data:"+JSON.stringify(data));            
-            return $http.get('https://bidspirit.com/services/portal/getPortalInfo');
+            
             var promise = $http(request);
             
             return promise;
