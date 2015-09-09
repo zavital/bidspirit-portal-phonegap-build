@@ -8,10 +8,10 @@
  
     <name>(Qa) Bidspirit</name>
     <description>
-        The Bidspirit portal is your gate to the auction houses’ arena in Israel trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more
+        The Bidspirit portal is your gate to the auction houses’ arena  trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more
     </description>
     <author email="zemer@bidspirit.com" href="http://bidspirit.com">
-        WOMmee Team
+        Zemer avital
     </author>
 
     <content src="index.html" />
