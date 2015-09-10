@@ -14,7 +14,7 @@
         Zemer avital
     </author>
 
-    <content src="test/indexHttptest/index.html" />
+    <content src="test/indexHttptest.html" />
     <access origin="*" />
     
 
