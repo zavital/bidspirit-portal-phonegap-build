@@ -9197,6 +9197,9 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             mViewPortElement = document.querySelector('meta[name="viewport"]'), $rootScope.viewPortDebugInfo = mDebugInfo, 
             window.addEventListener("resize", onResize), updateViewportInfo(), $timeout(updateViewportInfo, 1e3), 
             onResize();
+            if (navigator.splashscreen){            	
+            	setTimeout(navigator.splashscreen.hide,500);
+            }
         }
         function getWindowScroll() {
             var doc = document.documentElement, left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0), top = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
@@ -11445,10 +11448,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
             initRegions(), initTirggers());            
-            if (navigator.splashscreen){
-            	alert("hiding splash");
-            	navigator.splashscreen.hide();
-            }
+            
         }
         function initLog() {        	
             LogService.init(SettingsService.get("logEntriesToken"));
@@ -11485,10 +11485,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         
         function init() {
-        	if (navigator.splashscreen){
-            	alert("show splash");
-            	navigator.splashscreen.show();
-            }        	        	 
+        	        	        	 
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
