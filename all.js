@@ -9518,7 +9518,6 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
             "postForm" == options.method && (request.headers = {
                 "Content-Type": "application/x-www-form-urlencoded"
             }, request.method = "POST", request.data = serializeData(request.data));
-            //dddebug("calling api "+url+", method:"+method+", params:"+JSON.stringify(params)+", data:"+JSON.stringify(data));            
             
             var promise = $http(request);
             
@@ -10051,8 +10050,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
             mResourcePathFn = reourcePathFn;
             var lang;
             lang = getLangForSnapshot($rootScope.searchAgentRequest ? preferredLang : preferredLang), 
-            isSupportedLang(lang) || (lang = DEFAULT_LANG);
-            dddebug("lang is "+lang);
+            isSupportedLang(lang) || (lang = DEFAULT_LANG);            
             var promise = setLang(lang);
             return lang != DEFAULT_LANG ? $q.all([ promise, loadLang(DEFAULT_LANG) ]) : promise;
         }
@@ -10068,8 +10066,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
                 setLang(lang), defered.resolve();
             }), defered.promise;
         }
-        function loadLang(lang) {
-        	dddebug("Loading lang from "+mResourcePathFn(lang));  
+        function loadLang(lang) {        	  
             var promise = $http({
                 url: mResourcePathFn(lang),
                 cache: !0
@@ -11448,6 +11445,9 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
             initRegions(), initTirggers());
+            if (navigator.splashscreen){
+            	navigator.splashscreen.hide();
+            }
         }
         function initLog() {        	
             LogService.init(SettingsService.get("logEntriesToken"));
@@ -11482,8 +11482,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var pathBase = SessionsService.isOldIe() ? GlobalConfig.apiBase : GlobalConfig.cachedApiBase;
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
-        function init() {
-        	dddebug("init");        	 
+        function init() {        	        	 
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
@@ -11493,8 +11492,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 "BLOCKED" == error.errorType && window.document.write("<h3>You have been blocked.</h3> For support, please contact us at info@bidspirit.com");
             });
         }
-        function initTirggers() {
-        	dddebug("init tiggers");
+        function initTirggers() {        	
             $scope.$on("$stateChangeStart", function(event, toState, toArgs, fromState, fromArgs) {
                 "app.mobileMenu" != fromState.name && ($rootScope.$previousState = fromState, $rootScope.$previousState.args = fromArgs), 
                 trackPageView(), StructuredDataService.resetStructuredDataMetaTags();
@@ -11556,13 +11554,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             mAuctionsMap = ArraysService.listToMapById(mAuctions), ArraysService.setPropertyFromMapById(mAuctions, "resources", resourcesMap, {});
         }
         function init(region) {
-        	dddebug("loading for region "+region);
-        	 $http.get('https://bidspirit.com/services/portal/getPortalInfo').
-			 then(function(response) {
-				  dddebug(response.data.sessionInfo.sessionId);
-			}); 
-            return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {
-            	dddebug("ok");            	
+            return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {            	           	
                 SessionsService.setSessionInfo(portalInfo.sessionInfo);
             });
         }
