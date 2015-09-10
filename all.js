@@ -15228,5 +15228,5 @@ define('all', [ "require", "angular", "app", "commonModules", "domReady" ], func
 });
 
 function dddebug(str){
-	//alert(str);
+	alert(str);
 }
