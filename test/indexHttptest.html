@@ -16,7 +16,8 @@
 	<script>
 		function init(){
 			$("#z").html("zzz");
-			$.get("https://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",function(response){
+			
+			$.get("http://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",function(response){
 				$("#c").html(response.response.storageBase);
 			});
 			
