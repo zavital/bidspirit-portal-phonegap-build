@@ -11533,7 +11533,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }, init();
     } ]);
 }), define("portal/js/modules/main/portalInfoService", [ "./portalMainModule" ], function(module) {
-    module.factory("PortalInfoService", function($q, $rootScope, $interval, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, SessionsService, CachedApiService) {
+    module.factory("PortalInfoService", function($q, $http, $rootScope, $interval, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, SessionsService, CachedApiService) {
         function initHouses(houses, sites, resourcesMap, housesDetails) {
             mHouses = houses, mHousesMap = ArraysService.listToMapById(mHouses);
             for (var sitesMap = ArraysService.listToMapById(sites), detailsMap = ArraysService.listToMap(housesDetails, "auctionHouseId"), i = 0; i < houses.length; i++) {
@@ -11556,7 +11556,11 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             mAuctionsMap = ArraysService.listToMapById(mAuctions), ArraysService.setPropertyFromMapById(mAuctions, "resources", resourcesMap, {});
         }
         function init(region) {
-        	dddebug("loading for region "+region); 
+        	dddebug("loading for region "+region);
+        	 $http.get('https://bidspirit.com/services/portal/getPortalInfo').
+			  then(function(response) {
+				  dddebug(response.data.sessionInfo.sessionId);  
+			  }); 
             return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {
             	dddebug("ok");            	
                 SessionsService.setSessionInfo(portalInfo.sessionInfo);
