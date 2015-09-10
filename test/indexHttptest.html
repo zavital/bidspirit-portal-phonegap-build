@@ -16,9 +16,16 @@
 	<script>
 		function init(){
 			$("#z").html("zzz");
-			
-			$.get("http://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",function(response){
-				$("#c").html(response.response.storageBase);
+			alert("calling...");
+			$.ajax({
+				url:"http://claudios.bidspirit.com/lgapi/system/settings/getPublicSettings.api",
+				success:function(response){
+					alert("ok");
+					$("#c").html(response.response.storageBase);
+				},
+				error: function(x, t, m) {				  	
+					alert("ajaxError: x="+JSON.stringify(x)+", t="+t+", m="+JSON.stringify(m));
+				 }	
 			});
 			
 			$.get("https://bidspirit.com/services/portal/getPortalInfo",function(response){
@@ -47,8 +54,7 @@
 		  .controller('zController', function($scope, $http) {
 			  $scope.name="zzz";
 			  $http.get('https://bidspirit.com/services/portal/getPortalInfo').
-			  then(function(response) {	
-				  console.log(response);
+			  then(function(response) {
 				  $scope.name=response.data.sessionInfo.sessionId;  
 			  });
 		  });
