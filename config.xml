@@ -23,13 +23,18 @@
     <gap:plugin name="org.apache.cordova.device" version="0.2.12" />
     <gap:plugin name="com.phonegap.plugin.statusbar" version="1.1.0" />
     <gap:plugin name="cordova-plugin-whitelist" source="npm" version="1.0.0"  />
-    <gap:plugin name="org.apache.cordova.splashscreen" version="0.3.4" />
+    
+    <gap:plugin name="org.apache.cordova.splashscreen" />
     
     
     <gap:platform name="android" />
     <gap:platform name="ios" />
     
-    <gap:splash src="splash.png" />    
+    
+    <gap:splash src="splashes/splash640x1136.png" gap:platform="ios" width="640" height="1136" />
+    <gap:splash src="splashes/splash750x1334.png" gap:platform="ios" width="750" height="1334" />    
+    <gap:splash src="splash.png" />
+        
     <icon src="icon.png" />
     
     
@@ -44,9 +49,9 @@
     <preference name="StatusBarOverlaysWebView" value="true" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
     
-    <preference name="AutoHideSplashScreen" value="false" />  
-    <preference name="SplashScreen" value="screen"/>
-    <preference name="SplashScreenDelay" value="20000" />
+    <preference name="AutoHideSplashScreen" value="false" />      	
+	<preference name="SplashScreen" value="screen"/>    
+	<preference name="SplashScreenDelay" value="10000" />
      
      
 </widget>
