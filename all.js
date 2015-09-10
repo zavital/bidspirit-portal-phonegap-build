@@ -11485,7 +11485,9 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         
         function init() {
-        	        	        	 
+        	if (navigator.splashscreen){            	
+            	navigator.splashscreen.show();
+            }
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
