@@ -15,7 +15,15 @@
     </author>
 
     <content src="test/indexHttptest.html" />
+    
     <access origin="*" />
+    
+    <access origin="http://*" />
+    <access origin="https://*" />
+    <access origin="https://bidspirit.com" />
+    <access origin="http://claudios.bidspirit.com" />
+    <access origin="https://bidspirit.com" subdomains="true" />
+    
     
 
     <gap:splash src="splash.png" />
