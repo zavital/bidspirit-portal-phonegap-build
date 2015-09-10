@@ -11444,8 +11444,9 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
-            initRegions(), initTirggers());
+            initRegions(), initTirggers());            
             if (navigator.splashscreen){
+            	alert("hiding splash");
             	navigator.splashscreen.hide();
             }
         }
@@ -11482,7 +11483,12 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var pathBase = SessionsService.isOldIe() ? GlobalConfig.apiBase : GlobalConfig.cachedApiBase;
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
-        function init() {        	        	 
+        
+        function init() {
+        	if (navigator.splashscreen){
+            	alert("show splash");
+            	navigator.splashscreen.show();
+            }        	        	 
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 

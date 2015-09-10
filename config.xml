@@ -32,7 +32,7 @@
     
     <icon src="icon.png" />
     
-    <preference name="SplashScreen" value="foo" />
+    <preference name="SplashScreen" value="splash"/>
     <preference name="SplashScreenDelay" value="10000" />
     
     
@@ -44,5 +44,6 @@
     <preference name="EnableViewportScale" value="true" />
     <preference name="StatusBarOverlaysWebView" value="true" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
+     <preference name="auto-hide-splash-screen" value="false" />  
      
 </widget>
