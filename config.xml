@@ -42,10 +42,10 @@
 	<gap:splash src="splashes/ios/ipad_retina_1536x2048.png" gap:platform="ios" width="1536" height="2048" />
 	<gap:splash src="splashes/ios/ipad_retina_landscape_2048x1536.png" gap:platform="ios" width="2048" height="1536" />
 	
-	<gap:splash src="splashes/android/ldpi_426x320.png" gap:platform="android" gap:qualifier="ldpi" />
-	<gap:splash src="splashes/android/mdpi_470x320.png" gap:platform="android" gap:qualifier="mdpi" />
-	<gap:splash src="splashes/android/hdpi_640x480.png" gap:platform="android" gap:qualifier="hdpi" />
-	<gap:splash src="splashes/android/xhdpi_960x720.png" gap:platform="android" gap:qualifier="xhdpi" />
+	<gap:splash src="splashes/android/ldpi_320x426.png" gap:platform="android" gap:qualifier="ldpi" />
+	<gap:splash src="splashes/android/mdpi_320x470.png" gap:platform="android" gap:qualifier="mdpi" />
+	<gap:splash src="splashes/android/hdpi_480x640.png" gap:platform="android" gap:qualifier="hdpi" />
+	<gap:splash src="splashes/android/xhdpi_720x960.png" gap:platform="android" gap:qualifier="xhdpi" />
 	<gap:splash src="splashes/android/port-xxhdpi_1080x1440.png" gap:platform="android" gap:qualifier="port-xxhdpi" />
 	<gap:splash src="splashes/android/land-xxhdpi_1440x1080.png" gap:platform="android" gap:qualifier="land-xxhdpi" />
 	    
