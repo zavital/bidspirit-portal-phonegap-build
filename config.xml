@@ -25,7 +25,10 @@
     <gap:plugin name="cordova-plugin-whitelist" source="npm" version="1.0.0"  />
     <gap:plugin name="org.apache.cordova.splashscreen" version="0.3.4" />
     
-        
+    
+    <gap:platform name="android" />
+    <gap:platform name="ios" />
+    
     <gap:splash src="splash.png" />    
     <icon src="icon.png" />
     
@@ -36,13 +39,13 @@
     <feature name="http://api.phonegap.com/1.0/file" />
     <feature name="http://api.phonegap.com/1.0/device" />
 
-    
+    <preference name='phonegap-version' value='cli-5.1.1' />
     <preference name="EnableViewportScale" value="true" />
     <preference name="StatusBarOverlaysWebView" value="true" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
     
     <preference name="AutoHideSplashScreen" value="false" />  
-    <preference name="SplashScreen" value="splash"/>
+    <preference name="SplashScreen" value="screen"/>
     <preference name="SplashScreenDelay" value="20000" />
      
      
