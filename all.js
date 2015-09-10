@@ -11558,9 +11558,9 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function init(region) {
         	dddebug("loading for region "+region);
         	 $http.get('https://bidspirit.com/services/portal/getPortalInfo').
-			  then(function(response) {
-				  dddebug(response.data.sessionInfo.sessionId);  
-			  }); 
+			 then(function(response) {
+				  dddebug(response.data.sessionInfo.sessionId);
+			}); 
             return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {
             	dddebug("ok");            	
                 SessionsService.setSessionInfo(portalInfo.sessionInfo);
