@@ -9179,18 +9179,20 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                 }, 300);
             }
         }
-        function updateViewportInfo() {
+        function updateViewportInfo() {        	
             mViewPortInfo.innerWidth = window.innerWidth, mViewPortInfo.innerHeight = window.innerHeight, 
             window.innerWidth < 1200 && (mViewPortInfo.mobileMedia = !0, mViewPortInfo.pcMedia = !1), 
             window.innerWidth >= 1200 && (mViewPortInfo.pcMedia = !0, mViewPortInfo.mobileMedia = !1), 
             mViewPortInfo.isWideDevice = SessionsService.isWideDevice(), mViewPortInfo.orientation = getOrientation(), 
-            $rootScope.viewPort = mViewPortInfo, mDebugInfo.viewPort = mViewPortInfo;
+            $rootScope.viewPort = mViewPortInfo, mDebugInfo.viewPort = mViewPortInfo;            
         }
+        
         function adjustViewPortAccordingToOrientation() {
             var width;
             width = isLandscapeOrientation() ? 1199 : mViewPortInfo.minInitialDimenstion < 400 ? 500 : 900, 
             width != mViewPortWidth && (mViewPortWidth = width, mViewPortElement.setAttribute("content", "width=" + mViewPortWidth), 
             $rootScope.$broadcast("viewPort.viewPortWidthChanged"));
+            $rootScope.debug("update viewport info viewport width:"+width+", window width:"+window.innerWidth);
         }
         function bindViewPortSizeToWindowWidth() {
             mViewPortInfo.minInitialDimenstion = Math.min(document.body.clientWidth, document.body.clientHeight), 
@@ -11442,11 +11444,24 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
     return ng.module("app.main", []);
 }), define("portal/js/modules/main/portalMainController", [ "./portalMainModule" ], function(module) {
     module.controller("MainController", [ "$http", "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "AnalyticsService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "StructuredDataService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", function($http, $scope, $rootScope, $state, $timeout, ArraysService, AnalyticsService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, StructuredDataService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService) {
+    	
+    	
+    	
+    	function initDebug(){
+    		$rootScope.lastMessageTime = new Date().getTime();
+    		$rootScope.debugMessage = "";
+    		$rootScope.debug = function(msg){
+	    		$rootScope.debugMessage += "<Br> ("+(new Date().getTime()-$rootScope.lastMessageTime)+") "+msg;
+	    		$rootScope.lastMessageTime = new Date().getTime();
+	    	}
+    	} 
+    	
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
-            initRegions(), initTirggers());            
+            initRegions(), initTirggers());    
+            $rootScope.debug("init done");        
             
         }
         function initLog() {        	
@@ -11475,7 +11490,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var lastVisit = LocalStorageService.load("lastVisit");
             $scope.firstVisit = lastVisit ? !1 : !0, LocalStorageService.store("lastVisit", new Date().getTime());
         }
-        function checkAllResourcesLoaded() {        	
+        function checkAllResourcesLoaded() {       
+        	$rootScope.debug("css loaded: "+CssLoaderService.isCssLoaded()+", i18nLoaded:"+(I18nService.getCurrentLang()!=null)); 	
             CssLoaderService.isCssLoaded() && I18nService.getCurrentLang() && onInit();
         }
         function portalI18nResoucePath(lang) {
@@ -11484,13 +11500,13 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         
         function init() {
-        	if (navigator.splashscreen){            	
-            	navigator.splashscreen.show();
-            }
+        	initDebug();
+        	$rootScope.debug("init start");        	
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
             PortalInfoService.init(PathsService.getRegionByDomain()).success(function() {
+            	$rootScope.debug("portal data ready");
                 I18nService.init(portalI18nResoucePath).then(checkAllResourcesLoaded);
             }).error(function(error) {
                 "BLOCKED" == error.errorType && window.document.write("<h3>You have been blocked.</h3> For support, please contact us at info@bidspirit.com");
@@ -11567,7 +11583,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 persistentSession: SessionsService.hasPersistentSession(),
                 region: region
             };
-            return ApiService.callApi("/portal/getPortalInfo", params).success(function(portalInfo) {            	
+            return ApiService.callApi("/portal/getPortalInfo", params).success(function(portalInfo) {         
+            	$rootScope.debug("portal data loaded");   	
                 angular.copy(portalInfo, mInfo), initHouses(portalInfo.houses, portalInfo.sites, portalInfo.housesResources, portalInfo.housesDetails), 
                 initAuctions(portalInfo.auctions, portalInfo.auctionsResources);
             });

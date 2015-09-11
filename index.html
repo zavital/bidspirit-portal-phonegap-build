@@ -37,17 +37,33 @@
 			    };
 					
 		</script>
-		
+		<style>
+		body{
+			background:black;
+		}
+		.debugMessage{
+			position:absolute;
+			z-index:1000;
+			width:400px;
+			height:200px;
+			background:white;
+			opacity:0.8;
+			left:240px;
+			overflow:auto;
+			top:0;
+		}
+		</style>
 
 
 		
 	</head>	
 	
-	<body>
+	<body >
 	
 	 
-		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main">
+		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main">		 	
 		 	<div  ui-view class="view"></div>
+		 	<div class="debugMessage" ng-bind-html="debugMessage"></div>
 		</div>
 		
 		<script 
