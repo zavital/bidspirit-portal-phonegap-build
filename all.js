@@ -11605,7 +11605,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 			var freshDataPromise = loadForRegion(region).success(function(portalInfo){
 				SessionsService.setSessionInfo(portalInfo.sessionInfo);
 			});
-			return cachedDataPromise /*|| freshDataPromise*/; 
+			return cachedDataPromise || freshDataPromise; 
 		}
 		
 		

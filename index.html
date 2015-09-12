@@ -52,6 +52,12 @@
 			overflow:auto;
 			top:0;
 		}
+		.hideDebug{
+			position:absolute;
+			left:385px;
+			z-index:1001;
+			top:2px;
+		}
 		</style>
 
 
@@ -63,7 +69,9 @@
 	 
 		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main">		 	
 		 	<div  ui-view class="view"></div>
-		 	<div class="debugMessage" ng-bind-html="debugMessage"></div>
+		 	<input type="checkbox" ng-model="hideDebug" class="hideDebug" ng-hide="hideDebug">
+		 	<div class="debugMessage" ng-bind-html="debugMessage" ng-hide="hideDebug">		 		
+		 	</div>
 		</div>
 		
 		<script 
