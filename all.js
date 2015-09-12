@@ -11448,7 +11448,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
     	
     	
     	function initDebug(){
-    		$rootScope.lastMessageTime = new Date().getTime();
+    		$rootScope.lastMessageTime =  GlobalConfig.pageLoadTime;
     		$rootScope.debugMessage = "";
     		$rootScope.debug = function(msg){
 	    		$rootScope.debugMessage += "<Br> ("+(new Date().getTime()-$rootScope.lastMessageTime)+") "+msg;
@@ -11499,19 +11499,27 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
         
-        function init() {
-        	initDebug();
-        	$rootScope.debug("init start");        	
-            PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
-            "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
-            checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss("style.css").then(checkAllResourcesLoaded), 
-            PortalInfoService.init(PathsService.getRegionByDomain()).success(function() {
-            	$rootScope.debug("portal data ready");
-                I18nService.init(portalI18nResoucePath).then(checkAllResourcesLoaded);
-            }).error(function(error) {
-                "BLOCKED" == error.errorType && window.document.write("<h3>You have been blocked.</h3> For support, please contact us at info@bidspirit.com");
-            });
-        }
+         function init(){
+	    		 initDebug();
+	    		 if (PathsService.getQueryParam("searchAgentRequest")){
+	    			$rootScope.searchAgentRequest=true;
+	    		 }
+	    		 if (PathsService.getQueryParam("devMode")=="active"){
+	    			$rootScope.devMode=true;
+	    		 }
+		    		
+	    		 checkFirstVisit();
+	    		 $rootScope.$on('i18n.languageChanged',onLangUpdate);
+	    		 CssLoaderService.loadCss(GlobalConfig.staticFilesBase + GlobalConfig.appName + '/styles/style.css').then(checkAllResourcesLoaded);
+	    		 
+	    		 PortalInfoService.init(PathsService.getRegionByDomain()).success(function(){	    		    			 
+	    			 I18nService.init(portalI18nResoucePath).then(checkAllResourcesLoaded)
+	    		 }).error(function(error){	    			 
+	    			 if (error && error.errorType=="BLOCKED"){
+	    				 window.document.write("<h3>You have been blocked.</h3> For support, please contact us at info@bidspirit.com");
+	    			 };
+		 		});
+	    	 }
         function initTirggers() {        	
             $scope.$on("$stateChangeStart", function(event, toState, toArgs, fromState, fromArgs) {
                 "app.mobileMenu" != fromState.name && ($rootScope.$previousState = fromState, $rootScope.$previousState.args = fromArgs), 
@@ -11520,6 +11528,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 $state.go("app.reload");
             }), $scope.$on("$stateChangeSuccess", function() {
                 $timeout(LegalApprovalService.checkLegalApproval, 1e3), window.scrollTo(0, 0);
+                 LocalStorageService.store("lastVisitedPage", window.location.hash);
             }), $rootScope.$on("auth.newSessionUser", onNewSessionUser);
         }
         function onNewSessionUser() {
@@ -11573,22 +11582,50 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             }
             mAuctionsMap = ArraysService.listToMapById(mAuctions), ArraysService.setPropertyFromMapById(mAuctions, "resources", resourcesMap, {});
         }
-        function init(region) {
-            return SessionsService.loadPreviousSessionId(), mInfo = {}, loadForRegion(region).success(function(portalInfo) {            	           	
-                SessionsService.setSessionInfo(portalInfo.sessionInfo);
-            });
-        }
-        function loadForRegion(region) {
-            var params = {
-                persistentSession: SessionsService.hasPersistentSession(),
-                region: region
-            };
-            return ApiService.callApi("/portal/getPortalInfo", params).success(function(portalInfo) {         
-            	$rootScope.debug("portal data loaded");   	
-                angular.copy(portalInfo, mInfo), initHouses(portalInfo.houses, portalInfo.sites, portalInfo.housesResources, portalInfo.housesDetails), 
-                initAuctions(portalInfo.auctions, portalInfo.auctionsResources);
-            });
-        }
+        function loadLastStoredPortalInfo(region){
+			
+			var lastStoredInfo = LocalStorageService.load("portalInfo_"+region);
+			if (lastStoredInfo){
+				$rootScope.debug("data loaded from cache");	
+				var portalInfo  = JSON.parse(lastStoredInfo);				
+				handleLoadedPortalInfo(portalInfo );
+				SessionsService.setSessionInfo(portalInfo.sessionInfo);
+				return CachedApiService.cachedPromiseWrap(mInfo);
+			} else {
+				return null;
+			}
+				
+		}
+		
+		
+		function init(region){
+			SessionsService.loadPreviousSessionId();
+			mInfo = {};
+			var cachedDataPromise = loadLastStoredPortalInfo(region);
+			var freshDataPromise = loadForRegion(region).success(function(portalInfo){
+				SessionsService.setSessionInfo(portalInfo.sessionInfo);
+			});
+			return cachedDataPromise /*|| freshDataPromise*/; 
+		}
+		
+		
+		function loadForRegion(region){
+			var params = {
+				persistentSession:SessionsService.hasPersistentSession(),
+				region:region
+			};
+			return ApiService.callApi("/portal/getPortalInfo",params).success(function(portalInfo){
+				$rootScope.debug("data loaded from server");
+				LocalStorageService.store("portalInfo_"+region, JSON.stringify(portalInfo));
+				handleLoadedPortalInfo(portalInfo);
+			});
+		}
+		
+		function handleLoadedPortalInfo(portalInfo){
+			angular.copy(portalInfo, mInfo);
+			initHouses(portalInfo.houses, portalInfo.sites, portalInfo.housesResources, portalInfo.housesDetails);
+			initAuctions(portalInfo.auctions, portalInfo.auctionsResources);
+		}
         function getAuction(auctionId) {
             return mAuctionsMap[auctionId];
         }
@@ -11849,9 +11886,14 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var initialSource = LocalStorageService.load("initialSource"), source = PathsService.getQueryParam("from") || "Unknown";
             initialSource || LocalStorageService.store("initialSource", source);
         }
+        
         function saveState() {
-            mSavedStateHash = window.location.hash, mSavedStateHash || (mSavedStateHash = "!/home");
-        }
+        	if (GlobalConfig.appMode){
+				mSavedStateHash = LocalStorageService.load("lastVisitedPage");
+			}			
+			mSavedStateHash = mSavedStateHash || window.location.hash || "!/home"; 			
+		}
+         
         function getSavedStateHash() {
             return mSavedStateHash;
         }
@@ -13271,6 +13313,7 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
             if (lastSceneIsOfPageFromThisAuction(navState)) loadNavStateInfo(navState); else {
                 var auction = PortalInfoService.getAuction($stateParams.auctionId);
                 auction ? ($scope.auction = auction, CatalogsService.getAuctionItems(auction).then(function(items) {
+                	$rootScope.debug("catalog items loaded")
                     CatalogsService.resetNavState(auction, items), loadNavStateInfo(navState), CatalogAccountService.loadForAuction(auction), 
                     CatalogsService.updatePageItems();
                 }), trackEvents()) : $state.go("app.home");
