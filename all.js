@@ -11447,14 +11447,20 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
     	
     	
     	
-    	function initDebug(){
-    		$rootScope.lastMessageTime =  GlobalConfig.pageLoadTime;
+    	 function initDebug(){        		
+    		GlobalConfig.debugInfo = {
+    			lastDebugTime : GlobalConfig.pageLoadTime,    			
+    			count:0,
+    		};    		
     		$rootScope.debugMessage = "";
-    		$rootScope.debug = function(msg){
-	    		$rootScope.debugMessage += "<Br> ("+(new Date().getTime()-$rootScope.lastMessageTime)+") "+msg;
-	    		$rootScope.lastMessageTime = new Date().getTime();
+    		$rootScope.debug = function(msg){    			
+    			var now =  new Date().getTime();    			
+	    		$rootScope.debugMessage += "\n<Br> ("+(now-GlobalConfig.debugInfo.lastDebugTime)+") "+msg;
+	    		GlobalConfig.debugInfo.lastDebugTime = now;
+	    		GlobalConfig.debugInfo.count++;
 	    	}
-    	} 
+    		$rootScope.debug("debug init");
+    	}
     	
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
@@ -13310,6 +13316,7 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
         function init() {
             previousState = $rootScope.$previousState;
             var navState = CatalogsService.getNavState();
+            $rootScope.debug("init catalog page");
             if (lastSceneIsOfPageFromThisAuction(navState)) loadNavStateInfo(navState); else {
                 var auction = PortalInfoService.getAuction($stateParams.auctionId);
                 auction ? ($scope.auction = auction, CatalogsService.getAuctionItems(auction).then(function(items) {
