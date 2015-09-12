@@ -11506,6 +11506,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         
          function init(){
+         		 ViewPortService.bindViewPortSizeToWindowWidth();
 	    		 initDebug();
 	    		 if (PathsService.getQueryParam("searchAgentRequest")){
 	    			$rootScope.searchAgentRequest=true;
