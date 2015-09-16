@@ -11534,7 +11534,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             }), $scope.$on("viewPort.orientationChange", function() {
                 $state.go("app.reload");
             }), $scope.$on("$stateChangeSuccess", function() {
-                $timeout(LegalApprovalService.checkLegalApproval, 1e3), window.scrollTo(0, 0);
+                $timeout(LegalApprovalService.checkLegalApproval, 1e3)/*, window.scrollTo(0, 0)*/;
                  LocalStorageService.store("lastVisitedPage", window.location.hash);
             }), $rootScope.$on("auth.newSessionUser", onNewSessionUser);
         }
