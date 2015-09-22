@@ -9197,6 +9197,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             mViewPortElement = document.querySelector('meta[name="viewport"]'), $rootScope.viewPortDebugInfo = mDebugInfo, 
             window.addEventListener("resize", onResize), updateViewportInfo(), $timeout(updateViewportInfo, 1e3), 
             onResize();            
+            alert("splash? "+navigator.splashscreen);
             if (navigator.splashscreen){
             	alert("hideing splash.. "+navigator.splashscreen);            	
             	setTimeout(navigator.splashscreen.hide,500);
