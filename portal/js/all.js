@@ -9197,11 +9197,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             mViewPortElement = document.querySelector('meta[name="viewport"]'), $rootScope.viewPortDebugInfo = mDebugInfo, 
             window.addEventListener("resize", onResize), updateViewportInfo(), $timeout(updateViewportInfo, 1e3), 
             onResize();            
-            alert("splash? "+navigator.splashscreen);
-            if (navigator.splashscreen){
-            	alert("hideing splash.. "+navigator.splashscreen);            	
-            	setTimeout(navigator.splashscreen.hide,500);
-            }
+            
         }
         function getWindowScroll() {
             var doc = document.documentElement, left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0), top = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
@@ -11548,6 +11544,11 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
             initRegions(), initTirggers(), HeartBitService.init());
             $rootScope.debug("onin");
+            setTimeout(function(){
+            	if (navigator.splashscreen){
+            		navigator.splashscreen.hide();
+            	}
+            },2000);
         }
         function initLog() {
             LogService.init(SettingsService.get("logEntriesToken"));
