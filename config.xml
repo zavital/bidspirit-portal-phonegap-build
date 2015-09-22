@@ -13,7 +13,7 @@
         Zemer avital
     </author>
 
-    <content src="portal/index.html" />
+    <content src="index.html" />
     
     <access origin="*" />
     
