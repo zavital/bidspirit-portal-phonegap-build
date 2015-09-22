@@ -9197,6 +9197,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             mViewPortElement = document.querySelector('meta[name="viewport"]'), $rootScope.viewPortDebugInfo = mDebugInfo, 
             window.addEventListener("resize", onResize), updateViewportInfo(), $timeout(updateViewportInfo, 1e3), 
             onResize();
+            alert("splash "+navigator.splashscreen);
             if (navigator.splashscreen){            	
             	setTimeout(navigator.splashscreen.hide,500);
             }
@@ -11008,7 +11009,7 @@ define("common/js/modules/cloudinary/cloudinaryModule", [ "angular" ], function(
             result += imageUrls[i].split("/")[1] + ","), result += "a_ignore,g_north_west,c_fill" + jsonParamsToUrlParams(collageSettings[i]);
             return result += "/" + imageUrls[0], BASE_URL + result;
         }
-        return BASE_URL = "https://res.cloudinary.com/bidspirit/image/upload/", {
+        return BASE_URL = "//res.cloudinary.com/bidspirit/image/upload/", {
             getUrl: getUrl,
             getCollageUrl: getCollageUrl,
             BASE_URL: BASE_URL
@@ -11531,7 +11532,6 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/main/portalMainController", [ "./portalMainModule" ], function(module) {
     module.controller("MainController", [ "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "AnalyticsService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "HeartBitService", "StructuredDataService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", function($scope, $rootScope, $state, $timeout, ArraysService, AnalyticsService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, HeartBitService, StructuredDataService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService) {
         function initDebug() {
-        	alert("init");
             GlobalConfig.debugInfo = {
                 lastDebugTime: GlobalConfig.pageLoadTime,
                 count: 0
@@ -15378,5 +15378,3 @@ define('portal/js/all', [ "require", "angular", "app", "commonModules", "domRead
         window.BIDSPIRIT_SNAPSHOT || ng.bootstrap(document, [ "app" ]);
     });
 });
-
-alert("all");
