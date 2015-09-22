@@ -41,7 +41,7 @@
 		body{
 			background:black;
 		}
-		.debugMessage{
+		.pgdebug.message{			
 			position:absolute;
 			z-index:1000;
 			width:400px;
@@ -52,11 +52,14 @@
 			overflow:auto;
 			top:0;
 		}
-		.hideDebug{
+		.pgdebug.hide-button{			
 			position:absolute;
 			left:385px;
 			z-index:1001;
 			top:2px;
+		}
+		.pgdebug{
+			display:none;
 		}
 		</style>
 
@@ -69,8 +72,8 @@
 	 
 		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main">		 	
 		 	<div  ui-view class="view"></div>
-		 	<input type="checkbox" ng-model="hideDebug" class="hideDebug" ng-hide="hideDebug">
-		 	<div class="debugMessage" ng-bind-html="debugMessage" ng-hide="hideDebug">		 		
+		 	<input class="pgdebug hide-button" type="checkbox" ng-model="hideDebug"  ng-hide="hideDebug">
+		 	<div   class="pgdebug message" ng-bind-html="debugMessage" ng-hide="hideDebug">		 		
 		 	</div>
 		</div>
 		
