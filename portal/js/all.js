@@ -11531,6 +11531,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/main/portalMainController", [ "./portalMainModule" ], function(module) {
     module.controller("MainController", [ "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "AnalyticsService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "HeartBitService", "StructuredDataService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", function($scope, $rootScope, $state, $timeout, ArraysService, AnalyticsService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, HeartBitService, StructuredDataService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService) {
         function initDebug() {
+        	alert("init");
             GlobalConfig.debugInfo = {
                 lastDebugTime: GlobalConfig.pageLoadTime,
                 count: 0
@@ -15377,3 +15378,5 @@ define('portal/js/all', [ "require", "angular", "app", "commonModules", "domRead
         window.BIDSPIRIT_SNAPSHOT || ng.bootstrap(document, [ "app" ]);
     });
 });
+
+alert("all");
