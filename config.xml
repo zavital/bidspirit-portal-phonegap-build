@@ -59,5 +59,9 @@
 		<splash src="res/screen/android/splash.png" density="land-mdpi"/>
 		<splash src="res/screen/android/splash.png" density="land-xhdpi"/> 
 	</platform>
+	
+	<platform name="ios">
+		<splash src="splash.png"/>
+	</platform> 
      
 </widget>
