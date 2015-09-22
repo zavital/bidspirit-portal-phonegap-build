@@ -11501,6 +11501,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             CssLoaderService.isCssLoaded() && I18nService.getCurrentLang() && onInit();
         }
         function portalI18nResoucePath(lang) {
+        return  "./texts." + lang + ".properties";
             var pathBase = SessionsService.isOldIe() ? GlobalConfig.apiBase : GlobalConfig.cachedApiBase;
             return pathBase + "texts/texts." + lang + ".properties?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }

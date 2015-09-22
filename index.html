@@ -7,7 +7,7 @@
 	<head>
 		 
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" >
-		<meta name="viewport" content="width=device-width">		
+		<meta name="viewport" content="width=500">		
 		<meta name="fragment" content="!">
 		<meta charset="utf-8">
 
@@ -17,11 +17,11 @@
 				var GlobalConfig={
 					apiBase : "https://bidspirit.com/services/",
 					staticFilesBase : "./",
-					cachedApiBase : "https://bidspirit-portal.global.ssl.fastly.net//services/",					
+					cachedApiBase : "https://bidspirit-portal.global.ssl.fastly.net/services/",					
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
-					appVersion : "0.419",					
+					appVersion : '0.424',					
 					envName : "prod",
 					isMobileApp:true,
 					appName:"portal"
@@ -75,14 +75,14 @@
 		</div>
 		
 		<script 
-			data-main="all" 
-			src='require.js'>
+			data-main="portal/js/all" 
+			src='common/js/lib/require.js'>
 		</script>
 				
 				
 		<img 
 			style="margin:20px auto;display:block;" 
-			src="pagePreLoader.gif" 
+			src="common/images/system/pagePreLoader.gif"  
 			id="pagePreLoader"
 		>
 		
