@@ -47,7 +47,7 @@
     <preference name="StatusBarBackgroundColor" value="#000000" />
     
     
-	<preference name="SplashScreen" value="splash" />
+	<preference name="SplashScreen" value="splash.png" />
 	<preference name="SplashScreenDelay" value="10000" />
 	<preference name="SplashMaintainAspectRatio" value="true" />
      
