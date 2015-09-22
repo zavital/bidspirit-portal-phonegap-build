@@ -9197,6 +9197,9 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             mViewPortElement = document.querySelector('meta[name="viewport"]'), $rootScope.viewPortDebugInfo = mDebugInfo, 
             window.addEventListener("resize", onResize), updateViewportInfo(), $timeout(updateViewportInfo, 1e3), 
             onResize();
+            if (navigator.splashscreen){            	
+            	setTimeout(navigator.splashscreen.hide,500);
+            }
         }
         function getWindowScroll() {
             var doc = document.documentElement, left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0), top = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
@@ -11005,7 +11008,7 @@ define("common/js/modules/cloudinary/cloudinaryModule", [ "angular" ], function(
             result += imageUrls[i].split("/")[1] + ","), result += "a_ignore,g_north_west,c_fill" + jsonParamsToUrlParams(collageSettings[i]);
             return result += "/" + imageUrls[0], BASE_URL + result;
         }
-        return BASE_URL = "//res.cloudinary.com/bidspirit/image/upload/", {
+        return BASE_URL = "https://res.cloudinary.com/bidspirit/image/upload/", {
             getUrl: getUrl,
             getCollageUrl: getCollageUrl,
             BASE_URL: BASE_URL
