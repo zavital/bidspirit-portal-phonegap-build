@@ -11538,8 +11538,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 GlobalConfig.debugInfo.lastDebugTime = now, GlobalConfig.debugInfo.count++;
             }, $rootScope.debug("debug init");
             
-            alert(window.appAvailability);
-            if (window.appAvailability){
+            alert(appAvailability);
+            if (appAvailability){
 	            appAvailability.check(
 				    'twitter://', // URI Scheme
 				    function() {  // Success callback
