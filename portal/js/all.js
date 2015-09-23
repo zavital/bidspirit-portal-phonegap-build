@@ -15223,7 +15223,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
                 var token = $rootScope.currentUser ? StringsService.randomString(10) : null;
                 noAutoLogin && (token = null);
                 var auctionUrl = getAuctionSiteUrl(auction, token);
-                window.open(auctionUrl + (lot ? "~" + lot.idInApp : "")), token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
+                window.open(auctionUrl + (lot ? "~" + lot.idInApp : ""),"_system"), token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
             }
         }
         return {
