@@ -11669,6 +11669,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 	    			window.analytics.startTrackerWithId('UA-56607963-2')
 	    			window.analytics.trackView('mobile')
 	    			window.analytics.trackEvent('mobile','init')
+	    			window.analytics.debugMode();
 	    			alert("analyicts initialized..");
 	    		} else {
 	    			alert("analytics not found");
