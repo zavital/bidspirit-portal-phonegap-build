@@ -11537,6 +11537,19 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 $rootScope.debugMessage += "\n<Br> (" + (now - GlobalConfig.debugInfo.lastDebugTime) + ") " + msg, 
                 GlobalConfig.debugInfo.lastDebugTime = now, GlobalConfig.debugInfo.count++;
             }, $rootScope.debug("debug init");
+            
+            alert(window.appAvailability);
+            if (window.appAvailability){
+	            appAvailability.check(
+				    'twitter://', // URI Scheme
+				    function() {  // Success callback
+				        alert('Puffin is available');
+				    },
+				    function() {  // Error callback
+				        alert('Puffin is not available');
+				    }
+				);
+			}
         }
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
@@ -15229,8 +15242,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
                 var token = $rootScope.currentUser ? StringsService.randomString(10) : null;
                 noAutoLogin && (token = null);
                 var auctionUrl = getAuctionSiteUrl(auction, token);
-                var urlToOpen  = auctionUrl + (lot ? "~" + lot.idInApp : "");
-                alert( urlToOpen);
+                var urlToOpen  = auctionUrl + (lot ? "~" + lot.idInApp : "");                
                 window.open( urlToOpen,"_system"), token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
             }
         }
