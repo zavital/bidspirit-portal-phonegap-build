@@ -11366,7 +11366,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 					 analyticsInfo[key] = {time:new Date().getTime()}; 
 					 LocalStorageService.store("analyticsInfo",JSON.stringify(analyticsInfo));
 				}
-				if (false && GlobalConfig.isMobileApp){
+				if (GlobalConfig.isMobileApp){
 					window.analytics.trackEvent("mobile", action, label);
 					window.analytics.trackEvent(category, action, label);
 				} else {
@@ -11383,7 +11383,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 		}
 		
 		function trackPage(page){			
-			if (false && GlobalConfig.isMobileApp){
+			if (GlobalConfig.isMobileApp){
 				try {
 					alert("trying to track..");
 					window.analytics.trackEvent("mobile","pageView",page);
@@ -11392,9 +11392,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 				}
 				window.analytics.trackView(page);
 			} else {
-				//if (isBidspiritEmployee) return;
-				alert("mobile tracking...");
-				Analytics.trackEvent("mobile", "pageView", page);
+				if (isBidspiritEmployee) return;
 				Analytics.trackPage(page);
 			}			
 		}
@@ -11574,12 +11572,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
             initRegions(), initTirggers(), HeartBitService.init());
-            $rootScope.debug("onin");
-            setTimeout(function(){
-            	if (navigator.splashscreen){
-            		navigator.splashscreen.hide();
-            	}
-            },1000);
+            $rootScope.debug("onin");            
         }
         function initLog() {
             LogService.init(SettingsService.get("logEntriesToken"));
@@ -11669,12 +11662,26 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 }
             });
         };
-        if (false && GlobalConfig.isMobileApp &&  window.location.href.indexOf('http')!=0){
-	    		alert("waiting for device...");
-	    		document.addEventListener("deviceready", init, false);
-	    	} else {
-	    		init();
-	    	}	   
+        if (GlobalConfig.isMobileApp &&  window.location.href.indexOf('http')!=0){
+    		alert("waiting for device...");
+    		document.addEventListener("deviceready", function(){
+    			if (window.analytics){	    				    			
+	    			window.analytics.startTrackerWithId('UA-56607963-1')
+	    			window.analytics.trackView('mobile app init')
+	    			alert(" analyicts initialized..");
+	    		} else {
+	    			alert("analytics not found");
+	    		}
+	    		setTimeout(function(){
+	            	if (navigator.splashscreen){
+	            		navigator.splashscreen.hide();
+	            	}
+	            },1000);
+	            init();
+    		}, false);
+    	} else {
+    		init();
+    	}	   
     } ]);
 }), define("portal/js/modules/main/portalInfoService", [ "./portalMainModule" ], function(module) {
     module.factory("PortalInfoService", function($q, $rootScope, $interval, $timeout, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, SessionsService, CachedApiService) {
@@ -15325,19 +15332,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
 	
     function initAnalytics(AnalyticsProvider){    	
-    	if (GlobalConfig.isMobileApp){
-    		AnalyticsProvider.setAccount('UA-56607963-1');
-    		AnalyticsProvider.useAnalytics(true);
-    		return;
-    		document.addEventListener("deviceready", function(){
-	    		if (window.analytics){	    				    			
-	    			window.analytics.startTrackerWithId('UA-56607963-1')
-	    			alert(" analyicts initialized...");
-	    		} else {
-	    			alert("analytics not found");
-	    		}
-    		},false);
-    	} else if (window.location.href.indexOf("searchAgentRequest")==-1 && window.location.href.indexOf("bidspirit")!=-1){
+    	if (window.location.href.indexOf("searchAgentRequest")==-1 && window.location.href.indexOf("bidspirit")!=-1){
     		AnalyticsProvider.setAccount('UA-56607963-1');
     		AnalyticsProvider.useAnalytics(true);
     	}
