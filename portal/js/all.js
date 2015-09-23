@@ -11387,7 +11387,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 			if (GlobalConfig.isMobileApp){
 				try {
 					alert("trying to track..");
-					window.analytics.trackEvent("mobile","pageView");
+					window.analytics.trackEvent("mobile","pageView",page);
 				} catch (Exceptione e){
 					alert("failed to trace..."+e.message);
 				}
