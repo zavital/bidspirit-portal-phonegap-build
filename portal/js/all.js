@@ -15325,8 +15325,9 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     function initAnalytics(AnalyticsProvider){    	
     	if (GlobalConfig.isMobileApp){
     		document.addEventListener("deviceready", function(){
-	    		if (window.analytics){	    			
+	    		if (window.analytics){	    				    			
 	    			window.analytics.startTrackerWithId('UA-56607963-1')
+	    			alert(" analyicts initialized...");
 	    		} else {
 	    			alert("analytics not found");
 	    		}
