@@ -11368,6 +11368,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 					 LocalStorageService.store("analyticsInfo",JSON.stringify(analyticsInfo));
 				}
 				if (GlobalConfig.isMobileApp){
+					window.analytics.trackEvent("mobile", action, label);
 					window.analytics.trackEvent(category, action, label);
 				} else {
 					Analytics.trackEvent(category, action, label);
@@ -11384,6 +11385,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 		function trackPage(page){
 			if (isBidspiritEmployee) return;
 			if (GlobalConfig.isMobileApp){
+				window.analytics.trackEvent("mobile", action, label);
 				window.analytics.trackView(page);
 			} else {
 				Analytics.trackPage(page);
@@ -15317,8 +15319,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     function initAnalytics(AnalyticsProvider){    	
     	if (GlobalConfig.isMobileApp){
     		document.addEventListener("deviceready", function(){
-	    		if (window.analytics){
-	    			alert("using analytics with user agent "+navigator.userAgent);
+	    		if (window.analytics){	    			
 	    			window.analytics.startTrackerWithId('UA-56607963-1')
 	    		} else {
 	    			alert("analytics not found");
