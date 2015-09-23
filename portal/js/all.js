@@ -11665,11 +11665,13 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         if (GlobalConfig.isMobileApp &&  window.location.href.indexOf('http')!=0){
     		alert("waiting for device...");
     		document.addEventListener("deviceready", function(){
-    			if (window.analytics){	    				    			
+    			if (window.analytics){
+    				console.log("analytics?");
+    				window.analytics.debugMode();	    				    			
 	    			window.analytics.startTrackerWithId('UA-56607963-2')
 	    			window.analytics.trackView('mobile')
 	    			window.analytics.trackEvent('mobile','init')
-	    			window.analytics.debugMode();
+	    			
 	    			alert("analyicts initialized..");
 	    		} else {
 	    			alert("analytics not found");
