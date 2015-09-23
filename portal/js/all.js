@@ -11387,7 +11387,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 				try {
 					alert("trying to track..");
 					window.analytics.trackEvent("mobile","pageView",page);
-				} catch (Exceptione e){
+				} catch(e){
 					alert("failed to trace..."+e.message);
 				}
 				window.analytics.trackView(page);
@@ -11667,11 +11667,12 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 }
             });
         };
-        if (GlobalConfig.isMobileApp){
-    		document.addEventListener("deviceready", init, false);
-    	} else {
-    		init();
-    	}	   
+        if (GlobalConfig.isMobileApp &&  window.location.href.indexOf('http')!=0){
+	    		alert("waiting for device...");
+	    		document.addEventListener("deviceready", init, false);
+	    	} else {
+	    		init();
+	    	}	   
     } ]);
 }), define("portal/js/modules/main/portalInfoService", [ "./portalMainModule" ], function(module) {
     module.factory("PortalInfoService", function($q, $rootScope, $interval, $timeout, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, SessionsService, CachedApiService) {
