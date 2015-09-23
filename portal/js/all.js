@@ -11347,8 +11347,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
     module.factory("AnalyticsService", function(Analytics, LogService, LocalStorageService) {
        var isBidspiritEmployee = LocalStorageService.load("bidspiritEmployee")=="true";
 		
-		function trackEvent(category, action, label, options){
-			if (isBidspiritEmployee) return;
+		function trackEvent(category, action, label, options){			
 			var key = category+"_"+action+"_"+label;
 			try {
 				if (options){
@@ -11371,6 +11370,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 					window.analytics.trackEvent("mobile", action, label);
 					window.analytics.trackEvent(category, action, label);
 				} else {
+					if (isBidspiritEmployee) return;
 					Analytics.trackEvent(category, action, label);
 				}
 			} catch (e){
@@ -11382,8 +11382,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 			trackEvent(category, action, label, {dailyUnique:true});
 		}
 		
-		function trackPage(page){
-			if (isBidspiritEmployee) return;
+		function trackPage(page){			
 			if (GlobalConfig.isMobileApp){
 				try {
 					alert("trying to track..");
@@ -11393,6 +11392,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 				}
 				window.analytics.trackView(page);
 			} else {
+				if (isBidspiritEmployee) return;
 				Analytics.trackPage(page);
 			}			
 		}
