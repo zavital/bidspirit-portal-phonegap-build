@@ -11345,40 +11345,57 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
     });
 }), define("common/js/modules/log/analyticsService", [ "./logModule" ], function(module) {
     module.factory("AnalyticsService", function(Analytics, LogService, LocalStorageService) {
-        function trackEvent(category, action, label, options) {
-            if (!isBidspiritEmployee) {
-                var key = category + "_" + action + "_" + label;
-                try {
-                    if (options) {
-                        if (!LocalStorageService.isEnabled()) return;
-                        var analyticsInfo = LocalStorageService.load("analyticsInfo");
-                        analyticsInfo = analyticsInfo ? JSON.parse(analyticsInfo) : {};
-                        var infoForKey = analyticsInfo[key];
-                        if (options.dailyUnique && infoForKey && new Date().getTime() - infoForKey.time < 864e5) return;
-                        analyticsInfo[key] = {
-                            time: new Date().getTime()
-                        }, LocalStorageService.store("analyticsInfo", JSON.stringify(analyticsInfo));
-                    }
-                    Analytics.trackEvent(category, action, label);
-                } catch (e) {
-                    LogService.logError("failed to log event in analyicts " + key + "," + JSON.stringify(options), e);
-                }
-            }
-        }
-        function trackDailyUniqueEvent(category, action, label) {
-            trackEvent(category, action, label, {
-                dailyUnique: !0
-            });
-        }
-        function trackPage(page) {
-            isBidspiritEmployee || Analytics.trackPage(page);
-        }
-        var isBidspiritEmployee = "true" == LocalStorageService.load("bidspiritEmployee");
-        return {
-            trackEvent: trackEvent,
-            trackDailyUniqueEvent: trackDailyUniqueEvent,
-            trackPage: trackPage
-        };
+       var isBidspiritEmployee = LocalStorageService.load("bidspiritEmployee")=="true";
+		
+		function trackEvent(category, action, label, options){
+			if (isBidspiritEmployee) return;
+			var key = category+"_"+action+"_"+label;
+			try {
+				if (options){
+					if (!LocalStorageService.isEnabled()) return;
+					 var analyticsInfo  = LocalStorageService.load("analyticsInfo");
+					 if (analyticsInfo){
+						 analyticsInfo = JSON.parse(analyticsInfo);
+					 } else {
+						 analyticsInfo = {};
+					 }
+					 var infoForKey = analyticsInfo[key]; 
+					 
+					 if (options.dailyUnique && infoForKey && (new Date().getTime() - infoForKey.time < 1000*60*60*24) ){
+						 return;
+					 }
+					 analyticsInfo[key] = {time:new Date().getTime()}; 
+					 LocalStorageService.store("analyticsInfo",JSON.stringify(analyticsInfo));
+				}
+				if (GlobalConfig.isMobileApp){
+					window.analytics.trackEvent(category, action, label);
+				} else {
+					Analytics.trackEvent(category, action, label);
+				}
+			} catch (e){
+				LogService.logError("failed to log event in analyicts "+key+","+JSON.stringify(options),e);				
+			}			
+		}
+		
+		function trackDailyUniqueEvent(category, action, label){
+			trackEvent(category, action, label, {dailyUnique:true});
+		}
+		
+		function trackPage(page){
+			if (isBidspiritEmployee) return;
+			if (GlobalConfig.isMobileApp){
+				window.analytics.trackView(page);
+			} else {
+				Analytics.trackPage(page);
+			}			
+		}
+				
+		return{
+			
+			trackEvent:trackEvent,
+			trackDailyUniqueEvent:trackDailyUniqueEvent,
+			trackPage:trackPage
+		};
     });
 }), define("common/js/modules/log/index", [ "./logModule", "./logService", "./bsLogClickDirective", "./analyticsService" ], function() {}), 
 define("common/js/modules/catalogUtils/catalogUtilsModule", [ "angular" ], function(ng) {
@@ -15291,9 +15308,36 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/index", "./auth/index", "./userDetails/index", "./alerts/index", "./info/index", "./auctions/index", "./houses/index", "./account/index", "./nudges/index", "./components/index", "./navigation/index" ], function(ng) {
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
-    return angular.module("app", [ "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
-        $locationProvider.hashPrefix("!"), -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && (AnalyticsProvider.setAccount("UA-56607963-1"), 
-        AnalyticsProvider.useAnalytics(!0));
+	
+     function initAnalytics(AnalyticsProvider){    	
+    	if (GlobalConfig.isMobileApp){
+    		if (window.analytics){
+    			alert("using analytics with user agent "+navigator.userAgent);
+    			window.analytics.startTrackerWithId('UA-56607963-1')
+    		} else {
+    			alert("analytics not found");
+    		}
+    	} else if (window.location.href.indexOf("searchAgentRequest")==-1 && window.location.href.indexOf("bidspirit")!=-1){
+    		AnalyticsProvider.setAccount('UA-56607963-1');
+    		AnalyticsProvider.useAnalytics(true);
+    	}
+    }
+    
+    return angular.module('app', [
+        'ngAnimate',
+        'ngUpload',
+        'angular-google-analytics',
+        
+        'commonModules',
+        
+        'app.portalModules',
+        'app.externals',
+        
+        'ui.router', 
+        'ui.bootstrap'
+    ]).config(function($locationProvider, AnalyticsProvider){
+    	$locationProvider.hashPrefix('!');
+    	initAnalytics(AnalyticsProvider)
     }).run(function($templateCache) {
         $templateCache.put("/common/templates/forms/asyncButton.html?0.424", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
         $templateCache.put("/common/templates/forms/formGroup.html?0.424", '<div class="form-group {{cssClass}}"> <div> <div ng-transclude></div> </div>  </div> '), 
