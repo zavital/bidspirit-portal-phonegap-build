@@ -11385,7 +11385,12 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 		function trackPage(page){
 			if (isBidspiritEmployee) return;
 			if (GlobalConfig.isMobileApp){
-				window.analytics.trackEvent("mobile","pageView");
+				try {
+					alert("trying to track..");
+					window.analytics.trackEvent("mobile","pageView");
+				} catch (Exceptione e){
+					alert("failed to trace..."+e.message);
+				}
 				window.analytics.trackView(page);
 			} else {
 				Analytics.trackPage(page);
