@@ -2,6 +2,7 @@
 <widget version="0.424"
     id="com.bidspirit.qa"
     xmlns="http://www.w3.org/ns/widgets" 
+    xmlns:android = "http://schemas.android.com/apk/res/android"
     xmlns:gap="http://phonegap.com/ns/1.0"
     >
  
@@ -52,7 +53,11 @@
 	<preference name="SplashScreen" value="splash" />
 	<preference name="SplashScreenDelay" value="10000" />
 	<preference name="SplashMaintainAspectRatio" value="true" />
-	<preference name="AndroidLaunchMode" value="singleTask" />
+	
+	
+	<gap:config-file platform="android" parent="/manifest/application">
+    	<activity android:launchMode="singleInstance" />
+	</gap:config-file>
 	
 	<preference name="AutoHideSplashScreen" value="false" />
 	
