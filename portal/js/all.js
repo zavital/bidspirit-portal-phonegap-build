@@ -11537,20 +11537,33 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 $rootScope.debugMessage += "\n<Br> (" + (now - GlobalConfig.debugInfo.lastDebugTime) + ") " + msg, 
                 GlobalConfig.debugInfo.lastDebugTime = now, GlobalConfig.debugInfo.count++;
             }, $rootScope.debug("debug init");
-            
-            alert(appAvailability);
-            if (appAvailability){
-	            appAvailability.check(
-				    'twitter://', // URI Scheme
-				    function() {  // Success callback
-				        alert('Puffin is available');
-				    },
-				    function() {  // Error callback
-				        alert('Puffin is not available');
-				    }
-				);
-			}
+            if (GlobalConfig.isMobileApp){
+           		checkIfPuffinInstalled();
+           	}
         }
+        
+        function checkIfPuffinInstalled(){
+			var scheme;
+
+			alert(device.platform ); 
+			if(device.platform === 'iOS') {
+			    scheme = 'puffin://';
+			}
+			else if(device.platform === 'Android') {
+			    scheme = 'com.cloudmosa.puffin';
+			}
+
+			appAvailability.check(
+			    scheme,       // URI Scheme or Package Name
+			    function() {  // Success callback
+			        alert(scheme + ' is available :)');
+			    },
+			    function() {  // Error callback
+			    	alert(scheme + ' is not available :(');
+			    }
+			);
+		}
+		
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
