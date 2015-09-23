@@ -11570,7 +11570,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             	if (navigator.splashscreen){
             		navigator.splashscreen.hide();
             	}
-            },2000);
+            },1000);
         }
         function initLog() {
             LogService.init(SettingsService.get("logEntriesToken"));
@@ -11659,7 +11659,12 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                     phone: $scope.BidspiritInfo.phoneLink
                 }
             });
-        }, init();
+        };
+        if (GlobalConfig.isMobileApp){
+    		document.addEventListener("deviceready", init, false);
+    	} else {
+    		init();
+    	}	   
     } ]);
 }), define("portal/js/modules/main/portalInfoService", [ "./portalMainModule" ], function(module) {
     module.factory("PortalInfoService", function($q, $rootScope, $interval, $timeout, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, SessionsService, CachedApiService) {
@@ -15309,14 +15314,16 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
 	
-     function initAnalytics(AnalyticsProvider){    	
+    function initAnalytics(AnalyticsProvider){    	
     	if (GlobalConfig.isMobileApp){
-    		if (window.analytics){
-    			alert("using analytics with user agent "+navigator.userAgent);
-    			window.analytics.startTrackerWithId('UA-56607963-1')
-    		} else {
-    			alert("analytics not found");
-    		}
+    		document.addEventListener("deviceready", function(){
+	    		if (window.analytics){
+	    			alert("using analytics with user agent "+navigator.userAgent);
+	    			window.analytics.startTrackerWithId('UA-56607963-1')
+	    		} else {
+	    			alert("analytics not found");
+	    		}
+    		},false);
     	} else if (window.location.href.indexOf("searchAgentRequest")==-1 && window.location.href.indexOf("bidspirit")!=-1){
     		AnalyticsProvider.setAccount('UA-56607963-1');
     		AnalyticsProvider.useAnalytics(true);
