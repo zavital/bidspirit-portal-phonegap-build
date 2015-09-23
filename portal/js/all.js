@@ -11604,8 +11604,11 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 trackPageView(), StructuredDataService.resetStructuredDataMetaTags();
             }), $scope.$on("viewPort.orientationChange", function() {
                 $state.go("app.reload");
-            }), $scope.$on("$stateChangeSuccess", function() {
-                $timeout(LegalApprovalService.checkLegalApproval, 1e3), LocalStorageService.store("lastVisitedPage", window.location.hash);
+            }), $scope.$on("$stateChangeSuccess", function() {            	
+            	$timeout(function(){            		
+            		LocalStorageService.store("lastVisitedPage", window.location.hash)
+            	},100);
+                $timeout(LegalApprovalService.checkLegalApproval, 1e3);
             }), $rootScope.$on("auth.newSessionUser", onNewSessionUser);
         }
         function onNewSessionUser() {
@@ -11978,8 +11981,11 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             initialSource || LocalStorageService.store("initialSource", source);
         }
         function saveState() {
-            GlobalConfig.isMobileApp && (mSavedStateHash = LocalStorageService.load("lastVisitedPage")), 
-            mSavedStateHash = mSavedStateHash || window.location.hash || "!/home";
+            if (GlobalConfig.isMobileApp){
+				mSavedStateHash = LocalStorageService.load("lastVisitedPage");
+			}			
+			
+			mSavedStateHash = mSavedStateHash || window.location.hash || "!/home";
         }
         function getSavedStateHash() {
             return mSavedStateHash;
@@ -15177,11 +15183,11 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
                 break;
 
               case "demo":
-                baseUrl = "//demo.bidspirit.com";
+                baseUrl = "https://demo.bidspirit.com";
                 break;
 
               default:
-                baseUrl = "//" + siteCode + ".bidspirit.com";
+                baseUrl = "https://" + siteCode + ".bidspirit.com";
             }
             var url = baseUrl;
             sessionToken && (query += (query ? "&" : "?") + "pt=" + sessionToken);
@@ -15223,7 +15229,9 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
                 var token = $rootScope.currentUser ? StringsService.randomString(10) : null;
                 noAutoLogin && (token = null);
                 var auctionUrl = getAuctionSiteUrl(auction, token);
-                window.open(auctionUrl + (lot ? "~" + lot.idInApp : ""),"_system"), token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
+                var urlToOpen  = auctionUrl + (lot ? "~" + lot.idInApp : "");
+                alert( urlToOpen);
+                window.open( urlToOpen,"_system"), token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
             }
         }
         return {
