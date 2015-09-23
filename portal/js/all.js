@@ -11537,32 +11537,11 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 $rootScope.debugMessage += "\n<Br> (" + (now - GlobalConfig.debugInfo.lastDebugTime) + ") " + msg, 
                 GlobalConfig.debugInfo.lastDebugTime = now, GlobalConfig.debugInfo.count++;
             }, $rootScope.debug("debug init");
-            if (GlobalConfig.isMobileApp){
-           		checkIfPuffinInstalled();
-           	}
+            
+           	
         }
         
-        function checkIfPuffinInstalled(){
-			var scheme;
-
-			alert(device.platform ); 
-			if(device.platform === 'iOS') {
-			    scheme = 'puffin://';
-			}
-			else if(device.platform === 'Android') {
-			    scheme = 'com.cloudmosa.puffin';
-			}
-
-			appAvailability.check(
-			    scheme,       // URI Scheme or Package Name
-			    function() {  // Success callback
-			        alert(scheme + ' is available :)');
-			    },
-			    function() {  // Error callback
-			    	alert(scheme + ' is not available :(');
-			    }
-			);
-		}
+        
 		
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
@@ -15250,15 +15229,59 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             }
             window.open(url);
         }
-        function openAuctionSiteWindow(auction, noAutoLogin, lot) {
-            if (auction) {
-                var token = $rootScope.currentUser ? StringsService.randomString(10) : null;
-                noAutoLogin && (token = null);
-                var auctionUrl = getAuctionSiteUrl(auction, token);
-                var urlToOpen  = auctionUrl + (lot ? "~" + lot.idInApp : "");                
-                window.open( urlToOpen,"_system"), token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
-            }
-        }
+        
+        
+       	function openAuctionSiteWindow(auction, noAutoLogin, lot){
+			
+			if (!auction) return;
+			
+			var token = $rootScope.currentUser ? StringsService.randomString(10) : null ;
+			
+			if (noAutoLogin){
+				token = null;
+			}
+			var url = getAuctionSiteUrl(auction, token) +(lot ? ("~"+lot.idInApp) : "");
+			
+			if (GlobalConfig.isMobileApp){
+				tryToaunchWithPuffin(url);
+			} else {
+				window.open(url,"_system");
+			}
+			
+			if (token ){
+				PortalAuthService.createTokenForAppSite(auction.houseId, token);
+			}
+		}
+		
+		function tryToaunchWithPuffin(url){
+			if (typeof device=="undefined"){
+				window.open(url,"_system");
+				return;
+			}
+			
+			var scheme;
+			
+			if(device.platform === 'iOS') {
+			    scheme = 'puffin://';
+			}
+			else if(device.platform === 'Android') {
+			    scheme = 'com.cloudmosa.puffin';
+			}
+
+			appAvailability.check(
+			    scheme,       // URI Scheme or Package Name
+			    function() {  // Success callback
+			        //alert(scheme + ' is available :)');
+			    	window.open(url.replace("https","puffin"),"_system");			    	
+			    },
+			    function() {  // Error callback
+			    	//alert(scheme + ' is not available :(');
+			    	window.open(url,"_system");
+			    }
+			);
+		}
+        
+        
         return {
             openAuctionSiteWindow: openAuctionSiteWindow,
             showDemo: showDemo
