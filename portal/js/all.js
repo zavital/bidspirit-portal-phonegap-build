@@ -11366,7 +11366,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 					 analyticsInfo[key] = {time:new Date().getTime()}; 
 					 LocalStorageService.store("analyticsInfo",JSON.stringify(analyticsInfo));
 				}
-				if (GlobalConfig.isMobileApp){
+				if (false && GlobalConfig.isMobileApp){
 					window.analytics.trackEvent("mobile", action, label);
 					window.analytics.trackEvent(category, action, label);
 				} else {
@@ -11383,7 +11383,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 		}
 		
 		function trackPage(page){			
-			if (GlobalConfig.isMobileApp){
+			if (false && GlobalConfig.isMobileApp){
 				try {
 					alert("trying to track..");
 					window.analytics.trackEvent("mobile","pageView",page);
@@ -11392,7 +11392,9 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 				}
 				window.analytics.trackView(page);
 			} else {
-				if (isBidspiritEmployee) return;
+				//if (isBidspiritEmployee) return;
+				alert("mobile tracking...");
+				Analytics.trackEvent("mobile", "pageView", page);
 				Analytics.trackPage(page);
 			}			
 		}
@@ -15324,6 +15326,9 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 	
     function initAnalytics(AnalyticsProvider){    	
     	if (GlobalConfig.isMobileApp){
+    		AnalyticsProvider.setAccount('UA-56607963-1');
+    		AnalyticsProvider.useAnalytics(true);
+    		return;
     		document.addEventListener("deviceready", function(){
 	    		if (window.analytics){	    				    			
 	    			window.analytics.startTrackerWithId('UA-56607963-1')
