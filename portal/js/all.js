@@ -11667,7 +11667,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 }
             });
         };
-        if (GlobalConfig.isMobileApp &&  window.location.href.indexOf('http')!=0){
+        if (false && GlobalConfig.isMobileApp &&  window.location.href.indexOf('http')!=0){
 	    		alert("waiting for device...");
 	    		document.addEventListener("deviceready", init, false);
 	    	} else {
