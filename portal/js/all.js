@@ -11625,8 +11625,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 }
             });
         }, GlobalConfig.isMobileApp && 0 != window.location.href.indexOf("http") ? (alert("waiting for device..."), 
-        document.addEventListener("deviceready",function(){
-        	alert("device ready 2");
+	        document.addEventListener("deviceready",function(){        	
         	init();
         } , !1)) : init();
     } ]);
@@ -15237,8 +15236,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
     function initAnalytics(AnalyticsProvider) {
-        GlobalConfig.isMobileApp ? document.addEventListener("deviceready", function() {
-        	alert("device ready 1");        	
+        GlobalConfig.isMobileApp ? document.addEventListener("deviceready", function() {        	
             window.analytics ? (alert("using analytics with user agent " + navigator.userAgent), 
             window.analytics.startTrackerWithId("UA-56607963-1")) : alert("analytics not found");
             window.analytics.trackEvent("init","mobile");
