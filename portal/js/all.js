@@ -9187,6 +9187,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             $rootScope.viewPort = mViewPortInfo, mDebugInfo.viewPort = mViewPortInfo;
         }
         function adjustViewPortAccordingToOrientation() {
+        	return;
             var width;
             width = isLandscapeOrientation() ? 1199 : mViewPortInfo.minInitialDimenstion < 400 ? 500 : 900, 
             width != mViewPortWidth && (mViewPortWidth = width, mViewPortElement.setAttribute("content", "width=" + mViewPortWidth), 
