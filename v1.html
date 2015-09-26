@@ -29,8 +29,19 @@
 			margin:20px 0;
 			text-align:left;
 			text-indent:10px;
-			padding:10px 0;			
-			
+			padding:10px 0;
+			border:1px solid #888;
+		}
+		
+		.left{
+			float:left;
+		}
+		
+		input{
+			width:250px;
+			height:50px;
+			font-size:25px;
+			margin:20px 40px;
 		}
 		
 		</style>
@@ -52,6 +63,7 @@
 			function setWidth(width){
 				init();
 				setZoom(Math.round(initialWidth*100/width)+"%");
+				document.body.style.width=width+"px";
 			}
 					
 		</script>
@@ -71,15 +83,20 @@
 	 	
 	 	<div  id="message" ></div>
 	 	
-	 	<div class="bar" style="width:100%">100%</div>
+	 	<input placeholder="enter text...">
 	 	
-	 	
+	 	<div class="bar" style="width:100%">100%</div>	 	
 	 	
 	 	<div class="bar" style="width:100px">100px</div>
 	 	
 	 	<div class="bar" style="width:300px">200px</div>
 	 	
 	 	<div class="bar" style="width:300px">300px</div>
+	 	
+	 	<hr>
+	 	
+	 	<div class="left bar" style="width:100px">100px</div><div class="left bar" style="width:100px">100px</div><div class="left bar" style="width:100px">100px</div><div class="left bar" style="width:100px">100px</div>
+	 	<div class="left bar" style="width:100px">100px</div><div class="left bar" style="width:100px">100px</div><div class="left bar" style="width:100px">100px</div><div class="left bar" style="width:100px">100px</div>
 	 		 	
 				
 	</body>
