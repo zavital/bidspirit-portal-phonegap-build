@@ -49,32 +49,32 @@
 
 		<script>
 			var initialWidth = null;
-			function init(){
-				if (!initialWidth){
-					initialWidth=window.innerWidth;
-					 document.getElementById("message").innerHTML="initial width:"+initialWidth;
-				 }
-			}
-			function setZoom(zoom){
-				 init();
+			
+			function setZoom(zoom){				 
 				 document.body.style.zoom=zoom;
 			}
 			
-			function setWidth(width){
-				init();
+			function setWidth(width){				
 				setZoom(Math.round(initialWidth*100/width)+"%");
 				document.body.style.width=width+"px";
 			}
 			
-			document.addEventListener("deviceready", function(){
-				navigator.splashscreen.hide();
+			function init(){
+				
+				document.addEventListener("deviceready", function(){
+					alert("device ready");
+					navigator.splashscreen.hide();
+					initialWidth=window.innerWidth;
+					document.getElementById("message").innerHTML="initial width:"+initialWidth;
+				}
 			}
+			
 					
 		</script>
 		
 	</head>	
 	
-	<body >
+	<body onLoad="init()">
 	
 	 	<div class="button" onClick="setWidth(initialWidth)"> device width </div>
 	 	
