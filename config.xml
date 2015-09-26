@@ -48,8 +48,11 @@
     <preference name="EnableViewportScale" value="true" />
     <preference name="StatusBarOverlaysWebView" value="true" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
+    <!--
     
     <gap:splash src="splash.png"/>
+    
+    -->
     
     
 	<preference name="SplashScreen" value="splash" />
