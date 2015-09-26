@@ -23,6 +23,7 @@
     <gap:plugin name="org.apache.cordova.device" version="0.2.12" />
     <gap:plugin name="com.phonegap.plugin.statusbar" version="1.1.0" />
     <gap:plugin name="cordova-plugin-whitelist" source="npm" version="1.0.0"  />
+    <gap:plugin name="com.phonegap.plugin.viewport_scale" />
     <!--
     	<gap:plugin name="br.com.paveisitemas.splashscreen" version="2.1.1" />
     	-->
