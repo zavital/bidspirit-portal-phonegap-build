@@ -65,6 +65,10 @@
 				setZoom(Math.round(initialWidth*100/width)+"%");
 				document.body.style.width=width+"px";
 			}
+			
+			document.addEventListener("deviceready", function(){
+				navigator.splashscreen.hide();
+			}
 					
 		</script>
 		
