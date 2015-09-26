@@ -60,13 +60,12 @@
 			}
 			
 			function init(){
-				alert("init?");
-				document.addEventListener("deviceready", function(){
-					alert("device ready");
+				
+				document.addEventListener("deviceready", function(){					
 					navigator.splashscreen.hide();
 					initialWidth=window.innerWidth;
 					document.getElementById("message").innerHTML="initial width:"+initialWidth;
-				}
+				}, false);
 			}
 			
 					
