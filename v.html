@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+   
+
+<html>
+
+	<head>
+		 
+		
+		<meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=no, target-densitydpi=device-dpi">		
+		<script src="phonegap.js"></script>
+
+		<script>
+				function setViewport(viewportContent){
+					 document.querySelector('meta[name="viewport"]').setAttribute('content',viewportContent);
+				}
+					
+		</script>
+		<style>
+		body{
+			
+			font-size:20px;
+			padding:0;
+			margin:0;
+		}
+		.button{			
+			padding:5px;
+			margin:20px;
+			border:1px solid gray;			
+			width:200px;
+		}
+		.bar{			
+			background:#eee;
+			margin:20px 0;
+			text-align:left;
+			text-indent:10px;
+			padding:10px 0;			
+			
+		}
+		
+		</style>
+
+
+		
+	</head>	
+	
+	<body >
+	
+	 	<div class="button" onClick="setViewport('width=device-width')"> device width </div>
+	 	
+	 	<div class="button" onClick="setViewport('width=500')"> 500 </div>
+	 	
+	 	<div class="button" onClick="setViewport('width=device-width, initial-scale=1 maximum-scale=1, user-scalable=no, target-densitydpi=device-dpi')"> scale 1 </div>
+	 	<div class="button" onClick="setViewport('width=device-width, initial-scale=0.5 maximum-scale=0.5, user-scalable=no, target-densitydpi=device-dpi')"> scale 0.5 </div>
+	 	
+	 	<div class="bar" style="width:100%">100%</div>
+	 	
+	 	<div class="bar" style="width:100px">100px</div>
+	 	
+	 	<div class="bar" style="width:300px">200px</div>
+	 	
+	 	<div class="bar" style="width:300px">300px</div>
+	 		 	
+				
+	</body>
+</Html>
+
+			
+	  	
