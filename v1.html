@@ -37,8 +37,21 @@
 
 
 		<script>
-			function setViewport(viewportContent){
-				 document.querySelector('meta[name="viewport"]').setAttribute('content',viewportContent);
+			var initialWidth = null;
+			function init(){
+				if (!initialWidth){
+					initialWidth=window.innerWidth;
+					 document.getElementById("message").innerHTML="initial width:"+initialWidth;
+				 }
+			}
+			function setZoom(zoom){
+				 init();
+				 document.body.style.zoom=zoom;
+			}
+			
+			function setWidth(width){
+				init();
+				setZoom(Math.round(initialWidth*100/width)+"%");
 			}
 					
 		</script>
@@ -47,16 +60,20 @@
 	
 	<body >
 	
-	 	<div class="button" onClick="setViewport('width=device-width')"> device width </div>
+	 	<div class="button" onClick="setWidth(initialWidth)"> device width </div>
 	 	
-	 	<div class="button" onClick="setViewport('width=500')"> 500 </div>
+	 	<div class="button" onClick="setWidth(500)"> 500 </div>
 	 	
-	 	<div class="button" onClick="setViewport('width=300')"> 300 </div>
+	 	<div class="button" onClick="setWidth(300)"> 300 </div>
 	 	
-	 	<div class="button" onClick="setViewport('initial-scale=1 maximum-scale=1, user-scalable=yes)"> scale 1 </div>
-	 	<div class="button" onClick="setViewport('initial-scale=0.5 maximum-scale=0.5, user-scalable=yes')"> scale 0.5 </div>
+	 	<div class="button" onClick="setZoom (1)"> scale 1 </div>
+	 	<div class="button" onClick="setZoom(0.5)"> scale 0.5 </div>
+	 	
+	 	<div  id="message" ></div>
 	 	
 	 	<div class="bar" style="width:100%">100%</div>
+	 	
+	 	
 	 	
 	 	<div class="bar" style="width:100px">100px</div>
 	 	
