@@ -11922,7 +11922,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         };
     });
 }), define("portal/js/modules/main/portalStates", [ "./portalMainModule" ], function(module) {
-    module.factory("PortalStates", function($state, $timeout, LocalStorageService, PathsService, SessionsService) {
+    module.factory("PortalStates", function($state, $timeout,$rootScope, LocalStorageService, PathsService, SessionsService) {
         function init() {
             PathsService.validateHttps() && (GlobalConfig.isMobileApp , 
             mSavedStateHash = mSavedStateHash || window.location.hash || "!/home", PathsService.appTemplateState("app", "portalMain", {
@@ -11977,6 +11977,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function loadSavedState() {
             $state.go("app.home"), $timeout(function() {
                 var parsed = manualStateParsing();
+                $rootScope.debug(mSavedStateHash);
                 parsed || SessionsService.isIe() || (window.location.hash = mSavedStateHash);
             }, 100);
         }
