@@ -11611,9 +11611,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             }), $scope.$on("viewPort.orientationChange", function() {
                 $state.go("app.reload");
             }), $scope.$on("$stateChangeSuccess", function() {
-                $timeout(LegalApprovalService.checkLegalApproval, 1e3), $timeout(function() {
-                    LocalStorageService.store("lastVisitedPage", window.location.hash);
-                }, 100);
+                
             }), $rootScope.$on("auth.newSessionUser", onNewSessionUser);
         }
         function onNewSessionUser() {
@@ -11918,7 +11916,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/main/portalStates", [ "./portalMainModule" ], function(module) {
     module.factory("PortalStates", function($state, $timeout, LocalStorageService, PathsService, SessionsService) {
         function init() {
-            PathsService.validateHttps() && (GlobalConfig.isMobileApp && (mSavedStateHash = LocalStorageService.load("lastVisitedPage")), 
+            PathsService.validateHttps() && (GlobalConfig.isMobileApp, 
             mSavedStateHash = mSavedStateHash || window.location.hash || "!/home", PathsService.appTemplateState("app", "portalMain", {
                 url: "/"
             }), PathsService.appTemplateState("app.home", "auctions/home/homeMain", {
