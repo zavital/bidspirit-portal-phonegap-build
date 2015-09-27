@@ -9192,14 +9192,18 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             width != mViewPortWidth) {
                 if (mViewPortWidth = width, GlobalConfig.isMobileApp) {
                     var initialWidth = isLandscapeOrientation() ? mInitialHeight : mInitialWidth;
-                    document.body.style.zoom = Math.round(100 * initialWidth / width) + "%", document.body.style.width = width + "px";
+                    var zoom = Math.round(100 * initialWidth / width) + "%";
+                    document.body.style.zoom = zoom, document.body.style.width = width + "px";
+                    $rootScope.debug("zoom:"+zoom+", width"+width);
                 } else mViewPortElement.setAttribute("content", "width=" + mViewPortWidth);
                 $rootScope.$broadcast("viewPort.viewPortWidthChanged");
             }
         }
         function bindViewPortSizeToWindowWidth() {
-            mInitialWidth = mViewPortInfo.minInitialDimenstion = Math.min(document.body.clientWidth, document.body.clientHeight), 
-            mInitialHeight = Math.max(document.body.clientWidth, document.body.clientHeight), 
+            mViewPortInfo.minInitialDimenstion = Math.min(document.body.clientWidth, document.body.clientHeight),
+            mInitialWidth = Math.min(window.innerWidth, window.innerHeight),
+            mInitialHeight = Math.max(window.innerWidth, window.innerHeight),
+            $rootScope.debug("initial width:"+mInitialWidth+"x"+mInitialHeight);
             mViewPortElement = document.querySelector('meta[name="viewport"]'), $rootScope.viewPortDebugInfo = mDebugInfo, 
             window.addEventListener("resize", onResize), updateViewportInfo(), $timeout(updateViewportInfo, 1e3), 
             onResize();
@@ -11550,7 +11554,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isIe8 = SessionsService.isIe8(), 
-            $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8 || ViewPortService.bindViewPortSizeToWindowWidth(), 
+            $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), $rootScope.isIe8, 
             PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", initLog(), 
             initRegions(), initTirggers(), HeartBitService.init(), hideSplash());
         }
@@ -11594,9 +11598,12 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             var pathBase = SessionsService.isOldIe() ? GlobalConfig.apiBase : GlobalConfig.cachedApiBase;
             return pathBase + textsFilePath + "?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
-        function init() {
-        	alert("init");
-            initDebug(), $rootScope.isMobileApp = GlobalConfig.isMobileApp, PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
+        function init() {        	
+            initDebug();
+            
+            ViewPortService.bindViewPortSizeToWindowWidth();
+            
+            $rootScope.isMobileApp = GlobalConfig.isMobileApp, PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss(GlobalConfig.staticFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
             PortalInfoService.init(PathsService.getRegionByDomain()).success(function() {
@@ -11917,7 +11924,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/main/portalStates", [ "./portalMainModule" ], function(module) {
     module.factory("PortalStates", function($state, $timeout, LocalStorageService, PathsService, SessionsService) {
         function init() {
-            PathsService.validateHttps() && (GlobalConfig.isMobileApp, 
+            PathsService.validateHttps() && (GlobalConfig.isMobileApp , 
             mSavedStateHash = mSavedStateHash || window.location.hash || "!/home", PathsService.appTemplateState("app", "portalMain", {
                 url: "/"
             }), PathsService.appTemplateState("app.home", "auctions/home/homeMain", {
@@ -15270,7 +15277,6 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
     function initAnalytics(AnalyticsProvider) {
         GlobalConfig.isMobileApp ? document.addEventListener("deviceready", function() {
-        	alert("ready 1");
             window.analytics.startTrackerWithId("UA-56607963-1");
         }, !1) : -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
