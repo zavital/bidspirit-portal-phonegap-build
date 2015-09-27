@@ -9217,6 +9217,8 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
 			mInitialWidth = Math.min(window.innerWidth, window.innerHeight)
 			mInitialHeight = Math.max(window.innerWidth, window.innerHeight)
 			
+			$rootScope.debug(mInitialWidth+"x"+mInitialHeight+" ("+mViewPortInfo.minInitialDimenstion+")");
+			
 			mViewPortElement = document.querySelector('meta[name="viewport"]');
 			$rootScope.viewPortDebugInfo = mDebugInfo;
 			//window.addEventListener('orientationchange', adjustViewPortWidthToClientWidth);
@@ -11563,6 +11565,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             $rootScope.isMobile = SessionsService.isMobile(), PortalStates.init(), PortalTextsService.init(), 
             onLangUpdate(), $scope.dataState = "loaded", initLog(), initRegions(), initTirggers(), 
             HeartBitService.init(), hideSplash());
+            ViewPortService.bindViewPortSizeToWindowWidth();
         }
         function hideSplash() {
             GlobalConfig.isMobileApp && setTimeout(function() {
@@ -11605,7 +11608,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             return pathBase + textsFilePath + "?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
         function init() {
-            initDebug(), ViewPortService.bindViewPortSizeToWindowWidth(), $rootScope.isMobileApp = GlobalConfig.isMobileApp, 
+            initDebug(), $rootScope.isMobileApp = GlobalConfig.isMobileApp, 
             PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss(GlobalConfig.staticFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
