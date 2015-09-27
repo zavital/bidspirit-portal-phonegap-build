@@ -11595,6 +11595,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             return pathBase + textsFilePath + "?cacheVersion=" + SettingsService.getCacheVersion("TEXTS");
         }
         function init() {
+        	alert("init");
             initDebug(), $rootScope.isMobileApp = GlobalConfig.isMobileApp, PathsService.getQueryParam("searchAgentRequest") && ($rootScope.searchAgentRequest = !0), 
             "active" == PathsService.getQueryParam("devMode") && ($rootScope.devMode = !0), 
             checkFirstVisit(), $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss(GlobalConfig.staticFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
@@ -15269,6 +15270,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
     function initAnalytics(AnalyticsProvider) {
         GlobalConfig.isMobileApp ? document.addEventListener("deviceready", function() {
+        	alert("ready 1");
             window.analytics.startTrackerWithId("UA-56607963-1");
         }, !1) : -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
