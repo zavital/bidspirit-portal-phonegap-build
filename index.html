@@ -21,7 +21,7 @@
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
-					appVersion : '0.429',					
+					appVersion : '0.430',					
 					envName : "prod",
 					isMobileApp:true,
 					appName:"portal"
@@ -37,6 +37,7 @@
 			    };
 					
 		</script>
+		
 		<style>
 		body{
 			background:black;
@@ -58,9 +59,7 @@
 			z-index:1001;
 			top:2px;
 		}
-		.pgdebug{
-			display:block;
-		}
+		
 		</style>
 
 
@@ -73,8 +72,7 @@
 		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main">		 	
 		 	<div  ui-view class="view"></div>
 		 	<input class="pgdebug hide-button" type="checkbox" ng-model="hideDebug"  ng-hide="hideDebug">
-		 	<div   class="pgdebug message" ng-bind-html="debugMessage" ng-hide="hideDebug">		 		
-		 	</div>
+		 	<div  id="pgDebugMessage" class="pgdebug message" ng-bind-html="debugMessage" ng-hide="hideDebug">	 	</div>
 		</div>
 		
 		<script 
@@ -89,6 +87,19 @@
 			id="pagePreLoader"
 		>
 		
+		
+		<script>
+			  var debugMode = true;
+			    
+			  if (debugMode){
+			    setInterval(function(){document.getElementById("pgDebugMessage").scrollTop=100000;},1000);	
+			  } else {
+			    var debugElements = document.querySelectorAll(".pgdebug");
+			    for (var i=0;i< debugElements.length;i++){
+			    	debugElements[i].style.display="none";
+			    }
+			  }
+		</script>
 	</body>
 </Html>
 
