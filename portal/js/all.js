@@ -9196,11 +9196,13 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                 (newZoom != document.body.style.zoom || width != mViewPortWidth) && (document.body.style.zoom = newZoom, 
                 document.body.style.width = width + "px", viewportChanged = !0);
             } else if (width != mViewPortWidth) {
-                if (OsInfoService.isIos()) {
+                if (OsInfoService.isIos() && !GlobalConfig.isMobileApp) {
                     var scale = Math.round(100 * (mViewPortWidth || window.innerWidth) / width) / 100;
                     alert(scale);
                     mViewPortElement.setAttribute("content", "width=" + width + ", initial-scale=" + scale + ", maximum-scale=" + scale);
-                } else mViewPortElement.setAttribute("content", "width=" + width);
+                } else {
+                	mViewPortElement.setAttribute("content", "width=" + width);
+                }
                 viewportChanged = !0;
             }
             mViewPortWidth = width, viewportChanged && ($rootScope.debug("zoom:" + document.body.style.zoom + ", width:" + document.body.style.width + ", vieport:" + mViewPortWidth), 
