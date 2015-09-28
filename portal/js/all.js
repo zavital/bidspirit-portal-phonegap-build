@@ -9203,8 +9203,8 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
 			
 			if (GlobalConfig.isMobileApp && OsInfoService.isAndroid() ){ //phone gap mobile app have problems with viewport on android, we use zoom instead
 				var initialWidth  = isLandscapeOrientation() ?  mInitialHeight : mInitialWidth;				
-				console.log("landscape:"+isLandscapeOrientation()+", initial width:"+initialWidth);
-				document.body.style.zoom = Math.round(initialWidth*100/width)+"%";
+				console.log("landscape:"+isLandscapeOrientation()+", initial width:"+initialWidth);				
+				document.body.style.zoom = (Math.round((initialWidth*10000/width))/100)+"%";
 				document.body.style.width=width+"px";				
 				viewportChanged = true;
 			} else if (width!=mViewPortWidth){
