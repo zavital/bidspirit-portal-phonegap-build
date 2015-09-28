@@ -15154,9 +15154,7 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
             restrict: "C",
             link: function(scope, element) {
                 function setWidth() {
-                    element.css({
-                        width: ViewPortService.clientWidth() + "px"
-                    });
+                	element.css({width: Math.max(ViewPortService.clientWidth(),window.innerWidth) +"px"});
                 }
                 GlobalConfig.isMobileApp && OsInfoService.isAndroid() && (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth));
             }
