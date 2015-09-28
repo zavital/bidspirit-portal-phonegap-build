@@ -9168,6 +9168,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
 }), define("common/js/modules/domUtils/viewPortService", [ "./domUtilsModule" ], function(module) {
     module.factory("ViewPortService", function($rootScope, $timeout, DomUtilsService, OsInfoService) {
         function onResize() {
+        	console.log("resize");	
             if (!DomUtilsService.isTextInputFocused()) {
                 $timeout.cancel(mResizeTriggerTimer);
                 {
@@ -9187,20 +9188,39 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             mViewPortInfo.clientWidth = getClientWidth(), $rootScope.viewPort = mViewPortInfo, 
             mDebugInfo.viewPort = mViewPortInfo;
         }
-        function adjustViewPortAccordingToOrientation() {
-            var width;
-            if (width = isLandscapeOrientation() ? 1199 : mViewPortInfo.minInitialDimenstion < 400 ? 500 : 900, 
-            width != mViewPortWidth) {
-                if (mViewPortWidth = width, GlobalConfig.isMobileApp && OsInfoService.isAndroid()) {
-                    var initialWidth = isLandscapeOrientation() ? mInitialHeight : mInitialWidth;
-                    document.body.style.zoom = Math.round(100 * initialWidth / width) + "%", document.body.style.width = width + "px", 
-                    $rootScope.debug("zoom:" + document.body.style.zoom + ", width:" + document.body.style.width);
-                } else mViewPortElement.setAttribute("content", "width=" + mViewPortWidth);
-                $rootScope.$broadcast("viewPort.viewPortWidthChanged");
-            }
-        }
+        function adjustViewPortAccordingToOrientation(){
+			var width;
+			if (isLandscapeOrientation()){
+				width = 1199;
+			} else if (mViewPortInfo.minInitialDimenstion<400){
+				width = 500;
+			} else {
+				width = 900;
+			}
+			var viewportChanged = false;
+			
+			
+			
+			if (GlobalConfig.isMobileApp && OsInfoService.isAndroid() ){ //phone gap mobile app have problems with viewport on android, we use zoom instead
+				var initialWidth  = isLandscapeOrientation() ?  mInitialHeight : mInitialWidth;				
+				console.log("landscape:"+isLandscapeOrientation()+", initial width:"+initialWidth);
+				document.body.style.zoom = Math.round(initialWidth*100/width)+"%";
+				document.body.style.width=width+"px";				
+				viewportChanged = true;
+			} else if (width!=mViewPortWidth){
+				mViewPortElement.setAttribute('content',"width="+mViewPortWidth);
+				viewportChanged = true;
+			}
+			
+			mViewPortWidth = width;
+			
+			if (viewportChanged){
+				$rootScope.debug("zoom:"+document.body.style.zoom+", width:"+document.body.style.width+", vieport:"+mViewPortWidth); 
+				$rootScope.$broadcast("viewPort.viewPortWidthChanged");
+			}
+		}
         function bindViewPortSizeToWindowWidth() {
-            mViewPortInfo.minInitialDimenstion = Math.min(document.body.clientWidth, document.body.clientHeight), 
+            mViewPortInfo.minInitialDimenstion = Math.min(window.innerWidth, window.innerHeight), 
             mInitialWidth = Math.min(window.innerWidth, window.innerHeight), mInitialHeight = Math.max(window.innerWidth, window.innerHeight), 
             $rootScope.debug(mInitialWidth + "x" + mInitialHeight + " (" + mViewPortInfo.minInitialDimenstion + ")"), 
             mViewPortElement = document.querySelector('meta[name="viewport"]'), $rootScope.viewPortDebugInfo = mDebugInfo, 
@@ -9227,7 +9247,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             return getClientWidth() < 500 ? !1 : OsInfoService.isMobile() ? OsInfoService.isIpad() ? !0 : !1 : !0;
         }
         function isLandscapeOrientation() {
-            return getClientWidth() > getClientHeight() ? !0 : !1;
+            return window.innerWidth > window.innerHeight ? !0 : !1;
         }
         function getOrientation() {
             return isLandscapeOrientation() ? "landscape" : "portrait";
