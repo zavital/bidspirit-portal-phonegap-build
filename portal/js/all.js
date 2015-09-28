@@ -9198,6 +9198,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             } else if (width != mViewPortWidth) {
                 if (OsInfoService.isIos()) {
                     var scale = Math.round(100 * (mViewPortWidth || window.innerWidth) / width) / 100;
+                    alert(scale);
                     mViewPortElement.setAttribute("content", "width=" + width + ", initial-scale=" + scale + ", maximum-scale=" + scale);
                 } else mViewPortElement.setAttribute("content", "width=" + width);
                 viewportChanged = !0;
