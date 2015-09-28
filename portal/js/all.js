@@ -15167,7 +15167,7 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
                         width: width + "px"
                     });
                 }
-                GlobalConfig.isMobileApp &&  (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth));
+                //GlobalConfig.isMobileApp &&  (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth));
             }
         };
     });
