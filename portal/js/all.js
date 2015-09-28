@@ -9197,15 +9197,14 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                 document.body.style.width = width + "px", viewportChanged = !0);
             } else if (width != mViewPortWidth) {
                 if (OsInfoService.isIos() && !GlobalConfig.isMobileApp) {
-                    var scale = Math.round(100 * (mViewPortWidth || window.innerWidth) / width) / 100;
-                    alert(scale);
+                    var scale = Math.round(100 * (mViewPortWidth || window.innerWidth) / width) / 100;                    
                     mViewPortElement.setAttribute("content", "width=" + width + ", initial-scale=" + scale + ", maximum-scale=" + scale);
                 } else {
                 	mViewPortElement.setAttribute("content", "width=" + width);
                 }
                 viewportChanged = !0;
             }
-            mViewPortWidth = width, viewportChanged && ($rootScope.debug("zoom:" + document.body.style.zoom + ", width:" + document.body.style.width + ", vieport:" + mViewPortWidth), 
+            mViewPortWidth = width, viewportChanged && ($rootScope.debug("zoom:" + document.body.style.zoom + ", width:" + document.body.style.width + ", vieport:" + mViewPortWidth+", window:"+window.innerWidth), 
             $rootScope.$broadcast("viewPort.viewPortWidthChanged"));
         }
         function bindViewPortSizeToWindowWidth() {
@@ -15150,11 +15149,12 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
             restrict: "C",
             link: function(scope, element) {
                 function setWidth() {
+                	$rootScope.debug("setting upper part width to "+Math.max(ViewPortService.clientWidth(),window.innerWidth) +"px");
                     element.css({
                         width: Math.max(ViewPortService.clientWidth(), window.innerWidth) + "px"
                     });
                 }
-                GlobalConfig.isMobileApp && OsInfoService.isAndroid() && (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth));
+                GlobalConfig.isMobileApp &&  (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth));
             }
         };
     });
