@@ -15149,7 +15149,7 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
             restrict: "C",
             link: function(scope, element) {
                 function setWidth() {
-                	var width = Math.max(ViewPortService.clientWidth(),window.innerWidth);                	
+                	var width = Math.max(ViewPortService.clientWidth(), window.innerWidth);                	
                 	var upperNav = document.querySelector(".upper-navigation");
                 	if (upperNav){
                 		$rootScope.debug("upperWidth:"+upperNav.offsetWidth);
