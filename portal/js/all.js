@@ -15149,9 +15149,22 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
             restrict: "C",
             link: function(scope, element) {
                 function setWidth() {
-                	$rootScope.debug("setting upper part width to "+Math.max(ViewPortService.clientWidth(),window.innerWidth) +"px");
+                	var width = Math.max(ViewPortService.clientWidth(),window.innerWidth);                	
+                	var upperNav = document.querySelector(".upper-navigation");
+                	if (upperNav){
+                		$rootScope.debug("upperWidth:"+upperNav.offsetWidth);
+                		width = Math.max(width, upperNav.offsetWidth);
+                	}
+                	var docWidth = document.body.clientWidth;
+                	$rootScope.debug("docWidth:"+docWidth);
+                	
+                	
+                	width = Math.max(width,docWidth);
+                	
+                	$rootScope.debug("setting upper part width to "+width +"px");
+                	
                     element.css({
-                        width: Math.max(ViewPortService.clientWidth(), window.innerWidth) + "px"
+                        width: width + "px"
                     });
                 }
                 GlobalConfig.isMobileApp &&  (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth));
