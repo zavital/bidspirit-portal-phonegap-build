@@ -71,7 +71,7 @@
 	<body >
 	
 	 
-		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main" >		 	
+		<div ng-controller="MainController" ng-show="loadState=='loaded'" class="main" id="mainView">		 	
 		 	<div  ui-view class="view"></div>
 		 	<input class="pgdebug hide-button" type="checkbox" ng-model="hideDebug"  ng-hide="hideDebug">
 		 	<div  id="pgDebugMessage" class="pgdebug message" ng-bind-html="debugMessage" ng-hide="hideDebug">	 	</div>
