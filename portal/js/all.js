@@ -15011,7 +15011,7 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
                         scope.fbPage = "bidspirit", scope.twitterPage = "bidspirit";
                     }
                 }
-                GlobalConfig.isMobileApp && OsInfoService.isAndroid() && (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth)), 
+                GlobalConfig.isMobileApp && (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth)), 
                 scope.shouldDisplay = function() {
                     return 0 == $state.current.name.indexOf("app.lotPage.") ? !1 : !0;
                 }, scope.shouldHideContactUs = function() {
