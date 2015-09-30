@@ -14997,7 +14997,7 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
 			link: function (scope, element) {            	
 	         	if (true || GlobalConfig.isMobileApp && OsInfoService.isAndroid()){ //a fix for phonegap mobile android...
 	         		function setWidth(){
-	         			element.css({width:ViewPortService.getMaxWidth()+"px"});
+	         			//element.css({width:ViewPortService.getMaxWidth()+"px"});
 	         		}
 	         		setWidth();
 	         		$rootScope.$on("viewPort.viewPortWidthChanged",setWidth);
