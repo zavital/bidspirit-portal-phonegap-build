@@ -9223,9 +9223,9 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
         function getClientWidth() {
             return GlobalConfig.isMobileApp && mViewPortWidth ? mViewPortWidth : window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
         }
-        function getMaxWidth() {
-            return Math.max(window.innerWidth, mViewPortWidth);
-        }
+        function getMaxWidth(){
+			return Math.max(Math.max(window.innerWidth, mViewPortWidth), document.getElementById("mainView").offsetWidth);
+		}
         function getViewPortWidth() {
             return mViewPortWidth || getClientWidth();
         }
@@ -9248,6 +9248,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             bindViewPortSizeToWindowWidth: bindViewPortSizeToWindowWidth,
             clientHeight: getClientHeight,
             clientWidth: getClientWidth,
+            getMaxWidth:getMaxWidth,
             getViewPortWidth: getViewPortWidth,
             getWindowScroll: getWindowScroll,
             isWideDevice: isWideDevice
@@ -15184,13 +15185,14 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
     module.directive("upperPart", function($rootScope, ViewPortService, OsInfoService) {
         return {
             restrict: "C",
-            link: function(scope, element) {
-                function setWidth() {
-                    element.css({
-                        width: document.getElementById("mainView").offsetWidth + "px"
-                    });
-                }
-                GlobalConfig.isMobileApp && OsInfoService.isAndroid() && (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth));
+            link: function (scope, element) {            	
+            	if (GlobalConfig.isMobileApp && OsInfoService.isAndroid()){ //a fix for phonegap mobile android...
+            		function setWidth(){
+            			element.css({width:ViewPortService.getMaxWidth()+"px"});
+            		}
+            		setWidth();
+            		$rootScope.$on("viewPort.viewPortWidthChanged",setWidth);
+            	}
             }
         };
     });
