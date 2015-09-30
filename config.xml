@@ -14,7 +14,7 @@
         Zemer avital
     </author>
 
-    <content src="v1.html" />
+    <content src="index.html" />
     
     <access origin="*" />
     
@@ -37,6 +37,8 @@
     
         
     <icon src="icon.png" />
+    
+    <icon src="icon-android.png" gap:platform="android" />
     
     
     
