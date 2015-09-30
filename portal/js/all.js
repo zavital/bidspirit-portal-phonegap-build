@@ -14989,48 +14989,63 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
         };
     });
 }), define("portal/js/modules/components/pageFooterDirective", [ "./componentsModule" ], function(module) {
-    module.directive("bsPageFooter", function($rootScope, $state, PopupsService, PathsService) {
-        return {
-            restrict: "E",
-            link: function(scope, element) {
-                function setWidth() {
-                    element.css({
-                        width: document.getElementById("mainView").offsetWidth + "px"
-                    });
-                }
-                function init() {
-                    switch ($rootScope.currentRegion) {
-                      case "IL":
-                        scope.fbPage = "pages/Bidspirit-Israel/280735812128712", scope.twitterPage = "BidspiritIsrael";
-                        break;
-
-                      case "RU":
-                        scope.fbPage = "bidspirit.russia", scope.twitterPage = "BidspiritRussia";
-                        break;
-
-                      default:
-                        scope.fbPage = "bidspirit", scope.twitterPage = "bidspirit";
-                    }
-                }
-                GlobalConfig.isMobileApp && (setWidth(), $rootScope.$on("viewPort.viewPortWidthChanged", setWidth)), 
-                scope.shouldDisplay = function() {
-                    return 0 == $state.current.name.indexOf("app.lotPage.") ? !1 : !0;
-                }, scope.shouldHideContactUs = function() {
-                    switch ($state.current.name) {
-                      case "app.contact":
-                      case "app.about":
-                      case "app.prdouct":
-                      case "app.popupScene":
-                        return !0;
-                    }
-                    return !1;
-                }, scope.showInfoPopup = function(code) {
-                    PopupsService.showLegalDocPopup(code);
-                }, init();
-            },
-            templateUrl: PathsService.appTemplatePath("elements/pageFooter")
+	module.directive('bsPageFooter', function($rootScope,   $state,   PopupsService,    PathsService, ViewPortService, OsInfoService) {
+   	 
+		return {     
+			restrict: 'E',
+			link: function (scope, element) {            	
+	         	if (GlobalConfig.isMobileApp && OsInfoService.isAndroid()){ //a fix for phonegap mobile android...
+	         		function setWidth(){
+	         			element.css({width:ViewPortService.getMaxWidth()+"px"});
+	         		}
+	         		setWidth();
+	         		$rootScope.$on("viewPort.viewPortWidthChanged",setWidth);
+	         	}
+	         	scope.shouldDisplay = function(){
+		        	 if ($state.current.name.indexOf("app.lotPage.")==0){
+		        		 return false;
+		        	 }
+		        	 return true;
+		         }  	 
+	         	scope.shouldHideContactUs = function(){    		 
+		    		 switch ($state.current.name){
+		    		 case "app.contact":
+		    		 case "app.about":
+		    		 case "app.prdouct":
+		    		 case "app.popupScene":
+		    			 return true;
+		    		 }	    		 
+		    		 return false;
+		    	 };    	 
+		    	 scope.showInfoPopup = function(code){
+		    		 PopupsService.showLegalDocPopup(code);
+		         };
+	    	 
+		    	 function init(){
+		    		 switch ($rootScope.currentRegion){
+			    		 case "IL":
+			    			 scope.fbPage = "pages/Bidspirit-Israel/280735812128712";
+			    			 scope.twitterPage = "BidspiritIsrael";
+			    			 break;
+			    	 	case "RU":
+			    	 		scope.fbPage = "bidspirit.russia";
+			    	 		scope.twitterPage = "BidspiritRussia";
+			    	 		break;
+			    	 	default:
+			    	 		scope.fbPage = "bidspirit";
+			    	 		scope.twitterPage = "bidspirit";
+			    	 		break;	
+		    		}
+		         }    	 
+	
+		    	 init();
+			 },
+	         
+	         
+			 templateUrl:PathsService.appTemplatePath('elements/pageFooter')
+     	
         };
-    });
+    });  
 }), define("portal/js/modules/components/popupsService", [ "./componentsModule" ], function(module) {
     var mPopupSceneOptions = {};
     module.factory("PopupsService", function($http, $rootScope, $state, $modal, $modalStack, PathsService, I18nService, DialogsService, PortalInfoService, PortalTextsService) {
