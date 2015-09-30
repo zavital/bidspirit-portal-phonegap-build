@@ -9202,8 +9202,9 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                 } else mViewPortElement.setAttribute("content", "width=" + width);
                 viewportChanged = !0;
             }
-            mViewPortWidth = width, viewportChanged && ($rootScope.debug("zoom:" + document.body.style.zoom + ", width:" + document.body.style.width + ", vieport:" + mViewPortWidth), 
+            mViewPortWidth = width, viewportChanged && ($rootScope.debug("zoom:" + document.body.style.zoom + ", vieport:" + mViewPortWidth),            		
             $rootScope.$broadcast("viewPort.viewPortWidthChanged"));
+            $rootScope.debug("body:"+ document.body.offsetWidth+",window:"+window.innerWidth+", mainddiv"+document.getElementById("mainView").offsetWidth);
         }
         function bindViewPortSizeToWindowWidth() {
             mViewPortInfo.minInitialDimenstion = Math.min(window.innerWidth, window.innerHeight), 
