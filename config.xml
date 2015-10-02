@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="0.441"
+<widget version="0.443"
     id="com.bidspirit.qa"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
@@ -85,7 +85,7 @@
 	<gap:splash src="splashes/ios/ipad_retina_landscape_2048x1536.png" gap:platform="ios" width="2048" height="1536" />
     
     
-	
+	<preference name="orientation" value="portrait" />
 	 
      
 </widget>
