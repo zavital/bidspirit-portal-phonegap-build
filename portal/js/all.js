@@ -9401,6 +9401,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                         var scrollOffset = getOffsetTop(element);
                         scope.scrollToParent && (scrollOffset = getOffsetTop(element.parent)), scrollOffset += scope.offset || -100, 
                         window.scrollTo(0, scrollOffset);
+                        alert(scrollOffset);
                     }
                 }
                 $timeout(scrollIfConditionMet, 50 | scope.delay), null != scope.watchedValue && scope.$watch("watchedValue", scrollIfConditionMet);
@@ -11473,36 +11474,71 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
 define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng) {
     return ng.module("commonModules.mobileApp", []);
 }), define("common/js/modules/mobileApp/puffinService", [ "./mobileAppModule" ], function(module) {
-    module.factory("PuffinService", function() {
-        function tryToLaunchWithPuffin(url) {
-            var openNormally = function() {
-                window.open(url, "_system");
-            }, openWithProtocol = function(protocol) {
-                window.open(url.replace("https", protocol), "_system");
-            }, openWithPuffin = function() {
-                openWithProtocol("puffin");
-            }, openWithPuffinFree = function() {
-                openWithProtocol("puffinFree");
-            };
-            "undefined" == typeof device ? openNormally() : checkPuffinExists(openWithPuffin, function() {
-                checkPuffinFreeExists(openWithPuffinFree, openNormally);
-            });
-        }
-        function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound) {
-            var scheme = null;
-            "undefined" != typeof device && ("iOS" === device.platform ? scheme = iosScheme : "Android" === device.platform && (scheme = androidSceme)), 
-            scheme ? appAvailability.check(scheme, onFound, onNotFound) : onNotFound();
-        }
-        function checkPuffinExists(onFound, onNotFound) {
-            return checkSchemeExists("puffin://", "com.cloudmosa.puffin", onFound, onNotFound);
-        }
-        function checkPuffinFreeExists(onFound, onNotFound) {
-            return checkSchemeExists("puffinFree://", "com.cloudmosa.puffinFree", onFound, onNotFound);
-        }
-        return {
-            tryToLaunchWithPuffin: tryToLaunchWithPuffin
-        };
-    });
+module.factory('PuffinService', function() {
+		
+		function tryToLaunchWithPuffin(url){
+			
+			var openNormally = function(){
+				window.open(url,"_system");
+			}
+			
+			var openWithProtocol = function(protocol){
+				window.open(url.replace("https",protocol),"_system");
+			}
+			
+			var openWithPuffin = function(){
+				openWithProtocol("puffin");
+			}
+			
+			var openWithPuffinFree = function(){
+				openWithProtocol("puffinFree");
+			}
+				
+			
+			if (typeof device=="undefined"){
+				openNormally();
+			}  else {
+				checkPuffinExists(openWithPuffin, function(){
+					alert("puffin not dound");
+					checkPuffinFreeExists(openWithPuffinFree, openNormally);
+				});
+			}			
+		}
+		
+		function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound){
+			var scheme = null;
+			
+			if (typeof device!="undefined"){
+				alert("checking foe scheme "+iosScheme+","+androidSceme+" on device "+device.platform);
+				if(device.platform === 'iOS') {
+					scheme = iosScheme;
+				} else  if(device.platform === 'Android') {
+					scheme = androidSceme;
+				}
+			} else {
+			   alert("device not dound");
+			}
+			if (scheme){
+				alert("checking foe scheme "+scheme);
+				appAvailability.check(scheme, onFound, onNotFound);
+			} else {
+				onNotFound();
+			}
+		}
+		
+		function checkPuffinExists(onFound, onNotFound){
+			return checkSchemeExists('puffin://','com.cloudmosa.puffin',onFound, onNotFound);
+		}
+		
+		function checkPuffinFreeExists(onFound, onNotFound){
+			return checkSchemeExists('puffinFree://','com.cloudmosa.puffinFree',onFound, onNotFound);
+		}
+
+		
+		return{
+			tryToLaunchWithPuffin:tryToLaunchWithPuffin
+		}
+	});
 }), define("common/js/modules/mobileApp/index", [ "./mobileAppModule", "./puffinService" ], function() {}), 
 define("common/js/modules/catalogUtils/catalogUtilsModule", [ "angular" ], function(ng) {
     return ng.module("commonModules.catalogUtils", []);
