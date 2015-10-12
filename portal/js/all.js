@@ -15477,7 +15477,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
                 var token = null;
                 $rootScope.currentUser && "UNCONFIRMED_EMAIL" != $rootScope.currentUser.registrationStage && !noAutoLogin && (token = StringsService.randomString(10));
                 var url = getAuctionSiteUrl(auction, token) + (lot ? "~" + lot.idInApp : "");
-                GlobalConfig.isMobileApp ? window.open(url, "_system") : PuffinService.tryToLaunchWithPuffin(url), 
+                GlobalConfig.isMobileApp ? PuffinService.tryToLaunchWithPuffin(url) : window.open(url, "_system"), 
                 token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
             }
         }
