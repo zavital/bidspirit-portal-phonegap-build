@@ -31,7 +31,7 @@
 				GlobalConfig.cssCacheVersion = "";
 				GlobalConfig.templatesCacheVersion =  GlobalConfig.appVersion;
 				
-				GlobalConfig.devMode = true;
+				GlobalConfig.devMode = false;
 				
 		        var require = {
 		       		baseUrl: GlobalConfig.jsFilesBase,		        	
@@ -94,7 +94,7 @@
 		
 		
 		<script>
-			  var debugMode = true;
+			  var debugMode = false;
 			    
 			  if (debugMode){
 			    setInterval(function(){document.getElementById("pgDebugMessage").scrollTop=100000;},1000);	
