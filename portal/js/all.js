@@ -14686,7 +14686,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
 						 scrollOffset += scope.offset || -100 ;
 						 
 						 if (OsInfoService.isAndroid() && GlobalConfig.isMobileApp ){							 
-							 scrollOffset -= 30;
+							 scrollOffset += 30;
 							 $rootScope.debug(scrollOffset);
 						 }
 						 
