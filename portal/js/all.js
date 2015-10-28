@@ -14863,21 +14863,21 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             scope: {
                 touchedClassName: "=bsTouchedClass"
             },
-            link: function(scope, element) {
-                function addTouchedClass() {
-                    $timeout.cancel(timer), element.addClass(scope.touchedClassName);
-                }
-                function removeTouchedClass() {
-                    $timeout.cancel(timer), timer = $timeout(function() {
-                        element.removeClass(scope.touchedClassName);
-                    }, 200);
-                }
-                var timer;
-                
-                element.bind("touchstart",addTouchedClass);				 
-				element.bind("touchend",removeTouchedClass);
-				$rootScope.$on("$stateChangeSuccess", removeTouchedClass);
-            }
+            link: function(scope, element, attrs) {
+				 var timer;
+				 function addTouchedClass(){
+					 $timeout.cancel(timer);
+					 element.addClass(scope.touchedClassName);
+				 }
+				 function removeTouchedClass(){
+					 element.removeClass(scope.touchedClassName);
+				 }
+				 element.bind("touchstart",addTouchedClass);
+				 element.bind("touchend",removeTouchedClass);
+				 $rootScope.$on("$stateChangeSuccess", removeTouchedClass);
+				 
+		    }
+
         };
     });
 }), define("common/js/modules/domUtils/index", [ "./domUtilsModule", "./domUtilsService", "./enterKeyActionDirective", "./viewPortService", "./slideToggleDirective", "./autoFontSizeDirective", "./textDirectionDirective", "./scrollOnDirective", "./backButtonDirective", "./bsWidthLimitDirective", "./focusOnDirective", "./linkableTextDirective", "./scrollToTop", "./paginationDirective", "./touchedClassDirective" ], function() {}), 
