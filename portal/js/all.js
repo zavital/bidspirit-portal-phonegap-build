@@ -14867,14 +14867,19 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
 				 var timer;
 				 function addTouchedClass(){
 					 $timeout.cancel(timer);
+					 $rootScope.debug("adding class "+scope.touchedClassName);
 					 element.addClass(scope.touchedClassName);
 				 }
 				 function removeTouchedClass(){
-					 element.removeClass(scope.touchedClassName);
-				 }
+					 $timeout.cancel(timer);
+					 timer = $timeout(function(){
+						 $rootScope.debug("removing class "+scope.touchedClassName);
+						 element.removeClass(scope.touchedClassName);
+					 },200);
+				 }				 
+				 
 				 element.bind("touchstart",addTouchedClass);
 				 element.bind("touchend",removeTouchedClass);
-				 $rootScope.$on("$stateChangeSuccess", removeTouchedClass);
 				 
 		    }
 
