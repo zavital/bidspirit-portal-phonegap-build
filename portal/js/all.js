@@ -14857,7 +14857,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
         };
     });
 }), define("common/js/modules/domUtils/touchedClassDirective", [ "./domUtilsModule" ], function(module) {
-    module.directive("bsTouchedClass", function($timeout) {
+    module.directive("bsTouchedClass", function($timeout, $rootScope) {
         return {
             restrict: "A",
             scope: {
@@ -14875,9 +14875,8 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                 var timer;
                 
                 element.bind("touchstart",addTouchedClass);				 
-				 element.bind("touchend",removeTouchedClass);
-				 element.bind("mouseup",removeTouchedClass);
-				 element.bind("click",removeTouchedClass);
+				element.bind("touchend",removeTouchedClass);
+				$rootScope.$on("$stateChangeSuccess", removeTouchedClass);
             }
         };
     });
