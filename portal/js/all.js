@@ -14873,7 +14873,11 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                     }, 200);
                 }
                 var timer;
-                element.bind("touchstart", addTouchedClass), element.bind("touchend", removeTouchedClass);
+                
+                element.bind("touchstart",addTouchedClass);				 
+				 element.bind("touchend",removeTouchedClass);
+				 element.bind("mouseup",removeTouchedClass);
+				 element.bind("click",removeTouchedClass);
             }
         };
     });
