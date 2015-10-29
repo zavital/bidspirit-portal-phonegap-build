@@ -21,7 +21,7 @@
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
-					appVersion : '0.476',					
+					appVersion : '0.477',					
 					envName : "prod",
 					isMobileApp:true,
 					appName:"portal"
@@ -33,11 +33,12 @@
 				
 				GlobalConfig.devMode = false;
 				
+				debugMode = true;
+				
 		        var require = {
-		       		baseUrl: GlobalConfig.jsFilesBase,		        	
-		        	waitSeconds:120
-			    };
-					
+		       		baseUrl: "./",	
+		       		urlArgs : debugMode ? 'v='+new Date().getTime() : ''
+			    };	
 		</script>
 		
 		<style>
@@ -54,6 +55,7 @@
 			right:0px;
 			overflow:auto;
 			top:0;
+			display:none;
 		}
 		.pgdebug.hide-button{			
 			position:absolute;
@@ -62,6 +64,7 @@
 			width:30px;
 			height:30px;
 			top:2px;
+			display:none;
 		}
 		
 		</style>
@@ -80,8 +83,7 @@
 		</div>
 		
 		<script 
-			data-main="portal/js/all",
-			urlArgs : "v=5", 
+			data-main='portal/js/all',			
 			src='common/js/lib/require.js'>
 		</script>
 				
@@ -94,17 +96,16 @@
 		
 		
 		<script>
-			  var debugMode = true;
-			    
-			  if (debugMode){
-			    setInterval(function(){document.getElementById("pgDebugMessage").scrollTop=100000;},1000);	
-			  } else {
-			    var debugElements = document.querySelectorAll(".pgdebug");
-			    for (var i=0;i< debugElements.length;i++){
-			    	debugElements[i].style.display="none";
-			    }
-			  }
+			if (debugMode){
+				var debugElements = document.querySelectorAll(".pgdebug");
+			   	for (var i=0;i< debugElements.length;i++){
+			   		debugElements[i].style.display="block";
+			   	}
+			   	setInterval(function(){document.getElementById("pgDebugMessage").scrollTop=100000;},1000);	
+			 }
 		</script>
+		
+		
 	</body>
 </Html>
 
