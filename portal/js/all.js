@@ -20671,11 +20671,14 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
               default:
                 $scope.data.mobileButtons = [ "back", "search", "home" ];
             }
+            if (OsInfoService.isAndroid() && GlobalConfig.isMobileApp){
+				updateContainer();
+			}
         }
         function updateContainer() {
             $scope.data.showContainer = !1, $timeout(function() {
                 $scope.data.showContainer = !0;
-            }, 50);
+            }, 10);
         }
         mLinksLocked = !1, $scope.data = {
             mobileMenuOn: !1,
