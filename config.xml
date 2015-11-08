@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="0.477"
+<widget version="0.489"
     id="com.bidspirit.qa"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
@@ -63,7 +63,7 @@
     	<activity android:launchMode="singleInstance" />
 	</gap:config-file>
 	
-	<preference name="AutoHideSplashScreen" value="false" />
+	
 	
 	
 	<platform name="android"> 
@@ -72,6 +72,8 @@
 		<splash src="res/screen/android/splash.png" density="land-mdpi"/>
 		<splash src="res/screen/android/splash.png" density="land-xhdpi"/> 
 	</platform>
+	
+	
 	
 	<gap:splash src="splashes/ios/iphone_3_320x480.png" gap:platform="ios" width="320" height="480" />
 	<gap:splash src="splashes/ios/iphone_4_640x960.png" gap:platform="ios" width="640" height="960" />
@@ -86,6 +88,8 @@
     
     
 	<preference name="orientation" value="portrait" />
+	<preference name="AutoHideSplashScreen" value="false" />
+	<preference name="DisallowOverscroll" value="true" />
 	 
      
 </widget>
