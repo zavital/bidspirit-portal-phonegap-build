@@ -14494,25 +14494,63 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
             mViewPortInfo.clientHeight = getClientHeight(), mViewPortInfo.maxWidth = getMaxWidth(), 
             $rootScope.viewPort = mViewPortInfo, mDebugInfo.viewPort = mViewPortInfo;
         }
-        function adjustViewPortAccordingToOrientation() {
-            var width;
-            width = isLandscapeOrientation() ? 900 : mViewPortInfo.minInitialDimenstion < 400 ? 500 : 900;
-            var viewportChanged = !1;
-            if (OsInfoService.isAndroid() && GlobalConfig.isMobileApp) {
-                var initialWidth = isLandscapeOrientation() ? mInitialHeight : mInitialWidth, newZoom = Math.round(1e4 * initialWidth / width) / 100 + "%";
-                (newZoom != document.body.style.zoom || width != mViewPortWidth) && (document.body.style.zoom = newZoom, 
-                document.body.style.width = width + "px", viewportChanged = !0);
-            } else if (OsInfoService.isIos()) {
-                var prevWidth = mViewPortWidth || window.innerWidth, scale = Math.round(100 * prevWidth / width) / 100;
-                scale = Math.max(.5, scale);
-                var viewPortWidthContent = "width=" + width;
-                mViewPortWidth && mViewPortInfo.orientation == getOrientation() || (viewPortWidthContent += ", initial-scale=" + scale + ", maximum-scale=" + scale), 
-                GlobalConfig.isMobileApp && (viewPortWidthContent += ", minimum-scale=" + scale + ", user-scalable=no"), 
-                mViewPortElement.setAttribute("content", viewPortWidthContent), viewportChanged = !0;
-            } else width != mViewPortWidth && (mViewPortElement.setAttribute("content", "width=" + width), 
-            viewportChanged = !0);
-            mViewPortWidth = width, $rootScope.viewPort.viewPortWidth = mViewPortWidth;
-        }
+        function adjustViewPortAccordingToOrientation(){
+			var width;
+			if (isLandscapeOrientation()){				
+				width = 900;
+			} else if (mViewPortInfo.minInitialDimenstion<400){
+				width = 500;
+			} else {
+				width = 900;
+			}
+			
+			var viewportChanged = false;
+			
+			if (OsInfoService.isAndroid() && GlobalConfig.isMobileApp ){ //phone gap mobile app have problems with viewport on android, we use zoom instead
+				var initialWidth  = isLandscapeOrientation() ?  mInitialHeight : mInitialWidth;
+				var newZoom = (Math.round((initialWidth*10000/width))/100)+"%";
+				if (newZoom!=document.body.style.zoom || width!=mViewPortWidth){
+					document.body.style.zoom = newZoom;
+					document.body.style.width=width+"px";				
+					viewportChanged = true;
+				}
+			} else if (OsInfoService.isIos()){
+				var prevWidth = mViewPortWidth || window.innerWidth;
+				var scale = Math.round(100*prevWidth/width)/100;
+				scale = Math.max(0.5,scale);
+				//alert("new:"+width+", prev:"+prevWidth+", port:"+mViewPortWidth+", window:"+window.innerWidth+", initial:"+mInitialWidth+", scale:"+ scale);
+				
+				var viewPortWidthContent = "width="+width;
+				if (!mViewPortWidth || mViewPortInfo.orientation!=getOrientation()){ 
+					viewPortWidthContent+=", initial-scale="+scale+", maximum-scale="+scale;
+				} 
+				if (GlobalConfig.isMobileApp){
+					//viewPortWidthContent+=", minimum-scale="+scale+", user-scalable=no";
+				}
+				if (!mViewPortWidth || !GlobalConfig.isMobileApp){
+					mViewPortElement.setAttribute('content',viewPortWidthContent);
+					alert("setting viewport to "+viewPortWidthContent);
+				}
+				
+				
+				viewportChanged = true;
+		    } else if (width!=mViewPortWidth){					
+				mViewPortElement.setAttribute('content',"width="+width);
+				viewportChanged = true;
+			}
+				
+			
+			
+			mViewPortWidth = width;
+			
+			$rootScope.viewPort.viewPortWidth = mViewPortWidth; 
+			
+			if (viewportChanged){
+				//$rootScope.debug("zoom:"+document.body.style.zoom+", width:"+document.body.style.width+", vieport:"+mViewPortWidth);
+				//$rootScope.debug("body:"+ document.body.offsetWidth+",window:"+window.innerWidth+", mainddiv"+document.getElementById("mainView").offsetWidth);
+				//$rootScope.$broadcast("viewPort.viewPortWidthChanged");
+			}
+		}
         function bindViewPortSizeToWindowWidth() {
             mViewPortInfo.minInitialDimenstion = Math.min(window.innerWidth, window.innerHeight), 
             mInitialWidth = Math.min(window.innerWidth, window.innerHeight), mInitialHeight = Math.max(window.innerWidth, window.innerHeight), 
