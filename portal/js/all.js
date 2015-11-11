@@ -20859,14 +20859,21 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
         function hideMenuIfOn() {
             $rootScope.mobileMenuOn && (mMenuWasHidden ? window.history.back() : $state.go("app.home"));
         }
-        mMenuWasHidden = !1, mButtonTouchTimer = null, $scope.toggleMenu = function() {
-            var currentState = $state.current.name;
-            $scope.menuTouched = !0, clearTimeout(mButtonTouchTimer), mButtonTouchTimer = $timeout(function() {
-                $scope.menuTouched = !1, "app.mobileMenu" == currentState ? ($rootScope.mobileMenuOn = !1, 
-                $timeout(function() {
-                    window.history.back();
-                }, 10)) : ($scope.data.lastMenuClick = new Date().getTime(), $state.go("app.mobileMenu"));
-            }, 300);
+        mMenuWasHidden = !1, mButtonTouchTimer = null, $scope.toggleMenu = function(){    		
+        	var currentState = $state.current.name;
+        	$scope.menuTouched = true;
+        	clearTimeout(mButtonTouchTimer);
+        	mButtonTouchTimer = $timeout(function(){
+        		$scope.menuTouched = false;
+        		alert("toucjed:"+$scope.menuTouched);
+            	if (currentState =="app.mobileMenu"){
+            		$rootScope.mobileMenuOn = false;
+            		$timeout(function(){window.history.back();},10);
+            	} else {            		
+            		$scope.data.lastMenuClick = new Date().getTime();  
+            		$state.go("app.mobileMenu")
+            	}            	
+        	}, 300);
         }, $scope.onLanguageClick = function() {
             $scope.langMenuAtBottom && $timeout(function() {
                 window.scrollTo(0, 1e4);
