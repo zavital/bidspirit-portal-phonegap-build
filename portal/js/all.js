@@ -20863,9 +20863,10 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
         	var currentState = $state.current.name;
         	$scope.menuTouched = true;
         	clearTimeout(mButtonTouchTimer);
+        	alert("toggle");
         	mButtonTouchTimer = $timeout(function(){
         		$scope.menuTouched = false;
-        		alert("toucjed:"+$scope.menuTouched);
+        		alert("touched:"+$scope.menuTouched);
             	if (currentState =="app.mobileMenu"){
             		$rootScope.mobileMenuOn = false;
             		$timeout(function(){window.history.back();},10);
