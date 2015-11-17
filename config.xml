@@ -48,7 +48,7 @@
 
     <preference name='phonegap-version' value='cli-5.2.0' />
     <preference name="EnableViewportScale" value="true" />
-    <preference name="StatusBarOverlaysWebView" value="true" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
     
     <gap:splash src="splash.png"/>
