@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="0.5171"
+<widget version="0.5172"
     id="com.bidspirit.prod"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
@@ -32,6 +32,8 @@
     
     <gap:platform name="android" />
     <gap:platform name="ios" />
+    	
+    
     
     
     
@@ -39,6 +41,14 @@
     <icon src="icon.png" />
     
     <icon src="icon-android.png" gap:platform="android" />
+    
+    <icon src="ios/ios_57x57.png" gap:platform="ios" width="57" height="57" />
+	<icon src="ios/ios_72x72.png" gap:platform="ios" width="72" height="72" />
+	<icon src="ios/ios_114x114.png" gap:platform="ios" width="114" height="114" />
+	<icon src="ios/ios_50x50.png" gap:platform="ios" width="50" height="50" />
+	<icon src="ios/ios_100x100.png" gap:platform="ios" width="100" height="100" />
+	<icon src="ios/ios_60x60.png" gap:platform="ios" width="60" height="60" />
+	<icon src="ios/ios_120x120.png" gap:platform="ios" width="120" height="120" />
     
     
     
@@ -72,6 +82,8 @@
 		<splash src="res/screen/android/splash.png" density="land-mdpi"/>
 		<splash src="res/screen/android/splash.png" density="land-xhdpi"/> 
 	</platform>
+	
+	
 	
 	
 	
