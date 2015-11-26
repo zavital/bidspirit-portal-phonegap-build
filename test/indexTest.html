@@ -66,7 +66,10 @@
 				loadjscssfile("./test.js","js");
 				loadjscssfile("http://54.210.154.63:8080/c.css","css");
 				loadjscssfile("./t.css","css");*/
-				navigator.splashscreen.hide();
+				alert("ready");
+				if (navigator.splashscreen){
+					navigator.splashscreen.hide();
+				}
 			}
 			
 			document.addEventListener("deviceready", init, false);
