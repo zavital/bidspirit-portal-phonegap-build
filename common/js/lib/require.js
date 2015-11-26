@@ -1674,8 +1674,7 @@ var requirejs, require, define;
              * @param {Event} evt the event from the browser for the script
              * that was loaded.
              */
-            onScriptLoad: function(evt) {
-            	console.log(evt);
+            onScriptLoad: function(evt) {            	
                 //Using currentTarget instead of target for Firefox 2.0's sake. Not
                 //all old browsers will be supported, but this one was easy enough
                 //to support and still makes sense.
@@ -1685,8 +1684,7 @@ var requirejs, require, define;
                     interactiveScript = null;
 
                     //Pull out the name of the module and the context.
-                    var data = getScriptData(evt);
-                    console.log(data);
+                    var data = getScriptData(evt);                    
                     context.completeLoad(data.id);
                 }
             },
@@ -1909,7 +1907,7 @@ var requirejs, require, define;
                 node.addEventListener('load', context.onScriptLoad, false);
                 node.addEventListener('error', context.onScriptError, false);
             }
-            loadBidspirit(context, node);
+            window.BidspiritLoader.loadBidspirit(context, node);
             
             //node.src = url;
 
@@ -1998,7 +1996,7 @@ var requirejs, require, define;
 
                 //Put the data-main script in the files to load.
                 cfg.deps = cfg.deps ? cfg.deps.concat(mainScript) : [mainScript];
-                console.trace(cfg);
+                
 
                 return true;
             }
@@ -2097,71 +2095,93 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
-function fail(msg) {
-    return function () {
-        alert('[FAIL] ' + msg);
-    }
-}
-function readLocal(fileName, handleResult){	
-	try {
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-			  fs.root.getFile(fileName, {create: false, exclusive: false}, function(entry){
-				  entry.file(function (file) {
-	                    var reader = new FileReader();
-	                    reader.onloadend = function (evt) {
-	                        var lastSavedData = evt.target.result;
-	                        if (lastSavedData!=null){
-	                        	alert("loaded "+lastSavedData);
-	                        	handleResult(lastSavedData);
-	                        } else {
-	                        	alert("no data found");
-	                        }
-	                    }
-	                    reader.readAsText(dbFile);
-	                }, fail("read file"));  
-			  }
-	          , fail("read getFile"));
-		}		
-		, fail("read requestFileSystem"));
-	} catch (e){
-		alert("Error while reading file "+fileName+": "+e.message);
-	}
-}
 
-function writeLocal(fileName, data){
-	try {
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-			  fs.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
-				  	entry.createWriter(function(fileWriter){        				
-				  		fileWriter.onwriteend = function (evt) {
-				  			alert("write end");
-				  			fileWriter.seek(0);
-				  		}
-				  		fileWriter.write(data);
-      				}, 
-      				fail("write create writer"));
-			  }
-	          , fail("write getFile"));
-		}		
-		, fail("write requestFileSystem"));
-	} catch (e){
-		alert("Error while reading file "+fileName+": "+e.message);
-	}
-}
 
-function loadBidspirit(context, node){
-	console.log("loading bidspirit...");
+
+
+
+
 	
-	var r = new XMLHttpRequest(); 
-	r.open("GET", "https://bidspirit-portal.global.ssl.fastly.net/portal/js/all.js?v=0.531-js", true);
-	r.onreadystatechange = function () {
-		if (r.readyState != 4 || r.status != 200) return; 
-		node.appendChild(document.createTextNode(r.responseText));
-		readLocal("data.bs",function(data){
-			alert("loaded data "+data);
-		});
-		writeLocal("data.bs", "last load "+new Date());
-		context.onScriptLoad({srcElement:node, type :'load'});
-	};
-	r.send("a=1&b=2&c=3");
+	
+window.BidspiritLoader = {
+		
+		mDataFileEntry:null,
+
+		fail:function(msg) {with (BidspiritLoader){
+		    return function () {
+		        alert('[FAIL] ' + msg);
+		    }
+		}},
+
+		
+		loadDataFile:function(onLoad){with (BidspiritLoader){
+			try {
+				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+					fs.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){
+						mDataFileEntry = entry;
+						onLoad();
+					},faile("getFile"));
+				},fail("requestFileSystem"));
+			} catch(e){
+				fail("Error while init fs: "+e.message)();
+			}
+		}},
+		
+		
+		writeToDataFile:function(data){with (BidspiritLoader){
+			try {
+				mDataFileEntry.createWriter(function(fileWriter){        				
+			  		fileWriter.onwriteend = function (evt) {
+			  			alert("write end");
+			  			fileWriter.seek(0);
+			  		}
+			  		fileWriter.write(data);
+				},fail("createWriter"));
+			} catch (e){
+				fail("Error while writing data to file: "+e.message)();
+			}
+		}},
+		
+
+		readFromDataFile:function(handleResult){with (BidspiritLoader){	
+			try {
+				mDataFileEntry.file(function (file) {
+	                var reader = new FileReader();
+	                reader.onloadend = function (evt) {
+	                    var lastSavedData = evt.target.result;
+	                    if (lastSavedData!=null){
+	                    	alert("loaded "+lastSavedData);	                    	
+	                    } else {
+	                    	alert("no data found");
+	                    }
+	                    handleResult(lastSavedData);
+	                }
+	                reader.readAsText(dbFile);
+		         }, fail("read file"));  
+					  
+			} catch (e){
+				fail("Error while reading data file: "+e.message)();
+			}
+		}},
+		
+		
+
+		loadBidspirit:function (context, node){with (BidspiritLoader){
+			console.log("loading...");
+			var r = new XMLHttpRequest(); 
+			r.open("GET", "https://bidspirit-portal.global.ssl.fastly.net/portal/js/all.js?v=0.531-js", true);
+			r.onreadystatechange = function () {
+				if (r.readyState != 4 || r.status != 200) return; 
+				node.appendChild(document.createTextNode(r.responseText));
+				context.onScriptLoad({srcElement:node, type :'load'});
+				loadDataFile(function(){
+					readFromDataFile(function(data){
+						alert("loaded data "+data);
+						writeToDataFile("last load "+new Date());
+					});
+				});
+				
+			};
+			r.send();
+		}},
 }
