@@ -61,10 +61,17 @@
 			        document.getElementsByTagName("head")[0].appendChild(fileref)
 			}
 			
-			loadjscssfile("http://54.210.154.63:8080/z.js","js");
-			loadjscssfile("./test.js","js");
-			loadjscssfile("http://54.210.154.63:8080/c.css","css");
-			loadjscssfile("./t.css","css");
+			function init(){
+				/*loadjscssfile("http://54.210.154.63:8080/z.js","js");
+				loadjscssfile("./test.js","js");
+				loadjscssfile("http://54.210.154.63:8080/c.css","css");
+				loadjscssfile("./t.css","css");*/
+				navigator.splashscreen.hide();
+			}
+			
+			document.addEventListener("deviceready", init, false);
+			
+			
 			
 		</script>
 <!-- 
