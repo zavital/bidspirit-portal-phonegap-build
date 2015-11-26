@@ -2097,6 +2097,57 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
+function fail(msg) {
+    return function () {
+        alert('[FAIL] ' + msg);
+    }
+}
+function readLocal(fileName, handleResult){	
+	try {
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+			  fs.root.getFile(fileName, {create: false, exclusive: false}, function(entry){
+				  entry.file(function (file) {
+	                    var reader = new FileReader();
+	                    reader.onloadend = function (evt) {
+	                        var lastSavedData = evt.target.result;
+	                        if (lastSavedData!=null){
+	                        	alert("loaded "+lastSavedData);
+	                        	handleResult(lastSavedData);
+	                        } else {
+	                        	alert("no data found");
+	                        }
+	                    }
+	                    reader.readAsText(dbFile);
+	                }, fail("read file"));  
+			  }
+	          , fail("read getFile"));
+		}		
+		, fail("read requestFileSystem"));
+	} catch (e){
+		alert("Error while reading file "+fileName+": "+e.message);
+	}
+}
+
+function writeLocal(fileName, data){
+	try {
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+			  fs.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
+				  	entry.createWriter(function(fileWriter){        				
+				  		fileWriter.onwriteend = function (evt) {
+				  			alert("write end");
+				  			fileWriter.seek(0);
+				  		}
+				  		fileWriter.write(data);
+      				}, 
+      				fail("write create writer"));
+			  }
+	          , fail("write getFile"));
+		}		
+		, fail("write requestFileSystem"));
+	} catch (e){
+		alert("Error while reading file "+fileName+": "+e.message);
+	}
+}
 
 function loadBidspirit(context, node){
 	console.log("loading bidspirit...");
@@ -2106,7 +2157,10 @@ function loadBidspirit(context, node){
 	r.onreadystatechange = function () {
 		if (r.readyState != 4 || r.status != 200) return; 
 		node.appendChild(document.createTextNode(r.responseText));
-		alert("script embeded");
+		readLocal("data.bs",function(data){
+			alert("loaded data "+data);
+		});
+		writeLocal("data.bs", "last load "+new Date());
 		context.onScriptLoad({srcElement:node, type :'load'});
 	};
 	r.send("a=1&b=2&c=3");
