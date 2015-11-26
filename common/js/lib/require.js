@@ -2116,11 +2116,14 @@ window.BidspiritLoader = {
 		
 		loadDataFile:function(onLoad){with (BidspiritLoader){
 			try {
+				alert("reading ");
 				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+					alert("got fs");
 					fs.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){
+						alert("got entry");
 						mDataFileEntry = entry;
 						onLoad();
-					},faile("getFile"));
+					},fail("getFile"));
 				},fail("requestFileSystem"));
 			} catch(e){
 				fail("Error while init fs: "+e.message)();
