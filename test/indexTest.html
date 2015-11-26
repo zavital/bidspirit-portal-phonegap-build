@@ -140,6 +140,7 @@
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
             
         }, false);
+        navigator.splashscreen.hide();
         
         function gotFS(fs) {
             var fail = failCB('getFile');
