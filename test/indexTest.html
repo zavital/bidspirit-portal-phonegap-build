@@ -119,24 +119,26 @@
     	var jsFile = 'test.js';
     	
         var FILENAME = 'database.db',
-            $ = function (id) {
-                return document.getElementById(id);
-            },
-            failCB = function (msg) {
-                return function () {
-                    alert('[FAIL] ' + msg);
-                }
-            },
-            file = {
-                writer: { available: false },
-                reader: { available: false }
-            },
-            dbEntries = [];
-            
+         $ = function (id) {
+             return document.getElementById(id);
+         },
+         failCB = function (msg) {
+             return function () {
+                 alert('[FAIL] ' + msg);
+             }
+         },
+         file = {
+             writer: { available: false },
+             reader: { available: false }
+         },
+         dbEntries = [];
+        alert("loading");    
         document.addEventListener('deviceready', function () {
+        	alert("ready!");
+        	navigator.splashscreen.hide();
             var fail = failCB('requestFileSystem');
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
-            navigator.splashscreen.hide();
+            
         }, false);
         
         function gotFS(fs) {
