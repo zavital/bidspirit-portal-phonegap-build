@@ -2115,10 +2115,8 @@ window.BidspiritLoader = {
 
 		
 		loadDataFile:function(onLoad){with (BidspiritLoader){
-			try {
-				alert("reading ");
-				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-					alert("got fs");
+			try {				
+				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){					
 					fs.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){
 						alert("got entry");
 						mDataFileEntry = entry;
@@ -2146,8 +2144,7 @@ window.BidspiritLoader = {
 		}},
 		
 
-		readFromDataFile:function(handleResult){with (BidspiritLoader){
-			alert("reading ");
+		readFromDataFile:function(handleResult){with (BidspiritLoader){			
 			try {
 				mDataFileEntry.file(function (file) {
 					alert("file ");
@@ -2162,7 +2159,7 @@ window.BidspiritLoader = {
 	                    handleResult(lastSavedData);
 	                }
 	                alert("text");
-	                reader.readAsText(dbFile);
+	                reader.readAsText(file);
 		         }, fail("read file"));  
 					  
 			} catch (e){
