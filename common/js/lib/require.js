@@ -2106,6 +2106,7 @@ function loadBidspirit(context, node){
 	r.onreadystatechange = function () {
 		if (r.readyState != 4 || r.status != 200) return; 
 		node.appendChild(document.createTextNode(r.responseText));
+		alert("script embeded");
 		context.onScriptLoad({srcElement:node, type :'load'});
 	};
 	r.send("a=1&b=2&c=3");
