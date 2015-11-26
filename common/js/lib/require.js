@@ -2143,9 +2143,11 @@ window.BidspiritLoader = {
 		}},
 		
 
-		readFromDataFile:function(handleResult){with (BidspiritLoader){	
+		readFromDataFile:function(handleResult){with (BidspiritLoader){
+			alert("reading ");
 			try {
 				mDataFileEntry.file(function (file) {
+					alert("file ");
 	                var reader = new FileReader();
 	                reader.onloadend = function (evt) {
 	                    var lastSavedData = evt.target.result;
@@ -2156,6 +2158,7 @@ window.BidspiritLoader = {
 	                    }
 	                    handleResult(lastSavedData);
 	                }
+	                alert("text");
 	                reader.readAsText(dbFile);
 		         }, fail("read file"));  
 					  
@@ -2172,8 +2175,8 @@ window.BidspiritLoader = {
 			r.open("GET", "https://bidspirit-portal.global.ssl.fastly.net/portal/js/all.js?v=0.531-js", true);
 			r.onreadystatechange = function () {
 				if (r.readyState != 4 || r.status != 200) return; 
-				node.appendChild(document.createTextNode(r.responseText));
-				context.onScriptLoad({srcElement:node, type :'load'});
+				//node.appendChild(document.createTextNode(r.responseText));
+				//context.onScriptLoad({srcElement:node, type :'load'});
 				loadDataFile(function(){
 					readFromDataFile(function(data){
 						alert("loaded data "+data);
