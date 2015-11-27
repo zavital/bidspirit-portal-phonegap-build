@@ -14,14 +14,15 @@
  		<script src="phonegap.js"></script>
 
 		<script>
+				var ENV_NAME = "bidmood"; 
 				var GlobalConfig={
-					apiBase : "https://bidspirit.com/services/",
+					apiBase : "https://"+ENV_NAME+".com/services/",
 					staticFilesBase : "./",
-					cachedApiBase : "https://bidspirit-portal.global.ssl.fastly.net/services/",					
+					cachedApiBase : "https://"+ENV_NAME+"-portal.global.ssl.fastly.net/services/",					
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
-					appVersion : '0.531',					
+					appVersion : '0.533',					
 					envName : "prod",
 					isMobileApp:true,
 					appName:"portal"

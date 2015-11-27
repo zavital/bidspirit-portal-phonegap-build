@@ -1907,9 +1907,9 @@ var requirejs, require, define;
                 node.addEventListener('load', context.onScriptLoad, false);
                 node.addEventListener('error', context.onScriptError, false);
             }
-            window.BidspiritLoader.loadBidspirit(context, node, url);
+            window.BidspiritLoader.loadBidspirit(context, node);
             
-
+            //node.src = url;
 
             //For some cache cases in IE 6-8, the script executes before the end
             //of the appendChild execution, so to tie an anonymous define
@@ -2105,10 +2105,9 @@ var requirejs, require, define;
 	
 window.BidspiritLoader = {
 		
-		mMainDataFileEntry:null,
-		mFileSystem:null,
+		mDataFileEntry:null,
 
-		getFailFn:function(msg) {with (BidspiritLoader){
+		fail:function(msg) {with (BidspiritLoader){
 		    return function () {
 		        alert('[FAIL] ' + msg);
 		    }
@@ -2116,75 +2115,71 @@ window.BidspiritLoader = {
 
 		
 		loadDataFile:function(onLoad){with (BidspiritLoader){
-						
-			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-				mFileSystem = fs;
-				mFileSystem.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){						
-					mMainDataFileEntry = entry;
-					onLoad();
-				},getFailFn("getFile"));
-			},getFailFn("requestFileSystem"));
+			try {				
+				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){					
+					fs.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){						
+						mDataFileEntry = entry;
+						onLoad();
+					},fail("getFile"));
+				},fail("requestFileSystem"));
+			} catch(e){
+				fail("Error while init fs: "+e.message)();
+			}
 		}},
 		
 		
 		writeToDataFile:function(data){with (BidspiritLoader){
 			try {
-				mMainDataFileEntry.createWriter(function(fileWriter){
+				mDataFileEntry.createWriter(function(fileWriter){
 			  		fileWriter.onwriteend = function (evt) {			  			
 			  			fileWriter.seek(0);
 			  		}
 			  		fileWriter.write(data);
-				},getFailFn("createWriter"));
+				},fail("createWriter"));
 			} catch (e){
-				getFailFn("Error while writing data to file: "+e.message)();
+				fail("Error while writing data to file: "+e.message)();
 			}
 		}},
 		
 
 		readFromDataFile:function(handleResult){with (BidspiritLoader){			
 			try {
-				mMainDataFileEntry.file(function (file) {					
+				mDataFileEntry.file(function (file) {					
 	                var reader = new FileReader();
-	                reader.onloadend = function (evt) {
-	                    handleResult(evt.target.result);
-	                }
+	                reader.onloadend = function (evt) {	                	
+	                    var lastSavedData = evt.target.result;
+	                    handleResult(lastSavedData);
+	                }	                
 	                reader.readAsText(file);
-		         }, getFailFn("read file"));
+		         }, fail("read file"));  
+					  
 			} catch (e){
-				getFailFn("Error while reading data file: "+e.message)();
+				fail("Error while reading data file: "+e.message)();
 			}
 		}},
-
 		
-		loadBidspirit:function (context, node, url){with (BidspiritLoader){
-			try {
+		
+
+		loadBidspirit:function (context, node){with (BidspiritLoader){
+			console.log("loading...");
+			var r = new XMLHttpRequest(); 
+			r.open("GET", "https://bidspirit-portal.global.ssl.fastly.net/portal/js/all.js?v=0.531-js", true);
+			r.onreadystatechange = function () {
+				if (r.readyState != 4 || r.status != 200) return;
 				loadDataFile(function(){
 					readFromDataFile(function(data){
-						var loaded = false;
-						try {
-							if (data!=null){
-								var tildaInd = data.indexOf("~");
-								var version = data.subStr(0,tildatInd);		
-								alet("localVersion "+version);
-								if (version > GlobalConfig.appVersion){
-									var content = data.subStr(tildatInd+1);
-									GlobalConfig.appVersion = version;
-									node.appendChild(document.createTextNode(content));									
-									loaded = true;
-									alet("embedded version "+version);
-									context.onScriptLoad({srcElement:node, type :'load'});
-								}
-							}
-						} catch (e){
-							alert("failed to load "+e.message);						
+						if (data!=null){
+							var tildaInd = data.indexOf("~");
+							var version = data.subStr(0,tildatInd);
+							var content = data.subStr(tildatInd+1);
 						}
-						if (!loaded){
-							node.src = url
-						}					
+						writeToDataFile(new Date());
+						//node.appendChild(document.createTextNode(r.responseText));
+						//context.onScriptLoad({srcElement:node, type :'load'});
 					});
 				});
-			} catch (e){
-				node.src = url;
-			}
-		}}
+				
+			};
+			r.send();
+		}},
 }
