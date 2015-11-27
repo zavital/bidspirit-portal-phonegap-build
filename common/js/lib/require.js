@@ -2150,7 +2150,7 @@ window.BidspiritLoader = {
 					alert("file ");
 	                var reader = new FileReader();
 	                reader.onloadend = function (evt) {
-	                	alert("on load");
+	                	alert("on load "+JSON.stringify(evt));
 	                    var lastSavedData = evt.target.result;
 	                    if (lastSavedData!=null){
 	                    	alert("loaded "+lastSavedData);	                    	
@@ -2175,13 +2175,13 @@ window.BidspiritLoader = {
 			var r = new XMLHttpRequest(); 
 			r.open("GET", "https://bidspirit-portal.global.ssl.fastly.net/portal/js/all.js?v=0.531-js", true);
 			r.onreadystatechange = function () {
-				if (r.readyState != 4 || r.status != 200) return; 
-				//node.appendChild(document.createTextNode(r.responseText));
-				//context.onScriptLoad({srcElement:node, type :'load'});
+				if (r.readyState != 4 || r.status != 200) return;
 				loadDataFile(function(){
 					readFromDataFile(function(data){
 						alert("loaded data "+data);
 						writeToDataFile("last load "+new Date());
+						//node.appendChild(document.createTextNode(r.responseText));
+						//context.onScriptLoad({srcElement:node, type :'load'});
 					});
 				});
 				
