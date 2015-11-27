@@ -2150,6 +2150,7 @@ window.BidspiritLoader = {
 					alert("file ");
 	                var reader = new FileReader();
 	                reader.onloadend = function (evt) {
+	                	alert("on load");
 	                    var lastSavedData = evt.target.result;
 	                    if (lastSavedData!=null){
 	                    	alert("loaded "+lastSavedData);	                    	
@@ -2157,9 +2158,9 @@ window.BidspiritLoader = {
 	                    	alert("no data found");
 	                    }
 	                    handleResult(lastSavedData);
-	                }
-	                alert("text");
+	                }	                
 	                reader.readAsText(file);
+	                alert("text");
 		         }, fail("read file"));  
 					  
 			} catch (e){
