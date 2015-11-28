@@ -2185,6 +2185,7 @@ window.BidspiritLoader = {
 									getFailFn("readFromDataFile error "+e.message)();						
 								}
 								if (!loaded){
+									alert("loading from url");
 									node.src = url
 								}					
 							});

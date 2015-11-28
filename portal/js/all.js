@@ -17153,6 +17153,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             }, $rootScope.debug("debug init");
         }
         function onInit() {
+        	alert("init");
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isMobile = OsInfoService.isMobile(), 
             PortalStates.init(), PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", 
             initLog(), initRegions(), HeartBitService.init(), PortalNavigationService.init(), 
