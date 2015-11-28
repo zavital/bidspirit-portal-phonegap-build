@@ -17578,7 +17578,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         
         
-        function updateBidspiritMainDataFile(appVersion){			
+        function updateBidspiritMainDataFile(appVersion){	
+        	
 			var contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
 			alert("updaing to version "+appVersion+" url:"+contentUrl);
 			$http.get(contentUrl).success(function(data){				
