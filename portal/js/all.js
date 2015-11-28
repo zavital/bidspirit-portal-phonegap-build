@@ -17593,7 +17593,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 					  			window.location.reload();
 					  			LocalStorageService.store("updateFailCounter",0);
 				  			};
-				  			fileWriter.write(appVersion+"~"+data);
+				  			fileWriter.write(appVersion+"~"+data+";\nBidspiritLoader.contentLoaded=true");
 						} else {
 							updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
 							LocalStorageService.store("updateFailCounter",updateFailCounter+1);
