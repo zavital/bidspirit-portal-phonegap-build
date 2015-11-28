@@ -17489,7 +17489,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             return GlobalConfig.devEnv ? 1e4 : 1e3 * secondsToWait + Math.round(1e3 * Math.random() * secondsToSpread);
         }
         
-        mUpdatingMobileVersion  = true;
+        mUpdatingMobileVersion  = false;
         
     	function heartBeat(){						
 			ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse){				
@@ -17576,17 +17576,31 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function getFailFn(msg) {
             return BidspiritLoader.getFailFn(msg);
         }
-        function updateBidspiritMainDataFile(appVersion) {
-            alert("updaing to version " + appVersion), BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter) {
-                alert("got writer");
-                var contentUrl = "https://" + SettingsService.get("portalAddress") + "/js/all.js?v=" + appVersion;
-                alert("getting content from " + contentUrl), $http.get(contentUrl).success(function(data) {
-                    alert("got content " + data.length), fileWriter.onwriteend = function() {
-                        fileWriter.seek(0), alert("write done "), window.location.reload();
-                    }, fileWriter.write(appVersion + "~" + data);
-                });
-            }, getFailFn("createWriter"));
-        }
+        
+        
+        function updateBidspiritMainDataFile(appVersion){			
+			var contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
+			alert("updaing to version "+appVersion+" url:"+contentUrl);
+			$http.get(contentUrl).success(function(data){				
+				alert("got content "+data.length);
+					BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter){
+						alert("got writer");
+						if (data.length>100000){
+							fileWriter.onwriteend = function (evt) {
+				  				fileWriter.seek(0);
+				  				alert("write done ");
+					  			window.location.reload();
+					  			LocalStorageService.store("updateFailCounter",0);
+				  			};
+				  			fileWriter.write(appVersion+"~"+data);
+						} else {
+							updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
+							LocalStorageService.store("updateFailCounter",updateFailCounter+1);
+					}
+				}, getFailFn("createWriter"));
+			});
+		}
+        
         return {
             updateBidspiritMainDataFile: updateBidspiritMainDataFile
         };
