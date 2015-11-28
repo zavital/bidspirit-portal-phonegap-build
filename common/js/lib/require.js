@@ -2170,10 +2170,10 @@ window.BidspiritLoader = {
 								try {
 									if (data!=null){
 										var tildaInd = data.indexOf("~");
-										var version = data.subStr(0,tildatInd);		
+										var version = data.subStr(0, tildaInd);		
 										alet("localVersion "+version);
 										if (version > GlobalConfig.appVersion){
-											var content = data.subStr(tildatInd+1);
+											var content = data.subStr(tildaInd+1);
 											GlobalConfig.appVersion = version;
 											node.appendChild(document.createTextNode(content));									
 											loaded = true;
