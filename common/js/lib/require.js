@@ -2118,6 +2118,7 @@ window.BidspiritLoader = {
 		loadDataFile:function(onLoad){with (BidspiritLoader){
 						
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+				alert("got fs");
 				mFileSystem = fs;
 				mFileSystem.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){						
 					mMainDataFileEntry = entry;
@@ -2157,34 +2158,42 @@ window.BidspiritLoader = {
 
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
-			try {
-				loadDataFile(function(){
-					readFromDataFile(function(data){
-						var loaded = false;
-						try {
-							if (data!=null){
-								var tildaInd = data.indexOf("~");
-								var version = data.subStr(0,tildatInd);		
-								alet("localVersion "+version);
-								if (version > GlobalConfig.appVersion){
-									var content = data.subStr(tildatInd+1);
-									GlobalConfig.appVersion = version;
-									node.appendChild(document.createTextNode(content));									
-									loaded = true;
-									alet("embedded version "+version);
-									context.onScriptLoad({srcElement:node, type :'load'});
+			 if ( document.URL.match(/^http/)){
+				 node.src = url;
+			 } else {		
+				 document.addEventListener('deviceready', function () {
+					 alert("ready");
+					 try {
+						loadDataFile(function(){
+							readFromDataFile(function(data){
+								var loaded = false;
+								try {
+									if (data!=null){
+										var tildaInd = data.indexOf("~");
+										var version = data.subStr(0,tildatInd);		
+										alet("localVersion "+version);
+										if (version > GlobalConfig.appVersion){
+											var content = data.subStr(tildatInd+1);
+											GlobalConfig.appVersion = version;
+											node.appendChild(document.createTextNode(content));									
+											loaded = true;
+											alet("embedded version "+version);
+											context.onScriptLoad({srcElement:node, type :'load'});
+										}
+									}
+								} catch (e){
+									getFailFn("readFromDataFile error "+e.message)();						
 								}
-							}
-						} catch (e){
-							alert("failed to load "+e.message);						
-						}
-						if (!loaded){
-							node.src = url
-						}					
-					});
-				});
-			} catch (e){
-				node.src = url;
-			}
+								if (!loaded){
+									node.src = url
+								}					
+							});
+						});
+					} catch (e){
+						getFailFn("loadDataFile error "+e.message)();
+						node.src = url;
+					}
+				 });
+			 }
 		}}
 }
