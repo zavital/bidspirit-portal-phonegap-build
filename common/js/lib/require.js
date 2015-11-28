@@ -2124,22 +2124,7 @@ window.BidspiritLoader = {
 				},getFailFn("getFile"));
 			},getFailFn("requestFileSystem"));
 		}},
-		
-		
-		writeToDataFile:function(data){with (BidspiritLoader){
-			try {
-				mMainDataFileEntry.createWriter(function(fileWriter){
-			  		fileWriter.onwriteend = function (evt) {			  			
-			  			fileWriter.seek(0);
-			  		}
-			  		fileWriter.write(data);
-				},getFailFn("createWriter"));
-			} catch (e){
-				getFailFn("Error while writing data to file: "+e.message)();
-			}
-		}},
-		
-
+	
 		readFromDataFile:function(handleResult){with (BidspiritLoader){			
 			try {
 				mMainDataFileEntry.file(function (file) {					
@@ -2171,12 +2156,18 @@ window.BidspiritLoader = {
 										alert("localVersion "+version);
 										if (version > GlobalConfig.appVersion){
 											var content = data.substring(tildaInd+1);
-											GlobalConfig.appVersion = version;
+											GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
 											node.appendChild(document.createTextNode(content));
-											alert("content loaded:"+BidspiritLoader.contentLoaded);
-											loaded = true;
-											alert("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
-											context.onScriptLoad({srcElement:node, type :'load'});
+											if (BidspiritLoader.contentLoaded){
+												alert("content loaded:");
+												loaded = true;
+												alert("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
+												context.onScriptLoad({srcElement:node, type :'load'});
+												delete localStorage.contentEmbedFailures;
+											} else {
+												entry.remove(mMainDataFileEntry,function(){alert("cleared old content");},getFailFn("Failed to remove "));
+												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1; 
+											}
 										}
 									}
 								} catch (e){
