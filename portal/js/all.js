@@ -17525,7 +17525,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 						displayAppUpgradePopup();
 					} else if (settings.appVersion != GlobalConfig.appVersion ){
 						alert("new version "+settings.appVersion);
-						var updateFailCounter = LocalStorageService.store("updateFailCounter");
+						var updateFailCounter = LocalStorageService.load("updateFailCounter");
 						if (updateFailCounter>3){
 							displayAppUpgradePopup();
 						} else if (!mUpdatingMobileVersion){
