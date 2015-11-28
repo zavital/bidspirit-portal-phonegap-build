@@ -17569,7 +17569,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function updateBidspiritMainDataFile(appVersion) {
             alert("updaing to version " + appVersion), BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter) {
                 alert("got writer");
-                var contentUrl = SettingsService.get("portalAddress") + "/js/all.js?v=" + appVersion;
+                var contentUrl = SettingsService.get("portalAddress") + "portal/js/all.js?v=" + appVersion;
                 alert("getting content from " + contentUrl), $http.get(contentUrl).success(function(data) {
                     alert("got content " + data.length), fileWriter.onwriteend = function() {
                         fileWriter.seek(0), alert("write done "), window.location.reload();
