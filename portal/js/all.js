@@ -17487,22 +17487,59 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function getNextReloadTime(secondsToWait, secondsToSpread) {
             return GlobalConfig.devEnv ? 1e4 : 1e3 * secondsToWait + Math.round(1e3 * Math.random() * secondsToSpread);
         }
-        function heartBeat() {
-            ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse) {
-                var user = $rootScope.currentUser;
-                user ? heartBeatResponse.hasSession ? user.registrationStage != heartBeatResponse.registrationStage && (user.registrationStage = heartBeatResponse.registrationStage, 
-                $rootScope.$broadcast("auth.authStateChanged")) : ($log.info("session ended."), 
-                SessionsService.setSessionUser(null)) : heartBeatResponse.hasSession && SessionsService.refreshCurrentSession();
-                var settings = SettingsService.getAll(), currentCacheVersions = settings.cacheVersions, newCacheVersions = heartBeatResponse.cacheVersions, newTexts = !1;
-                currentCacheVersions.TEXTS != newCacheVersions.TEXTS && (newTexts = !0, currentCacheVersions.TEXTS = newCacheVersions.TEXTS), 
-                currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO && (currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO, 
-                PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120, 120))), GlobalConfig.isMobileApp ? !mAppUpdateMessageDisplayed && GlobalConfig.appVersion < heartBeatResponse.requiredMobileAppVersion ? displayAppUpgradePopup() : settings.appVersion != GlobalConfig.appVersion && setTimeout(function() {
-                    PortalMobileUtils.updateBidspiritMainDataFile();
-                }, getNextReloadTime(0, 60)) : (settings.appVersion != heartBeatResponse.appVersion && (settings.appVersion = heartBeatResponse.appVersion, 
-                reloadPageAfterDelay()), newTexts && (I18nService.reloadTextsAfterDelay(getNextReloadTime(120, 120)), 
-                PortalInfoService.storeInfoInCache()));
-            });
-        }
+        
+        function heartBeat(){						
+			ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse){				
+				var user = $rootScope.currentUser;				
+				if (user){
+					if(!heartBeatResponse.hasSession){
+						$log.info("session ended.");
+						SessionsService.setSessionUser(null);
+					} else {
+						if (user.registrationStage != heartBeatResponse.registrationStage){
+							user.registrationStage = heartBeatResponse.registrationStage;
+							$rootScope.$broadcast("auth.authStateChanged");
+						}
+					}
+				} else if (heartBeatResponse.hasSession){
+					SessionsService.refreshCurrentSession();
+				}
+				var settings = SettingsService.getAll();
+				var currentCacheVersions = settings.cacheVersions;
+				var newCacheVersions = heartBeatResponse.cacheVersions;
+				var newTexts = false;
+				if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS){
+					newTexts =  true;		
+					currentCacheVersions.TEXTS = newCacheVersions.TEXTS; 
+				}				
+				
+				if (currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO){
+					currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO
+					PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120,120));
+				}
+								
+				if (GlobalConfig.isMobileApp){
+					if (!mAppUpdateMessageDisplayed  && GlobalConfig.appVersion <  heartBeatResponse.requiredMobileAppVersion){
+						displayAppUpgradePopup();
+					} else if (settings.appVersion != GlobalConfig.appVersion){
+						alert("new version found "+GlobalConfig.appVersion);
+						setTimeout(function(){
+							PortalMobileUtils.updateBidspiritMainDataFile();
+						}, getNextReloadTime(0,60));
+					}
+				} else {					
+					if (settings.appVersion!= heartBeatResponse.appVersion){
+						settings.appVersion = heartBeatResponse.appVersion;
+						reloadPageAfterDelay();
+					}
+					if (newTexts){
+						I18nService.reloadTextsAfterDelay(getNextReloadTime(120,120));
+						PortalInfoService.storeInfoInCache();
+					}
+				}
+			});
+			
+		}
         function displayAppUpgradePopup() {
             mAppUpdateMessageDisplayed || (mAppUpdateMessageDisplayed = !0, $uibModal.open({
                 templateUrl: PathsService.appTemplatePath("info/upgradeRequired"),
