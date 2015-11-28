@@ -2177,7 +2177,7 @@ window.BidspiritLoader = {
 											GlobalConfig.appVersion = version;
 											node.appendChild(document.createTextNode(content));									
 											loaded = true;
-											alert("embedded version "+version);
+											alert("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
 											context.onScriptLoad({srcElement:node, type :'load'});
 										}
 									}
