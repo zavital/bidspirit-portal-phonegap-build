@@ -60,6 +60,10 @@
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
     
+    <feature name="PushPlugin">
+  		<param name="ios-package" value="PushPlugin" />
+	</feature>
+    
     <gap:splash src="splash.png"/>
     
     
