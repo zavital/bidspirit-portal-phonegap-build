@@ -17479,7 +17479,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         };
     });
 }), define("portal/js/modules/main/heartBeatService", [ "./portalMainModule" ], function(module) {
-    module.factory("HeartBitService", function($rootScope, $interval, $log, $uibModal, ApiService, SettingsService, PathsService, I18nService, SessionsService, PortalMobileUtils, PortalInfoService) {
+    module.factory("HeartBitService", function($rootScope, $interval, $log, $uibModal, ApiService, SettingsService, PathsService, I18nService, SessionsService, PortalMobileUtils, PortalInfoService, LocalStorageService) {
         function reloadPageAfterDelay() {
             clearTimeout(mPageReloadTimer), mPageReloadTimer = setTimeout(function() {
                 window.location.reload();
