@@ -2171,13 +2171,13 @@ window.BidspiritLoader = {
 									if (data!=null){
 										var tildaInd = data.indexOf("~");
 										var version = data.substring(0, tildaInd);		
-										alet("localVersion "+version);
+										alert("localVersion "+version);
 										if (version > GlobalConfig.appVersion){
 											var content = data.substring(tildaInd+1);
 											GlobalConfig.appVersion = version;
 											node.appendChild(document.createTextNode(content));									
 											loaded = true;
-											alet("embedded version "+version);
+											alert("embedded version "+version);
 											context.onScriptLoad({srcElement:node, type :'load'});
 										}
 									}
