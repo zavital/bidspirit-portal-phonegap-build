@@ -17489,6 +17489,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             return GlobalConfig.devEnv ? 1e4 : 1e3 * secondsToWait + Math.round(1e3 * Math.random() * secondsToSpread);
         }
         
+        mUpdatingMobileVersion  = true;
         
     	function heartBeat(){						
 			ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse){				
