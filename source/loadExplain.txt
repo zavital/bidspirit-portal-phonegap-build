@@ -1,0 +1,11 @@
+the idea is to create an app that will load it's resources locally, but will update itself when new version arrives.
+
+the initial app load all it's content from the build (this probably helps the app to be approved by the build)
+
+once the app detects that a new version appears (heartBeatService) it loads the new js and css and store them on the file system (PortalMobileUtils), then refreshes the app.
+
+when the app loads, it detects that the version now needs to be loaded from the file system (js : at some code added to require.js, and css - on CssLoader) and load it from there.
+
+for the texts version - there is a similar procedure, except that the texts are not updated by app version but by texts version. (I18nService) 
+  
+

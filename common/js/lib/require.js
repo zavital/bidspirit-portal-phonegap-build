@@ -2107,6 +2107,7 @@ window.BidspiritLoader = {
 		
 		mMainDataFileEntry:null,
 		mFileSystem:null,
+		contentLoaded:false,
 
 		getFailFn:function(msg) {with (BidspiritLoader){
 		    return function () {
@@ -2138,7 +2139,15 @@ window.BidspiritLoader = {
 				getFailFn("Error while reading data file: "+e.message)();
 			}
 		}},
-
+		
+		
+		clear:function(){with (BidspiritLoader){
+			mMainDataFileEntry.remove(function(){alert("cleared old content");},getFailFn("Failed to remove content"));
+			mFileSystem.root.getFile("theme", {create: true, exclusive: false}, function(entry){
+				entry.remove(function(){alert("cleared theme");},getFailFn("Failed to remove theme"));
+			});
+		}},
+		
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
 			 if ( document.URL.match(/^http/)){
@@ -2155,17 +2164,17 @@ window.BidspiritLoader = {
 										var version = data.substring(0, tildaInd);		
 										alert("localVersion "+version);
 										if (version > GlobalConfig.appVersion){
-											var content = data.substring(tildaInd+1);
-											GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
+											var content = data.substring(tildaInd+1);											
 											node.appendChild(document.createTextNode(content));
-											if (BidspiritLoader.contentLoaded){
-												alert("content loaded:");
-												loaded = true;
+											if (contentLoaded){
+												loaded = true;												
+												GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
 												alert("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
 												context.onScriptLoad({srcElement:node, type :'load'});
 												delete localStorage.contentEmbedFailures;
 											} else {
-												entry.remove(mMainDataFileEntry,function(){alert("cleared old content");},getFailFn("Failed to remove "));
+												node.removeChild(node.childNodes[0]);
+												
 												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1; 
 											}
 										}
