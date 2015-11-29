@@ -17541,136 +17541,192 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         };
     });
 }), define("portal/js/modules/main/portalMobileUtils", [ "./portalMainModule" ], function(module) {
-    module.factory("PortalMobileUtils", function($http, $q, SettingsService, LocalStorageService, PathsService) {
-        function getFailFn(msg) {
-            return BidspiritLoader.getFailFn(msg);
-        }
-        function storeLocalData(fileName, data, onSuccess, onFail) {
-            BidspiritLoader.mFileSystem.root.getFile(fileName, {
-                create: !0,
-                exclusive: !1
-            }, function(entry) {
-                entry.createWriter(function(fileWriter) {
-                    fileWriter.onwriteend = function() {
-                        fileWriter.seek(0), onSuccess && onSuccess();
-                    }, fileWriter.write(data);
-                }, onFail);
-            }, onFail);
-        }
-        function loadLocalData(fileName, handleData) {
-            BidspiritLoader.mFileSystem.root.getFile(fileName, {
-                create: !0,
-                exclusive: !1
-            }, function(entry) {
-                entry.file(function(file) {
-                    var reader = new FileReader();
-                    reader.onloadend = function(evt) {
-                        handleData(evt.target.result);
-                    }, reader.readAsText(file);
-                }, getFailFn("read file"));
-            }, getFailFn("getFile"));
-        }
-        function storeLocalTexts(lang) {
-            var textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer(), fileName = getLocalTextFileName(lang, textsVersion), url = PathsService.getPortalTextsUrl(lang);
-            return alert("loading lang from url " + url), $http({
-                url: appDefaultPath,
-                cache: !1
-            }).success(function(textsData) {
-                storeLocalData(fileName, textsData, function() {
-                    alert("stored at " + fileName), deferred.resolve();
-                }, function() {
-                    deferred.reject("failed to save file " + fileName);
-                });
-            }), deferred.promise;
-        }
-        function updateLocalTextsInAllLangs() {
-            SettingsService.get("languages");
-            fileSystem.root.getDirectory("localTexts", {
-                create: !0,
-                exclusive: !1
-            }, function() {
-                for (var promises = [], i = 0; i < langs.length; i++) promises.push(storeLocalTexts(langs[i]));
-                return $q.all(promises).then(function() {
-                    removeOldLocalTexts(textsVersion);
-                }, function() {
-                    alert("error while storing local texts");
-                });
-            }, function() {
-                alert("failed to get locat text directory");
-            });
-        }
-        function removeOldLocalTexts(currentTextsVersion) {
-            BidspiritLoader.mFileSystem.root.getFile("localTexts", {
-                create: !0,
-                exclusive: !1
-            }, function(directoryEntry) {
-                directoryEntry.createReader().readEntries(function(entries) {
-                    for (var i = 0; i < entries.length; i++) {
-                        var entry = entries[i], isLatestTexts = -1 == entry.name.indexOf("." + currentTextsVersion + ".");
-                        isLatestTexts || entry.remove(function() {
-                            alert("removed " + entry.name);
-                        }, function() {
-                            alert("failed to removed " + entry.name);
-                        });
-                    }
-                });
-            });
-        }
-        function getLocalTextFileName(lang, version) {
-            return "localTexts/" + lang + "." + version + ".properties";
-        }
-        function getTextsLoadPromise(lang) {
-            var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
-            if (GlobalConfig.initialTextsVersion == textsVersion) return $http({
-                url: appDefaultPath,
-                cache: !0
-            });
-            var deferred = $q.defer();
-            return loadLocalData(getLocalTextFileName(lang, textsVersion), function(storedTexts) {
-                null != texts ? (alert("loaded local texts for " + textsVersion), deferred.resolve(storedTexts)) : (alert("local texts not found, using default "), 
-                $http({
-                    url: appDefaultPath,
-                    cache: !0
-                }).success(function(texts) {
-                    deferred.resolve(texts);
-                }));
-            }), deferred.promise;
-        }
-        function updateBidspiritDataAndTheme(appVersion) {
-            function handleUpdateFailure(message) {
-                alert(message), BidspiritLoader.clear(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
-                LocalStorageService.store("updateFailCounter", updateFailCounter + 1);
-            }
-            var contentUrl, styleUrl;
-            GlobalConfig.devMode ? (contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion, 
-            styleUrl = SettingsService.get("portalAddress") + "styles/style.css?v=" + appVersion) : (contentUrl = "https://" + SettingsService.get("staticFileBase") + "/portal/all.js?v=" + appVersion, 
-            styleUrl = "https://" + SettingsService.get("staticFileBase") + "styles/style.css?v=" + appVersion), 
-            $http.get(styleUrl).success(function(themeData) {
-                alert("got theme " + themeData.length), themeData.length > 1e5 && theme.match("}$") ? storeLocalData("theme", themeData, function() {
-                    $http.get(contentUrl).success(function(data) {
-                        BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter) {
-                            data.length > 1e5 ? (fileWriter.onwriteend = function() {
-                                fileWriter.seek(0), LocalStorageService.store("updateFailCounter", 0);
-                            }, fileWriter.write(appVersion + "~" + data + ";\nBidspiritLoader.contentLoaded=true"), 
-                            window.location.reload()) : handleUpdateFailure("bad content. length:" + data.length + ", ..." + data.substr(data.length - 100));
-                        }, function() {
-                            handleUpdateFailure("failed to get content writer");
-                        });
-                    }, function() {
-                        handleUpdateFailure("failed to get store theme");
-                    });
-                }).error(function() {
-                    handleUpdateFailure("failed to get content from url " + contentUrl);
-                }) : handleUpdateFailure("bad theme data from url " + styleUrl + ": length:" + themeData.length + " ..." + themeData.substr(themeData.length - 100));
-            }).error(function() {
-                handleUpdateFailure("failed to get theme from url " + styleUrl);
-            });
-        }
-        return {
-            updateBidspiritDataAndTheme: updateBidspiritDataAndTheme,
-            getTextsLoadPromise: getTextsLoadPromise,
-            updateLocalTextsInAllLangs: updateLocalTextsInAllLangs
-        };
+module.factory('PortalMobileUtils', function($http, $q, SettingsService, LocalStorageService, PathsService) {
+		
+		function getFailFn(msg) {
+		    return BidspiritLoader.getFailFn(msg);
+		}
+		
+		
+		function storeLocalData(fileName, data, onSuccess, onFail){
+			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){						
+				entry.createWriter(function(fileWriter){
+			  		fileWriter.onwriteend = function (evt) {			  			
+			  			fileWriter.seek(0);
+			  			if (onSuccess){
+			  				onSuccess();
+			  			}
+			  		}
+			  		fileWriter.write(data);
+				}, onFail);
+			}, onFail);
+		}
+		
+		
+		
+		function removeDirectoryFiles(directoryName, onSuccess, onFail){
+			removeDirectoryReaderFiles = function (directoryReader){
+				directoryReader.readEntries(function(entries){
+					alert(entries.length +" entries");
+					if (entries.length==0){
+						onSuccess();
+					} else {
+						entries[0].remove(function(){
+							removeDirectoryReaderFiles(directoryReader);
+						},onFail);
+					}
+				},onFail);
+			}
+			
+			BidspiritLoader.mFileSystem.root.getFile(directoryName, {create: true, exclusive: false}, function(directoryEntry){
+				removeDirectoryFiles(directoryEntry.createReader(),onSuccess,onFail);
+			}, onFail);
+		}
+		
+		
+		function loadLocalData(fileName, handleData){			
+			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
+				entry.file(function (file) {					
+	                var reader = new FileReader();
+	                reader.onloadend = function (evt) {
+	                    handleData(evt.target.result);
+	                }	                
+	                reader.readAsText(file);
+		         }, getFailFn("read file "+fileName));
+			}, getFailFn("getFile "+fileName));
+		}
+		
+		function storeLocalTexts(lang){
+			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
+			var deferred = $q.defer();
+			var fileName = getLocalTextFileName(lang,textsVersion);
+			var url = PathsService.getPortalTextsUrl(lang);
+			alert("loading lang from url "+url);
+			$http({url:appDefaultPath, cache:false}).success(function(textsData){
+				storeLocalData(fileName, textsData, function(){
+					alert("stored at "+fileName);
+					deferred.resolve();
+				},function(){					
+					deferred.reject("failed to save file "+fileName);
+				});
+			});
+			return deferred.promise;
+		}
+		
+		function updateLocalTextsInAllLangs(){
+			var langsToAdd = SettingsService.get('languages');
+			fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
+				var promises = [];		
+				for (var i=0;i<langs.length;i++){
+					promises.push(storeLocalTexts(langs[i]));
+				}
+				return $q.all(promises).then(function(){
+					removeOldLocalTexts(textsVersion);
+				},function(){
+					alert("error while storing local texts");
+				});				
+			}, function(){
+				alert("failed to get locat text directory");
+			});	
+		}
+		
+		function removeOldLocalTexts(currentTextsVersion){
+			BidspiritLoader.mFileSystem.root.getFile("localTexts", {create: true, exclusive: false}, function(directoryEntry){
+				directoryEntry.createReader().readEntries(function(entries){
+					for (var i=0;i<entries.length;i++){
+						var entry = entries[i];
+						var isLatestTexts = entry.name.indexOf("."+currentTextsVersion+".")==-1;
+						if (!isLatestTexts){
+							entry.remove(function(){alert("removed "+entry.name);}, function(){alert("failed to removed "+entry.name);});
+						}
+					}
+				});
+			});
+		}
+		
+		function getLocalTextFileName(lang,version){
+			return "localTexts/"+lang+"."+version+".properties";
+		}
+		
+		
+		function getTextsLoadPromise(lang){
+			var appDefaultPath = "texts/texts."+lang+".properties"
+			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
+			if (GlobalConfig.initialTextsVersion == textsVersion){
+				return $http({url:appDefaultPath, cache:true});
+			} else {
+				var deferred = $q.defer();
+				loadLocalData(getLocalTextFileName(lang,textsVersion),function(storedTexts){
+					if (texts!=null){
+						alert("loaded local texts for "+textsVersion);
+						deferred.resolve(storedTexts);
+					} else {
+						alert("local texts not found, using default ");
+						$http({url:appDefaultPath, cache:true}).success(function(texts){
+							deferred.resolve(texts);
+						});						
+					}
+				});
+				return deferred.promise;
+			}
+		}
+		
+				
+		
+		function updateBidspiritDataAndTheme(appVersion){			
+			var contentUrl, styleUrl;			
+			if (GlobalConfig.devMode){
+				contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
+				styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion;
+			} else {
+				contentUrl = "https://"+SettingsService.get("staticFileBase")+"/portal/all.js?v=" + appVersion;
+				styleUrl = "https://"+SettingsService.get("staticFileBase")+"styles/style.css?v=" + appVersion;
+			}
+			function handleUpdateFailure(message){
+				alert(message);
+				BidspiritLoader.clear();
+				updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
+				LocalStorageService.store("updateFailCounter",updateFailCounter+1);
+			}
+			$http.get(styleUrl).success(function(themeData){
+				alert("got theme "+themeData.length);
+				if (themeData.length>100000 && theme.match("}$")){
+					storeLocalData("theme",themeData,function(){
+						$http.get(contentUrl).success(function(data){
+							BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter){
+								if (data.length>100000){
+									fileWriter.onwriteend = function (evt) {
+						  				fileWriter.seek(0);
+							  			LocalStorageService.store("updateFailCounter",0);
+						  			};
+						  			fileWriter.write(appVersion+"~"+data+";\nBidspiritLoader.contentLoaded=true");
+						  			window.location.reload();
+								} else {
+									handleUpdateFailure("bad content. length:"+data.length+", ..."+data.substr(data.length-100));
+								}							
+							}, function(){
+								handleUpdateFailure("failed to get content writer");
+							});
+						},function(){
+							handleUpdateFailure("failed to get store theme");							
+						});
+					}).error(function(){
+						handleUpdateFailure("failed to get content from url "+contentUrl);
+					});;
+				} else {
+					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
+				}
+			}).error(function(){
+				handleUpdateFailure("failed to get theme from url "+styleUrl);
+			});
+		}		
+		
+		return {
+			updateBidspiritDataAndTheme:updateBidspiritDataAndTheme,
+			
+			getTextsLoadPromise:getTextsLoadPromise,
+			updateLocalTextsInAllLangs:updateLocalTextsInAllLangs
+		}
     });
 }), define("portal/js/modules/main/portalStates", [ "./portalMainModule" ], function(module) {
     module.factory("PortalStates", function($state, $timeout, LocalStorageService, PathsService, OsInfoService) {
