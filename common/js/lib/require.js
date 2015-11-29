@@ -2107,7 +2107,7 @@ window.BidspiritLoader = {
 		
 		mMainDataFileEntry:null,
 		mFileSystem:null,
-		contentLoaded:false,
+		localContentLoaded:false,
 
 		getFailFn:function(msg) {with (BidspiritLoader){
 		    return function () {
@@ -2167,7 +2167,7 @@ window.BidspiritLoader = {
 										if (version > GlobalConfig.appVersion){
 											var content = data.substring(tildaInd+1);											
 											node.appendChild(document.createTextNode(content));
-											if (contentLoaded){
+											if (localContentLoaded){
 												loaded = true;												
 												GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
 												alert("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
