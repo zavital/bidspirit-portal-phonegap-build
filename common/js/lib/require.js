@@ -2174,8 +2174,7 @@ window.BidspiritLoader = {
 												context.onScriptLoad({srcElement:node, type :'load'});
 												delete localStorage.contentEmbedFailures;
 											} else {
-												node.removeChild(node.childNodes[0]);
-												
+												node.removeChild(node.childNodes[0]);												
 												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1; 
 											}
 										}
@@ -2185,7 +2184,7 @@ window.BidspiritLoader = {
 								}
 								if (!loaded){
 									alert("loading from url");
-									node.src = url
+									node.src = url;
 								}					
 							});
 						});
