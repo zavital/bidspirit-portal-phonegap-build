@@ -17046,12 +17046,15 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			} else {
 				var deferred = $q.defer();
 				var localTextsFile = getLocalTextFileName(lang,textsVersion);
-				alert("loading local texts "+localTextsFile);
+				alert("loading local texts - "+localTextsFile);
 				function onTextLoadFail(){
 					alert("local texts not found, using default - "+appDefaultPath);
 					$http({url:appDefaultPath, cache:true}).success(function(texts){
 						deferred.resolve(texts);
 					});
+				}
+				if (!fileSystem.root.getDirectory){
+					alrert("wtf");
 				}
 				fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
 					alert("got directory");
@@ -17066,7 +17069,9 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 					},function(){
 						alert("failed to get texts");
 					});
-				},getFailFn("can't get directory",onTextLoadFail));
+				},function(){
+					alert("failed to get directory");
+				});
 				return getFailFn.promise;
 			}
 		}
