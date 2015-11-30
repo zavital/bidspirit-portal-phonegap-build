@@ -17072,11 +17072,10 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 					returnDefaultTexts();
 				}
 				
-				BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
-					alert("got directory");
+				BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){					
 					loadLocalData(localTextsFile, function(storedTexts){
-						alert("got texts");
-						if (texts!=null){
+						alert("got texts "+storedTexts);
+						if (storedTexts!=null){
 							alert("loaded local texts for "+textsVersion);
 							deferred.resolve({data:storedTexts});
 						} else {
