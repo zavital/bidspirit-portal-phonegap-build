@@ -17018,6 +17018,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         function updateLocalTextsInAllLangs(newTextsVersion){
         	alert("updating...");
 			var langs = SettingsService.get('languages');
+			var deferred = $q.defer();
 			BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
 				var promises = [];		
 				for (var i=0;i<langs.length;i++){
@@ -17025,12 +17026,14 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				}
 				return $q.all(promises).then(function(){
 					removeOldLocalTexts(newTextsVersion);
+					deferred.resolve();
 				},function(){
 					alert("error while storing local texts");
 				});				
 			}, function(){
 				alert("failed to get locat text directory");
 			});	
+			return deferred.promise;
 		}
         function removeOldLocalTexts(currentTextsVersion){
         	alert("removing old texts");
@@ -17041,6 +17044,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						var entry = entries[i];
 						var isLatestTexts = entry.name.indexOf("."+currentTextsVersion+".")==-1;
 						if (!isLatestTexts){
+							alert("removing "+entry.name);
 							entry.remove(function(){alert("removed "+entry.name);}, function(){alert("failed to removed "+entry.name);});
 						}
 					}
