@@ -16968,18 +16968,20 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
             	}
             }
         }
-        function storeLocalData(fileName, data, onSuccess, onFail) {
-            BidspiritLoader.mFileSystem.root.getFile(fileName, {
-                create: !0,
-                exclusive: !1
-            }, function(entry) {
-                entry.createWriter(function(fileWriter) {
-                    fileWriter.onwriteend = function() {
-                        fileWriter.seek(0), onSuccess && onSuccess();
-                    }, fileWriter.write(data);
-                }, onFail);
-            }, onFail);
-        }
+    	function storeLocalData(fileName, data, onSuccess, onFail){
+			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){						
+				entry.createWriter(function(fileWriter){
+			  		fileWriter.onwriteend = function (evt) {			  			
+			  			fileWriter.seek(0);
+			  			alert("sotred "+fileName);
+			  			if (onSuccess){
+			  				onSuccess();
+			  			}
+			  		}
+			  		fileWriter.write(data);
+				}, onFail);
+			}, onFail);
+		}
         
         function loadLocalData(fileName, handleData, handleFailure){			
 			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
