@@ -15628,7 +15628,6 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
 			
 			promise.then(function(texts){
 				setTexts(lang,texts.data.split(/\n/m));
-				alert("texts ready");
 			});
 			
 			return promise;
@@ -17052,14 +17051,13 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			
 			
 			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
-			alert(GlobalConfig.initialTextsVersion +","+textsVersion);
+			
 			var deferred = $q.defer();
 			
 			function returnDefaultTexts(){
 				var appDefaultPath = "texts/texts."+lang+".properties"
-				$http({url:appDefaultPath, cache:true}).success(function(texts){
-					deferred.resolve({data:texts});
-				});
+				SettingsService.getAll().cacheVersions.TEXTS = GlobalConfig.initialTextsVersion;
+				return $http({url:appDefaultPath, cache:true});
 			}
 			
 			if (GlobalConfig.initialTextsVersion == textsVersion){
@@ -17069,7 +17067,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				alert("loading local texts -- "+localTextsFile);
 				
 				function onTextLoadFail(message){
-					alert("local texts not found, using default - "+message);
+					alert("local texts not found, using default ("+message+")");
 					returnDefaultTexts();
 				}
 				
