@@ -2110,8 +2110,8 @@ window.BidspiritLoader = {
 		localContentLoaded:false,
 
 		getFailFn:function(msg) {with (BidspiritLoader){
-		    return function () {
-		        alert('[FAIL] ' + msg);
+		    return function (err) {
+		        alert('[FAIL] ' +JSON.stringify(err)+" "+ msg);
 		    }
 		}},
 

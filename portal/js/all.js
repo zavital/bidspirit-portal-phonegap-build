@@ -15178,8 +15178,8 @@ define("common/js/modules/system/systemModule", [ "angular", "../utils/index" ],
 						fileref.appendChild(document.createTextNode(content));
 					});
 				} else {
-					alert("load css from "+ "styles/style.css");
-					fileref.setAttribute("href", "styles/style.css");
+					alert("load css from "+ cssPath);
+					fileref.setAttribute("href", cssPath);
 				}
 			} else {
 				fileref.setAttribute("href", cssPath + "?v=" + GlobalConfig.cssCacheVersion + "&load=" + getCssLoadVersion());
@@ -16971,8 +16971,8 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                     reader.onloadend = function(evt) {
                         handleData(evt.target.result);
                     }, reader.readAsText(file);
-                }, getFailFn("read file"));
-            }, getFailFn("getFile"));
+                }, getFailFn("read file "+fileName));
+            }, getFailFn("getFile "+fileName));
         }
         function storeLocalTexts(lang) {
             var textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer(), fileName = getLocalTextFileName(lang, textsVersion), url = PathsService.getPortalTextsUrl(lang);
