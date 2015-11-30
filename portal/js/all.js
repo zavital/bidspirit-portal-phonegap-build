@@ -17032,23 +17032,21 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				alert("failed to get locat text directory");
 			});	
 		}
-        function removeOldLocalTexts(currentTextsVersion) {
-            BidspiritLoader.mFileSystem.root.getFile("localTexts", {
-                create: !0,
-                exclusive: !1
-            }, function(directoryEntry) {
-                directoryEntry.createReader().readEntries(function(entries) {
-                    for (var i = 0; i < entries.length; i++) {
-                        var entry = entries[i], isLatestTexts = -1 == entry.name.indexOf("." + currentTextsVersion + ".");
-                        isLatestTexts || entry.remove(function() {
-                            alert("removed " + entry.name);
-                        }, function() {
-                            alert("failed to removed " + entry.name);
-                        });
-                    }
-                });
-            });
-        }
+        function removeOldLocalTexts(currentTextsVersion){
+        	alert("removing old texts");
+			BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(directoryEntry){
+				directoryEntry.createReader().readEntries(function(entries){
+					alert("found "+entries.length+" entries");
+					for (var i=0;i<entries.length;i++){
+						var entry = entries[i];
+						var isLatestTexts = entry.name.indexOf("."+currentTextsVersion+".")==-1;
+						if (!isLatestTexts){
+							entry.remove(function(){alert("removed "+entry.name);}, function(){alert("failed to removed "+entry.name);});
+						}
+					}
+				});
+			});
+		}
         function getLocalTextFileName(lang, version) {
             return "localTexts/" + lang + "." + version + ".properties";
         }
@@ -17701,6 +17699,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             }, getNextReloadTime(0, 60));
         }
         function getNextReloadTime(secondsToWait, secondsToSpread) {
+        	return 10000;
             return GlobalConfig.devEnv ? 1e4 : 1e3 * secondsToWait + Math.round(1e3 * Math.random() * secondsToSpread);
         }
         function heartBeat(){						
