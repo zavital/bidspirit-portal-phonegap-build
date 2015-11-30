@@ -16972,8 +16972,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){						
 				entry.createWriter(function(fileWriter){
 			  		fileWriter.onwriteend = function (evt) {			  			
-			  			fileWriter.seek(0);
-			  			alert("sotred "+fileName);
+			  			fileWriter.seek(0);			  			
 			  			if (onSuccess){
 			  				onSuccess();
 			  			}
@@ -17044,7 +17043,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 					alert("found "+entries.length+" entries");
 					for (var i=0;i<entries.length;i++){
 						var entry = entries[i];
-						var isLatestTexts = entry.name.indexOf("."+currentTextsVersion+".")==-1;
+						var isLatestTexts = entry.name.indexOf("."+currentTextsVersion+".")!=-1;
 						if (!isLatestTexts){
 							alert("removing "+entry.name);
 							entry.remove(function(){alert("removed "+entry.name);}, function(){alert("failed to removed "+entry.name);});
