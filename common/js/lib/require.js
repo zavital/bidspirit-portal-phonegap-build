@@ -2118,8 +2118,7 @@ window.BidspiritLoader = {
 		
 		loadDataFile:function(onLoad){with (BidspiritLoader){			
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){			
-				mFileSystem = fs;
-				alert("loading data.bs");
+				mFileSystem = fs;				
 				mFileSystem.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){						
 					mMainDataFileEntry = entry;
 					onLoad();

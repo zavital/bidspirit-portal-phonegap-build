@@ -17053,12 +17053,10 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						deferred.resolve(texts);
 					});
 				}
-				if (!fileSystem.root.getDirectory){
-					alrert("wtf");
-				}
-				fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
+				
+				BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
 					alert("got directory");
-					/*loadLocalData(localTextsFile, function(storedTexts){
+					loadLocalData(localTextsFile, function(storedTexts){
 						alert("got texts");
 						if (texts!=null){
 							alert("loaded local texts for "+textsVersion);
@@ -17068,7 +17066,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						}
 					},function(){
 						alert("failed to get texts");
-					});*/
+					});
 				},function(){
 					alert("failed to get directory");
 				});
