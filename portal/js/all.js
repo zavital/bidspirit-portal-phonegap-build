@@ -15628,6 +15628,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
 			
 			promise.then(function(texts){
 				setTexts(lang,texts.data.split(/\n/m));
+				alert("texts ready");
 			});
 			
 			return promise;
@@ -17057,7 +17058,8 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			function returnDefaultTexts(){
 				var appDefaultPath = "texts/texts."+lang+".properties"
 				SettingsService.getAll().cacheVersions.TEXTS = GlobalConfig.initialTextsVersion;
-				return $http({url:appDefaultPath, cache:true});
+				alert("getting texts from "+appDefaultPath);
+				return $http.get({url:appDefaultPath, cache:true});
 			}
 			
 			if (GlobalConfig.initialTextsVersion == textsVersion){
