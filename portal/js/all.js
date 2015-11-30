@@ -16966,6 +16966,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                 }, onFail);
             }, onFail);
         }
+        
         function loadLocalData(fileName, handleData, handleFailure){			
 			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
 				entry.file(function (file) {					
@@ -16974,8 +16975,14 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 	                    handleData(evt.target.result);
 	                }	                
 	                reader.readAsText(file);
-		         }, getFailFn("failed to read file "+fileName));
-			}, getFailFn("failed to  get file "+fileName));
+		         }, function(){
+		        	 alert("get file failed "+fileName);
+		        	 handleFailure();
+		         });
+			}, function(){
+	        	 alert("get file failed "+fileName);
+	        	 handleFailure();
+	         });
 		}
         
         function storeLocalTexts(lang) {
@@ -17047,14 +17054,18 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 					});
 				}
 				fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
+					alert("got directory");
 					loadLocalData(localTextsFile, function(storedTexts){
+						alert("got texts");
 						if (texts!=null){
 							alert("loaded local texts for "+textsVersion);
 							deferred.resolve(storedTexts);
 						} else {
 							getFailFn("empty content",onTextLoadFail)();						
 						}
-					},onTextLoadFail);
+					},function(){
+						alert("failed to get texts");
+					});
 				},getFailFn("can't get directory",onTextLoadFail));
 				return getFailFn.promise;
 			}
