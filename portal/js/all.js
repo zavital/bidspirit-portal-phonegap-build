@@ -15614,15 +15614,24 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
                 setLang(lang), defered.resolve();
             }), defered.promise;
         }
-        function loadLang(lang) {
-            var promise;
-            return promise = GlobalConfig.isMobileApp ? PortalMobileUtils.getTextsLoadPromise(lang) : $http({
-                url: mResourcePathFn(lang),
-                cache: !0
-            }), promise.success(function(texts) {
-                setTexts(lang, texts.split(/\n/m));
-            }), promise;
-        }
+        function loadLang(lang){
+			var promise;
+			
+			if (GlobalConfig.isMobileApp){
+				promise = PortalMobileUtils.getTextsLoadPromise(lang);
+			} else {
+				promise = $http({
+					url:mResourcePathFn(lang), 
+					cache:true
+				});
+			}
+			
+			promise.then(function(texts){
+				setTexts(lang,texts.data.split(/\n/m));
+			});
+			
+			return promise;
+		}
         function reloadTextsAfterDelay(delay) {
             clearTimeout(mTextReloadTimer), mTextReloadTimer = setTimeout(function() {
                 loadLang(mCurrentLang).then(function() {
@@ -17036,22 +17045,31 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
             return "localTexts/" + lang + "." + version + ".properties";
         }
         
+        
+        
         function getTextsLoadPromise(lang){
 			
-			var appDefaultPath = "texts/texts."+lang+".properties"
+			
 			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
 			alert(GlobalConfig.initialTextsVersion +","+textsVersion);
+			var deferred = $q.defer();
+			
+			function returnDefaultTexts(){
+				var appDefaultPath = "texts/texts."+lang+".properties"
+				$http({url:appDefaultPath, cache:true}).success(function(texts){
+					deferred.resolve({data:texts});
+				});
+			}
+			
 			if (GlobalConfig.initialTextsVersion == textsVersion){
-				return $http({url:appDefaultPath, cache:true});
-			} else {
-				var deferred = $q.defer();
+				returnDefaultTexts();
+			} else {				
 				var localTextsFile = getLocalTextFileName(lang,textsVersion);
 				alert("loading local texts -- "+localTextsFile);
-				function onTextLoadFail(){
-					alert("local texts not found, using default - "+appDefaultPath);
-					$http({url:appDefaultPath, cache:true}).success(function(texts){
-						deferred.resolve(texts);
-					});
+				
+				function onTextLoadFail(message){
+					alert("local texts not found, using default - "+message);
+					returnDefaultTexts();
 				}
 				
 				BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
@@ -17060,17 +17078,18 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						alert("got texts");
 						if (texts!=null){
 							alert("loaded local texts for "+textsVersion);
-							deferred.resolve(storedTexts);
+							deferred.resolve({data:storedTexts});
 						} else {
-							getFailFn("empty content",onTextLoadFail)();						
+							onTextLoadFail("empty content");						
 						}
 					},function(){
-						alert("failed to get texts");
+						onTextLoadFail("failed to get texts");
 					});
 				},function(){
-					alert("failed to get directory");
+					onTextLoadFail("failed to get directory");
 				});
 			}
+			return deferred.promise;
 		}
 		
         function updateBidspiritDataAndTheme(appVersion) {
