@@ -15610,7 +15610,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
         }
         function setLang(lang) {
             var defered = $q.defer();
-            return mTextsByLang[lang] ? (mCurrentLang = lang, defered.resolve(), $rootScope.$broadcast("i18n.languageChanged")) : loadLang(lang).success(function() {
+            return mTextsByLang[lang] ? (mCurrentLang = lang, defered.resolve(), $rootScope.$broadcast("i18n.languageChanged")) : loadLang(lang).then(function() {
                 setLang(lang), defered.resolve();
             }), defered.promise;
         }
@@ -15628,6 +15628,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
 			
 			promise.then(function(texts){
 				setTexts(lang,texts.data.split(/\n/m));
+				alert("texts ready");
 			});
 			
 			return promise;
