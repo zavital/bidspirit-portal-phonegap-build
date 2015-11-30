@@ -15166,16 +15166,30 @@ define("common/js/modules/system/systemModule", [ "angular", "../utils/index" ],
                 status: "init"
             };
         }
-        function loadCss(cssPath) {
-            mPastLoadInfo = getCssPastLoadInfo(), mCssLoadStart = new Date().getTime();
-            var fileref = document.createElement("link");
-            return fileref.setAttribute("rel", "stylesheet"), fileref.setAttribute("type", "text/css"), 
-            GlobalConfig.isMobileApp ? BidspiritLoader.localContentLoaded ? PortalMobileUtils.loadLocalData("theme", function(content) {
-                fileref.appendChild(document.createTextNode(content));
-            }) : fileref.setAttribute("href", "styles/style.css") : fileref.setAttribute("href", cssPath + "?v=" + GlobalConfig.cssCacheVersion + "&load=" + getCssLoadVersion()), 
-            document.getElementsByTagName("head")[0].appendChild(fileref), waitForCssLoad(), 
-            mDeferred.promise;
-        }
+        function loadCss(cssPath){
+			mPastLoadInfo  = getCssPastLoadInfo();
+			mCssLoadStart  = new Date().getTime();
+			var fileref=document.createElement("link");
+			fileref.setAttribute("rel", "stylesheet");
+			fileref.setAttribute("type", "text/css");
+			if (GlobalConfig.isMobileApp){
+				if (BidspiritLoader.localContentLoaded){
+					PortalMobileUtils.loadLocalData("theme",function(content){
+						fileref.appendChild(document.createTextNode(content));
+					});
+				} else {
+					fileref.setAttribute("href", cssPath);
+				}
+			} else {
+				fileref.setAttribute("href", cssPath + "?v=" + GlobalConfig.cssCacheVersion + "&load=" + getCssLoadVersion());
+			}
+			
+			
+			document.getElementsByTagName("head")[0].appendChild(fileref);			
+			waitForCssLoad();
+			
+			return mDeferred.promise;
+		}
         function isCssLoaded() {
             var pagePreLoader = document.getElementById("pagePreLoader");
             if (!pagePreLoader) return !0;
