@@ -15627,6 +15627,7 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
 			}
 			
 			promise.then(function(texts){
+				console.log(texts);
 				setTexts(lang,texts.data.split(/\n/m));
 				alert("texts ready");
 			});
@@ -16995,26 +16996,29 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 	         });
 		}
         
-        function storeLocalTexts(lang) {
-            var textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer(), fileName = getLocalTextFileName(lang, textsVersion), url = PathsService.getPortalTextsUrl(lang);
-            return alert("loading lang from url " + url), $http({
-                url: appDefaultPath,
-                cache: !1
-            }).success(function(textsData) {
-                storeLocalData(fileName, textsData, function() {
-                    alert("stored at " + fileName), deferred.resolve();
-                }, function() {
-                    deferred.reject("failed to save file " + fileName);
-                });
-            }), deferred.promise;
-        }
-        function updateLocalTextsInAllLangs(){
+        function storeLocalTexts(lang,textsVersion){			
+			var deferred = $q.defer();
+			var fileName = getLocalTextFileName(lang,textsVersion);
+			var url = PathsService.getPortalTextsUrl(lang);
+			alert("loading lang from url "+url);
+			$http({url:url, cache:false}).success(function(textsData){
+				storeLocalData(fileName, textsData, function(){
+					alert("stored at "+fileName);
+					deferred.resolve();
+				},function(){					
+					deferred.reject("failed to save file "+fileName);
+				});
+			});
+			return deferred.promise;
+		}
+        
+        function updateLocalTextsInAllLangs(newTextsVersion){
         	alert("updating...");
 			var langsToAdd = SettingsService.get('languages');
 			fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
 				var promises = [];		
 				for (var i=0;i<langs.length;i++){
-					promises.push(storeLocalTexts(langs[i]));
+					promises.push(storeLocalTexts(langs[i],newTextsVersion));
 				}
 				return $q.all(promises).then(function(){
 					removeOldLocalTexts(textsVersion);
@@ -17057,9 +17061,12 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			
 			function returnDefaultTexts(){
 				var appDefaultPath = "texts/texts."+lang+".properties"
-				SettingsService.getAll().cacheVersions.TEXTS = GlobalConfig.initialTextsVersion;
+				BidspiritLoader.loadedTextsVersion = GlobalConfig.initialTextsVersion;
 				alert("getting texts from "+appDefaultPath);
-				return $http.get({url:appDefaultPath, cache:true});
+				console.log(appDefaultPath);
+				$http({url:appDefaultPath, cache:true}).then(function(response){
+					deferred.resolve(response);
+				});
 			}
 			
 			if (GlobalConfig.initialTextsVersion == textsVersion){
@@ -17072,22 +17079,26 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 					alert("local texts not found, using default ("+message+")");
 					returnDefaultTexts();
 				}
-				
-				BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){					
-					loadLocalData(localTextsFile, function(storedTexts){
-						alert("got texts '"+storedTexts+"'");
-						if (storedTexts){
-							alert("loaded local texts for "+textsVersion);
-							deferred.resolve({data:storedTexts});
-						} else {
-							onTextLoadFail("empty content");						
-						}
+				try {
+					BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){					
+						loadLocalData(localTextsFile, function(storedTexts){
+							alert("got texts '"+storedTexts+"'");
+							if (storedTexts){
+								alert("loaded local texts for "+textsVersion);
+								BidspiritLoader.loadedTextsVersion = textsVersion;
+								deferred.resolve({data:storedTexts});
+							} else {
+								onTextLoadFail("empty content");						
+							}
+						},function(){
+							onTextLoadFail("failed to get texts");
+						});
 					},function(){
-						onTextLoadFail("failed to get texts");
+						onTextLoadFail("failed to get directory");
 					});
-				},function(){
-					onTextLoadFail("failed to get directory");
-				});
+				}catch (e){
+					onTextLoadFail("failed to get directory "+e.message);
+				}
 			}
 			return deferred.promise;
 		}
@@ -17733,9 +17744,9 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 							}, getNextReloadTime(0,60));
 						}
 					}
-					if (newTexts){
-						alert("new texts");
-						PortalMobileUtils.updateLocalTextsInAllLangs.then(function(){
+					if (BidspiritLoader.loadedTextsVersion != newCacheVersions.TEXTS){
+						alert("new texts "+newCacheVersions.TEXTS);
+						PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function(){
 							I18nService.reloadTextsAfterDelay(getNextReloadTime(120,120));
 							PortalInfoService.storeInfoInCache();
 							alert("lang updated");
