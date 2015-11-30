@@ -16946,8 +16946,13 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
     });
 }), define("common/js/modules/mobileApp/portalMobileUtils", [ "./mobileAppModule" ], function(module) {
     module.factory("PortalMobileUtils", function($http, $q, SettingsService, LocalStorageService, PathsService) {
-        function getFailFn(msg) {
-            return BidspiritLoader.getFailFn(msg);
+        function getFailFn(msg, handler) {
+            return function(e){
+            	alert("failed "+JSON.stringify(e)+" msg ");
+            	if (handler){
+            		handler(msg);
+            	}
+            }
         }
         function storeLocalData(fileName, data, onSuccess, onFail) {
             BidspiritLoader.mFileSystem.root.getFile(fileName, {
@@ -16961,19 +16966,18 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                 }, onFail);
             }, onFail);
         }
-        function loadLocalData(fileName, handleData) {
-            BidspiritLoader.mFileSystem.root.getFile(fileName, {
-                create: !0,
-                exclusive: !1
-            }, function(entry) {
-                entry.file(function(file) {
-                    var reader = new FileReader();
-                    reader.onloadend = function(evt) {
-                        handleData(evt.target.result);
-                    }, reader.readAsText(file);
-                }, getFailFn("read file "+fileName));
-            }, getFailFn("getFile "+fileName));
-        }
+        function loadLocalData(fileName, handleData, handleFailure){			
+			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
+				entry.file(function (file) {					
+	                var reader = new FileReader();
+	                reader.onloadend = function (evt) {
+	                    handleData(evt.target.result);
+	                }	                
+	                reader.readAsText(file);
+		         }, getFailFn("failed to read file "+fileName));
+			}, getFailFn("failed to  get file "+fileName));
+		}
+        
         function storeLocalTexts(lang) {
             var textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer(), fileName = getLocalTextFileName(lang, textsVersion), url = PathsService.getPortalTextsUrl(lang);
             return alert("loading lang from url " + url), $http({
@@ -17024,23 +17028,38 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         function getLocalTextFileName(lang, version) {
             return "localTexts/" + lang + "." + version + ".properties";
         }
-        function getTextsLoadPromise(lang) {
-            var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
-            if (GlobalConfig.initialTextsVersion == textsVersion) return $http({
-                url: appDefaultPath,
-                cache: !0
-            });
-            var deferred = $q.defer();
-            return loadLocalData(getLocalTextFileName(lang, textsVersion), function(storedTexts) {
-                null != texts ? (alert("loaded local texts for " + textsVersion), deferred.resolve(storedTexts)) : (alert("local texts not found, using default "), 
-                $http({
-                    url: appDefaultPath,
-                    cache: !0
-                }).success(function(texts) {
-                    deferred.resolve(texts);
-                }));
-            }), deferred.promise;
-        }
+        
+        function getTextsLoadPromise(lang){
+			
+			var appDefaultPath = "texts/texts."+lang+".properties"
+			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
+			alert(GlobalConfig.initialTextsVersion +","+textsVersion);
+			if (GlobalConfig.initialTextsVersion == textsVersion){
+				return $http({url:appDefaultPath, cache:true});
+			} else {
+				var deferred = $q.defer();
+				var localTextsFile = getLocalTextFileName(lang,textsVersion);
+				alert("loading local texts "+localTextsFile);
+				function onTextLoadFail(){
+					alert("local texts not found, using default - "+appDefaultPath);
+					$http({url:appDefaultPath, cache:true}).success(function(texts){
+						deferred.resolve(texts);
+					});
+				}
+				fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
+					loadLocalData(localTextsFile, function(storedTexts){
+						if (texts!=null){
+							alert("loaded local texts for "+textsVersion);
+							deferred.resolve(storedTexts);
+						} else {
+							getFailFn("empty content",onTextLoadFail)();						
+						}
+					},onTextLoadFail);
+				},getFailFn("can't get directory",onTextLoadFail));
+				return getFailFn.promise;
+			}
+		}
+		
         function updateBidspiritDataAndTheme(appVersion) {
             function handleUpdateFailure(message) {
                 alert(message), BidspiritLoader.clear(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
