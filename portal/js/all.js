@@ -17024,7 +17024,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 					promises.push(storeLocalTexts(langs[i],newTextsVersion));
 				}
 				return $q.all(promises).then(function(){
-					removeOldLocalTexts(textsVersion);
+					removeOldLocalTexts(newTextsVersion);
 				},function(){
 					alert("error while storing local texts");
 				});				
