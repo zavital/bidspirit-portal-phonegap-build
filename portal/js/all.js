@@ -17015,7 +17015,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         function updateLocalTextsInAllLangs(newTextsVersion){
         	alert("updating...");
 			var langsToAdd = SettingsService.get('languages');
-			fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
+			BidspiritLoader.mFileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
 				var promises = [];		
 				for (var i=0;i<langs.length;i++){
 					promises.push(storeLocalTexts(langs[i],newTextsVersion));
