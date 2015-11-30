@@ -16957,7 +16957,10 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
     });
 }), define("common/js/modules/mobileApp/portalMobileUtils", [ "./mobileAppModule" ], function(module) {
     module.factory("PortalMobileUtils", function($http, $q, SettingsService, LocalStorageService, PathsService) {
-        function getFailFn(msg, handler) {
+       
+    	
+    	
+    	function getFailFn(msg, handler) {
             return function(e){
             	alert("failed "+JSON.stringify(e)+" msg ");
             	if (handler){
@@ -17747,7 +17750,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 					if (BidspiritLoader.loadedTextsVersion != newCacheVersions.TEXTS){
 						alert("new texts "+newCacheVersions.TEXTS);
 						PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function(){
-							I18nService.reloadTextsAfterDelay(getNextReloadTime(120,120));
+							I18nService.reloadTextsAfterDelay(1000);
 							PortalInfoService.storeInfoInCache();
 							alert("lang updated");
 						},function(){
