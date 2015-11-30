@@ -17046,7 +17046,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			} else {
 				var deferred = $q.defer();
 				var localTextsFile = getLocalTextFileName(lang,textsVersion);
-				alert("loading local texts - "+localTextsFile);
+				alert("loading local texts -- "+localTextsFile);
 				function onTextLoadFail(){
 					alert("local texts not found, using default - "+appDefaultPath);
 					$http({url:appDefaultPath, cache:true}).success(function(texts){
@@ -17058,7 +17058,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				}
 				fileSystem.root.getDirectory("localTexts", {create: true, exclusive: false}, function(){
 					alert("got directory");
-					loadLocalData(localTextsFile, function(storedTexts){
+					/*loadLocalData(localTextsFile, function(storedTexts){
 						alert("got texts");
 						if (texts!=null){
 							alert("loaded local texts for "+textsVersion);
@@ -17068,11 +17068,10 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						}
 					},function(){
 						alert("failed to get texts");
-					});
+					});*/
 				},function(){
 					alert("failed to get directory");
 				});
-				return getFailFn.promise;
 			}
 		}
 		
