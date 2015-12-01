@@ -17068,8 +17068,9 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			}
 			$http.get(styleUrl).success(function(themeData){
 				alert("got theme "+themeData.length);
-				if (themeData.length>100000 && theme.match("}$")){
+				if (themeData.length>100000 && themeData.match("}$")){
 					storeLocalData("theme",themeData,function(){
+						alert("getting content from "+contentUrl);
 						$http.get(contentUrl).success(function(data){
 							BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter){
 								if (data.length>100000){
@@ -17708,7 +17709,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 							mUpdatingMobileVersion = true;
 							setTimeout(function(){
 								PortalMobileUtils.updateBidspiritDataAndTheme(settings.appVersion);
-							}, getNextReloadTime(0,60));
+							}, 1000);
 						}
 					}
 					if (GlobalConfig.loadedTextsVersion != newCacheVersions.TEXTS && !mUpdatingMobileTexts){
