@@ -2115,7 +2115,8 @@ window.BidspiritLoader = {
 		    }
 		}},
 		
-		testWriter:function(onLoad){with (BidspiritLoader){
+		testWriter:function(){with (BidspiritLoader){
+			alert("twsting writer");
 			mFileSystem.root.getFile("writerTest", {create: true, exclusive: false}, function(writerTestEntry){
 				writerTestEntry.file(function (file) {					
 	                var reader = new FileReader();
@@ -2127,13 +2128,15 @@ window.BidspiritLoader = {
 				  				fileWriter.seek(0);
 				  				alert("writer test done");
 				  			};
-				  			var dataToWrite; = "new:zzzzzzzzzz";
+				  			var dataToWrite; 
 				  			if (data){
-				  				if (data.indexOf("second")!=0)){
+				  				if (data.indexOf("second")!=0){
 	                    			dataToWrite = "second";
 	                    		} else {
 	                    			dataToWrite = "3";
 	                    		}				  				
+				  			} else {
+				  				dataToWrite = "new:zzzzzzzzzzzz";
 				  			}
 				  			alert("writing data "+dataToWrite);
 				  			fileWriter.write(dataToWrite);
@@ -2141,7 +2144,6 @@ window.BidspiritLoader = {
 	                }
 	                reader.readAsText(file);
 		         }, getFailFn("read file writerTest"));
-				}
 			},getFailFn("getFile writerTest"));
 		}},
 		
