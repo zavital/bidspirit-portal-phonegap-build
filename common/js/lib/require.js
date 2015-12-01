@@ -2170,6 +2170,7 @@ window.BidspiritLoader = {
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
 			 function defaultLoad(){
+				 alert("default");
 				 if (BidspiritLoader.mErrorInfo){
 					 devDebug();
 				 }
@@ -2187,11 +2188,14 @@ window.BidspiritLoader = {
 			 if ( document.URL.match(/^http/)){
 				 defaultLoad();
 			 } else {		
-				 document.addEventListener('deviceready', function () {					 
+				 document.addEventListener('deviceready', function () {		
+					 alert("ready");
 					 try {
 						loadDataFile(function(){
+							alert("data");
 							readFromDataFile(function(data, errorLoad){
 								try {
+									alert("read");
 									if (data!=null){
 										var tildaInd = data.indexOf("~");
 										var version = data.substring(0, tildaInd);		
