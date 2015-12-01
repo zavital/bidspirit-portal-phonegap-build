@@ -2115,44 +2115,12 @@ window.BidspiritLoader = {
 		    }
 		}},
 		
-		testWriter:function(){with (BidspiritLoader){
-			alert("twsting writer");
-			mFileSystem.root.getFile("writerTest", {create: true, exclusive: false}, function(writerTestEntry){
-				writerTestEntry.file(function (file) {					
-	                var reader = new FileReader();
-	                reader.onloadend = function (evt) {
-	                	var data = evt.target.result;
-	                    alert("Got result:"+data);
-	                    writerTestEntry.createWriter(function(fileWriter){
-	                    	fileWriter.onwriteend = function (evt) {
-				  				fileWriter.seek(0);
-				  				alert("writer test done");
-				  			};
-				  			var dataToWrite; 
-				  			if (data){
-				  				if (data.indexOf("second")!=0){
-	                    			dataToWrite = "second";
-	                    		} else {
-	                    			dataToWrite = "3";
-	                    		}				  				
-				  			} else {
-				  				dataToWrite = "new:zzzzzzzzzzzz";
-				  			}
-				  			alert("writing data "+dataToWrite);
-				  			fileWriter.write(dataToWrite);
-	                    }, getFailFn("craete writer test"));
-	                }
-	                reader.readAsText(file);
-		         }, getFailFn("read file writerTest"));
-			},getFailFn("getFile writerTest"));
-		}},
 		
 		loadDataFile:function(onLoad){with (BidspiritLoader){			
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){			
 				mFileSystem = fs;				
 				mFileSystem.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){						
 					mMainDataFileEntry = entry;
-					testWriter();
 					onLoad();
 				},getFailFn("getFile data.bs"));
 			},getFailFn("requestFileSystem"));
