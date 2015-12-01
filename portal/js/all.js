@@ -17050,36 +17050,54 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			}
 		}
         
-        function updateBidspiritDataAndTheme(appVersion) {
-            function handleUpdateFailure(message) {
-                alert(message), BidspiritLoader.clear(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
-                LocalStorageService.store("updateFailCounter", updateFailCounter + 1);
-            }
-            var contentUrl, styleUrl;
-            GlobalConfig.devMode ? (contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion, 
-            styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion) : (contentUrl = "https://" + SettingsService.get("staticFileBase") + "/portal/all.js?v=" + appVersion, 
-            styleUrl = "https://" + SettingsService.get("staticFileBase") + "/portal/styles/style.css?v=" + appVersion), 
-            $http.get(styleUrl).success(function(themeData) {
-                alert("got theme " + themeData.length), themeData.length > 1e5 && theme.match("}$") ? storeLocalData("theme", themeData, function() {
-                    $http.get(contentUrl).success(function(data) {
-                        BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter) {
-                            data.length > 1e5 ? (fileWriter.onwriteend = function() {
-                                fileWriter.seek(0), LocalStorageService.store("updateFailCounter", 0);
-                            }, fileWriter.write(appVersion + "~" + data + ";\nBidspiritLoader.localContentLoaded=true"), 
-                            window.location.reload()) : handleUpdateFailure("bad content. length:" + data.length + ", ..." + data.substr(data.length - 100));
-                        }, function() {
-                            handleUpdateFailure("failed to get content writer");
-                        });
-                    }, function() {
-                        handleUpdateFailure("failed to get store theme");
-                    });
-                }).error(function() {
-                    handleUpdateFailure("failed to get content from url " + contentUrl);
-                }) : handleUpdateFailure("bad theme data from url " + styleUrl + ": length:" + themeData.length + " ..." + themeData.substr(themeData.length - 100));
-            }).error(function() {
-                handleUpdateFailure("failed to get theme from url " + styleUrl);
-            });
-        }
+        function updateBidspiritDataAndTheme(appVersion){
+			alert("updating version to "+appVersion);
+			var contentUrl, styleUrl;			
+			if (GlobalConfig.devMode){
+				contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
+				styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion;
+			} else {
+				contentUrl = "https://"+SettingsService.get("staticFileBase")+"/portal/all.js?v=" + appVersion;
+				styleUrl = "https://"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
+			}
+			function handleUpdateFailure(message){
+				alert(message);
+				BidspiritLoader.clear();
+				updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
+				LocalStorageService.store("updateFailCounter",updateFailCounter+1);
+			}
+			$http.get(styleUrl).success(function(themeData){
+				alert("got theme "+themeData.length);
+				if (themeData.length>100000 && theme.match("}$")){
+					storeLocalData("theme",themeData,function(){
+						$http.get(contentUrl).success(function(data){
+							BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter){
+								if (data.length>100000){
+									fileWriter.onwriteend = function (evt) {
+						  				fileWriter.seek(0);
+							  			LocalStorageService.store("updateFailCounter",0);
+						  			};
+						  			fileWriter.write(appVersion+"~"+data+";\nBidspiritLoader.localContentLoaded=true");
+						  			window.location.reload();
+								} else {
+									handleUpdateFailure("bad content. length:"+data.length+", ..."+data.substr(data.length-100));
+								}							
+							}, function(){
+								handleUpdateFailure("failed to get content writer");
+							});
+						},function(){
+							handleUpdateFailure("failed to get store theme");							
+						});
+					}).error(function(){
+						handleUpdateFailure("failed to get content from url "+contentUrl);
+					});;
+				} else {
+					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
+				}
+			}).error(function(){
+				handleUpdateFailure("failed to get theme from url "+styleUrl);
+			});
+		}		
         return {
             updateBidspiritDataAndTheme: updateBidspiritDataAndTheme,
             loadLocalData: loadLocalData,
@@ -17647,35 +17665,78 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function getNextReloadTime(secondsToWait, secondsToSpread) {
             return GlobalConfig.devEnv ? 1e4 : 1e3 * secondsToWait + Math.round(1e3 * Math.random() * secondsToSpread);
         }
-        function heartBeat() {
-            ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse) {
-                var user = $rootScope.currentUser;
-                user ? heartBeatResponse.hasSession ? user.registrationStage != heartBeatResponse.registrationStage && (user.registrationStage = heartBeatResponse.registrationStage, 
-                $rootScope.$broadcast("auth.authStateChanged")) : ($log.info("session ended."), 
-                SessionsService.setSessionUser(null)) : heartBeatResponse.hasSession && SessionsService.refreshCurrentSession();
-                var settings = SettingsService.getAll(), currentCacheVersions = settings.cacheVersions, newCacheVersions = heartBeatResponse.cacheVersions, newTexts = !1;
-                if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS && (newTexts = !0, currentCacheVersions.TEXTS = newCacheVersions.TEXTS), 
-                currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO && (currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO, 
-                PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120, 120))), GlobalConfig.isMobileApp) {
-                    if (!mAppUpdateMessageDisplayed && GlobalConfig.appVersion < heartBeatResponse.requiredMobileAppVersion) displayAppUpgradePopup(); else if (settings.appVersion != GlobalConfig.appVersion) {
-                        var updateFailCounter = LocalStorageService.load("updateFailCounter");
-                        updateFailCounter > 3 || localStorage.contentEmbedFailures > 3 ? displayAppUpgradePopup() : mUpdatingMobileVersion || (mUpdatingMobileVersion = !0, 
-                        setTimeout(function() {
-                            PortalMobileUtils.updateBidspiritDataAndTheme(settings.appVersion);
-                        }, getNextReloadTime(0, 60)));
-                    }
-                    GlobalConfig.loadedTextsVersion == newCacheVersions.TEXTS || mUpdatingMobileTexts || (alert("new texts " + newCacheVersions.TEXTS), 
-                    mUpdatingMobileTexts = !0, PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function() {
-                        I18nService.reloadTextsAfterDelay(1e3), PortalInfoService.storeInfoInCache(), alert("lang updated"), 
-                        mUpdatingMobileTexts = !1;
-                    }, function() {
-                        alert("failed to update text");
-                    }));
-                } else settings.appVersion != heartBeatResponse.appVersion && (settings.appVersion = heartBeatResponse.appVersion, 
-                reloadPageAfterDelay()), newTexts && (I18nService.reloadTextsAfterDelay(getNextReloadTime(120, 120)), 
-                PortalInfoService.storeInfoInCache());
-            });
-        }
+        
+        function heartBeat(){						
+			ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse){				
+				var user = $rootScope.currentUser;				
+				if (user){
+					if(!heartBeatResponse.hasSession){
+						$log.info("session ended.");
+						SessionsService.setSessionUser(null);
+					} else {
+						if (user.registrationStage != heartBeatResponse.registrationStage){
+							user.registrationStage = heartBeatResponse.registrationStage;
+							$rootScope.$broadcast("auth.authStateChanged");
+						}
+					}
+				} else if (heartBeatResponse.hasSession){
+					SessionsService.refreshCurrentSession();
+				}
+				var settings = SettingsService.getAll();
+				var currentCacheVersions = settings.cacheVersions;
+				var newCacheVersions = heartBeatResponse.cacheVersions;
+				var newTexts = false;
+				if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS){
+					newTexts =  true;		
+					currentCacheVersions.TEXTS = newCacheVersions.TEXTS; 
+				}				
+				
+				if (currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO){
+					currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO
+					PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120,120));
+				}
+								
+				if (GlobalConfig.isMobileApp){
+					if (!mAppUpdateMessageDisplayed  && GlobalConfig.appVersion <  heartBeatResponse.requiredMobileAppVersion){
+						displayAppUpgradePopup();
+					} else if (settings.appVersion != GlobalConfig.appVersion ){
+						alert ("new app version "+settings.appVersion);
+						var updateFailCounter = LocalStorageService.load("updateFailCounter");
+						if (updateFailCounter>3 || localStorage.contentEmbedFailures>3){
+							displayAppUpgradePopup();
+						} else if (!mUpdatingMobileVersion){
+							mUpdatingMobileVersion = true;
+							setTimeout(function(){
+								PortalMobileUtils.updateBidspiritDataAndTheme(settings.appVersion);
+							}, getNextReloadTime(0,60));
+						}
+					}
+					if (GlobalConfig.loadedTextsVersion != newCacheVersions.TEXTS && !mUpdatingMobileTexts){
+						alert("new texts "+newCacheVersions.TEXTS);
+						mUpdatingMobileTexts = true;
+						PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function(){
+							I18nService.reloadTextsAfterDelay(1000);
+							PortalInfoService.storeInfoInCache();
+							alert("lang updated");
+							mUpdatingMobileTexts = false;
+						},function(){
+							alert("failed to update text");
+						});
+					}
+					
+				} else {					
+					if (settings.appVersion!= heartBeatResponse.appVersion){
+						settings.appVersion = heartBeatResponse.appVersion;
+						reloadPageAfterDelay();
+					}
+					if (newTexts){
+						I18nService.reloadTextsAfterDelay(getNextReloadTime(120,120));
+						PortalInfoService.storeInfoInCache();
+					}
+				}
+			});			
+		}
+        
         function displayAppUpgradePopup() {
             mAppUpdateMessageDisplayed || (mAppUpdateMessageDisplayed = !0, $uibModal.open({
                 templateUrl: PathsService.appTemplatePath("info/upgradeRequired"),
