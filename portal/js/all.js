@@ -17647,7 +17647,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS && (newTexts = !0, currentCacheVersions.TEXTS = newCacheVersions.TEXTS), 
                 currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO && (currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO, 
                 PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120, 120))), GlobalConfig.isMobileApp) {
-                    if (!mAppUpdateMessageDisplayed && GlobalConfig.appVersion < heartBeatResponse.requiredMobileAppVersion) displayAppUpgradePopup(); else if (settings.appVersion != GlobalConfig.appVersion) {
+                    if (!mAppUpdateMessageDisplayed && GlobalConfig.appVersion < heartBeatResponse.requiredMobileAppVersion) displayAppUpgradePopup(); else if (settings.appVersion != heartBeatResponse.appVersion) {
                         var updateFailCounter = LocalStorageService.load("updateFailCounter");
                         updateFailCounter > 3 || localStorage.contentEmbedFailures > 3 ? displayAppUpgradePopup() : mUpdatingMobileVersion || (mUpdatingMobileVersion = !0, 
                         setTimeout(function() {
