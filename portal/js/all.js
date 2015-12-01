@@ -17024,23 +17024,32 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         function getLocalTextFileName(lang, version) {
             return "localTexts/" + lang + "." + version + ".properties";
         }
-        function getTextsLoadPromise(lang) {
-            var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
-            if (GlobalConfig.initialTextsVersion == textsVersion) return $http({
-                url: appDefaultPath,
-                cache: !0
-            });
-            var deferred = $q.defer();
-            return loadLocalData(getLocalTextFileName(lang, textsVersion), function(storedTexts) {
-                null != texts ? (alert("loaded local texts for " + textsVersion), deferred.resolve(storedTexts)) : (alert("local texts not found, using default "), 
-                $http({
-                    url: appDefaultPath,
-                    cache: !0
-                }).success(function(texts) {
-                    deferred.resolve(texts);
-                }));
-            }), deferred.promise;
-        }
+        
+        function getTextsLoadPromise(lang){
+			
+			var appDefaultPath = "texts/texts."+lang+".properties"
+			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
+			alert("current texts version "+textsVersion+", loaded:"+GlobalConfig.loadedTextsVersion);
+			if (GlobalConfig.loadedTextsVersion == textsVersion){
+				return $http({url:appDefaultPath, cache:true});
+			} else {
+				var deferred = $q.defer();
+				loadLocalData(getLocalTextFileName(lang,textsVersion),function(storedTexts){
+					if (texts!=null){
+						alert("loaded local texts for "+textsVersion);
+						GlobalConfig.loadedTextsVersion = textsVersion;
+						deferred.resolve(storedTexts);
+					} else {
+						alert("local texts not found, using default ");
+						$http({url:appDefaultPath, cache:true}).success(function(texts){
+							deferred.resolve(texts);
+						});						
+					}
+				});
+				return deferred.promise;
+			}
+		}
+        
         function updateBidspiritDataAndTheme(appVersion) {
             function handleUpdateFailure(message) {
                 alert(message), BidspiritLoader.clear(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
@@ -17655,7 +17664,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                             PortalMobileUtils.updateBidspiritDataAndTheme(settings.appVersion);
                         }, getNextReloadTime(0, 60)));
                     }
-                    BidspiritLoader.loadedTextsVersion == newCacheVersions.TEXTS || mUpdatingMobileTexts || (alert("new texts " + newCacheVersions.TEXTS), 
+                    GlobalConfig.loadedTextsVersion == newCacheVersions.TEXTS || mUpdatingMobileTexts || (alert("new texts " + newCacheVersions.TEXTS), 
                     mUpdatingMobileTexts = !0, PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function() {
                         I18nService.reloadTextsAfterDelay(1e3), PortalInfoService.storeInfoInCache(), alert("lang updated"), 
                         mUpdatingMobileTexts = !1;
