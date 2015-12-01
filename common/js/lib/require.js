@@ -2107,89 +2107,119 @@ window.BidspiritLoader = {
 		
 		mMainDataFileEntry:null,
 		mFileSystem:null,
+		mDebugInfo:"",
+		mErrorInfo:"",
+		
 		localContentLoaded:false,
 
-		getFailFn:function(msg) {with (BidspiritLoader){
-		    return function (err) {
-		        alert('[FAIL] ' +JSON.stringify(err)+" "+ msg);
-		    }
+		addDebugInfo:function(message){with (BidspiritLoader){
+			if (message){
+				mDebugInfo+="["+new Date()+"] "+message+"\n";
+			}
+		}},
+
+		addErrorInfo:function(message){with (BidspiritLoader){
+			mDebugInfo+="Error:"+message+"\n";
+			mErrorInfo+=message+"\n";
 		}},
 		
 		
-		loadDataFile:function(onLoad){with (BidspiritLoader){			
-			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){			
+		loadDataFile:function(onLoad, onFail){with (BidspiritLoader){		
+			addDebugInfo("loading data file");
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+				addDebugInfo("got fs");
 				mFileSystem = fs;				
-				mFileSystem.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){						
+				mFileSystem.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){
+					addDebugInfo("got entry");
 					mMainDataFileEntry = entry;
 					onLoad();
-				},getFailFn("getFile data.bs"));
-			},getFailFn("requestFileSystem"));
+				},onFail);
+			},onFail);
 		}},
 	
-		readFromDataFile:function(handleResult){with (BidspiritLoader){			
+		readFromDataFile:function(handleResult, handleFailure){with (BidspiritLoader){			
 			try {
+				addDebugInfo("got data file entry");
 				mMainDataFileEntry.file(function (file) {					
 	                var reader = new FileReader();
 	                reader.onloadend = function (evt) {
+	                	addDebugInfo("reader load end");
 	                    handleResult(evt.target.result);
 	                }
 	                reader.readAsText(file);
-		         }, getFailFn("read file"));
+		         }, handleFailure);
 			} catch (e){
-				getFailFn("Error while reading data file: "+e.message)();
+				handleFailure("Error while reading data file: "+e.message)();
 			}
 		}},
 		
 		
 		clear:function(){with (BidspiritLoader){
-			mMainDataFileEntry.remove(function(){alert("cleared old content");},getFailFn("Failed to remove content"));
+			mMainDataFileEntry.remove(function(){addDebugInfo("cleared old content");},addErrorInfo("Failed to remove content"));
 			mFileSystem.root.getFile("theme", {create: true, exclusive: false}, function(entry){
-				entry.remove(function(){alert("cleared theme");},getFailFn("Failed to remove theme"));
+				entry.remove(function(){addDebugInfo("cleared theme");},addErrorInfo("Failed to remove theme"));
 			});
 		}},
 		
+		displayDebugIfDev:function(message){with (BidspiritLoader){
+			addDebugInfo(message);
+			if (GlobalConfig.devMode){				
+				alert(BidspiritLoader.mDebugInfo);
+			}
+		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
-			 if ( document.URL.match(/^http/)){
+			 function defaultLoad(){
+				 if (BidspiritLoader.mErrorInfo){
+					 devDebug();
+				 }
 				 node.src = url;
+			 }
+			 
+			 function errorLoad(errorMessage){
+				 if (errorMessage){
+					 BidspiritLoader.addErrorInfo(errorMessage);
+				 }
+				 BidspiritLoader.addErrorInfo("Loading default because of failure");
+				 defaultLoad();
+			 }
+			 
+			 if ( document.URL.match(/^http/)){
+				 defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {					 
 					 try {
 						loadDataFile(function(){
-							readFromDataFile(function(data){
-								var loaded = false;
+							readFromDataFile(function(data, errorLoad){
 								try {
 									if (data!=null){
 										var tildaInd = data.indexOf("~");
 										var version = data.substring(0, tildaInd);		
-										alert("localVersion "+version);
+										addDebugInfo("localVersion "+version);
 										if (version > GlobalConfig.appVersion){
 											var content = data.substring(tildaInd+1);											
 											node.appendChild(document.createTextNode(content));
-											if (localContentLoaded){
-												loaded = true;												
+											if (localContentLoaded){				
 												GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
-												alert("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
+												addDebugInfo("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
 												context.onScriptLoad({srcElement:node, type :'load'});
 												delete localStorage.contentEmbedFailures;
 											} else {
 												node.removeChild(node.childNodes[0]);												
-												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1; 
+												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
+												errorLoad("error in content load");
 											}
 										}
+									} else {
+										defaultLoad();
 									}
 								} catch (e){
-									getFailFn("readFromDataFile error "+e.message)();						
-								}
-								if (!loaded){
-									alert("loading from url");
-									node.src = url;
-								}					
+									errorLoad("readFromDataFile error "+e.message);						
+								}				
 							});
-						});
+						},errorLoad);
 					} catch (e){
-						getFailFn("loadDataFile error "+e.message)();
-						node.src = url;
+						errorLoad("loadDataFile error "+e.message);
 					}
 				 });
 			 }
