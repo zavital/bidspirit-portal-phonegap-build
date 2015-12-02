@@ -2171,7 +2171,6 @@ window.BidspiritLoader = {
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
 			
 			 function defaultLoad(){
-				 alert("default");
 				 if (BidspiritLoader.mErrorInfo){
 					 BidspiritLoader.displayDebugIfDev();
 				 }
@@ -2195,22 +2194,18 @@ window.BidspiritLoader = {
 							readFromDataFile(function(data, defaultLoadOnError){
 								try {
 									if (data!=null){
-										alert("data "+data.length);
 										var tildaInd = data.indexOf("~");
 										var version = data.substring(0, tildaInd);		
 										addDebugInfo("localVersion "+version);
 										if (version > GlobalConfig.appVersion){
-											alert("embed version "+version);
 											var content = data.substring(tildaInd+1);											
 											node.appendChild(document.createTextNode(content));
-											if (localContentLoaded){		
-												
+											if (localContentLoaded){
 												GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
 												addDebugInfo("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
 												context.onScriptLoad({srcElement:node, type :'load'});
 												delete localStorage.contentEmbedFailures;
 											} else {
-												alert("content load err");
 												node.removeChild(node.childNodes[0]);												
 												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
 												defaultLoadOnError("error in content load");
@@ -2219,11 +2214,9 @@ window.BidspiritLoader = {
 											defaultLoad();
 										}
 									} else {
-										alert("no data ");
 										defaultLoad();
 									}
 								} catch (e){
-									alert("exce");
 									defaultLoadOnError("readFromDataFile error "+e.message);						
 								}				
 							});
