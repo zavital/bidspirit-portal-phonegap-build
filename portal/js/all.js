@@ -17703,8 +17703,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 				}
 								
 				if (GlobalConfig.isMobileApp){
-					alert(GlobalConfig.mobileAppVersion + "<" + heartBeatResponse.requiredMobileAppVersion);
-					if (!mAppUpdateMessageDisplayed  && GlobalConfig.mobileAppVersion <  heartBeatResponse.requiredMobileAppVersion){
+					if (!mAppUpdateMessageDisplayed  && (GlobalConfig.mobileAppVersion*1 <  heartBeatResponse.requiredMobileAppVersion*1)){
+						alert("upgrading...");
 						displayAppUpgradePopup();
 					} else if (GlobalConfig.appVersion != heartBeatResponse.appVersion ){
 						var updateFailCounter = LocalStorageService.load("updateFailCounter");
@@ -17752,7 +17752,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 backdrop: "static",
                 controller: function($scope) {
                     $scope.redirectToUpgrade = function() {
-                        window.open("https://bidspirit.com/app", "_system");
+                    	var bidspiritDomain = GlobalConfig.bidmoodEnv ? "bidmood.com" : "bidspirit.com";
+                        window.open("https://"+bidspiritDomain+"/app", "_system");
                     };
                 }
             }));
