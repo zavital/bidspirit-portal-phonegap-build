@@ -17671,36 +17671,82 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function getNextReloadTime(secondsToWait, secondsToSpread) {
             return GlobalConfig.devEnv || GlobalConfig.isMobileApp && $rootScope.devMode ? 1e4 : 1e3 * secondsToWait + Math.round(1e3 * Math.random() * secondsToSpread);
         }
-        function heartBeat() {
-            ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse) {
-                var user = $rootScope.currentUser;
-                user ? heartBeatResponse.hasSession ? user.registrationStage != heartBeatResponse.registrationStage && (user.registrationStage = heartBeatResponse.registrationStage, 
-                $rootScope.$broadcast("auth.authStateChanged")) : ($log.info("session ended."), 
-                SessionsService.setSessionUser(null)) : heartBeatResponse.hasSession && SessionsService.refreshCurrentSession();
-                var settings = SettingsService.getAll(), currentCacheVersions = settings.cacheVersions, newCacheVersions = heartBeatResponse.cacheVersions, newTexts = !1;
-                if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS && (newTexts = !0, currentCacheVersions.TEXTS = newCacheVersions.TEXTS), 
-                currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO && (currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO, 
-                PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120, 120))), GlobalConfig.isMobileApp) {
-                    if (!mAppUpdateMessageDisplayed && GlobalConfig.mobileAppVersion < heartBeatResponse.requiredMobileAppVersion) displayAppUpgradePopup(); else if (GlobalConfig.appVersion != heartBeatResponse.appVersion) {
-                        var updateFailCounter = LocalStorageService.load("updateFailCounter");
-                        updateFailCounter > 3 || localStorage.contentEmbedFailures > 3 ? BidspiritLoader.displayDebugIfDev("failed to upgrade app") : mUpdatingMobileVersion || (mUpdatingMobileVersion = !0, 
-                        setTimeout(function() {                        	
-                            PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
-                        }, getNextReloadTime(0, 60)));
-                    }
-                    GlobalConfig.loadedTextsVersion == newCacheVersions.TEXTS || mUpdatingMobileTexts || (BidspiritLoader.addDebugInfo("new texts " + newCacheVersions.TEXTS), 
-                    mUpdatingMobileTexts = !0, PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function() {
-                        I18nService.reloadTextsAfterDelay(1e3), PortalInfoService.storeInfoInCache(), BidspiritLoader.addDebugInfo("lang updated"), 
-                        mUpdatingMobileTexts = !1;
-                    }, function() {
-                        BidspiritLoader.displayDebugIfDev("failed to update text");
-                    }));
-                } else settings.appVersion != heartBeatResponse.appVersion && (settings.appVersion = heartBeatResponse.appVersion, 
-                reloadPageAfterDelay()), newTexts && (I18nService.reloadTextsAfterDelay(getNextReloadTime(120, 120)), 
-                PortalInfoService.storeInfoInCache());
-            });
-        }
+        
+        function heartBeat(){						
+			ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse){				
+				var user = $rootScope.currentUser;				
+				if (user){
+					if(!heartBeatResponse.hasSession){
+						$log.info("session ended.");
+						SessionsService.setSessionUser(null);
+					} else {
+						if (user.registrationStage != heartBeatResponse.registrationStage){
+							user.registrationStage = heartBeatResponse.registrationStage;
+							$rootScope.$broadcast("auth.authStateChanged");
+						}
+					}
+				} else if (heartBeatResponse.hasSession){
+					SessionsService.refreshCurrentSession();
+				}
+				var settings = SettingsService.getAll();
+				var currentCacheVersions = settings.cacheVersions;
+				var newCacheVersions = heartBeatResponse.cacheVersions;
+				var newTexts = false;
+				if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS){
+					newTexts =  true;		
+					currentCacheVersions.TEXTS = newCacheVersions.TEXTS; 
+				}				
+				
+				if (currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO){
+					currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO
+					PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120,120));
+				}
+								
+				if (GlobalConfig.isMobileApp){
+					alert(GlobalConfig.mobileAppVersion + "<" + heartBeatResponse.requiredMobileAppVersion);
+					if (!mAppUpdateMessageDisplayed  && GlobalConfig.mobileAppVersion <  heartBeatResponse.requiredMobileAppVersion){
+						displayAppUpgradePopup();
+					} else if (GlobalConfig.appVersion != heartBeatResponse.appVersion ){
+						var updateFailCounter = LocalStorageService.load("updateFailCounter");
+						if (updateFailCounter>3 || localStorage.contentEmbedFailures>3){
+							//displayAppUpgradePopup();							
+							BidspiritLoader.displayDebugIfDev("failed to upgrade app");
+							
+						} else if (!mUpdatingMobileVersion){
+							mUpdatingMobileVersion = true;
+							setTimeout(function(){
+								PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
+							}, getNextReloadTime(0,60));
+						}
+					}
+					if (GlobalConfig.loadedTextsVersion != newCacheVersions.TEXTS && !mUpdatingMobileTexts){
+						BidspiritLoader.addDebugInfo("new texts "+newCacheVersions.TEXTS);
+						mUpdatingMobileTexts = true;
+						PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function(){
+							I18nService.reloadTextsAfterDelay(1000);
+							PortalInfoService.storeInfoInCache();
+							BidspiritLoader.addDebugInfo("lang updated");
+							mUpdatingMobileTexts = false;
+						},function(){
+							BidspiritLoader.displayDebugIfDev("failed to update text");
+						});
+					}
+					
+				} else {					
+					if (settings.appVersion!= heartBeatResponse.appVersion){
+						settings.appVersion = heartBeatResponse.appVersion;
+						reloadPageAfterDelay();
+					}
+					if (newTexts){
+						I18nService.reloadTextsAfterDelay(getNextReloadTime(120,120));
+						PortalInfoService.storeInfoInCache();
+					}
+				}
+			});
+			
+		}
         function displayAppUpgradePopup() {
+        	alert("show upgrade");
             mAppUpdateMessageDisplayed || (mAppUpdateMessageDisplayed = !0, $uibModal.open({
                 templateUrl: PathsService.appTemplatePath("info/upgradeRequired"),
                 backdrop: "static",
