@@ -2168,12 +2168,17 @@ window.BidspiritLoader = {
 			}
 		}},
 		
+		testNotifications:function(){with (BidspiritLoader){
+			
+		}},
+		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
 			
 			 function defaultLoad(){
 				 if (BidspiritLoader.mErrorInfo){
 					 BidspiritLoader.displayDebugIfDev();
 				 }
+				 alert("loading default");
 				 node.src = url;
 			 }
 			 
@@ -2205,6 +2210,7 @@ window.BidspiritLoader = {
 												addDebugInfo("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
 												if (GlobalConfig.devMode){
 									  				alert("loaded version "+version);
+									  				alert(content.substr(content.indexOf("/help/search"),50));
 									  			}
 												context.onScriptLoad({srcElement:node, type :'load'});
 												delete localStorage.contentEmbedFailures;
@@ -2231,3 +2237,4 @@ window.BidspiritLoader = {
 			 }
 		}}
 }
+

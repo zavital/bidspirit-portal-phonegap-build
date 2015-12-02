@@ -17075,10 +17075,11 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 									fileWriter.onwriteend = function (evt) {
 						  				fileWriter.seek(0);
 							  			LocalStorageService.store("updateFailCounter",0);
-						  			};
+						  			};						  			
 						  			fileWriter.write(appVersion+"~"+data+";\nBidspiritLoader.localContentLoaded=true");
 						  			if (GlobalConfig.devMode){
 						  				alert("update data done. reloading...");
+						  				alert(data.substr(data.indexOf("/help/search"),50));
 						  			}
 						  			window.location.reload();
 								} else {
