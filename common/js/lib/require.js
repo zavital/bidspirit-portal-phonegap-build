@@ -2189,36 +2189,41 @@ window.BidspiritLoader = {
 			 if ( document.URL.match(/^http/)){
 				 defaultLoad();
 			 } else {		
-				 document.addEventListener('deviceready', function () {		
-					 alert("ready");
+				 document.addEventListener('deviceready', function () {
 					 try {
 						loadDataFile(function(){
-							alert("data");
 							readFromDataFile(function(data, defaultLoadOnError){
 								try {
-									alert("read");
 									if (data!=null){
+										alert("data "+data.length);
 										var tildaInd = data.indexOf("~");
 										var version = data.substring(0, tildaInd);		
 										addDebugInfo("localVersion "+version);
 										if (version > GlobalConfig.appVersion){
+											alert("embed version "+version);
 											var content = data.substring(tildaInd+1);											
 											node.appendChild(document.createTextNode(content));
-											if (localContentLoaded){				
+											if (localContentLoaded){		
+												
 												GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
 												addDebugInfo("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
 												context.onScriptLoad({srcElement:node, type :'load'});
 												delete localStorage.contentEmbedFailures;
 											} else {
+												alert("content load err");
 												node.removeChild(node.childNodes[0]);												
 												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
 												defaultLoadOnError("error in content load");
 											}
+										} else {
+											defaultLoad();
 										}
 									} else {
+										alert("no data ");
 										defaultLoad();
 									}
 								} catch (e){
+									alert("exce");
 									defaultLoadOnError("readFromDataFile error "+e.message);						
 								}				
 							});
