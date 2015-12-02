@@ -2169,15 +2169,16 @@ window.BidspiritLoader = {
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
+			
 			 function defaultLoad(){
 				 alert("default");
 				 if (BidspiritLoader.mErrorInfo){
-					 devDebug();
+					 BidspiritLoader.displayDebugIfDev();
 				 }
 				 node.src = url;
 			 }
 			 
-			 function errorLoad(errorMessage){
+			 function defaultLoadOnError(errorMessage){
 				 if (errorMessage){
 					 BidspiritLoader.addErrorInfo(errorMessage);
 				 }
@@ -2193,7 +2194,7 @@ window.BidspiritLoader = {
 					 try {
 						loadDataFile(function(){
 							alert("data");
-							readFromDataFile(function(data, errorLoad){
+							readFromDataFile(function(data, defaultLoadOnError){
 								try {
 									alert("read");
 									if (data!=null){
@@ -2211,19 +2212,19 @@ window.BidspiritLoader = {
 											} else {
 												node.removeChild(node.childNodes[0]);												
 												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
-												errorLoad("error in content load");
+												defaultLoadOnError("error in content load");
 											}
 										}
 									} else {
 										defaultLoad();
 									}
 								} catch (e){
-									errorLoad("readFromDataFile error "+e.message);						
+									defaultLoadOnError("readFromDataFile error "+e.message);						
 								}				
 							});
-						},errorLoad);
+						},defaultLoadOnError);
 					} catch (e){
-						errorLoad("loadDataFile error "+e.message);
+						defaultLoadOnError("loadDataFile error "+e.message);
 					}
 				 });
 			 }
