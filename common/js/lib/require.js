@@ -2194,7 +2194,6 @@ window.BidspiritLoader = {
 		
 		onNotificationAPN:function (event){with (BidspiritLoader){
 			 alert(event.alert);
-			 navigator.notification.alert(event.alert)
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
@@ -2203,7 +2202,7 @@ window.BidspiritLoader = {
 				 if (BidspiritLoader.mErrorInfo){
 					 BidspiritLoader.displayDebugIfDev();
 				 }
-				 alert("loading default");
+				 //alert("loading default");
 				 node.src = url;
 			 }
 			 
@@ -2220,7 +2219,7 @@ window.BidspiritLoader = {
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
-						 testNotifications();
+						//testNotifications();
 						loadDataFile(function(){
 							readFromDataFile(function(data, defaultLoadOnError){
 								try {
