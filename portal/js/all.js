@@ -17062,14 +17062,17 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				styleUrl = "https://"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
 			}
 			function handleUpdateFailure(message){
+				alert("update failure "+message);
 				displayFailure(message);
+				alert("displayed");
 				BidspiritLoader.clear();
 				updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
 				LocalStorageService.store("updateFailCounter",updateFailCounter+1);
 			}
 			$http.get(styleUrl).success(function(themeData){
-				addToDebug("got theme "+themeData.length);
+				addToDebug("got theme "+themeData.length+" ..."+themeData.substr(themeData.length-100));
 				if (themeData.length>100000 && themeData.match("}$")){
+					addToDebug("storing theme...");
 					storeLocalData("theme",themeData,function(){
 						addToDebug("getting content from url "+contentUrl);
 						$http.get(contentUrl).success(function(data){
@@ -17097,7 +17100,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						});
 					}).error(function(){
 						handleUpdateFailure("failed to get content from url "+contentUrl);
-					});;
+					});
 				} else {
 					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
 				}

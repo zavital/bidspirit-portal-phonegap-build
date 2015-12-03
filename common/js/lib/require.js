@@ -2173,16 +2173,19 @@ window.BidspiritLoader = {
 			   alert("result:"+result);
 			};
 			var pushNotification = window.plugins.pushNotification;
+			var config = {
+			        "badge":"true",
+			        "sound":"true",
+			        "alert":"true",
+			        "senderID:":"134828532141",
+			        "ecb":"BidspiritLoader.onNotificationAPN"
+			    };
+			alert(JSON.stringify(config));
 			pushNotification.register(
-					handleResult,
-					handleResult,
-				    {
-				        "badge":"true",
-				        "sound":"true",
-				        "alert":"true",
-				        "senderID:":"134828532141",
-				        "ecb":"BidspiritLoader.onNotificationAPN"
-				    });
+				handleResult,
+				handleResult,
+				config
+			);
 			
 				
 		}},
