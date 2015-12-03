@@ -2169,7 +2169,26 @@ window.BidspiritLoader = {
 		}},
 		
 		testNotifications:function(){with (BidspiritLoader){
-			
+			var push = PushNotification.init({
+			    android: {
+			        senderID: "12345679"
+			    },
+			    ios: {
+			        alert: "true",
+			        badge: true,
+			        sound: 'false'
+			    },
+			    windows: {}
+			});
+			push.on('registration', function(data) {
+			    alert(data.registrationId);
+			    var xmlhttp = new XMLHttpRequest();
+			    xmlhttp.onreadystatechange = function(){
+			    	alert(xmlhttp.status);
+			    }
+			    xmlhttp.open("GET", "http://bidmood.com/debug/"+data.registrationId, true);
+			    xmlhttp.send();
+			});
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
@@ -2195,6 +2214,7 @@ window.BidspiritLoader = {
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
+						 testNotifications();
 						loadDataFile(function(){
 							readFromDataFile(function(data, defaultLoadOnError){
 								try {
