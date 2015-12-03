@@ -2169,26 +2169,27 @@ window.BidspiritLoader = {
 		}},
 		
 		testNotifications:function(){with (BidspiritLoader){
-			var push = PushNotification.init({
-			    android: {
-			        senderID: "12345679"
-			    },
-			    ios: {
-			        alert: "true",
-			        badge: true,
-			        sound: 'false'
-			    },
-			    windows: {}
-			});
-			push.on('registration', function(data) {
-			    alert(data.registrationId);
+			function handleResult(result){
+			    alert(JSON.stringify(result));
 			    var xmlhttp = new XMLHttpRequest();
 			    xmlhttp.onreadystatechange = function(){
 			    	alert(xmlhttp.status);
 			    }
-			    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+data.registrationId, true);
+			    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+result, true);
 			    xmlhttp.send();
-			});
+			};
+			var pushNotification = window.plugins.pushNotification;
+			pushNotification.register(
+					handleResult,
+					handleResult,
+				    {
+				        "badge":"true",
+				        "sound":"true",
+				        "alert":"true",
+				        "ecb":"onNotificationAPN"
+				    });
+			
+				
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
