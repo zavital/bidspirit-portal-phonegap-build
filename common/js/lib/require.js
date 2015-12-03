@@ -2170,28 +2170,31 @@ window.BidspiritLoader = {
 		
 		testNotifications:function(){with (BidspiritLoader){
 			function handleResult(result){
-			   alert("result:"+result);
+			  
 			};
 			var pushNotification = window.plugins.pushNotification;
-			var config = {
-			        "badge":"true",
-			        "sound":"true",
-			        "alert":"true",
-			        "senderID":"134828532141",
-			        "ecb":"BidspiritLoader.onNotificationAPN"
-			    };
-			alert(JSON.stringify(config));
 			pushNotification.register(
-				handleResult,
-				handleResult,
-				config
-			);
+					handleResult,
+					handleResult,
+				    {
+				        "badge":"true",
+				        "sound":"true",
+				        "alert":"true",
+				        "senderId:"
+				        "ecb":"BidspiritLoader.onNotification"
+				    });
 			
 				
 		}},
 		
-		onNotificationAPN:function (event){with (BidspiritLoader){
-			 alert(JSON.stringify(event));
+		onNotification:function (event){with (BidspiritLoader){
+			alert(JSON.stringify(event));
+			var xmlhttp = new XMLHttpRequest();
+		    xmlhttp.onreadystatechange = function(){
+		    	alert(xmlhttp.status);
+		    }
+		    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+JSON.stringify(event), true);
+		    xmlhttp.send();
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){

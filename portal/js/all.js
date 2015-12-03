@@ -17058,7 +17058,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
 				styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion;
 			} else {
-				contentUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/all.js?v=" + appVersion;
+				contentUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/j/all.js?v=" + appVersion;
 				styleUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
 			}
 			function handleUpdateFailure(message){
@@ -17093,15 +17093,15 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 								} else {
 									handleUpdateFailure("bad content. length:"+data.length+", ..."+data.substr(data.length-100));
 								}							
-							}, function(){
+							},function(){
 								handleUpdateFailure("failed to get content writer");
 							});
-						},function(){
-							handleUpdateFailure("failed to get store theme");							
+						}).error(function(error){
+							handleUpdateFailure("failed to get content from url "+contentUrl+", "+JSON.stringify(error));
 						});
-					}).error(function(){
-						handleUpdateFailure("failed to get content from url "+contentUrl);
-					});
+					},function(){
+						handleUpdateFailure("failed to get store theme");							
+					})
 				} else {
 					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
 				}
