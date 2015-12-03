@@ -2174,7 +2174,10 @@ window.BidspiritLoader = {
 			};
 			var pushNotification = window.plugins.pushNotification;
 			var config = {
-			        "senderID:":"134828532141",
+			        "badge":"true",
+			        "sound":"true",
+			        "alert":"true",
+			        "senderID":"134828532141",
 			        "ecb":"BidspiritLoader.onNotificationAPN"
 			    };
 			alert(JSON.stringify(config));
