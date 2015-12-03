@@ -2186,10 +2186,15 @@ window.BidspiritLoader = {
 				        "badge":"true",
 				        "sound":"true",
 				        "alert":"true",
-				        "ecb":"onNotificationAPN"
+				        "ecb":"BidspiritLoader.onNotificationAPN"
 				    });
 			
 				
+		}},
+		
+		onNotificationAPN:function (event){with (BidspiritLoader){
+			 alert(event.alert);
+			 navigator.notification.alert(event.alert)
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
