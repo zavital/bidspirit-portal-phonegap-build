@@ -2170,7 +2170,7 @@ window.BidspiritLoader = {
 		
 		testNotifications:function(){with (BidspiritLoader){
 			function handleResult(result){
-			  
+				onNotification(result);
 			};
 			var pushNotification = window.plugins.pushNotification;
 			pushNotification.register(
@@ -2180,7 +2180,7 @@ window.BidspiritLoader = {
 				        "badge":"true",
 				        "sound":"true",
 				        "alert":"true",
-				        "senderId":"134828532141", 
+				        "senderID":"134828532141", 
 				        "ecb":"BidspiritLoader.onNotification"
 				    });
 			
@@ -2195,6 +2195,7 @@ window.BidspiritLoader = {
 		    }
 		    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+JSON.stringify(event), true);
 		    xmlhttp.send();
+		    alert("debug sent");
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){

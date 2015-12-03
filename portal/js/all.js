@@ -17058,13 +17058,11 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
 				styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion;
 			} else {
-				contentUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/j/all.js?v=" + appVersion;
+				contentUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/js/all.js?v=" + appVersion;
 				styleUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
 			}
 			function handleUpdateFailure(message){
-				alert("update failure "+message);
 				displayFailure(message);
-				alert("displayed");
 				BidspiritLoader.clear();
 				updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
 				LocalStorageService.store("updateFailCounter",updateFailCounter+1);
@@ -17097,7 +17095,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 								handleUpdateFailure("failed to get content writer");
 							});
 						}).error(function(error){
-							handleUpdateFailure("failed to get content from url "+contentUrl+", "+JSON.stringify(error));
+							handleUpdateFailure("failed to get content from url "+contentUrl+", "+JSON.stringify(error).substr(0,50)+"...");
 						});
 					},function(){
 						handleUpdateFailure("failed to get store theme");							
