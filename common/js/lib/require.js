@@ -2105,7 +2105,8 @@ var requirejs, require, define;
 	
 window.BidspiritLoader = {
 		
-		mMainDataFileEntry:null,
+		DATA_FILE:"data.bs",
+		THEME_FILE:"theme",
 		mFileSystem:null,
 		mDebugInfo:"",
 		mErrorInfo:"",
@@ -2124,30 +2125,38 @@ window.BidspiritLoader = {
 		}},
 		
 		
-		loadDataFile:function(onLoad, onFail){with (BidspiritLoader){		
-			addDebugInfo("loading data file");
-			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-				addDebugInfo("got fs");
-				mFileSystem = fs;				
-				mFileSystem.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){
+		getDataFileEntry:function(onLoad, onFail){with (BidspiritLoader){		
+			addDebugInfo("loading data file");			
+			function getFileFromSystem(fs){
+				fs.root.getFile(DATA_FILE, {create: true, exclusive: false}, function(entry){
 					addDebugInfo("got entry");
-					mMainDataFileEntry = entry;
-					onLoad();
+					onLoad(entry);
 				},onFail);
-			},onFail);
+			}
+			if (mFileSystem){
+				getFileFromSystem(mFileSystem);
+			} else {
+				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+					addDebugInfo("got fs");
+					mFileSystem = fs;				
+					getFileFromSystem(mFileSystem);
+				},onFail);
+			}
 		}},
 	
 		readFromDataFile:function(handleResult, handleFailure){with (BidspiritLoader){			
 			try {
 				addDebugInfo("got data file entry");
-				mMainDataFileEntry.file(function (file) {					
-	                var reader = new FileReader();
-	                reader.onloadend = function (evt) {
-	                	addDebugInfo("reader load end");
-	                    handleResult(evt.target.result);
-	                }
-	                reader.readAsText(file);
-		         }, handleFailure);
+				getDataFileEntry(function(entry){
+					entry.file(function (file) {					
+		                var reader = new FileReader();
+		                reader.onloadend = function (evt) {
+		                	addDebugInfo("reader load end");
+		                    handleResult(evt.target.result);
+		                }
+		                reader.readAsText(file);
+			         }, handleFailure);
+				},handleFailure);	
 			} catch (e){
 				handleFailure("Error while reading data file: "+e.message)();
 			}
@@ -2155,11 +2164,12 @@ window.BidspiritLoader = {
 		
 		
 		clear:function(){with (BidspiritLoader){
-			mMainDataFileEntry.remove(function(){addDebugInfo("cleared old content");},addErrorInfo("Failed to remove content"));
-			mFileSystem.root.getFile("theme", {create: true, exclusive: false}, function(entry){
-				entry.remove(function(){addDebugInfo("cleared theme");},addErrorInfo("Failed to remove theme"));
+			getDataFileEntry(function(entry){
+				entry.remove(function(){addDebugInfo("cleared old content");},addErrorInfo("Failed to remove content"));
+				mFileSystem.root.getFile(THEME_FILE, {create: true, exclusive: false}, function(entry){
+					entry.remove(function(){addDebugInfo("cleared theme");},addErrorInfo("Failed to remove theme"));
+				});			
 			});
-			delete localStorage.contentEmbedFailures;
 		}},
 		
 		displayDebugIfDev:function(message){with (BidspiritLoader){
@@ -2232,6 +2242,7 @@ window.BidspiritLoader = {
 										var lastMobileVersion = versions[1];
 										if (lastMobileVersion != GlobalConfig.mobileAppVersion){
 											clear();
+											delete localStorage.contentEmbedFailures;
 											defaultLoad();
 										} else {
 											addDebugInfo("lastAppVersion "+lastAppVersion);
