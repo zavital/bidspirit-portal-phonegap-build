@@ -17051,37 +17051,60 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                 displayFailure("failed to read local texts, using default "), loadDefaultTexts();
             }), deferred.promise;
         }
-        function updateBidspiritDataAndTheme(appVersion) {
-            function handleUpdateFailure(message) {
-                displayFailure(message), BidspiritLoader.clear(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
-                LocalStorageService.store("updateFailCounter", updateFailCounter + 1);
-            }
-            addToDebug("updating version to " + appVersion);
-            var contentUrl, styleUrl;
-            GlobalConfig.devMode ? (contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion, 
-            styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion) : (contentUrl = "https://" + SettingsService.get("staticFileBase") + "/portal/all.js?v=" + appVersion, 
-            styleUrl = "https://" + SettingsService.get("staticFileBase") + "/portal/styles/style.css?v=" + appVersion), 
-            $http.get(styleUrl).success(function(themeData) {
-                addToDebug("got theme " + themeData.length), themeData.length > 1e5 && themeData.match("}$") ? storeLocalData("theme", themeData, function() {
-                    $http.get(contentUrl).success(function(data) {
-                        BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter) {
-                            data.length > 1e5 ? (fileWriter.onwriteend = function() {
-                                fileWriter.seek(0), LocalStorageService.store("updateFailCounter", 0);
-                            }, fileWriter.write(appVersion + "~" + data + ";\nBidspiritLoader.localContentLoaded=true"), 
-                            GlobalConfig.devMode && alert("update data done. reloading..."), window.location.reload()) : handleUpdateFailure("bad content. length:" + data.length + ", ..." + data.substr(data.length - 100));
-                        }, function() {
-                            handleUpdateFailure("failed to get content writer");
-                        });
-                    }, function() {
-                        handleUpdateFailure("failed to get store theme");
-                    });
-                }).error(function() {
-                    handleUpdateFailure("failed to get content from url " + contentUrl);
-                }) : handleUpdateFailure("bad theme data from url " + styleUrl + ": length:" + themeData.length + " ..." + themeData.substr(themeData.length - 100));
-            }).error(function() {
-                handleUpdateFailure("failed to get theme from url " + styleUrl);
-            });
-        }
+        function updateBidspiritDataAndTheme(appVersion){
+			addToDebug("updating version to "+appVersion);
+			var contentUrl, styleUrl;			
+			if (GlobalConfig.devMode){
+				contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
+				styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion;
+			} else {
+				contentUrl = "https://"+SettingsService.get("staticFileBase")+"/portal/all.js?v=" + appVersion;
+				styleUrl = "https://"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
+			}
+			function handleUpdateFailure(message){
+				displayFailure(message);
+				BidspiritLoader.clear();
+				updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
+				LocalStorageService.store("updateFailCounter",updateFailCounter+1);
+			}
+			$http.get(styleUrl).success(function(themeData){
+				addToDebug("got theme "+themeData.length);
+				if (themeData.length>100000 && themeData.match("}$")){
+					storeLocalData("theme",themeData,function(){
+						addToDebug("getting content from url "+contentUrl);
+						$http.get(contentUrl).success(function(data){
+							addToDebug("got data of length"+data.length);
+							BidspiritLoader.mMainDataFileEntry.createWriter(function(fileWriter){
+								if (data.length>100000){
+									fileWriter.onwriteend = function (evt) {
+						  				fileWriter.seek(0);
+							  			LocalStorageService.store("updateFailCounter",0);
+							  			if (GlobalConfig.devMode){
+							  				alert("update data done. reloading...");
+							  			}
+							  			window.location.reload();
+						  			};
+						  			fileWriter.write(appVersion+"~"+data+";\nBidspiritLoader.localContentLoaded=true");
+						  			
+								} else {
+									handleUpdateFailure("bad content. length:"+data.length+", ..."+data.substr(data.length-100));
+								}							
+							}, function(){
+								handleUpdateFailure("failed to get content writer");
+							});
+						},function(){
+							handleUpdateFailure("failed to get store theme");							
+						});
+					}).error(function(){
+						handleUpdateFailure("failed to get content from url "+contentUrl);
+					});;
+				} else {
+					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
+				}
+			}).error(function(){
+				handleUpdateFailure("failed to get theme from url "+styleUrl);
+			});
+		}		
         return {
             updateBidspiritDataAndTheme: updateBidspiritDataAndTheme,
             loadLocalData: loadLocalData,
