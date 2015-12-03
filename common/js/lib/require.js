@@ -2170,7 +2170,7 @@ window.BidspiritLoader = {
 		
 		testNotifications:function(){with (BidspiritLoader){
 			function handleResult(result){
-			    //
+			   alert("result:"+result);
 			};
 			var pushNotification = window.plugins.pushNotification;
 			pushNotification.register(
@@ -2180,6 +2180,7 @@ window.BidspiritLoader = {
 				        "badge":"true",
 				        "sound":"true",
 				        "alert":"true",
+				        "senderId:":"134828532141",
 				        "ecb":"BidspiritLoader.onNotificationAPN"
 				    });
 			
