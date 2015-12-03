@@ -2180,7 +2180,7 @@ window.BidspiritLoader = {
 				        "badge":"true",
 				        "sound":"true",
 				        "alert":"true",
-				        "senderId:"
+				        "senderId":"134828532141", 
 				        "ecb":"BidspiritLoader.onNotification"
 				    });
 			
