@@ -2186,7 +2186,7 @@ window.BidspiritLoader = {
 			    xmlhttp.onreadystatechange = function(){
 			    	alert(xmlhttp.status);
 			    }
-			    xmlhttp.open("GET", "http://bidmood.com/debug/"+data.registrationId, true);
+			    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+data.registrationId, true);
 			    xmlhttp.send();
 			});
 		}},
