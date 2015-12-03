@@ -2159,6 +2159,7 @@ window.BidspiritLoader = {
 			mFileSystem.root.getFile("theme", {create: true, exclusive: false}, function(entry){
 				entry.remove(function(){addDebugInfo("cleared theme");},addErrorInfo("Failed to remove theme"));
 			});
+			delete localStorage.contentEmbedFailures;
 		}},
 		
 		displayDebugIfDev:function(message){with (BidspiritLoader){
@@ -2204,7 +2205,6 @@ window.BidspiritLoader = {
 				 if (BidspiritLoader.mErrorInfo){
 					 BidspiritLoader.displayDebugIfDev();
 				 }
-				 alert("loading default");
 				 node.src = url;
 			 }
 			 
@@ -2221,29 +2221,36 @@ window.BidspiritLoader = {
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
-						testNotifications();
+						//testNotifications();
 						loadDataFile(function(){
 							readFromDataFile(function(data, defaultLoadOnError){
 								try {
 									if (data!=null){
 										var tildaInd = data.indexOf("~");
-										var version = data.substring(0, tildaInd);		
-										addDebugInfo("localVersion "+version);
-										if (version > GlobalConfig.appVersion){
-											var content = data.substring(tildaInd+1);											
-											node.appendChild(document.createTextNode(content));
-											if (localContentLoaded){
-												GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = version;
-												addDebugInfo("embedded version "+version+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
-												context.onScriptLoad({srcElement:node, type :'load'});
-												delete localStorage.contentEmbedFailures;
-											} else {
-												node.removeChild(node.childNodes[0]);												
-												localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
-												defaultLoadOnError("error in content load");
-											}
-										} else {
+										var versions = data.substring(0, tildaInd).split(",");		
+										var lastAppVersion = versions[0];
+										var lastMobileVersion = versions[1];
+										if (lastMobileVersion != GlobalConfig.mobileAppVersion){
+											clear();
 											defaultLoad();
+										} else {
+											addDebugInfo("lastAppVersion "+lastAppVersion);
+											if (lastAppVersion > GlobalConfig.appVersion){
+												var content = data.substring(tildaInd+1);											
+												node.appendChild(document.createTextNode(content));
+												if (localContentLoaded){
+													GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = lastAppVersion;
+													addDebugInfo("embedded version "+lastAppVersion+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
+													context.onScriptLoad({srcElement:node, type :'load'});
+													delete localStorage.contentEmbedFailures;
+												} else {
+													node.removeChild(node.childNodes[0]);												
+													localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
+													defaultLoadOnError("error in content load");
+												}
+											} else {
+												defaultLoad();
+											}
 										}
 									} else {
 										defaultLoad();
