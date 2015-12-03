@@ -30,6 +30,8 @@
     
     <gap:plugin name="com.danielcwilson.plugins.googleanalytics" version="0.6.1" />
     
+    <plugin name="cordova-plugin-dialogs" spec="1.1.1" source="pgb" />
+    
     
     <gap:platform name="android" />
     <gap:platform name="ios" />

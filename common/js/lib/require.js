@@ -2193,7 +2193,13 @@ window.BidspiritLoader = {
 		}},
 		
 		onNotificationAPN:function (event){with (BidspiritLoader){
-			 alert(event.alert);
+			 alert(JSON.stringify(event));
+			 if ( event.sound )
+			    {
+			        var snd = new Media(event.sound);
+			        snd.play();
+			    }
+
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
@@ -2202,7 +2208,7 @@ window.BidspiritLoader = {
 				 if (BidspiritLoader.mErrorInfo){
 					 BidspiritLoader.displayDebugIfDev();
 				 }
-				 //alert("loading default");
+				 alert("loading default");
 				 node.src = url;
 			 }
 			 
@@ -2219,7 +2225,7 @@ window.BidspiritLoader = {
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
-						//testNotifications();
+						testNotifications();
 						loadDataFile(function(){
 							readFromDataFile(function(data, defaultLoadOnError){
 								try {
