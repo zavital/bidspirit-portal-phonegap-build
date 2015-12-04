@@ -2232,7 +2232,7 @@ window.BidspiritLoader = {
 				 document.addEventListener('deviceready', function () {
 					 try {
 						//testNotifications();
-						loadDataFile(function(){
+						 getDataFileEntry(function(){
 							readFromDataFile(function(data, defaultLoadOnError){
 								try {
 									if (data!=null){
@@ -2272,7 +2272,7 @@ window.BidspiritLoader = {
 							});
 						},defaultLoadOnError);
 					} catch (e){
-						defaultLoadOnError("loadDataFile error "+e.message);
+						defaultLoadOnError("getDataFileEntry error "+e.message);
 					}
 				 });
 			 }
