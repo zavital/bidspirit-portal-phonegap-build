@@ -16975,21 +16975,23 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                 BidspiritLoader.addErrorInfo("get file failed " + fileName), handleFailure && handleFailure();
             }) : (BidspiritLoader.addErrorInfo("file system not found"), void (handleFailure && handleFailure()));
         }
-        function storeLocalTexts(lang) {
-            var textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer(), fileName = getLocalTextFileName(lang, textsVersion), url = PathsService.getPortalTextsUrl(lang);
-            return addToDebug("loading lang from url " + url), $http({
-                url: url,
-                cache: !1
-            }).then(function(textsData) {
-                storeLocalData(fileName, textsData.data, function() {
-                    addToDebug("stored at " + fileName), deferred.resolve();
-                }, function(e) {
-                    deferred.reject("failed to save file " + fileName + "," + JSON.stringify(e));
-                });
-            }, function(e) {
-                deferred.reject("failed to load updated texts. " + JSON.stringify(e));
-            }), deferred.promise;
-        }
+        
+        
+        function storeLocalData(fileName, data, onSuccess, onFail){
+			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
+				alert("writing to file "+fileName);
+				entry.createWriter(function(fileWriter){
+			  		fileWriter.onwriteend = function (evt) {			  			
+			  			fileWriter.seek(0);
+			  			if (onSuccess){
+			  				onSuccess();
+			  			}
+			  		}
+			  		fileWriter.write(data);
+				}, onFail);
+			}, onFail);
+		}
+        
         function updateLocalTextsInAllLangs(newTextsVersion) {
             addToDebug("updating texts to " + newTextsVersion);
             var langs = SettingsService.get("languages"), deferred = $q.defer();
@@ -17052,6 +17054,14 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
             }), deferred.promise;
         }
         
+        function handleUpdateFailure(message){
+        	alert("handle update "+message);
+			displayFailure(message);
+			BidspiritLoader.clear();
+			updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
+			LocalStorageService.store("updateFailCounter",updateFailCounter+1);
+		}
+        
         function updateBidspiritDataAndTheme(appVersion){
 			addToDebug("updating version to "+appVersion);
 			var contentUrl, styleUrl;			
@@ -17061,12 +17071,6 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			} else {
 				contentUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/js/all.js?v=" + appVersion;
 				styleUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
-			}
-			function handleUpdateFailure(message){
-				displayFailure(message);
-				BidspiritLoader.clear();
-				updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
-				LocalStorageService.store("updateFailCounter",updateFailCounter+1);
 			}
 			addToDebug("loading theme from url:"+styleUrl);
 			$http.get(styleUrl).success(function(themeData){
@@ -17100,7 +17104,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						});
 					},function(){
 						handleUpdateFailure("failed to get store theme");							
-					})
+					});
 				} else {
 					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
 				}
