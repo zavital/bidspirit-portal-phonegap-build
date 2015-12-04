@@ -2128,7 +2128,8 @@ window.BidspiritLoader = {
 		getDataFileEntry:function(onLoad, onFail){with (BidspiritLoader){		
 			addDebugInfo("loading data file");
 			
-			function getFileFromSystem(fs){				
+			function getFileFromSystem(fs){	
+				alert("getFileFromSystem "+BidspiritLoader.DATA_FILE);
 				fs.root.getFile(BidspiritLoader.DATA_FILE, {create: true, exclusive: false}, function(entry){
 					alert("entry");
 					BidspiritLoader.addDebugInfo("got entry");
