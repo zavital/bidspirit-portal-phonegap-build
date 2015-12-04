@@ -2126,9 +2126,11 @@ window.BidspiritLoader = {
 		
 		
 		getDataFileEntry:function(onLoad, onFail){with (BidspiritLoader){		
-			addDebugInfo("loading data file");			
-			function getFileFromSystem(fs){
+			addDebugInfo("loading data file");
+			
+			function getFileFromSystem(fs){				
 				fs.root.getFile(DATA_FILE, {create: true, exclusive: false}, function(entry){
+					alert("entry");
 					BidspiritLoader.addDebugInfo("got entry");
 					onLoad(entry);
 				},onFail);
@@ -2138,6 +2140,7 @@ window.BidspiritLoader = {
 			} else {
 				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
 					addDebugInfo("got fs");
+					alert("got fs");
 					mFileSystem = fs;				
 					getFileFromSystem(mFileSystem);
 				},onFail);
@@ -2147,7 +2150,9 @@ window.BidspiritLoader = {
 		readFromDataFile:function(handleResult, handleFailure){with (BidspiritLoader){			
 			try {
 				addDebugInfo("got data file entry");
+				alert("reading");
 				getDataFileEntry(function(entry){
+					alert("got");
 					entry.file(function (file) {					
 		                var reader = new FileReader();
 		                reader.onloadend = function (evt) {
