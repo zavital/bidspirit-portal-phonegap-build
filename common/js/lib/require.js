@@ -2130,7 +2130,6 @@ window.BidspiritLoader = {
 			
 			function getFileFromSystem(fs){
 				fs.root.getFile(BidspiritLoader.DATA_FILE, {create: true, exclusive: false}, function(entry){
-					alert("entry");
 					BidspiritLoader.addDebugInfo("got entry");
 					onLoad(entry);
 				},onFail);
@@ -2150,7 +2149,6 @@ window.BidspiritLoader = {
 			try {
 				addDebugInfo("got data file entry");
 				getDataFileEntry(function(entry){
-					alert("got");
 					entry.file(function (file) {					
 		                var reader = new FileReader();
 		                reader.onloadend = function (evt) {
