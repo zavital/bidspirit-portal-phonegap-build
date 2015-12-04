@@ -2129,7 +2129,7 @@ window.BidspiritLoader = {
 			addDebugInfo("loading data file");			
 			function getFileFromSystem(fs){
 				fs.root.getFile(DATA_FILE, {create: true, exclusive: false}, function(entry){
-					addDebugInfo("got entry");
+					BidspiritLoader.addDebugInfo("got entry");
 					onLoad(entry);
 				},onFail);
 			}
