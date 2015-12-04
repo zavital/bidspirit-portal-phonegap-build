@@ -16978,6 +16978,12 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         
         
         function storeLocalData(fileName, data, onSuccess, onFail){
+        	if (!BidspiritLoader.mFileSystem){
+        		alert("no fs");
+        	}
+        	if (!BidspiritLoader.mFileSystem.root){
+        		alert("no root");
+        	}
 			BidspiritLoader.mFileSystem.root.getFile(fileName, {create: true, exclusive: false}, function(entry){
 				alert("writing to file "+fileName);
 				entry.createWriter(function(fileWriter){
@@ -17077,6 +17083,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				addToDebug("got theme "+themeData.length+" ..."+themeData.substr(themeData.length-100));
 				if (themeData.length>100000 && themeData.match("}$")){
 					addToDebug("storing theme...");
+					alert(BidspiritLoader.mDebugInfo);
 					storeLocalData(BidspiritLoader.THEME_FILE,themeData,function(){
 						addToDebug("getting content from url "+contentUrl);
 						$http.get(contentUrl).success(function(data){
