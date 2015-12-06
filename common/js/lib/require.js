@@ -2149,6 +2149,8 @@ window.BidspiritLoader = {
 			try {
 				addDebugInfo("got data file entry");
 				getDataFileEntry(function(entry){
+					serverDebug("fullPath:"+fullPath);
+					serverDebug("toUrl:"+entry.toURL());
 					entry.file(function (file) {					
 		                var reader = new FileReader();
 		                reader.onloadend = function (evt) {
@@ -2198,14 +2200,18 @@ window.BidspiritLoader = {
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
-			alert(JSON.stringify(event));
+			serverDebug(JSON.stringify(event));
+		}},
+		
+		
+		serverDebug:function(message){with (BidspiritLoader){
 			var xmlhttp = new XMLHttpRequest();
 		    xmlhttp.onreadystatechange = function(){
-		    	alert(xmlhttp.status);
+		    	//alert(xmlhttp.status);
 		    }
-		    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+JSON.stringify(event), true);
+		    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+message, true);
 		    xmlhttp.send();
-		    alert("debug sent");
+			
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
