@@ -17697,15 +17697,14 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 							$rootScope.debug("new version: "+heartBeatResponse.appVersion+". So far failed "+updateFailCounter);
 							setTimeout(function(){
 								$rootScope.debug("should update...");
-								PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
+								//PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
 								
 							}, getNextReloadTime(0,60));
 						}
 					}
 					if (GlobalConfig.loadedTextsVersion != newCacheVersions.TEXTS && !mUpdatingMobileTexts){
-						$rootScope.debug("should loat texts... "+newCacheVersions.TEXTS);
+						$rootScope.debug("new texts "+newCacheVersions.TEXTS);
 						mUpdatingMobileTexts = true;
-						return;
 						PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function(){
 							I18nService.reloadTextsAfterDelay(1000);
 							PortalInfoService.storeInfoInCache();
