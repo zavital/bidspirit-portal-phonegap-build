@@ -17652,36 +17652,80 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function getNextReloadTime(secondsToWait, secondsToSpread) {
             return GlobalConfig.devEnv || GlobalConfig.isMobileApp && $rootScope.devMode ? 1e4 : 1e3 * secondsToWait + Math.round(1e3 * Math.random() * secondsToSpread);
         }
-        function heartBeat() {
-            ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse) {
-                var user = $rootScope.currentUser;
-                user ? heartBeatResponse.hasSession ? user.registrationStage != heartBeatResponse.registrationStage && (user.registrationStage = heartBeatResponse.registrationStage, 
-                $rootScope.$broadcast("auth.authStateChanged")) : ($log.info("session ended."), 
-                SessionsService.setSessionUser(null)) : heartBeatResponse.hasSession && SessionsService.refreshCurrentSession();
-                var settings = SettingsService.getAll(), currentCacheVersions = settings.cacheVersions, newCacheVersions = heartBeatResponse.cacheVersions, newTexts = !1;
-                if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS && (newTexts = !0, currentCacheVersions.TEXTS = newCacheVersions.TEXTS), 
-                currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO && (currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO, 
-                PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120, 120))), GlobalConfig.isMobileApp) {
-                    if (!mAppUpdateMessageDisplayed && 1 * GlobalConfig.mobileAppVersion < 1 * heartBeatResponse.requiredMobileAppVersion) displayAppUpgradePopup(); else if (GlobalConfig.appVersion != heartBeatResponse.appVersion) {
-                        var updateFailCounter = LocalStorageService.load("updateFailCounter");
-                        updateFailCounter > 3 || localStorage.contentEmbedFailures > 3 ? $rootScope.debug("failed to upgrade app") : mUpdatingMobileVersion || (mUpdatingMobileVersion = !0, 
-                        $rootScope.debug("new version: " + heartBeatResponse.appVersion + ". So far failed " + updateFailCounter), 
-                        setTimeout(function() {
-                            PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
-                        }, getNextReloadTime(0, 60)));
-                    }
-                    GlobalConfig.loadedTextsVersion == newCacheVersions.TEXTS || mUpdatingMobileTexts || ($rootScope.debug("new texts " + newCacheVersions.TEXTS), 
-                    mUpdatingMobileTexts = !0, PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function() {
-                        I18nService.reloadTextsAfterDelay(1e3), PortalInfoService.storeInfoInCache(), $rootScope.debug("lang updated"), 
-                        mUpdatingMobileTexts = !1;
-                    }, function() {
-                        $rootScope.debug("failed to update text");
-                    }));
-                } else settings.appVersion != heartBeatResponse.appVersion && (settings.appVersion = heartBeatResponse.appVersion, 
-                reloadPageAfterDelay()), newTexts && (I18nService.reloadTextsAfterDelay(getNextReloadTime(120, 120)), 
-                PortalInfoService.storeInfoInCache());
-            });
-        }
+        function heartBeat(){						
+			ApiService.callApi("/portal/heartBeat").success(function(heartBeatResponse){				
+				var user = $rootScope.currentUser;				
+				if (user){
+					if(!heartBeatResponse.hasSession){
+						$log.info("session ended.");
+						SessionsService.setSessionUser(null);
+					} else {
+						if (user.registrationStage != heartBeatResponse.registrationStage){
+							user.registrationStage = heartBeatResponse.registrationStage;
+							$rootScope.$broadcast("auth.authStateChanged");
+						}
+					}
+				} else if (heartBeatResponse.hasSession){
+					SessionsService.refreshCurrentSession();
+				}
+				var settings = SettingsService.getAll();
+				var currentCacheVersions = settings.cacheVersions;
+				var newCacheVersions = heartBeatResponse.cacheVersions;
+				var newTexts = false;
+				if (currentCacheVersions.TEXTS != newCacheVersions.TEXTS){
+					newTexts =  true;		
+					currentCacheVersions.TEXTS = newCacheVersions.TEXTS; 
+				}				
+				
+				if (currentCacheVersions.PORTAL_INFO != newCacheVersions.PORTAL_INFO){
+					currentCacheVersions.PORTAL_INFO = newCacheVersions.PORTAL_INFO
+					PortalInfoService.reloadInfoAfterDelay(getNextReloadTime(120,120));
+				}
+								
+				if (GlobalConfig.isMobileApp){
+					return;
+					if (!mAppUpdateMessageDisplayed  && GlobalConfig.mobileAppVersion*1 <  heartBeatResponse.requiredMobileAppVersion*1){
+						displayAppUpgradePopup();
+					} else if (GlobalConfig.appVersion != heartBeatResponse.appVersion ){
+						var updateFailCounter = LocalStorageService.load("updateFailCounter");						
+						if (updateFailCounter>3 || localStorage.contentEmbedFailures>3){
+							//displayAppUpgradePopup();							
+							$rootScope.debug("failed to upgrade app");
+							
+						} else if (!mUpdatingMobileVersion){
+							mUpdatingMobileVersion = true;
+							$rootScope.debug("new version: "+heartBeatResponse.appVersion+". So far failed "+updateFailCounter);
+							setTimeout(function(){
+								PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
+								
+							}, getNextReloadTime(0,60));
+						}
+					}
+					if (GlobalConfig.loadedTextsVersion != newCacheVersions.TEXTS && !mUpdatingMobileTexts){
+						$rootScope.debug("new texts "+newCacheVersions.TEXTS);
+						mUpdatingMobileTexts = true;
+						PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function(){
+							I18nService.reloadTextsAfterDelay(1000);
+							PortalInfoService.storeInfoInCache();
+							$rootScope.debug("lang updated");
+							mUpdatingMobileTexts = false;
+						},function(){
+							$rootScope.debug("failed to update text");
+						});
+					}
+					
+				} else {					
+					if (settings.appVersion!= heartBeatResponse.appVersion){
+						settings.appVersion = heartBeatResponse.appVersion;
+						reloadPageAfterDelay();
+					}
+					if (newTexts){
+						I18nService.reloadTextsAfterDelay(getNextReloadTime(120,120));
+						PortalInfoService.storeInfoInCache();
+					}
+				}
+			});
+		}
         function displayAppUpgradePopup() {
             mAppUpdateMessageDisplayed || (mAppUpdateMessageDisplayed = !0, $uibModal.open({
                 templateUrl: PathsService.appTemplatePath("info/upgradeRequired"),
@@ -19906,101 +19950,182 @@ define("portal/js/modules/auctions/lists/auctionsListsModule", [ "angular" ], fu
                 view: "=",
                 houseNameAsLink: "="
             },
-            link: function(scope) {
-                function getAuctionToScrollTo() {
-                    return $rootScope.$previousState && $rootScope.lastAuctionClick && $rootScope.lastAuctionClick.state == $state.current.name && $rootScope.lastAuctionClick.auctionId == $rootScope.$previousState.args.auctionId ? $rootScope.lastAuctionClick.auctionId : void 0;
-                }
-                function setClickedRecently(auction) {
-                    auction.clickedRecently = !0, $timeout(function() {
-                        auction.clickedRecently = !1;
-                    }, 2e3);
-                }
-                function handleTimedAutionClick(auction) {
-                    "ENDED" == auction.state && auction.catalogInfo ? $state.go("app.catalog", {
-                        auctionId: auction.id
-                    }) : AccountService.validateRegisteredInHouseAndThen(auction.house, {
-                        message: "auth_timed_auction"
-                    }, function() {
-                        AppSiteWinodwsService.openAuctionSiteWindow(auction);
-                    });
-                }
-                function initTimeInfo() {
-                    scope.today = DateUtilsService.formatToServerDate(new Date()), angular.forEach(scope.auctions, function(auction) {
-                        var minutes = PortalInfoService.getMinutesUntilAuction(auction);
-                        auction.minutesUntilStart = minutes, !auction.house.bidspiritSiteId && auction.date < scope.today && (auction.hidden = !0);
-                    });
-                }
-                function getImageSize() {
-                    return "400x400";
-                }
-                function initDisplayInfo() {
-                    scope.screenView = $rootScope.viewPort.isWideDevice ? "wide" : "narrow", scope.imageSize = getImageSize();
-                }
-                scope.scrollTo = getAuctionToScrollTo(), scope.scrollTo || window.scrollTo(0, 0), 
-                scope.devMode = $rootScope.devMode, scope.viewPort = $rootScope.viewPort, scope.w = ViewPortService.getViewPortWidth(), 
-                scope.isAuctionClickable = function(auction) {
-                    return "PENDING" == auction.state ? !1 : auction.house.bidspiritSiteId && !auction.catalogInfo ? !1 : !0;
-                }, scope.isAuctionHouseLink = function(auction) {
-                    return scope.houseNameAsLink && auction.house.orderInd ? !0 : !1;
-                }, scope.onAuctionClick = function(auction) {
-                    if (setClickedRecently(auction), scope.isAuctionClickable(auction)) {
-                        var house = auction.house;
-                        $rootScope.lastAuctionClick = {
-                            state: $state.current.name,
-                            auctionId: auction.id
-                        }, house.bidspiritSiteId ? "RUNNING" == auction.state ? AppSiteWinodwsService.openAuctionSiteWindow(auction) : auction.timedAuction || auction.showLeadingBids ? handleTimedAutionClick(auction) : $state.go("app.catalog", {
-                            auctionId: auction.id,
-                            page: 1
-                        }) : auction.externalUrl && window.open(auction.externalUrl, "_system");
-                    }
-                }, scope.auctionButtonClass = function(auction) {
-                    switch (auction.state) {
-                      case "PENDING":
-                        return "disabled";
-
-                      case "READY":
-                        return auction.timedAuction && auction.minutesUntilStart < 30 ? "darkBlue" : auction.externalUrl || auction.catalogInfo ? "orange" : "disabled";
-
-                      case "RUNNING":
-                        return "live darkBlue";
-
-                      case "ENDED":
-                        return "yellow";
-                    }
-                    return "orange";
-                }, scope.auctionButtonText = function(auction) {
-                    switch (auction.state) {
-                      case "PENDING":
-                        return "home_auction_catalog_not_ready";
-
-                      case "READY":
-                        return auction.timedAuction && auction.minutesUntilStart < 30 ? "home_auction_to_the_auction" : auction.externalUrl || auction.catalogInfo ? "home_auction_catalog_open" : "home_auction_catalog_not_ready";
-
-                      case "RUNNING":
-                        return "home_auction_enter";
-
-                      case "ENDED":
-                        return catalogOpenText = "home_auction_catalog_result";
-                    }
-                    return "home_auction_catalog_open";
-                }, scope.isLinkbutton = function(auction) {
-                    if (!auction.catalogInfo) return !1;
-                    switch (auction.state) {
-                      case "PENDING":
-                        return !1;
-
-                      case "READY":
-                        return !auction.externalUrl && !auction.catalogInfo || auction.timedAuction || auction.showLeadingBids ? !1 : !0;
-
-                      case "RUNNING":
-                        return !1;
-
-                      case "ENDED":
-                        return !0;
-                    }
-                }, scope.$watch("auctions", function() {
-                    initTimeInfo(), initDisplayInfo();
-                });
+            
+            link: function (scope, element, attr) {            	
+            	
+            	function getAuctionToScrollTo(){
+            		
+            		if (!$rootScope.$previousState || !$rootScope.lastAuctionClick) return;
+            		
+            		if ($rootScope.lastAuctionClick.state != $state.current.name) return;
+            		
+            		if ($rootScope.lastAuctionClick.auctionId != $rootScope.$previousState.args.auctionId) return;
+            		
+            		return $rootScope.lastAuctionClick.auctionId;
+            	}            	
+            	
+            	scope.scrollTo = getAuctionToScrollTo();
+            	
+            	if (!scope.scrollTo){
+            		window.scrollTo(0,0);
+            	}
+            	
+                scope.devMode = $rootScope.devMode;
+                
+                scope.viewPort = $rootScope.viewPort;
+                
+                scope.w = ViewPortService.getViewPortWidth();
+                
+            	
+            	
+                scope.isAuctionClickable = function(auction){
+            		if (auction.state=="PENDING") return false;
+            		if (auction.house.bidspiritSiteId && !auction.catalogInfo) return false;
+            		return true;
+            	};
+            	
+            	scope.isAuctionHouseLink = function(auction){
+            		if (!scope.houseNameAsLink) return false;
+            		if (!auction.house.orderInd) return false;            		
+            		return true;
+            	}
+            	
+            	
+            	scope.onAuctionClick  = function(auction){
+            		
+            		setClickedRecently(auction);
+            		if (!scope.isAuctionClickable(auction)) return;            		
+            		var house = auction.house;
+            		$rootScope.lastAuctionClick={
+            			state:$state.current.name,
+            			auctionId:auction.id
+            		}
+            		
+            		if (house.bidspiritSiteId){
+            			if (auction.state=="RUNNING"){
+            				AppSiteWinodwsService.openAuctionSiteWindow(auction);
+            			} else if ((auction.timedAuction || auction.showLeadingBids)){
+            				handleTimedAutionClick(auction);            				
+            			} else {
+            				$state.go("app.catalog", {auctionId:auction.id,page:1});
+            			}  
+            		} else if (auction.externalUrl){
+            			window.open(auction.externalUrl, "_system");
+            		}
+            	};
+            	
+            	function setClickedRecently(auction){
+            		auction.clickedRecently = true;
+            		$timeout(function(){
+            			auction.clickedRecently = false;
+            		},2000);
+            	}
+            	
+            	function handleTimedAutionClick(auction){
+            		if(auction.state=="ENDED" && auction.catalogInfo){
+            			$state.go("app.catalog", {auctionId:auction.id});
+            		} else {
+            			AccountService.validateRegisteredInHouseAndThen(auction.house,{message:"auth_timed_auction"}, function(){
+            				AppSiteWinodwsService.openAuctionSiteWindow(auction);
+            			});
+            		}
+            	}
+            	
+            	function initTimeInfo(){
+            		 scope.today = DateUtilsService.formatToServerDate(new Date());            		 
+            	 	 angular.forEach(scope.auctions,function(auction){
+            	 		 var minutes = PortalInfoService.getMinutesUntilAuction(auction);
+            	 		 auction.minutesUntilStart = minutes;            	 		 
+            	 		 if (!auction.house.bidspiritSiteId && auction.date<scope.today){ 
+ 	        	 			auction.hidden = true;        	 			
+ 	        	 		 }
+            	 		 
+            	 	 });
+            	 }
+            	
+            	function getImageSize(){ 
+            		return '400x400';
+            	}
+            	
+            	function initDisplayInfo(){            		 
+            		 if (!$rootScope.viewPort.isWideDevice){
+                     	scope.screenView = "narrow";
+                     }  else {
+                     	scope.screenView = "wide";
+                     }
+            		 scope.imageSize = getImageSize();
+	           	 	 
+           	 	}
+            	
+            	scope.auctionButtonClass=function(auction){
+            		var catalogOpenText = 'home_auction_catalog_open';
+          	 		 var buttonClass = "orange";
+          	 		 switch (auction.state){
+	          	 		 case 'PENDING': return "disabled";	          	 		 
+	          	 		 case 'READY':
+	          	 			if (auction.timedAuction && auction.minutesUntilStart<30){          	 		 		
+	          	 				return "darkBlue";
+	          	 			} else if (auction.externalUrl || auction.catalogInfo){
+	          	 				return "orange";
+	          	 		 	} else {
+	          	 		 		return "disabled";
+	          	 		 	}
+	          	 		 case 'RUNNING': return "live darkBlue";	          	 		 
+	          	 		 case 'ENDED': return "yellow";
+          	 		 }	           	 		
+          	 		 return "orange";
+            	}
+            	
+            	
+            	scope.auctionButtonText=function(auction){            		 
+          	 		 switch (auction.state){
+	          	 		 case 'PENDING':return  'home_auction_catalog_not_ready';
+	          	 		 
+	          	 		 case 'READY':
+	          	 			if (auction.timedAuction && auction.minutesUntilStart<30){
+	          	 				return 'home_auction_to_the_auction';
+	          	 			} else if (auction.externalUrl || auction.catalogInfo){
+	          	 		 		return 'home_auction_catalog_open';
+	          	 		 	} else {
+	          	 		 		return 'home_auction_catalog_not_ready';
+	          	 		 	}          	 		 
+          	 			
+	          	 		 case 'RUNNING': return 'home_auction_enter';
+          	 		 
+	          	 		 case 'ENDED': return catalogOpenText = 'home_auction_catalog_result';
+          	 		 }	           	 		
+          	 		 
+          	 		 return 'home_auction_catalog_open';
+            	}
+            	
+            	
+            	
+            	scope.isLinkbutton=function(auction){            		
+            		 if (!auction.catalogInfo) return false;
+         	 		 switch (auction.state){
+         	 		 case 'PENDING': return false;         	 		 
+         	 		 case 'READY':
+         	 			if ((auction.externalUrl || auction.catalogInfo) && !(auction.timedAuction || auction.showLeadingBids)){
+         	 				return true;
+         	 		 	} else {
+         	 		 		return false;
+         	 		 	}
+         	 		 
+         	 		 case 'RUNNING': return false;
+         	 		 	
+         	 		 case 'ENDED':   return true;
+         	 		 		
+         	 		 }	          
+            	}
+            	
+            	
+            	scope.$watch("auctions", function(){
+            		initTimeInfo();
+                	initDisplayInfo();
+            	});
+            	
+            	
+            	
             },
             templateUrl: PathsService.appTemplatePath("auctions/lists/auctionsList")
         };
@@ -20064,56 +20189,102 @@ define("portal/js/modules/auctions/lists/auctionsListsModule", [ "angular" ], fu
         };
     });
 }), define("portal/js/modules/auctions/lists/auctionsResultsController", [ "./auctionsListsModule" ], function(module) {
-    module.controller("AuctionsResultsController", [ "$scope", "$rootScope", "$timeout", "$state", "$stateParams", "ArraysService", "I18nService", "SessionsService", "PortalInfoService", function($scope, $rootScope, $timeout, $state, $stateParams, ArraysService, I18nService, SessionsService, PortalInfoService) {
-        function setAuctions() {
-            $scope.pastAuctions = ArraysService.filterWithFunction(PortalInfoService.getAuctions(), function(auction) {
-                return auction.catalogInfo && "ENDED" == auction.state ? !0 : !1;
-            }), ArraysService.inverse($scope.pastAuctions), $scope.displayedAuctions = $scope.data.currentHouse ? getHouseAuctions($scope.data.currentHouse) : $scope.pastAuctions, 
-            setPagesData();
-        }
-        function setPagesData() {
-            $scope.pagesData = {
-                itemsCount: $scope.displayedAuctions.length,
-                currentPage: $stateParams.page,
-                itemsPerPage: 20
-            }, $scope.pageAuctions = [];
-            for (var i = 0; i < $scope.pagesData.itemsPerPage; i++) {
-                var auctionInd = $scope.pagesData.itemsPerPage * ($scope.pagesData.currentPage - 1) + i, auction = $scope.displayedAuctions[auctionInd];
-                auction && $scope.pageAuctions.push(auction);
-            }
-        }
-        function shouldShowHouse(house) {
-            return $rootScope.devMode ? !0 : house.hidden ? !1 : 0 == getHouseAuctions(house).length ? !1 : !0;
-        }
-        function setHouses() {
-            var houses = PortalInfoService.getBidSpiritHouses().slice();
-            $scope.houses = [];
-            for (var i = 0; i < houses.length; i++) {
-                var house = houses[i];
-                shouldShowHouse(house) && $scope.houses.push(house);
-            }
-        }
-        function getHouseAuctions(house) {
-            return ArraysService.filteredBy($scope.pastAuctions, "houseId", house.id);
-        }
-        function init() {
-            $scope.displayeAuctionsLoader = !0, $timeout(function() {
-                $scope.displayeAuctionsLoader = !1;
-            }, 200), $scope.data.currentHouse = PortalInfoService.getHouseByCode($stateParams.house), 
-            $scope.data.selectedHouseCode = $scope.data.currentHouse ? $scope.data.currentHouse.code : "all", 
-            setAuctions(), setHouses();
-        }
-        $scope.data = {
-            selectedHouseCode: "all"
-        }, $scope.showHouseAuctions = function(houseCode) {
-            $state.go("app.results", {
-                house: houseCode,
-                page: 1
-            });
-        }, $scope.onMobileDropDownChange = function() {
-            $scope.showHouseAuctions($scope.data.selectedHouseCode);
-        }, init();
-    } ]);
+	   module.controller('AuctionsResultsController', [
+	                                                   '$scope', '$rootScope', '$timeout', '$state', '$stateParams',
+	                                                   	'ArraysService', 'I18nService',  
+	                                                   		'SessionsService', 'PortalInfoService',   
+	                                         function ( $scope,   $rootScope,  $timeout, 	  $state,  $stateParams,
+	                                      		   		 ArraysService,   I18nService, 
+	                                      		   		 	 SessionsService,   PortalInfoService) {
+	                                                  	 
+	                                          	 $scope.data={
+	                                          		selectedHouseCode : "all"  		    		 
+	                                        		 };      		   	 
+	                                               
+	                                                  	 
+	                                               function setAuctions(){
+	                                              	 $scope.pastAuctions = ArraysService.filterWithFunction(PortalInfoService.getAuctions(), function(auction){
+	                                                  	 if (!auction.catalogInfo) return false;
+	                                                  	 if (auction.state=="ENDED") return true;
+	                                                  	 return false;
+	                                                   });
+	                                              	 ArraysService.inverse($scope.pastAuctions);                 
+	                                                   $scope.displayedAuctions = $scope.data.currentHouse ? getHouseAuctions($scope.data.currentHouse) : $scope.pastAuctions ;
+	                                                   setPagesData();
+	                                                   $rootScope.debug("got auctions");
+	                                               }
+	                                               
+	                                               function setPagesData(){            	 
+	                                              	 $scope.pagesData={
+	                                              		itemsCount:  $scope.displayedAuctions.length,
+	                                              		currentPage: $stateParams.page,
+	                                              		itemsPerPage:20        		
+	                                              	 };
+	                                              	 $scope.pageAuctions = [];
+	                                              	 for (var i=0;i<$scope.pagesData.itemsPerPage;i++){
+	                                              		 var auctionInd = $scope.pagesData.itemsPerPage * ($scope.pagesData.currentPage-1) + i;
+	                                              		 var auction = $scope.displayedAuctions[auctionInd];
+	                                              		 if (auction){
+	                                              			 $scope.pageAuctions.push(auction);
+	                                              		 }
+	                                              	 }
+	                                              	$rootScope.debug("page data set");
+	                                               }
+	                                               
+	                                               
+	                                               function shouldShowHouse(house){            	 
+	                                              	 if ($rootScope.devMode) return true;
+	                                              	 if (house.hidden) return false;
+	                                              	 if (getHouseAuctions(house).length==0) return false;
+	                                              	 return true;
+	                                               }
+	                                               
+	                                               
+	                                               function setHouses(){
+	                                              	 var houses = PortalInfoService.getBidSpiritHouses().slice();
+	                                              	 $scope.houses = [];
+	                                              	 for (var i=0;i<houses.length;i++){
+	                                              		 var house = houses[i];
+	                                              		 if (shouldShowHouse(house)){
+	                                              			 $scope.houses.push(house);
+	                                              		 }
+	                                              	 }                 
+	                                               }
+	                                               
+	                                                            
+	                                               function getHouseAuctions(house){
+	                                              	 return ArraysService.filteredBy($scope.pastAuctions,"houseId",house.id);
+	                                               }
+	                                               
+	                                               $scope.showHouseAuctions = function(houseCode){
+	                                              	 $state.go('app.results', {house:houseCode,page:1});
+	                                               }             
+	                                                          
+	                                               
+	                                                
+	                                               $scope.onMobileDropDownChange = function(newval){
+	                                              	 $scope.showHouseAuctions($scope.data.selectedHouseCode);
+	                                              	 
+	                                               }
+	                                               
+	                                               function init(){
+	                                            	   $rootScope.debug("results init");
+	                                              	 $scope.displayeAuctionsLoader = true;      		     
+	                                        		     $timeout(function(){
+	                                        		    	 $rootScope.debug("loader done");
+	                                        		    	 $scope.displayeAuctionsLoader = false;
+	                                        		     },200);
+	                                        		     $scope.data.currentHouse = PortalInfoService.getHouseByCode($stateParams.house);
+	                                        		     $scope.data.selectedHouseCode = $scope.data.currentHouse ? $scope.data.currentHouse.code : "all"; 
+	                                        		     
+	                                              	 setAuctions();
+	                                              	 setHouses();            	 
+	                                               }
+	                                               
+	                                               
+	                                               init();
+	                                                       
+	                                      }]);
 }), define("portal/js/modules/auctions/lists/auctionBadgeDirective", [ "./auctionsListsModule" ], function(module) {
     module.directive("auctionBadge", function(PathsService, I18nService) {
         return {
