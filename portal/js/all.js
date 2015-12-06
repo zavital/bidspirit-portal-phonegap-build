@@ -17703,8 +17703,9 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 						}
 					}
 					if (GlobalConfig.loadedTextsVersion != newCacheVersions.TEXTS && !mUpdatingMobileTexts){
-						$rootScope.debug("new texts "+newCacheVersions.TEXTS);
+						$rootScope.debug("should loat texts... "+newCacheVersions.TEXTS);
 						mUpdatingMobileTexts = true;
+						return;
 						PortalMobileUtils.updateLocalTextsInAllLangs(newCacheVersions.TEXTS).then(function(){
 							I18nService.reloadTextsAfterDelay(1000);
 							PortalInfoService.storeInfoInCache();
