@@ -17683,7 +17683,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 				}
 								
 				if (GlobalConfig.isMobileApp){
-					return;
+					$rootScope.debug("heart beat");
 					if (!mAppUpdateMessageDisplayed  && GlobalConfig.mobileAppVersion*1 <  heartBeatResponse.requiredMobileAppVersion*1){
 						displayAppUpgradePopup();
 					} else if (GlobalConfig.appVersion != heartBeatResponse.appVersion ){
@@ -17696,7 +17696,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 							mUpdatingMobileVersion = true;
 							$rootScope.debug("new version: "+heartBeatResponse.appVersion+". So far failed "+updateFailCounter);
 							setTimeout(function(){
-								PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
+								$rootScope.debug("should update...");
+								//PortalMobileUtils.updateBidspiritDataAndTheme(heartBeatResponse.appVersion);
 								
 							}, getNextReloadTime(0,60));
 						}
