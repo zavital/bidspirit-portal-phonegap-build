@@ -2149,7 +2149,7 @@ window.BidspiritLoader = {
 			try {
 				addDebugInfo("got data file entry");
 				getDataFileEntry(function(entry){
-					serverDebug("fullPath:"+fullPath);
+					serverDebug("fullPath:"+entry.fullPath);
 					serverDebug("toUrl:"+entry.toURL());
 					entry.file(function (file) {					
 		                var reader = new FileReader();
@@ -2215,7 +2215,7 @@ window.BidspiritLoader = {
 		}},
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
-			
+			serverDebug("loading bs");
 			 function defaultLoad(){
 				 if (BidspiritLoader.mErrorInfo){
 					 BidspiritLoader.displayDebugIfDev();
