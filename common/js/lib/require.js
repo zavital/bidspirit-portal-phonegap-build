@@ -2194,9 +2194,7 @@ window.BidspiritLoader = {
 				        "alert":"true",
 				        "senderID":"134828532141", 
 				        "ecb":"BidspiritLoader.onNotification"
-				    });
-			
-				
+				    });	
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
