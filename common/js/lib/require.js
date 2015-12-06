@@ -2247,15 +2247,17 @@ window.BidspiritLoader = {
 											addDebugInfo("lastAppVersion "+lastAppVersion);
 											if (lastAppVersion > GlobalConfig.appVersion){
 												var content = data.substring(tildaInd+1);											
-												node.appendChild(document.createTextNode(content));
+												node.appendChild(document.createTextNode(content));												
 												if (localContentLoaded){
 													GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = lastAppVersion;
 													addDebugInfo("embedded version "+lastAppVersion+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
 													context.onScriptLoad({srcElement:node, type :'load'});
+													content = null;
 													delete localStorage.contentEmbedFailures;
 												} else {
 													node.removeChild(node.childNodes[0]);												
 													localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
+													content = null;
 													defaultLoadOnError("error in content load");
 												}
 											} else {
