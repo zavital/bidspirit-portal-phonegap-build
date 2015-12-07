@@ -2123,7 +2123,6 @@ window.BidspiritLoader = {
 			getDataFileEntry(function(){
 				mFileSystem.root.getFile(BidspiritLoader.DATA_FILE+".js", {create: false, exclusive: false}, function(entry){
 					//serverDebug("fullPath:"+entry.fullPath);
-					alert("got it");
 					onLoad(entry.toURL());
 				},onFail);
 			},onFail);
@@ -2242,11 +2241,11 @@ window.BidspiritLoader = {
 						//testNotifications();
 						 getJsFileEntry(function(localUrl){
 							 //alert("got js url "+localUrl);
-						 
+							 node.src = localUrl;
+							 context.onScriptLoad({srcElement:node, type :'load'});
 						 }, function(){
 							 //alert("no js url ");
-							 node.src = url;
-							 context.onScriptLoad({srcElement:node, type :'load'});
+							 node.src = url;							 
 							 return;
 							 getDataFileEntry(function(){
 								readFromDataFile(function(data, defaultLoadOnError){
