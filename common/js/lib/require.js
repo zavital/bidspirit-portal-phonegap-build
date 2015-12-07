@@ -2145,7 +2145,9 @@ window.BidspiritLoader = {
 		}},
 		
 		initFilesBase:function(onSuccess, onFail){with (BidspiritLoader){
-			mFileSystem.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(){
+			alert("init");
+			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(){
+				alert("dir");
 				handleSuccess(onSuccess,"files base created");
 			}, function(e){
 				handleError(e, onFail, "failed to create files base");
@@ -2155,10 +2157,12 @@ window.BidspiritLoader = {
 		
 		loadFileSystem:function(onSuccess, onFail){with (BidspiritLoader){			
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+				alert("got fs");
 				addDebugInfo("got fs");
 				mFileSystem = fs;
 				initFilesBase(onSuccess, onFail);
 			},function(e){
+				alert(" fs error");
 				handleError(e, onFail, "file system error");
 	        });
 		}},
@@ -2295,9 +2299,7 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
-					 alert(1);
 					 try {
-						 alert(2);
 						//testNotifications();
 						 loadFileSystem(function(localUrl){
 							 alert(3);
