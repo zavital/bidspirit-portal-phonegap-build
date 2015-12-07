@@ -2123,8 +2123,8 @@ window.BidspiritLoader = {
 			getDataFileEntry(function(){
 				mFileSystem.root.getFile(BidspiritLoader.DATA_FILE+".js", {create: false, exclusive: false}, function(entry){
 					//serverDebug("fullPath:"+entry.fullPath);
-					//onLoad(entry.toURL());
-					onLoad(entry.fullPath);
+					onLoad(entry.toURL());
+					//onLoad(entry.fullPath);
 				},onFail);
 			},onFail);
 		}},
