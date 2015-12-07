@@ -2305,6 +2305,7 @@ window.BidspiritLoader = {
 				 document.addEventListener('deviceready', function () {
 					 try {
 						//testNotifications();
+						 alert("ready");
 						 loadFileSystem(function(localUrl){
 							 alert("got fs");
 							 readFile("data",function(data){
