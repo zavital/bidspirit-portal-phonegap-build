@@ -2124,6 +2124,13 @@ window.BidspiritLoader = {
 			mErrorInfo+=message+"\n";
 		}},
 		
+		getJsFileEntry:function(onLoad, onFail){with (BidspiritLoader){
+			fs.root.getFile(BidspiritLoader.DATA_FILE+".js", {create: false, exclusive: false}, function(entry){
+				//serverDebug("fullPath:"+entry.fullPath);
+				onLoad(entry.toURL());
+			},onFail);
+		}},
+		
 		
 		getDataFileEntry:function(onLoad, onFail){with (BidspiritLoader){		
 			addDebugInfo("loading data file");
@@ -2149,8 +2156,7 @@ window.BidspiritLoader = {
 			try {
 				addDebugInfo("got data file entry");
 				getDataFileEntry(function(entry){
-					serverDebug("fullPath:"+entry.fullPath);
-					serverDebug("toUrl:"+entry.toURL());
+					
 					entry.file(function (file) {					
 		                var reader = new FileReader();
 		                reader.onloadend = function (evt) {
@@ -2237,47 +2243,53 @@ window.BidspiritLoader = {
 				 document.addEventListener('deviceready', function () {
 					 try {
 						//testNotifications();
-						 getDataFileEntry(function(){
-							readFromDataFile(function(data, defaultLoadOnError){
-								try {
-									if (data!=null){
-										var tildaInd = data.indexOf("~");
-										var versions = data.substring(0, tildaInd).split(",");		
-										var lastAppVersion = versions[0];
-										var lastMobileVersion = versions[1];
-										if (lastMobileVersion != GlobalConfig.mobileAppVersion){
-											clear();
-											delete localStorage.contentEmbedFailures;
-											defaultLoad();
-										} else {
-											defaultLoad();
-											return;
-											addDebugInfo("lastAppVersion "+lastAppVersion);
-											if (lastAppVersion > GlobalConfig.appVersion){
-												var content = data.substring(tildaInd+1);											
-												node.appendChild(document.createTextNode(content));												
-												if (localContentLoaded){
-													GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = lastAppVersion;
-													addDebugInfo("embedded version "+lastAppVersion+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
-													context.onScriptLoad({srcElement:node, type :'load'});
-													delete localStorage.contentEmbedFailures;
-												} else {
-													node.removeChild(node.childNodes[0]);												
-													localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
-													defaultLoadOnError("error in content load");
-												}
+						 getJsFileEntry(function(url){
+							 alert("got js url "+url);
+							 node.src = url; 
+						 }, function(){
+							 alert("no js url ");
+							 getDataFileEntry(function(){
+								readFromDataFile(function(data, defaultLoadOnError){
+									try {
+										if (data!=null){
+											var tildaInd = data.indexOf("~");
+											var versions = data.substring(0, tildaInd).split(",");		
+											var lastAppVersion = versions[0];
+											var lastMobileVersion = versions[1];
+											if (lastMobileVersion != GlobalConfig.mobileAppVersion){
+												clear();
+												delete localStorage.contentEmbedFailures;
+												defaultLoad();
 											} else {
 												defaultLoad();
+												return;
+												addDebugInfo("lastAppVersion "+lastAppVersion);
+												if (lastAppVersion > GlobalConfig.appVersion){
+													var content = data.substring(tildaInd+1);											
+													node.appendChild(document.createTextNode(content));												
+													if (localContentLoaded){
+														GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = lastAppVersion;
+														addDebugInfo("embedded version "+lastAppVersion+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
+														context.onScriptLoad({srcElement:node, type :'load'});
+														delete localStorage.contentEmbedFailures;
+													} else {
+														node.removeChild(node.childNodes[0]);												
+														localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
+														defaultLoadOnError("error in content load");
+													}
+												} else {
+													defaultLoad();
+												}
 											}
+										} else {
+											defaultLoad();
 										}
-									} else {
-										defaultLoad();
-									}
-								} catch (e){
-									defaultLoadOnError("readFromDataFile error "+e.message);						
-								}				
-							});
-						},defaultLoadOnError);
+									} catch (e){
+										defaultLoadOnError("readFromDataFile error "+e.message);						
+									}				
+								});
+							},defaultLoadOnError);
+						 }); 
 					} catch (e){
 						defaultLoadOnError("getDataFileEntry error "+e.message);
 					}
