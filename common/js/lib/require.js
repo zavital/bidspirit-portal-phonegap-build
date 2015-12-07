@@ -2214,10 +2214,12 @@ window.BidspiritLoader = {
 	         });
 		}},
 
-		
+		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){
+			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, onSuccess, onFail);
+		}},
 		
 		reset:function(onSuccess,onFail){with (BidspiritLoader){
-			mFileSystem.root.getFile(FILES_BASE, {create: true, exclusive: false}, function(entry){
+			getBaseDirEntry(function(entry){
 				addDebugInfo("got Files base entry for reset");
 				entry.removeRecursively(function(){
 					addDebugInfo("reset files base success");
@@ -2299,7 +2301,6 @@ window.BidspiritLoader = {
 						//testNotifications();
 						 loadFileSystem(function(localUrl){
 							 readFile("data",function(data){
-								 alert(4);
 								 if (data){
 									 var versions = data.split(",");
 									 var mobileAppVersion = versions[0];
@@ -2314,6 +2315,8 @@ window.BidspiritLoader = {
 										 });
 									 } else {
 										 getFileEntry("content."+portalAppVersion,{create: false, exclusive: false}, function(content){
+											 GlobalConfig.appeVersion = portalAppVersion;
+											 addDebugInfo("loading content from "+content.toURL());
 											 mNode.src = content.toURL();
 										 },function(){
 											 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
