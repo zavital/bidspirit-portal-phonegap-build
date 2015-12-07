@@ -2121,15 +2121,12 @@ window.BidspiritLoader = {
 		
 		handleError:function(errorObj, onFail, errorMessage){with (BidspiritLoader){
 			var errorInfo="";
-			alert(1);
 			if (errorMessage){
 				errorInfo+=errorMessage;
 			}
-			alert(2);
 			if (errorObj){
 				errorInfo+=" ("+JSON.stringify(errorObj)+")";
 			}
-			alert(3);
 			if (errorInfo){
 				addErrorInfo(errorInfo);
 			}
@@ -2176,16 +2173,12 @@ window.BidspiritLoader = {
 		
 		
 		readFile:function(fileName, onSuccess, onFail){with (BidspiritLoader){
-			alert("read");
 			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
-				alert("entry"+entry.file);
 				addDebugInfo("got entry for read - "+fileName);
 				entry.file(function (file) {
 					addDebugInfo("entry.file success - "+fileName);
-					alert("success");
 	                var reader = new FileReader();
 	                reader.onloadend = function (evt) {
-	                	alert("read");
 	                	addDebugInfo("reader load end - "+fileName);
 	                	if (onSuccess){
 	                		onSuccess(evt.target.result);
@@ -2193,7 +2186,6 @@ window.BidspiritLoader = {
 	                }
 	                reader.readAsText(file);
 		         }, function(e){
-		        	 alert("error "+e);
 		        	 handleError(e, onFail, "entry.file error for read - "+fileName);
 		         });
 			 }, function(e){
@@ -2305,9 +2297,7 @@ window.BidspiritLoader = {
 				 document.addEventListener('deviceready', function () {
 					 try {
 						//testNotifications();
-						 alert("ready");
 						 loadFileSystem(function(localUrl){
-							 alert("got fs");
 							 readFile("data",function(data){
 								 alert(4);
 								 if (data){
@@ -2331,6 +2321,7 @@ window.BidspiritLoader = {
 									 }
 								 } else {
 									 addDebugInfo("default load becuase no data found");
+									 defaultLoad();
 								 }
 							 },function(){
 								 alert(5);
