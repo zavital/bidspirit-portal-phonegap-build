@@ -2145,9 +2145,7 @@ window.BidspiritLoader = {
 		}},
 		
 		initFilesBase:function(onSuccess, onFail){with (BidspiritLoader){
-			alert("init");
 			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(){
-				alert("dir");
 				handleSuccess(onSuccess,"files base created");
 			}, function(e){
 				handleError(e, onFail, "failed to create files base");
@@ -2157,17 +2155,16 @@ window.BidspiritLoader = {
 		
 		loadFileSystem:function(onSuccess, onFail){with (BidspiritLoader){			
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-				alert("got fs");
 				addDebugInfo("got fs");
 				mFileSystem = fs;
 				initFilesBase(onSuccess, onFail);
 			},function(e){
-				alert(" fs error");
 				handleError(e, onFail, "file system error");
 	        });
 		}},
 		
-		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){		
+		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
+			alert("getting file "+fileName);
 			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
 				handleSuccess(onSuccess,"root.getFile success - "+fileName);
 			}, function(e){
@@ -2176,13 +2173,17 @@ window.BidspiritLoader = {
 		}},
 		
 		
-		readFile:function(fileName, onSuccess, onFail){with (BidspiritLoader){		
+		readFile:function(fileName, onSuccess, onFail){with (BidspiritLoader){
+			alert("reading");
 			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
+				alert("got file");
 				addDebugInfo("got entry for read - "+fileName);
 				entry.file(function (file) {
 					addDebugInfo("entry.file success - "+fileName);
+					alert("success");
 	                var reader = new FileReader();
 	                reader.onloadend = function (evt) {
+	                	alert("read");
 	                	addDebugInfo("reader load end - "+fileName);
 	                	if (onSuccess){
 	                		onSuccess(evt.target.result);
@@ -2302,7 +2303,6 @@ window.BidspiritLoader = {
 					 try {
 						//testNotifications();
 						 loadFileSystem(function(localUrl){
-							 alert(3);
 							 readFile("data",function(data){
 								 alert(4);
 								 if (data){
