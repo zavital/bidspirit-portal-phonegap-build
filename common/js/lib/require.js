@@ -2168,7 +2168,7 @@ window.BidspiritLoader = {
 		
 		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
 			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
-				handleSuccess(onSuccess,"root.getFile success - "+fileName);
+				handleSuccess(function(){onSuccess(entry);},"root.getFile success - "+fileName);
 			}, function(e){
 				handleError(e, onFail, "root.getFile error - "+fileName);
 	        });
@@ -2176,7 +2176,9 @@ window.BidspiritLoader = {
 		
 		
 		readFile:function(fileName, onSuccess, onFail){with (BidspiritLoader){
+			alert("read");
 			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
+				alert("entry"+entry.file);
 				addDebugInfo("got entry for read - "+fileName);
 				entry.file(function (file) {
 					addDebugInfo("entry.file success - "+fileName);
@@ -2304,6 +2306,7 @@ window.BidspiritLoader = {
 					 try {
 						//testNotifications();
 						 loadFileSystem(function(localUrl){
+							 alert("got fs");
 							 readFile("data",function(data){
 								 alert(4);
 								 if (data){
