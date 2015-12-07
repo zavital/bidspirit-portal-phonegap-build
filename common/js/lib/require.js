@@ -2240,7 +2240,7 @@ window.BidspiritLoader = {
 					 try {
 						//testNotifications();
 						 getJsFileEntry(function(localUrl){
-							 //alert("got js url "+localUrl);
+							 alert("got js url "+localUrl);
 							 node.src = localUrl;
 							 //context.onScriptLoad({srcElement:node, type :'load'});
 						 }, function(){
