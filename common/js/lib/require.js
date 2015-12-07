@@ -2295,10 +2295,14 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
+					 alert(1);
 					 try {
+						 alert(2);
 						//testNotifications();
 						 loadFileSystem(function(localUrl){
+							 alert(3);
 							 readFile("data",function(data){
+								 alert(4);
 								 if (data){
 									 var versions = data.split(",");
 									 var mobileAppVersion = versions[0];
@@ -2322,6 +2326,7 @@ window.BidspiritLoader = {
 									 addDebugInfo("default load becuase no data found");
 								 }
 							 },function(){
+								 alert(5);
 								 defaultLoadOnError("failed to load data");
 							 });
 						 }, function(){
