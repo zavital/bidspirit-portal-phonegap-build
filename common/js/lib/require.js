@@ -2120,13 +2120,16 @@ window.BidspiritLoader = {
 		}},
 		
 		handleError:function(errorObj, onFail, errorMessage){with (BidspiritLoader){
-			var errorInfo;
+			var errorInfo="";
+			alert(1);
 			if (errorMessage){
 				errorInfo+=errorMessage;
 			}
+			alert(2);
 			if (errorObj){
 				errorInfo+=" ("+JSON.stringify(errorObj)+")";
 			}
+			alert(3);
 			if (errorInfo){
 				addErrorInfo(errorInfo);
 			}
@@ -2164,7 +2167,6 @@ window.BidspiritLoader = {
 		}},
 		
 		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
-			alert("getting file "+fileName);
 			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
 				handleSuccess(onSuccess,"root.getFile success - "+fileName);
 			}, function(e){
@@ -2174,9 +2176,7 @@ window.BidspiritLoader = {
 		
 		
 		readFile:function(fileName, onSuccess, onFail){with (BidspiritLoader){
-			alert("reading");
 			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
-				alert("got file");
 				addDebugInfo("got entry for read - "+fileName);
 				entry.file(function (file) {
 					addDebugInfo("entry.file success - "+fileName);
@@ -2191,6 +2191,7 @@ window.BidspiritLoader = {
 	                }
 	                reader.readAsText(file);
 		         }, function(e){
+		        	 alert("error "+e);
 		        	 handleError(e, onFail, "entry.file error for read - "+fileName);
 		         });
 			 }, function(e){
