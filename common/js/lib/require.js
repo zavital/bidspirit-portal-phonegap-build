@@ -2095,12 +2095,6 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
-
-
-
-
-
-
 	
 	
 window.BidspiritLoader = {
@@ -2124,8 +2118,7 @@ window.BidspiritLoader = {
 			mErrorInfo+=message+"\n";
 		}},
 		
-		getJsFileEntry:function(onLoad, onFail){with (BidspiritLoader){
-			alert("getting file "+BidspiritLoader.DATA_FILE+".js");
+		getJsFileEntry:function(onLoad, onFail){with (BidspiritLoader){			
 			getDataFileEntry(function(){
 				mFileSystem.root.getFile(BidspiritLoader.DATA_FILE+".js", {create: false, exclusive: false}, function(entry){
 					//serverDebug("fullPath:"+entry.fullPath);
@@ -2159,8 +2152,7 @@ window.BidspiritLoader = {
 		readFromDataFile:function(handleResult, handleFailure){with (BidspiritLoader){			
 			try {
 				addDebugInfo("got data file entry");
-				getDataFileEntry(function(entry){
-					
+				getDataFileEntry(function(entry){					
 					entry.file(function (file) {					
 		                var reader = new FileReader();
 		                reader.onloadend = function (evt) {
@@ -2247,11 +2239,14 @@ window.BidspiritLoader = {
 				 document.addEventListener('deviceready', function () {
 					 try {
 						//testNotifications();
-						 getJsFileEntry(function(url){
-							 alert("got js url "+url);
-							 node.src = url; 
+						 getJsFileEntry(function(localUrl){
+							 //alert("got js url "+localUrl);
+							 node.src = localUrl; 
 						 }, function(){
-							 alert("no js url ");
+							 //alert("no js url ");
+							 node.src = url;
+							 context.onScriptLoad({srcElement:node, type :'load'});
+							 return;
 							 getDataFileEntry(function(){
 								readFromDataFile(function(data, defaultLoadOnError){
 									try {
