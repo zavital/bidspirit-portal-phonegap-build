@@ -2125,9 +2125,13 @@ window.BidspiritLoader = {
 		}},
 		
 		getJsFileEntry:function(onLoad, onFail){with (BidspiritLoader){
-			fs.root.getFile(BidspiritLoader.DATA_FILE+".js", {create: false, exclusive: false}, function(entry){
-				//serverDebug("fullPath:"+entry.fullPath);
-				onLoad(entry.toURL());
+			alert("getting file "+BidspiritLoader.DATA_FILE+".js");
+			getDataFileEntry(function(){
+				mFileSystem.root.getFile(BidspiritLoader.DATA_FILE+".js", {create: false, exclusive: false}, function(entry){
+					//serverDebug("fullPath:"+entry.fullPath);
+					alert("got it");
+					onLoad(entry.toURL());
+				},onFail);
 			},onFail);
 		}},
 		
