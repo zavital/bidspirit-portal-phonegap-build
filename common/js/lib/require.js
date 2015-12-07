@@ -1540,6 +1540,7 @@ var requirejs, require, define;
              * @param {String} moduleName the name of the module to potentially complete.
              */
             completeLoad: function(moduleName) {
+            	alert("completing "+moduleName);
                 var found, args, mod,
                 shim = getOwn(config.shim, moduleName) || {},
                 shExports = shim.exports;
@@ -2241,7 +2242,7 @@ window.BidspiritLoader = {
 						//testNotifications();
 						 getJsFileEntry(function(localUrl){
 							 //alert("got js url "+localUrl);
-							 node.src = localUrl; 
+						 
 						 }, function(){
 							 //alert("no js url ");
 							 node.src = url;
