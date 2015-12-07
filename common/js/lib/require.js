@@ -2242,10 +2242,10 @@ window.BidspiritLoader = {
 						 getJsFileEntry(function(localUrl){
 							 //alert("got js url "+localUrl);
 							 node.src = localUrl;
-							 context.onScriptLoad({srcElement:node, type :'load'});
+							 //context.onScriptLoad({srcElement:node, type :'load'});
 						 }, function(){
 							 //alert("no js url ");
-							 node.src = url;							 
+							 node.src = url;					 
 							 return;
 							 getDataFileEntry(function(){
 								readFromDataFile(function(data, defaultLoadOnError){
