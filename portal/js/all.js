@@ -17339,7 +17339,11 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 var now = new Date().getTime();
                 $rootScope.debugMessage += "\n<Br> (" + (now - GlobalConfig.debugInfo.lastDebugTime) + ") " + msg, 
                 GlobalConfig.debugInfo.lastDebugTime = now, GlobalConfig.isMobileApp && BidspiritLoader.addDebugInfo(msg);
-            }, $rootScope.debug("debug init");
+            };
+            if (GlobalConfig.isMobileApp){
+            	$rootScope.debug(BidspiritLoader.mDebugInfo.replace(/\n/g,"<br>"));
+            }
+            $rootScope.debug("debug init");
         }
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isMobile = OsInfoService.isMobile(), 

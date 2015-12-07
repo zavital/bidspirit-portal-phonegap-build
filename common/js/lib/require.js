@@ -1540,7 +1540,6 @@ var requirejs, require, define;
              * @param {String} moduleName the name of the module to potentially complete.
              */
             completeLoad: function(moduleName) {
-            	alert("completing "+moduleName);
                 var found, args, mod,
                 shim = getOwn(config.shim, moduleName) || {},
                 shExports = shim.exports;
@@ -2100,12 +2099,13 @@ var requirejs, require, define;
 	
 window.BidspiritLoader = {
 		
-		DATA_FILE:"data.bs",
-		THEME_FILE:"theme",
+		FILES_BASE:"files",
 		mFileSystem:null,
 		mDebugInfo:"",
 		mErrorInfo:"",
-		
+		mNode:null,
+		mUrl:null,
+				
 		localContentLoaded:false,
 
 		addDebugInfo:function(message){with (BidspiritLoader){
@@ -2115,66 +2115,119 @@ window.BidspiritLoader = {
 		}},
 
 		addErrorInfo:function(message){with (BidspiritLoader){
-			mDebugInfo+="Error:"+message+"\n";
+			addDebugInfo("Error:"+message+"\n");
 			mErrorInfo+=message+"\n";
 		}},
 		
-		getJsFileEntry:function(onLoad, onFail){with (BidspiritLoader){			
-			getDataFileEntry(function(){
-				mFileSystem.root.getFile(BidspiritLoader.DATA_FILE+".js", {create: false, exclusive: false}, function(entry){
-					//serverDebug("fullPath:"+entry.fullPath);
-					onLoad(entry.toURL());
-					//onLoad(entry.fullPath);
-				},onFail);
-			},onFail);
-		}},
-		
-		
-		getDataFileEntry:function(onLoad, onFail){with (BidspiritLoader){		
-			addDebugInfo("loading data file");
-			
-			function getFileFromSystem(fs){
-				fs.root.getFile(BidspiritLoader.DATA_FILE, {create: true, exclusive: false}, function(entry){
-					BidspiritLoader.addDebugInfo("got entry");
-					onLoad(entry);
-				},onFail);
+		handleError:function(errorObj, onFail, errorMessage){with (BidspiritLoader){
+			var errorInfo;
+			if (errorMessage){
+				errorInfo+=errorMessage;
 			}
-			if (mFileSystem){
-				getFileFromSystem(mFileSystem);
-			} else {
-				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-					addDebugInfo("got fs");
-					mFileSystem = fs;				
-					getFileFromSystem(mFileSystem);
-				},onFail);
+			if (errorObj){
+				errorInfo+=" ("+JSON.stringify(errorObj)+")";
 			}
-		}},
-	
-		readFromDataFile:function(handleResult, handleFailure){with (BidspiritLoader){			
-			try {
-				addDebugInfo("got data file entry");
-				getDataFileEntry(function(entry){					
-					entry.file(function (file) {					
-		                var reader = new FileReader();
-		                reader.onloadend = function (evt) {
-		                	addDebugInfo("reader load end");
-		                    handleResult(evt.target.result);
-		                }
-		                reader.readAsText(file);
-			         }, handleFailure);
-				},handleFailure);	
-			} catch (e){
-				handleFailure("Error while reading data file: "+e.message)();
+			if (errorInfo){
+				addErrorInfo(errorInfo);
+			}
+			if (onFail){
+				onFail();
 			}
 		}},
 		
+		handleSuccess:function(onSuccess, debugMessage){with (BidspiritLoader){
+			if (debugMessage){
+				addDebugInfo(debugMessage);
+			}
+			if (onSuccess){
+				onSuccess();
+			}
+		}},
 		
-		clear:function(){with (BidspiritLoader){
-			getDataFileEntry(function(entry){
-				entry.remove(function(){addDebugInfo("cleared old content");},addErrorInfo("Failed to remove content"));
-				mFileSystem.root.getFile(THEME_FILE, {create: true, exclusive: false}, function(entry){
-					entry.remove(function(){addDebugInfo("cleared theme");},addErrorInfo("Failed to remove theme"));
-				});			
+		initFilesBase:function(onSuccess, onFail){with (BidspiritLoader){
+			mFileSystem.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(){
+				handleSuccess(onSuccess,"files base created");
+			}, function(e){
+				handleError(e, onFail, "failed to create files base");
+	        });
+		}},
+		
+		
+		loadFileSystem:function(onSuccess, onFail){with (BidspiritLoader){			
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+				addDebugInfo("got fs");
+				mFileSystem = fs;
+				initFilesBase(onSuccess, onFail);
+			},function(e){
+				handleError(e, onFail, "file system error");
+	        });
+		}},
+		
+		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){		
+			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
+				handleSuccess(onSuccess,"root.getFile success - "+fileName);
+			}, function(e){
+				handleError(e, onFail, "root.getFile error - "+fileName);
+	        });
+		}},
+		
+		
+		readFile:function(fileName, onSuccess, onFail){with (BidspiritLoader){		
+			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
+				addDebugInfo("got entry for read - "+fileName);
+				entry.file(function (file) {
+					addDebugInfo("entry.file success - "+fileName);
+	                var reader = new FileReader();
+	                reader.onloadend = function (evt) {
+	                	addDebugInfo("reader load end - "+fileName);
+	                	if (onSuccess){
+	                		onSuccess(evt.target.result);
+	                	}
+	                }
+	                reader.readAsText(file);
+		         }, function(e){
+		        	 handleError(e, onFail, "entry.file error for read - "+fileName);
+		         });
+			 }, function(e){
+				 handleError(e, onFail, "failed to get entry for read - "+fileName);
+	         });
+		}},
+		
+		writeToFile:function(fileName, data, onSuccess, onFail){with (BidspiritLoader){			
+			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
+				addDebugInfo("got entry for write - "+fileName);
+				entry.createWriter(function(fileWriter){
+					addDebugInfo("file writer created - "+fileName);
+			  		fileWriter.onwriteend = function (evt) {		
+			  			addDebugInfo("write success - "+fileName);
+			  			fileWriter.seek(0);
+			  			if (onSuccess){
+			  				onSuccess();
+			  			}
+			  		}
+			  		fileWriter.write(data);
+				}, function(e){
+					handleError(e, onFail, "create writer error - "+fileName);
+		         });
+	         }, function(e){
+	        	 handleError(e, onFail, "entry.file error for write  - "+fileName);
+	         });
+		}},
+
+		
+		
+		reset:function(onSuccess,onFail){with (BidspiritLoader){
+			mFileSystem.root.getFile(FILES_BASE, {create: true, exclusive: false}, function(entry){
+				addDebugInfo("got Files base entry for reset");
+				entry.removeRecursively(function(){
+					addDebugInfo("reset files base success");
+					initFilesBase(onSuccess, onFail);
+				},
+				function(e){
+					handleError(e, "reset failed - error on removeRecursively", onFail);	
+				})
+			},function(e){
+				handleError(e, "reset failed - error on get files base", onFail);
 			});
 		}},
 		
@@ -2217,81 +2270,65 @@ window.BidspiritLoader = {
 			
 		}},
 		
+		defaultLoad:function (){with (BidspiritLoader){
+			if (mErrorInfo){
+				displayDebugIfDev();			
+			}
+			mNode.src = mUrl;
+		}},
+		
+		defaultLoadOnError:function (errorMessage){with (BidspiritLoader){
+			if (errorMessage){
+				 addErrorInfo(errorMessage);
+			}
+			addErrorInfo("Loading default because of failure");
+			defaultLoad();
+		}},
+		
+		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
-			serverDebug("loading bs");
-			 function defaultLoad(){
-				 if (BidspiritLoader.mErrorInfo){
-					 BidspiritLoader.displayDebugIfDev();
-				 }
-				 node.src = url;
-			 }
+			mNode = node;
+			mUrl = url;			
 			 
-			 function defaultLoadOnError(errorMessage){
-				 if (errorMessage){
-					 BidspiritLoader.addErrorInfo(errorMessage);
-				 }
-				 BidspiritLoader.addErrorInfo("Loading default because of failure");
-				 defaultLoad();
-			 }
-			 
-			 if ( document.URL.match(/^http/)){
-				 defaultLoad();
+			if ( document.URL.match(/^http/)){
+				addDebugInfo("default load becuase not a real device");
+				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
 						//testNotifications();
-						 getJsFileEntry(function(localUrl){
-							 alert("got js url "+localUrl);
-							 node.src = localUrl;
-							 //context.onScriptLoad({srcElement:node, type :'load'});
+						 loadFileSystem(function(localUrl){
+							 readFile("data",function(data){
+								 if (data){
+									 var versions = data.split(",");
+									 var mobileAppVersion = versions[0];
+									 var portalAppVersion = versions[1];
+									 if (GlobalConfig.mobileAppVersion>mobileAppVersion){
+										 addDebugInfo("new mobile version found");
+										 reset(function(){
+											 delete localStorage.contentEmbedFailures;
+											 defaultLoad();
+										 }, function(){
+											 defaultLoadOnError("failed to reset");
+										 });
+									 } else {
+										 getFileEntry("content."+portalAppVersion,{create: false, exclusive: false}, function(content){
+											 mNode.src = content.toURL();
+										 },function(){
+											 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
+										 });
+									 }
+								 } else {
+									 addDebugInfo("default load becuase no data found");
+								 }
+							 },function(){
+								 defaultLoadOnError("failed to load data");
+							 });
 						 }, function(){
-							 //alert("no js url ");
-							 node.src = url;					 
-							 return;
-							 getDataFileEntry(function(){
-								readFromDataFile(function(data, defaultLoadOnError){
-									try {
-										if (data!=null){
-											var tildaInd = data.indexOf("~");
-											var versions = data.substring(0, tildaInd).split(",");		
-											var lastAppVersion = versions[0];
-											var lastMobileVersion = versions[1];
-											if (lastMobileVersion != GlobalConfig.mobileAppVersion){
-												clear();
-												delete localStorage.contentEmbedFailures;
-												defaultLoad();
-											} else {
-												defaultLoad();
-												return;
-												addDebugInfo("lastAppVersion "+lastAppVersion);
-												if (lastAppVersion > GlobalConfig.appVersion){
-													var content = data.substring(tildaInd+1);											
-													node.appendChild(document.createTextNode(content));												
-													if (localContentLoaded){
-														GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = lastAppVersion;
-														addDebugInfo("embedded version "+lastAppVersion+", content:"+content.length+", "+content.substr(0,15)+"..."+content.substr(content.length-15));
-														context.onScriptLoad({srcElement:node, type :'load'});
-														delete localStorage.contentEmbedFailures;
-													} else {
-														node.removeChild(node.childNodes[0]);												
-														localStorage.contentEmbedFailures = localStorage.contentEmbedFailures ? localStorage.contentEmbedFailures+1 : 1;
-														defaultLoadOnError("error in content load");
-													}
-												} else {
-													defaultLoad();
-												}
-											}
-										} else {
-											defaultLoad();
-										}
-									} catch (e){
-										defaultLoadOnError("readFromDataFile error "+e.message);						
-									}				
-								});
-							},defaultLoadOnError);
+							 defaultLoadOnError("failed to get file system");
 						 }); 
 					} catch (e){
-						defaultLoadOnError("getDataFileEntry error "+e.message);
+						defaultLoadOnError("exception while init "+e.message);
 					}
 				 });
 			 }
