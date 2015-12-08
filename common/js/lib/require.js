@@ -2110,7 +2110,8 @@ window.BidspiritLoader = {
 
 		addDebugInfo:function(message){with (BidspiritLoader){
 			if (message){
-				mDebugInfo+="["+new Date()+"] "+message+"\n";
+				var now = new Date();
+				mDebugInfo+="("+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+"["+now.getMilliseconds()+"]) "+message+"\n";
 			}
 		}},
 
