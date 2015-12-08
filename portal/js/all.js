@@ -17104,7 +17104,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 									addToDebug("content saved");
 									BidspiritLoader.getBaseDirEntry(function(baseDir){
 										removeDirectoryFilesOfDiffrentVersion(baseDir,appVersion).then(function(){
-											BidspiritLoader.writeToFile("data", appVersion+","+GlobalConfig.mobileAppVersion, function(){
+											BidspiritLoader.writeToFile("data", GlobalConfig.mobileAppVersion+","+appVersion, function(){
 												addToDebug("data file saved");
 												LocalStorageService.store("updateFailCounter", 0);
 												if (GlobalConfig.devMode){

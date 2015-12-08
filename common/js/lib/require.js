@@ -2302,6 +2302,7 @@ window.BidspiritLoader = {
 						//testNotifications();
 						 loadFileSystem(function(localUrl){
 							 readFile("data",function(data){
+								 addDebugInfo("got data "+data);
 								 if (data){
 									 var versions = data.split(",");
 									 var mobileAppVersion = versions[0];
