@@ -17042,27 +17042,43 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
             displayFailure(message), BidspiritLoader.reset(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
             LocalStorageService.store("updateFailCounter", updateFailCounter + 1);
         }
-        function removeDirectoryFilesOfDiffrentVersion(dirEntry, version) {
-            var deferred = $q.defer();
-            return addToDebug("removing files directory " + dirEntry.name + " with version different than " + version), 
-            dirEntry.createReader().readEntries(function(entries) {
-                for (var removePromises = [], i = 0; i < entries.length; i++) {
-                    var entry = entries[i], isOfNewVersion = -1 != entry.name.indexOf("." + version);
-                    isOfNewVersion || !function(_entry) {
-                        var removeDefered = $q.defer();
-                        addToDebug("removing " + _entry.name), entry.remove(function() {
-                            addToDebug("removed " + _entry.name), removeDefered.resolve();
-                        }, function() {
-                            removeDefered.reject("failed to removed " + _entry.name);
-                        }), removePromises.push(removeDefered.promise);
-                    }(entry);
-                }
-                $q.all(removePromises);
-            }, function() {
-                addToDebug("remove old version files - failed to read entries for entry " + dirEntry.name), 
-                deferred.reject();
-            }), deferred.promise;
-        }
+        
+        function removeDirectoryFilesOfDiffrentVersion(dirEntry, version){
+			var deferred = $q.defer();
+			addToDebug("removing files directory "+dirEntry.name+" with version different than "+version);
+			dirEntry.createReader().readEntries(function(entries){
+				var removePromises = [];
+				for (var i=0;i<entries.length;i++){
+					var entry = entries[i];
+					var isOfNewVersion = entry.name.indexOf("."+version)!=-1;
+					if (!isOfNewVersion){						
+						(function(_entry){
+							var removeDefered = $q.defer();
+							addToDebug("removing "+_entry.name);
+							entry.remove(
+								function(){
+									addToDebug("removed "+_entry.name);
+									removeDefered.resolve();
+								}, 
+								function(){
+									removeDefered.reject("failed to removed "+_entry.name);
+								}
+							);
+							removePromises.push(removeDefered.promise);
+						})(entry);
+					}
+				}
+				$q.all(removePromises).then(function(){
+					deferred.resolve();
+				}, function(error){
+					deferred.reject(error);
+				});
+			},function(){
+				addToDebug("remove old version files - failed to read entries for entry "+dirEntry.name);
+				deferred.reject();
+			});
+			return deferred.promise;
+		}
         
         function updateBidspiritDataAndTheme(appVersion){
 			addToDebug("updating version to "+appVersion);
