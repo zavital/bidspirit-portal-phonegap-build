@@ -15175,7 +15175,6 @@ define("common/js/modules/system/systemModule", [ "angular", "../utils/index" ],
         }
         
         		function loadCss(cssPath){
-        			$rootScope.debug($templateCache.get("/portal/templates/portalMain.html?0.574");
         			
         			mPastLoadInfo  = getCssPastLoadInfo();
         			mCssLoadStart  = new Date().getTime();
