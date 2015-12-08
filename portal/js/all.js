@@ -15173,15 +15173,34 @@ define("common/js/modules/system/systemModule", [ "angular", "../utils/index" ],
             var style = document.createElement("style");
             style.appendChild(document.createTextNode(content)), document.getElementsByTagName("head")[0].appendChild(style);
         }
-        function loadCss(cssPath) {
-            return mPastLoadInfo = getCssPastLoadInfo(), mCssLoadStart = new Date().getTime(), 
-            GlobalConfig.isMobileApp ? BidspiritLoader.localContentLoaded ? BidspiritLoader.readFile("theme." + GlobalConfig.appVersion, function(themeContent) {
-                createCssStyleElement(themeContent);
-            }, function() {
-                createCssLinkElement(cssPath);
-            }) : createCssLinkElement(cssPath) : createCssLinkElement(cssPath + "?v=" + GlobalConfig.cssCacheVersion + "&load=" + getCssLoadVersion()), 
-            waitForCssLoad(), mDeferred.promise;
-        }
+        
+        		function loadCss(cssPath){
+        			$rootScope.debug($templateCache.get("/portal/templates/portalMain.html?0.574");
+        			
+        			mPastLoadInfo  = getCssPastLoadInfo();
+        			mCssLoadStart  = new Date().getTime();
+        			if (GlobalConfig.isMobileApp){
+        				if (BidspiritLoader.localContentLoaded){
+        					BidspiritLoader.readFile("theme."+GlobalConfig.appVersion,function(themeContent){
+        						createCssStyleElement(themeContent);
+        					},function(){
+        						createCssLinkElement(cssPath);
+        					});
+        				} else {
+        					createCssLinkElement(cssPath);
+        				}
+        			} else {
+        				createCssLinkElement(cssPath + "?v=" + GlobalConfig.cssCacheVersion + "&load=" + getCssLoadVersion());
+        			}
+        			
+        			
+        				
+        			waitForCssLoad();
+        			
+        			return mDeferred.promise;
+        		}
+        		
+        		
         function isCssLoaded() {
             var pagePreLoader = document.getElementById("pagePreLoader");
             if (!pagePreLoader) return !0;

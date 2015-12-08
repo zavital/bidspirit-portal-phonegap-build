@@ -2179,8 +2179,9 @@ window.BidspiritLoader = {
 				entry.file(function (file) {
 					addDebugInfo("entry.file success - "+fileName);
 	                var reader = new FileReader();
-	                reader.onloadend = function (evt) {
-	                	addDebugInfo("reader load end - "+fileName);
+	                reader.onloadend = function (evt) {	                	
+	                	var data = evt.target.result;
+	                	addDebugInfo("reader load end - "+fileName+" (size:"+(data ? data.length : 0) +")" );
 	                	if (onSuccess){
 	                		onSuccess(evt.target.result);
 	                	}
@@ -2317,7 +2318,7 @@ window.BidspiritLoader = {
 										 });
 									 } else {
 										 getFileEntry("content."+portalAppVersion,{create: false, exclusive: false}, function(content){
-											 GlobalConfig.appVersion = portalAppVersion;
+											 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
 											 addDebugInfo("loading content from "+content.toURL());
 											 mNode.src = content.toURL();
 										 },function(){
