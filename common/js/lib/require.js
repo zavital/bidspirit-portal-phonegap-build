@@ -2317,7 +2317,7 @@ window.BidspiritLoader = {
 										 });
 									 } else {
 										 getFileEntry("content."+portalAppVersion,{create: false, exclusive: false}, function(content){
-											 GlobalConfig.appeVersion = portalAppVersion;
+											 GlobalConfig.appVersion = portalAppVersion;
 											 addDebugInfo("loading content from "+content.toURL());
 											 mNode.src = content.toURL();
 										 },function(){
