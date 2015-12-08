@@ -17063,46 +17063,68 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                 deferred.reject();
             }), deferred.promise;
         }
-        function updateBidspiritDataAndTheme(appVersion) {
-            addToDebug("updating version to " + appVersion);
-            var contentUrl, styleUrl;
-            GlobalConfig.devMode ? (contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion, 
-            styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion) : (contentUrl = "https:" + SettingsService.get("staticFileBase") + "/portal/js/all.js?v=" + appVersion, 
-            styleUrl = "https:" + SettingsService.get("staticFileBase") + "/portal/styles/style.css?v=" + appVersion), 
-            addToDebug("loading theme from url:" + styleUrl), $http.get(styleUrl).success(function(themeData) {
-                addToDebug("got theme " + themeData.length + " ..." + themeData.substr(themeData.length - 100)), 
-                themeData.length > 1e5 && themeData.match("}$") ? (addToDebug("storing theme..."), 
-                BidspiritLoader.writeToFile("theme." + appVersion, themeData, function() {
-                    addToDebug("getting content from url " + contentUrl), $http.get(contentUrl).success(function(data) {
-                        addToDebug("got data of length" + data.length + ", ..." + data.substr(data.length - 100)), 
-                        data.length > 1e5 ? BidspiritLoader.writeToFile("content." + appVersion, data + ";\nBidspiritLoader.localContentLoaded=true;", function() {
-                            addToDebug("content saved"), BidspiritLoader.writeToFile("data", appVersion + "," + GlobalConfig.mobileAppVersion, function() {
-                                addToDebug("data file saved"), LocalStorageService.store("updateFailCounter", 0), 
-                                BidspiritLoader.getBaseDirEntry(function(baseDir) {
-                                    removeDirectoryFilesOfDiffrentVersion(baseDir, appVersion).then(function() {
-                                        GlobalConfig.devMode && alert("update data done. reloading..."), window.location.reload();
-                                    }, function() {
-                                        GlobalConfig.devMode && alert("failed to clear old files"), window.location.reload();
-                                    });
-                                }, function() {
-                                    handleUpdateFailure("failed to write content");
-                                });
-                            }, function() {
-                                handleUpdateFailure("failed to write content");
-                            });
-                        }, function() {
-                            handleUpdateFailure("failed to write content");
-                        }) : handleUpdateFailure("bad content. length:" + data.length + ", ..." + data.substr(data.length - 100));
-                    }).error(function(error) {
-                        handleUpdateFailure("failed to get content from url " + contentUrl + ", " + JSON.stringify(error).substr(0, 50) + "...");
-                    });
-                }, function() {
-                    handleUpdateFailure("failed to get store theme");
-                })) : handleUpdateFailure("bad theme data from url " + styleUrl + ": length:" + themeData.length + " ..." + themeData.substr(themeData.length - 100));
-            }).error(function() {
-                handleUpdateFailure("failed to get theme from url " + styleUrl);
-            });
-        }
+        
+        function updateBidspiritDataAndTheme(appVersion){
+			addToDebug("updating version to "+appVersion);
+			var contentUrl, styleUrl;			
+			if (GlobalConfig.devMode){
+				contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
+				styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion;
+			} else {
+				contentUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/js/all.js?v=" + appVersion;
+				styleUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
+			}
+			addToDebug("loading theme from url:"+styleUrl);
+			$http.get(styleUrl).success(function(themeData){
+				addToDebug("got theme "+themeData.length+" ..."+themeData.substr(themeData.length-100));
+				if (themeData.length>100000 && themeData.match("}$")){
+					addToDebug("storing theme...");
+					BidspiritLoader.writeToFile("theme."+appVersion,themeData,function(){
+						addToDebug("getting content from url "+contentUrl);
+						$http.get(contentUrl).success(function(data){
+							addToDebug("got data of length"+data.length+", ..."+data.substr(data.length-100));
+							if (data.length>100000){
+								BidspiritLoader.writeToFile("content."+appVersion, data+";\nBidspiritLoader.localContentLoaded=true;",function(){
+									addToDebug("content saved");
+									BidspiritLoader.getBaseDirEntry(function(baseDir){
+										removeDirectoryFilesOfDiffrentVersion(baseDir,appVersion).then(function(){
+											BidspiritLoader.writeToFile("data", appVersion+","+GlobalConfig.mobileAppVersion, function(){
+												addToDebug("data file saved");
+												LocalStorageService.store("updateFailCounter", 0);
+												if (GlobalConfig.devMode){
+									  				alert("update data done. reloading...");
+									  			}
+												window.location.reload();
+											}, function(){
+												handleUpdateFailure("failed to write versions data");												
+											});
+										},function(){
+											handleUpdateFailure("failed to clear old file");
+										});	
+									}, function(){
+										handleUpdateFailure("failed to write content");
+									});
+					  			},
+					  			function(){
+									handleUpdateFailure("failed to write content");
+								});
+									
+							} else {
+								handleUpdateFailure("bad content. length:"+data.length+", ..."+data.substr(data.length-100));
+							}	
+						}).error(function(error){
+							handleUpdateFailure("failed to get content from url "+contentUrl+", "+JSON.stringify(error).substr(0,50)+"...");
+						});
+					},function(){
+						handleUpdateFailure("failed to get store theme");							
+					});
+				} else {
+					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
+				}
+			}).error(function(){
+				handleUpdateFailure("failed to get theme from url "+styleUrl);
+			});
+		}		
         return {
             updateBidspiritDataAndTheme: updateBidspiritDataAndTheme,
             loadLocalData: loadLocalData,
