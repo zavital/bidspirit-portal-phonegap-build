@@ -1907,9 +1907,9 @@ var requirejs, require, define;
                 node.addEventListener('load', context.onScriptLoad, false);
                 node.addEventListener('error', context.onScriptError, false);
             }
-            window.BidspiritLoader.loadBidspirit(context, node);
+            window.BidspiritLoader.loadBidspirit(context, node, url);
             
-            //node.src = url;
+
 
             //For some cache cases in IE 6-8, the script executes before the end
             //of the appendChild execution, so to tie an anonymous define
@@ -2095,91 +2095,252 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
-
-
-
-
-
-
 	
 	
 window.BidspiritLoader = {
 		
-		mDataFileEntry:null,
+		FILES_BASE:"files",
+		mFileSystem:null,
+		mDebugInfo:"",
+		mErrorInfo:"",
+		mNode:null,
+		mUrl:null,
+				
+		localContentLoaded:false,
 
-		fail:function(msg) {with (BidspiritLoader){
-		    return function () {
-		        alert('[FAIL] ' + msg);
-		    }
+		addDebugInfo:function(message){with (BidspiritLoader){
+			if (message){
+				var now = new Date();
+				mDebugInfo+="("+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+"["+now.getMilliseconds()+"]) "+message+"\n";
+			}
 		}},
 
+		addErrorInfo:function(message){with (BidspiritLoader){
+			addDebugInfo("Error:"+message+"\n");
+			mErrorInfo+=message+"\n";
+		}},
 		
-		loadDataFile:function(onLoad){with (BidspiritLoader){
-			try {				
-				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){					
-					fs.root.getFile("data.bs", {create: true, exclusive: false}, function(entry){						
-						mDataFileEntry = entry;
-						onLoad();
-					},fail("getFile"));
-				},fail("requestFileSystem"));
-			} catch(e){
-				fail("Error while init fs: "+e.message)();
+		handleError:function(errorObj, onFail, errorMessage){with (BidspiritLoader){
+			var errorInfo="";
+			if (errorMessage){
+				errorInfo+=errorMessage;
+			}
+			if (errorObj){
+				errorInfo+=" ("+JSON.stringify(errorObj)+")";
+			}
+			if (errorInfo){
+				addErrorInfo(errorInfo);
+			}
+			if (onFail){
+				onFail();
 			}
 		}},
 		
-		
-		writeToDataFile:function(data){with (BidspiritLoader){
-			try {
-				mDataFileEntry.createWriter(function(fileWriter){
-			  		fileWriter.onwriteend = function (evt) {			  			
-			  			fileWriter.seek(0);
-			  		}
-			  		fileWriter.write(data);
-				},fail("createWriter"));
-			} catch (e){
-				fail("Error while writing data to file: "+e.message)();
+		handleSuccess:function(onSuccess, debugMessage){with (BidspiritLoader){
+			if (debugMessage){
+				addDebugInfo(debugMessage);
+			}
+			if (onSuccess){
+				onSuccess();
 			}
 		}},
 		
-
-		readFromDataFile:function(handleResult){with (BidspiritLoader){			
-			try {
-				mDataFileEntry.file(function (file) {					
+		initFilesBase:function(onSuccess, onFail){with (BidspiritLoader){
+			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(){
+				handleSuccess(onSuccess,"files base created");
+			}, function(e){
+				handleError(e, onFail, "failed to create files base");
+	        });
+		}},
+		
+		
+		loadFileSystem:function(onSuccess, onFail){with (BidspiritLoader){			
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
+				addDebugInfo("got fs");
+				mFileSystem = fs;
+				initFilesBase(onSuccess, onFail);
+			},function(e){
+				handleError(e, onFail, "file system error");
+	        });
+		}},
+		
+		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
+			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
+				handleSuccess(function(){onSuccess(entry);},"root.getFile success - "+fileName);
+			}, function(e){
+				handleError(e, onFail, "root.getFile error - "+fileName);
+	        });
+		}},
+		
+		
+		readFile:function(fileName, onSuccess, onFail){with (BidspiritLoader){
+			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
+				addDebugInfo("got entry for read - "+fileName);
+				entry.file(function (file) {
+					addDebugInfo("entry.file success - "+fileName);
 	                var reader = new FileReader();
 	                reader.onloadend = function (evt) {	                	
-	                    var lastSavedData = evt.target.result;
-	                    handleResult(lastSavedData);
-	                }	                
+	                	var data = evt.target.result;
+	                	addDebugInfo("reader load end - "+fileName+" (size:"+(data ? data.length : 0) +")" );
+	                	if (onSuccess){
+	                		onSuccess(evt.target.result);
+	                	}
+	                }
 	                reader.readAsText(file);
-		         }, fail("read file"));  
-					  
-			} catch (e){
-				fail("Error while reading data file: "+e.message)();
+		         }, function(e){
+		        	 handleError(e, onFail, "entry.file error for read - "+fileName);
+		         });
+			 }, function(e){
+				 handleError(e, onFail, "failed to get entry for read - "+fileName);
+	         });
+		}},
+		
+		writeToFile:function(fileName, data, onSuccess, onFail){with (BidspiritLoader){			
+			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
+				addDebugInfo("got entry for write - "+fileName);
+				entry.createWriter(function(fileWriter){
+					addDebugInfo("file writer created - "+fileName);
+			  		fileWriter.onwriteend = function (evt) {		
+			  			addDebugInfo("write success - "+fileName);
+			  			fileWriter.seek(0);
+			  			if (onSuccess){
+			  				onSuccess();
+			  			}
+			  		}
+			  		fileWriter.write(data);
+				}, function(e){
+					handleError(e, onFail, "create writer error - "+fileName);
+		         });
+	         }, function(e){
+	        	 handleError(e, onFail, "entry.file error for write  - "+fileName);
+	         });
+		}},
+
+		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){
+			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, onSuccess, onFail);
+		}},
+		
+		reset:function(onSuccess,onFail){with (BidspiritLoader){
+			getBaseDirEntry(function(entry){
+				addDebugInfo("got Files base entry for reset");
+				entry.removeRecursively(function(){
+					addDebugInfo("reset files base success");
+					initFilesBase(onSuccess, onFail);
+				},
+				function(e){
+					handleError(e, "reset failed - error on removeRecursively", onFail);	
+				})
+			},function(e){
+				handleError(e, "reset failed - error on get files base", onFail);
+			});
+		}},
+		
+		displayDebugIfDev:function(message){with (BidspiritLoader){
+			addDebugInfo(message);
+			if (GlobalConfig.devMode){				
+				alert(BidspiritLoader.mDebugInfo);
 			}
 		}},
 		
-		
-
-		loadBidspirit:function (context, node){with (BidspiritLoader){
-			console.log("loading...");
-			var r = new XMLHttpRequest(); 
-			r.open("GET", "https://bidspirit-portal.global.ssl.fastly.net/portal/js/all.js?v=0.531-js", true);
-			r.onreadystatechange = function () {
-				if (r.readyState != 4 || r.status != 200) return;
-				loadDataFile(function(){
-					readFromDataFile(function(data){
-						if (data!=null){
-							var tildaInd = data.indexOf("~");
-							var version = data.subStr(0,tildatInd);
-							var content = data.subStr(tildatInd+1);
-						}
-						writeToDataFile(new Date());
-						//node.appendChild(document.createTextNode(r.responseText));
-						//context.onScriptLoad({srcElement:node, type :'load'});
-					});
-				});
-				
+		testNotifications:function(){with (BidspiritLoader){
+			function handleResult(result){
+				onNotification(result);
 			};
-			r.send();
+			var pushNotification = window.plugins.pushNotification;
+			pushNotification.register(
+					handleResult,
+					handleResult,
+				    {
+				        "badge":"true",
+				        "sound":"true",
+				        "alert":"true",
+				        "senderID":"134828532141", 
+				        "ecb":"BidspiritLoader.onNotification"
+				    });	
 		}},
+		
+		onNotification:function (event){with (BidspiritLoader){
+			serverDebug(JSON.stringify(event));
+		}},
+		
+		
+		serverDebug:function(message){with (BidspiritLoader){
+			var xmlhttp = new XMLHttpRequest();
+		    xmlhttp.onreadystatechange = function(){
+		    	//alert(xmlhttp.status);
+		    }
+		    xmlhttp.open("GET", "http://54.210.154.63:8080/debug/"+message, true);
+		    xmlhttp.send();
+			
+		}},
+		
+		defaultLoad:function (){with (BidspiritLoader){
+			if (mErrorInfo){
+				displayDebugIfDev();			
+			}
+			mNode.src = mUrl;
+		}},
+		
+		defaultLoadOnError:function (errorMessage){with (BidspiritLoader){
+			if (errorMessage){
+				 addErrorInfo(errorMessage);
+			}
+			addErrorInfo("Loading default because of failure");
+			defaultLoad();
+		}},
+		
+		
+		loadBidspirit:function (context, node, url){with (BidspiritLoader){
+			mNode = node;
+			mUrl = url;			
+			 
+			if ( document.URL.match(/^http/)){
+				addDebugInfo("default load becuase not a real device");
+				defaultLoad();
+			 } else {		
+				 document.addEventListener('deviceready', function () {
+					 try {
+						//testNotifications();
+						 loadFileSystem(function(localUrl){
+							 readFile("data",function(data){
+								 addDebugInfo("got data "+data);
+								 if (data){
+									 var versions = data.split(",");
+									 var mobileAppVersion = versions[0];
+									 var portalAppVersion = versions[1];
+									 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
+										 addDebugInfo("new mobile version found");
+										 reset(function(){
+											 delete localStorage.contentEmbedFailures;
+											 defaultLoad();
+										 }, function(){
+											 defaultLoadOnError("failed to reset");
+										 });
+									 } else {
+										 getFileEntry("content."+portalAppVersion,{create: false, exclusive: false}, function(content){
+											 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
+											 addDebugInfo("loading content from "+content.toURL());
+											 mNode.src = content.toURL();
+										 },function(){
+											 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
+										 });
+									 }
+								 } else {
+									 addDebugInfo("default load becuase no data found");
+									 defaultLoad();
+								 }
+							 },function(){
+								 alert(5);
+								 defaultLoadOnError("failed to load data");
+							 });
+						 }, function(){
+							 defaultLoadOnError("failed to get file system");
+						 }); 
+					} catch (e){
+						defaultLoadOnError("exception while init "+e.message);
+					}
+				 });
+			 }
+		}}
 }
+
