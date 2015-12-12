@@ -16907,25 +16907,52 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
     return ng.module("commonModules.mobileApp", []);
 }), define("common/js/modules/mobileApp/puffinService", [ "./mobileAppModule" ], function(module) {
     module.factory("PuffinService", function() {
-        function tryToLaunchWithPuffin(url) {
-            var openNormally = function() {
-                window.open(url, "_system");
-            }, openWithProtocol = function(protocol) {
-                window.open(url.replace("https", protocol), "_system");
-            }, openWithPuffin = function() {
-                openWithProtocol("puffin");
-            }, openWithPuffinFree = function() {
-                openWithProtocol("puffinFree");
-            };
-            "undefined" == typeof device ? openNormally() : checkPuffinExists(openWithPuffin, function() {
-                checkPuffinFreeExists(openWithPuffinFree, openNormally);
-            });
-        }
-        function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound) {
-            var scheme = null;
-            "undefined" != typeof device && ("iOS" === device.platform ? scheme = iosScheme : "Android" === device.platform && (scheme = androidSceme)), 
-            scheme ? appAvailability.check(scheme, onFound, onNotFound) : onNotFound();
-        }
+    	
+    	function tryToLaunchWithPuffin(url){
+			alert("Trying puffin...");
+			var openNormally = function(){
+				window.open(url,"_system");
+			}
+			
+			var openWithProtocol = function(protocol){
+				window.open(url.replace("https",protocol),"_system");
+			}
+			
+			var openWithPuffin = function(){
+				openWithProtocol("puffin");
+			}
+			
+			var openWithPuffinFree = function(){
+				openWithProtocol("puffinFree");
+			}
+				
+			
+			if (typeof device=="undefined"){
+				openNormally();
+			}  else {
+				checkPuffinExists(openWithPuffin, function(){
+					checkPuffinFreeExists(openWithPuffinFree, openNormally);
+				});
+			}			
+		}
+
+		function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound){
+			alert("checking "+iosScheme+", "+androidSceme);
+			var scheme = null;
+			if (typeof device!="undefined"){
+				if(device.platform === 'iOS') {
+					scheme = iosScheme;
+				} else  if(device.platform === 'Android') {
+					scheme = androidSceme;
+				}
+			}
+			if (scheme){
+				alert(device.platform+ ": scheme is  "+scheme);
+				appAvailability.check(scheme, onFound, onNotFound);
+			} else {
+				onNotFound();
+			}
+		}
         function checkPuffinExists(onFound, onNotFound) {
             return checkSchemeExists("puffin://", "com.cloudmosa.puffin", onFound, onNotFound);
         }
@@ -17477,6 +17504,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             }, 5e3), cachedDataPromise || freshDataPromise;
         }
         function loadForRegion(region, includeOldAuctions) {
+        	alert("loading for region "+region);
             var params = {
                 persistentSession: SessionsService.hasPersistentSession(),
                 region: region,
@@ -19949,13 +19977,7 @@ define("portal/js/modules/auctions/lists/auctionsListsModule", [ "angular" ], fu
                     }, 2e3);
                 }
                 function handleTimedAutionClick(auction) {
-                    "ENDED" == auction.state && auction.catalogInfo ? $state.go("app.catalog", {
-                        auctionId: auction.id
-                    }) : AccountService.validateRegisteredInHouseAndThen(auction.house, {
-                        message: "auth_timed_auction"
-                    }, function() {
-                        AppSiteWinodwsService.openAuctionSiteWindow(auction);
-                    });
+                	AppSiteWinodwsService.openAuctionSiteWindow(auction);
                 }
                 function initTimeInfo() {
                     scope.today = DateUtilsService.formatToServerDate(new Date()), angular.forEach(scope.auctions, function(auction) {
@@ -19976,16 +19998,7 @@ define("portal/js/modules/auctions/lists/auctionsListsModule", [ "angular" ], fu
                 }, scope.isAuctionHouseLink = function(auction) {
                     return scope.houseNameAsLink && auction.house.orderInd ? !0 : !1;
                 }, scope.onAuctionClick = function(auction) {
-                    if (setClickedRecently(auction), scope.isAuctionClickable(auction)) {
-                        var house = auction.house;
-                        $rootScope.lastAuctionClick = {
-                            state: $state.current.name,
-                            auctionId: auction.id
-                        }, house.bidspiritSiteId ? "RUNNING" == auction.state ? AppSiteWinodwsService.openAuctionSiteWindow(auction) : auction.timedAuction || auction.showLeadingBids ? handleTimedAutionClick(auction) : $state.go("app.catalog", {
-                            auctionId: auction.id,
-                            page: 1
-                        }) : auction.externalUrl && window.open(auction.externalUrl, "_system");
-                    }
+                	AppSiteWinodwsService.openAuctionSiteWindow(auction);
                 }, scope.auctionButtonClass = function(auction) {
                     switch (auction.state) {
                       case "PENDING":
@@ -21358,15 +21371,28 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             }
             window.open(url, "_system");
         }
-        function openAuctionSiteWindow(auction, noAutoLogin, lot) {
-            if (auction) {
-                var token = null;
-                $rootScope.currentUser && "UNCONFIRMED_EMAIL" != $rootScope.currentUser.registrationStage && !noAutoLogin && (token = StringsService.randomString(10));
-                var url = getAuctionSiteUrl(auction, token) + (lot ? "~" + lot.idInApp : "");
-                GlobalConfig.isMobileApp && "RUNNING" == auction.state ? PuffinService.tryToLaunchWithPuffin(url) : window.open(url, "_system"), 
-                token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
-            }
-        }
+        function openAuctionSiteWindow(auction, noAutoLogin, lot){
+			
+			if (!auction) return;
+			
+			var token = null;
+			
+			if ($rootScope.currentUser && $rootScope.currentUser.registrationStage != "UNCONFIRMED_EMAIL" && !noAutoLogin){
+				token = StringsService.randomString(10);
+			}
+			
+			var url = getAuctionSiteUrl(auction, token) +(lot ? ("~"+lot.idInApp) : "");
+			
+			if (GlobalConfig.isMobileApp /*&& auction.state=="RUNNING"*/){
+				PuffinService.tryToLaunchWithPuffin(url);
+			} else {
+				window.open(url,"_system");
+			}
+			
+			if (token ){
+				PortalAuthService.createTokenForAppSite(auction.houseId, token);
+			}
+		}
         return {
             openAuctionSiteWindow: openAuctionSiteWindow,
             showDemo: showDemo
