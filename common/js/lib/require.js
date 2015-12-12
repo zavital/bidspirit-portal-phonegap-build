@@ -2299,7 +2299,6 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
-					 alert("ready");
 					 try {
 						//testNotifications();
 						 loadFileSystem(function(localUrl){
