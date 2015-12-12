@@ -17613,7 +17613,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
         function reloadInfoAfterDelay(delay) {
             clearTimeout(mReloadTimer), mReloadTimer = setTimeout(function() {
-                loadForRegion($rootScope.mCurrentRegion, !0);
+                loadForRegion($rootScope.currentRegion, !0);
             }, delay);
         }
         return mHouses = [], mHousesMap = {}, mAuctions = [], mAuctionsMap = {}, mHousesAuctions = {}, 
