@@ -2244,14 +2244,10 @@ window.BidspiritLoader = {
 		
 		testNotifications:function(){with (BidspiritLoader){
 			
-			function handleRegistrationResponse(result){
-				alert("handleRegistrationResponse");
-				BidspiritLoader.debugObject(result);
-			};
 			var pushNotification = window.plugins.pushNotification;
 			pushNotification.register(
-					handleRegistrationResponse,
-					handleRegistrationResponse,
+					onRegistrationSuccess,
+					onRegistrationFailure,
 				    {
 				        "badge":"true",
 				        "sound":"true",
@@ -2259,6 +2255,16 @@ window.BidspiritLoader = {
 				        "senderID":"134828532141", 
 				        "ecb":"BidspiritLoader.onNotification"
 				    });	
+		}},
+		
+		onRegistrationSuccess:function (event){with (BidspiritLoader){
+			alert("onRegistrationSuccess");
+			debugObject(event);
+		}},
+		
+		onRegistrationFailure:function (event){with (BidspiritLoader){
+			alert("onRegistrationFailure");
+			debugObject(event);
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
