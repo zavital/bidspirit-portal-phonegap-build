@@ -2260,6 +2260,7 @@ window.BidspiritLoader = {
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
+			alert(JSON.stringify(event));
 			serverDebug(JSON.stringify(event));
 		}},
 		
