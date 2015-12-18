@@ -2244,14 +2244,14 @@ window.BidspiritLoader = {
 		
 		testNotifications:function(){with (BidspiritLoader){
 			
-			function handleResult(result){
-				alert("handleResult");
+			function handleRegistrationResponse(result){
+				alert("handleRegistrationResponse");
 				BidspiritLoader.debugObject(result);
 			};
 			var pushNotification = window.plugins.pushNotification;
 			pushNotification.register(
-					handleResult,
-					handleResult,
+					handleRegistrationResponse,
+					handleRegistrationResponse,
 				    {
 				        "badge":"true",
 				        "sound":"true",
@@ -2262,7 +2262,7 @@ window.BidspiritLoader = {
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
-			alert("notifiction");
+			alert("onNotification");
 			debugObject(event);
 		}},
 		
