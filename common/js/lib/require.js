@@ -2245,6 +2245,7 @@ window.BidspiritLoader = {
 		testNotifications:function(){with (BidspiritLoader){
 			
 			var pushNotification = window.plugins.pushNotification;
+			window.plugins.uniqueDeviceID.get(function(uuid){alert("uuid:"+uuid)}, function(error){alert("error:"+error)});
 			pushNotification.register(
 					onRegistrationSuccess,
 					onRegistrationFailure,

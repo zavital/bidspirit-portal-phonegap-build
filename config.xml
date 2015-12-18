@@ -32,6 +32,8 @@
     
     <plugin name="cordova-plugin-dialogs" spec="1.1.1" source="pgb" />
     
+    <plugin name="hu.dpal.phonegap.plugins.uniquedeviceid" spec="1.2.0" source="pgb" />
+    
     
     <gap:platform name="android" />
     <gap:platform name="ios" />
