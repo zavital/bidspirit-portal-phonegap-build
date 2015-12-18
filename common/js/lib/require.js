@@ -2243,6 +2243,7 @@ window.BidspiritLoader = {
 		}},
 		
 		testNotifications:function(){with (BidspiritLoader){
+			alert("testings..");
 			function handleResult(result){
 				onNotification(result);
 			};
@@ -2260,6 +2261,7 @@ window.BidspiritLoader = {
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
+			alert("result");
 			alert(JSON.stringify(event));
 			serverDebug(JSON.stringify(event));
 		}},
@@ -2294,7 +2296,7 @@ window.BidspiritLoader = {
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
 			mNode = node;
 			mUrl = url;			
-			 
+			
 			if ( document.URL.match(/^http/)){
 				addDebugInfo("default load becuase not a real device");
 				defaultLoad();
