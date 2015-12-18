@@ -2243,9 +2243,10 @@ window.BidspiritLoader = {
 		}},
 		
 		testNotifications:function(){with (BidspiritLoader){
-			alert("testings..");
+			
 			function handleResult(result){
-				BidspiritLoader.onNotification(result);
+				alert("handleResult");
+				BidspiritLoader.debugObject(result);
 			};
 			var pushNotification = window.plugins.pushNotification;
 			pushNotification.register(
@@ -2261,7 +2262,11 @@ window.BidspiritLoader = {
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
-			alert("result");
+			alert("notifiction");
+			debugObject(event);
+		}},
+		
+		debugObject:function (event){with (BidspiritLoader){
 			alert(JSON.stringify(event));
 			serverDebug(JSON.stringify(event));
 		}},
