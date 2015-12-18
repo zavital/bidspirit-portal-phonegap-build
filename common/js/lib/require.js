@@ -2245,7 +2245,7 @@ window.BidspiritLoader = {
 		testNotifications:function(){with (BidspiritLoader){
 			alert("testings..");
 			function handleResult(result){
-				onNotification(result);
+				BidspiritLoader.onNotification(result);
 			};
 			var pushNotification = window.plugins.pushNotification;
 			pushNotification.register(
