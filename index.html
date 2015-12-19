@@ -14,7 +14,7 @@
 
 		<script>
 		
-				var ENV_NAME = "bidspirit";
+				var ENV_NAME = "bidmood";
 				 
 				var GlobalConfig={
 					apiBase : "https://"+ENV_NAME+".com/services/",
@@ -23,15 +23,15 @@
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
-					appVersion : '0.586',
-					mobileAppVersion : '35',
-					loadedTextsVersion : '2015-12-11_11-47-19',
+					appVersion : '0.589',
+					mobileAppVersion : '40',
+					loadedTextsVersion : '2015-12-19_12-57-10',
 					envName : "prod",					
 					isMobileApp:true,
 					appName:"portal"
 				}
 				
-				GlobalConfig.bidmoodEnv= ENV_NAME=="bidmood";
+				GlobalConfig.bidmoodEnv= ENV_NAME=="bidmood" ? true : false;
 				
 				GlobalConfig.jsCacheVersion = "";
 				GlobalConfig.cssCacheVersion = "";
