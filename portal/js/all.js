@@ -20891,67 +20891,119 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
         };
     });
 }), define("portal/js/modules/nudges/mobilePushService", [ "./nudgesModule" ], function(module) {
-    module.factory("MobilePushService", function($rootScope, ArraysService, SettingsService, LogService, LocalStorageService, ApiService) {
-        function init() {
-            window.plugins.uniqueDeviceID.get(function(uuid) {
-                mDeviceId = uuid, mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown", 
-                $rootScope.$on("auth.newSessionUser", onSessionUserChanged), addDeviceToCurrentUser();
-            }, handleError), mLastPushRegistrationId = LocalStorageService.load("lastPushRegistrationId");
-        }
-        function registerForPushNotification() {
-            window.plugins.pushNotification.register(handleDeviceRegistrationSuccess, handleError, {
-                badge: "true",
-                sound: "true",
-                alert: "true",
-                senderID: SettingsService.get("gcmSender"),
-                ecb: "window.pushNotificationEcb"
-            });
-        }
-        function handleError(error) {
-            debugResult(error, "Push registration error"), LogService.logError(JSON.stringify(error));
-        }
-        function debugResult(result, message) {
-            $rootScope.devMode && alert((message ? message + ": " : "") + JSON.stringify(result));
-        }
-        function handleDeviceRegistrationSuccess(result) {
-            debugResult(result, "handleDeviceRegistrationSuccess"), "ios" == mPlatform && updateDevicePushRegistration(result);
-        }
-        function handlePushEvent(event) {
-            debugResult(event, "Push registration event"), "android" == mPlatform && event.regId && "registered" == event.event && updateDevicePushRegistration(event.regId);
-        }
-        function updateDevicePushRegistration(registrationId) {
-            registrationId != mLastPushRegistrationId && mDeviceId && (mLastPushRegistrationId = registrationId, 
-            LocalStorageService.store("lastPushRegistrationId", mLastPushRegistrationId), ApiService.callApi("/users/updateDevicePushRegistration", {
-                deviceId: mDeviceId,
-                platform: mPlatform,
-                registrationId: registrationId
-            }).then(function() {
-                user.pushNotificationRequested = !0;
-            }));
-        }
-        function addDeviceToCurrentUser() {
-            var user = $rootScope.currentUser;
-            user && (debugResult({
-                device: mDeviceId,
-                userDevices: user.userDevices
-            }), mDeviceId && !ArraysService.contains(user.userDevices, mDeviceId) && ApiService.callApi("/users/addDeviceToUser", {
-                deviceId: mDeviceId
-            }).then(function() {
-                user.pushNotificationRequested && registerForPushNotification(), user.userDevices ? user.userDevices.push(mDeviceId) : user.userDevices = [ mDeviceId ];
-            }));
-        }
-        function onSessionUserChanged() {
-            var user = $rootScope.currentUser;
-            user ? addDeviceToCurrentUser() : mDeviceId && mLastPushRegistrationId && (window.plugins.pushNotification.unregister(debugResult, handleError), 
-            updateDevicePushRegistration(""));
-        }
-        var mDeviceId, mLastPushRegistrationId, mPlatform;
-        return {
-            init: init,
-            handlePushEvent: handlePushEvent,
-            registerForPushNotification: registerForPushNotification
-        };
-    });
+	module.factory('MobilePushService', function(
+			$rootScope, 
+				ArraysService, SettingsService, LogService, LocalStorageService, ApiService,
+					UserDetailsService ) {
+	
+	var mDeviceId;
+	var mLastPushRegistrationId;
+	var mPlatform;
+	
+	function init(){
+		window.plugins.uniqueDeviceID.get(function(uuid){
+			mDeviceId = uuid;
+			mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown";
+			$rootScope.$on("auth.newSessionUser", onSessionUserChanged);
+			addDeviceToCurrentUser();
+		},handleError);
+		mLastPushRegistrationId = LocalStorageService.load("lastPushRegistrationId");
+	}
+	
+	
+	function registerForPushNotification(){			
+		window.plugins.pushNotification.register(
+			handleDeviceRegistrationSuccess,
+			handleError,{
+		        "badge":"true",
+		        "sound":"true",
+		        "alert":"true",
+		        "senderID":SettingsService.get("gcmSender"), 
+		        "ecb":"window.pushNotificationEcb"
+		    }
+		);
+	}
+	
+	
+	function handleError(error){
+		debugResult(error, "Push registration error");	
+		
+		LogService.logError(JSON.stringify(error));
+	}
+	
+	function debugResult(result, message){
+		if ($rootScope.devMode){
+			alert((message? message+": " : "")+JSON.stringify(result));
+		}
+	}
+	
+	function handleDeviceRegistrationSuccess(result){
+		debugResult(result, "handleDeviceRegistrationSuccess");
+		if (mPlatform=="ios"){
+			updateDevicePushRegistration(result);
+		}
+	}
+	
+	function handlePushEvent(event){
+		debugResult(event, "Push registration event");
+		if (mPlatform=="android" && event.regId && event.event=="registered"){
+			updateDevicePushRegistration(event.regId);
+		}
+	}	
+	
+	
+	function updateDevicePushRegistration(registrationId){
+		debugResult({registrationId:registrationId,mLastPushRegistrationId:mLastPushRegistrationId,mDeviceId:mDeviceId},"updateDevicePushRegistration");
+		if (registrationId!=mLastPushRegistrationId && mDeviceId){
+			mLastPushRegistrationId = registrationId; 
+			LocalStorageService.store("lastPushRegistrationId", mLastPushRegistrationId);
+			debugResult({deviceId:mDeviceId, platform:mPlatform,registrationId:registrationId},"calling api");
+			ApiService.callApi("/users/updateDevicePushRegistration",{deviceId:mDeviceId, platform:mPlatform,registrationId:registrationId}).then(function(){
+				user.pushNotificationRequested = true;
+			});
+		}
+	}
+	
+	function addDeviceToCurrentUser(){
+		var user = $rootScope.currentUser;
+		if (user){				
+			debugResult({device:mDeviceId, userDevices:user.userDevices});
+			if (mDeviceId && !ArraysService.contains(user.userDevices, mDeviceId)){					
+				ApiService.callApi("/users/addDeviceToUser",{deviceId:mDeviceId}).then(function(){
+					if (user.pushNotificationRequested){
+						registerForPushNotification();
+					}
+					if (user.userDevices){
+						user.userDevices.push(mDeviceId);
+					} else {
+						user.userDevices = [mDeviceId];
+					}
+				});
+			}
+		}
+	}
+	
+	
+	function onSessionUserChanged(){
+		var user = $rootScope.currentUser;
+		if (user){
+			addDeviceToCurrentUser();
+		} else {
+			if (mDeviceId && mLastPushRegistrationId){
+				window.plugins.pushNotification.unregister(debugResult, handleError);
+				updateDevicePushRegistration("");
+			}
+		}
+	}
+	
+			
+	return{
+		init:init,
+		handlePushEvent:handlePushEvent,
+		registerForPushNotification:registerForPushNotification
+	};
+	
+});
 }), window.pushNotificationEcb = function(event) {
     widnow.getAngularService("MobilePushService").handlePushEvent(event);
 }, define("portal/js/modules/nudges/nudgesService", [ "./nudgesModule" ], function(module) {
