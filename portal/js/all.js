@@ -20954,12 +20954,13 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 	}	
 	
 	
-	function updateDevicePushRegistration(event){
-		debugResult(event, "Device registration");	
+	function updateDevicePushRegistration(event){			
 		var registrationId = event.registrationId;
+		debugResult(event, "Device registration, registrationId:"+registrationId+", mLastPushRegistrationId:"+mLastPushRegistrationId+", mDeviceId:"+mDeviceId);
 		if (registrationId!=mLastPushRegistrationId && mDeviceId){
 			mLastPushRegistrationId = registrationId; 
 			LocalStorageService.store("lastPushRegistrationId", mLastPushRegistrationId);
+			debugResult({deviceId:mDeviceId, platform:mPlatform,registrationId:registrationId}, "calling api updateDevicePushRegistration");
 			ApiService.callApi("/users/updateDevicePushRegistration",{deviceId:mDeviceId, platform:mPlatform,registrationId:registrationId}).then(function(){
 				user.pushNotificationRequested = true;
 			});
