@@ -20961,7 +20961,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
         };
     });
 }), window.pushNotificationEcb = function(event) {
-    widnow.getAngularService("MobilePushService").handlePushEvent(event);
+	window.getAngularService("MobilePushService").handlePushEvent(event);
 }, define("portal/js/modules/nudges/nudgesService", [ "./nudgesModule" ], function(module) {
     module.factory("NudgesService", function($rootScope, $timeout, $log, StringsService, PathsService, ApiService, SessionsService, LocalStorageService, PopupsService, PortalAuthService, SettingsService) {
         function rememberNudgedFeature(feature) {
