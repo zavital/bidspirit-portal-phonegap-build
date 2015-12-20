@@ -20911,7 +20911,8 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 	}
 	
 	
-	function registerForPushNotification(){			
+	function registerForPushNotification(){
+		alert("registering... "+SettingsService.get("gcmSender"));
 		window.plugins.pushNotification.register(
 			handleDeviceRegistrationSuccess,
 			handleError,{
@@ -20970,6 +20971,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 			debugResult({device:mDeviceId, userDevices:user.userDevices});
 			if (mDeviceId && !ArraysService.contains(user.userDevices, mDeviceId)){					
 				ApiService.callApi("/users/addDeviceToUser",{deviceId:mDeviceId}).then(function(){
+					alert("push? "+user.pushNotificationRequested);
 					if (user.pushNotificationRequested){
 						registerForPushNotification();
 					}
