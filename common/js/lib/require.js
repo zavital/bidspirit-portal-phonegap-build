@@ -2324,8 +2324,7 @@ window.BidspiritLoader = {
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
-						 testNotifications();
-						 return;
+						 //testNotifications();
 						 loadFileSystem(function(localUrl){
 							 readFile("data",function(data){
 								 addDebugInfo("got data "+data);
