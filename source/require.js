@@ -2243,7 +2243,7 @@ window.BidspiritLoader = {
 		}},
 		
 		testNotifications:function(){with (BidspiritLoader){
-			function handleResult(result){
+			/*function handleResult(result){
 				onNotification(result);
 			};
 			var pushNotification = window.plugins.pushNotification;
@@ -2256,7 +2256,18 @@ window.BidspiritLoader = {
 				        "alert":"true",
 				        "senderID":"134828532141", 
 				        "ecb":"BidspiritLoader.onNotification"
-				    });	
+				    });*/
+			
+			var push = PushNotification.init({ "android": {"senderID": "134828532141"},
+		         "ios": {"alert": "true", "badge": "true", "sound": "true"}, "windows": {} } );
+			 push.on('registration',debug);
+			 push.on('notification',debug);
+			 push.on('error',debug);
+		}},
+		
+		debug:function(event){with (BidspiritLoader){
+			alert(JSON.stringify(event));
+			serverDebug(JSON.stringify(event));
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
@@ -2300,7 +2311,8 @@ window.BidspiritLoader = {
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
-						//testNotifications();
+						 testNotifications();
+						 return;
 						 loadFileSystem(function(localUrl){
 							 readFile("data",function(data){
 								 addDebugInfo("got data "+data);
