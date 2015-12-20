@@ -20906,7 +20906,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 			$rootScope.$on("auth.newSessionUser", onSessionUserChanged);
 			addDeviceToCurrentUser();
 		},handleError);
-		mLastPushRegistrationId = LocalStorageService.load("lastPushRegistrationId");
+		//mLastPushRegistrationId = LocalStorageService.load("lastPushRegistrationId");
 	}
 	
 	
@@ -20958,11 +20958,12 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 		var registrationId = event.registrationId;
 		debugResult(event, "Device registration, registrationId:"+registrationId+", mLastPushRegistrationId:"+mLastPushRegistrationId+", mDeviceId:"+mDeviceId);
 		if (registrationId!=mLastPushRegistrationId && mDeviceId){
-			mLastPushRegistrationId = registrationId; 
+			//mLastPushRegistrationId = registrationId; 
 			LocalStorageService.store("lastPushRegistrationId", mLastPushRegistrationId);
 			debugResult({deviceId:mDeviceId, platform:mPlatform,registrationId:registrationId}, "calling api updateDevicePushRegistration");
 			ApiService.callApi("/users/updateDevicePushRegistration",{deviceId:mDeviceId, platform:mPlatform,registrationId:registrationId}).then(function(){
 				user.pushNotificationRequested = true;
+				alert("device registered");
 			});
 		}
 	}
