@@ -20919,7 +20919,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
             debugResult(result, "handleDeviceRegistrationSuccess"), "ios" == mPlatform && updateDevicePushRegistration(result);
         }
         function handlePushEvent(event) {
-            debugResult(event, "Push registration event"), "android" == mPlatform && event.regId && "registered" == event.event && updateDevicePushRegistration(event.regId);
+            debugResult(event, "Push registration event"), "android" == mPlatform && event.regid && "registered" == event.event && updateDevicePushRegistration(event.regid);
         }
         function updateDevicePushRegistration(registrationId) {
             registrationId != mLastPushRegistrationId && mDeviceId && (mLastPushRegistrationId = registrationId, 
