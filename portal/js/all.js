@@ -20972,7 +20972,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 		var user = $rootScope.currentUser;
 		if (user && mDeviceId){				
 			debugResult({device:mDeviceId, userDevices:user.userDevices});
-			var devicedRegisterdForUser = !ArraysService.contains(user.userDevices, mDeviceId);
+			var devicedRegisterdForUser = ArraysService.contains(user.userDevices, mDeviceId);
 			if (!devicedRegisterdForUser){					
 				ApiService.callApi("/users/addDeviceToUser",{deviceId:mDeviceId}).then(function(){
 					if (user.userDevices){
