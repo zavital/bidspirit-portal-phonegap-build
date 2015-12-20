@@ -2243,27 +2243,27 @@ window.BidspiritLoader = {
 		}},
 		
 		testNotifications:function(){with (BidspiritLoader){
-			/*function handleResult(result){
-				onNotification(result);
-			};
-			var pushNotification = window.plugins.pushNotification;
+			
+			/*var pushNotification = window.plugins.pushNotification;
+			window.plugins.uniqueDeviceID.get(function(uuid){alert("uuid:"+uuid)}, function(error){alert("error:"+error)});
 			pushNotification.register(
-					handleResult,
-					handleResult,
+					onRegistrationSuccess,
+					onRegistrationFailure,
 				    {
 				        "badge":"true",
 				        "sound":"true",
 				        "alert":"true",
 				        "senderID":"134828532141", 
 				        "ecb":"BidspiritLoader.onNotification"
-				    });*/
+				    });	*/
+			
 			alert("testing notifcations...");
 			
 			var push = PushNotification.init({ "android": {"senderID": "134828532141"},
 		         "ios": {"alert": "true", "badge": "true", "sound": "true"}, "windows": {} } );
-			 push.on('registration',debug);
-			 push.on('notification',debug);
-			 push.on('error',debug);
+			 push.on('registration',debugObject);
+			 push.on('notification',debugObject);
+			 push.on('error',debugObject);
 			 alert("test startd.");
 		}},
 		
