@@ -30,7 +30,7 @@
     
     <gap:plugin name="com.danielcwilson.plugins.googleanalytics" version="0.6.1" />
     
-    <plugin name="cordova-plugin-dialogs" spec="1.1.1" source="pgb" />
+    
     
     <plugin name="hu.dpal.phonegap.plugins.uniquedeviceid" spec="1.2.0" source="pgb" />
     
@@ -64,6 +64,8 @@
     <preference name="EnableViewportScale" value="true" />
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
+    
+    <plugin name="org.apache.cordova.dialogs" spec="0.3.0" source="pgb" />
     
     <feature name="PushPlugin">
   		<param name="ios-package" value="PushPlugin" />

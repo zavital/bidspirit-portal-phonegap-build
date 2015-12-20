@@ -20912,8 +20912,13 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
         function handleError(error) {
             debugResult(error, "Push registration error"), LogService.logError(JSON.stringify(error));
         }
+        function onDismisses(result){
+        	$rootScope.debug("Dismiss:"+result);
+        }
         function debugResult(result, message) {
-            //$rootScope.devMode && alert((message ? message + ": " : "") + JSON.stringify(result));
+        	var text = (message ? message + ": " : "") + JSON.stringify(result);
+        	$rootScope.debug("debugResult:"+text);
+            $rootScope.devMode && navigator.notification.alert(text, onDismisses);
         }
         function handleDeviceRegistrationSuccess(result) {
             debugResult(result, "handleDeviceRegistrationSuccess"), "ios" == mPlatform && updateDevicePushRegistration(result);
