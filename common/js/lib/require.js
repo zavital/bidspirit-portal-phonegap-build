@@ -2259,16 +2259,48 @@ window.BidspiritLoader = {
 			
 			alert("testing notifcations...");
 			
-			var push = PushNotification.init({ "android": {"senderID": "134828532141"},
-		         "ios": {"alert": "true", "badge": "true", "sound": "true"}, "windows": {} } );
-			 push.on('registration',debugObject);
-			 push.on('notification',debugObject);
-			 push.on('error',debugObject);
+			var push = PushNotification.init({ 
+				"android": {"senderID": "134828532141"},
+		         	"ios": {
+		         		"alert": "true", 
+		         		"badge": "true", 
+		         		"sound": "true"
+		         	    "categories": {
+		         	            "invite": {
+		         	                "yes": {
+		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Accept", "foreground": true, "destructive": false
+		         	                },
+		         	                "no": {
+		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Reject", "foreground": true, "destructive": false
+		         	                },
+		         	                "maybe": {
+		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Maybe", "foreground": true, "destructive": false
+		         	                }
+		         	            },
+		         	            "delete": {
+		         	                "yes": {
+		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Delete", "foreground": true, "destructive": true
+		         	                },
+		         	                "no": {
+		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Cancel", "foreground": true, "destructive": false
+		         	                }
+		         	            }
+		         	        }	
+		         }, 
+		         	"windows": {} } );
+			 push.on('registration',onRegistrationSuccess);
+			 push.on('notification',onNotification);
+			 push.on('error',onRegistrationFailure);
 			 alert("test startd.");
 		}},
 		
 		onRegistrationSuccess:function (event){with (BidspiritLoader){
 			alert("onRegistrationSuccess");
+			debugObject(event);
+		}},
+		
+		onCategoryCallback:function (event){with (BidspiritLoader){
+			alert("onCategoryCallback");
 			debugObject(event);
 		}},
 		
