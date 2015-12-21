@@ -2261,10 +2261,10 @@ window.BidspiritLoader = {
 			
 			var push = PushNotification.init({ 
 				"android": {"senderID": "134828532141"},
-		         	"ios": {
+		         "ios": {
 		         		"alert": "true", 
 		         		"badge": "true", 
-		         		"sound": "true"
+		         		"sound": "true",
 		         	    "categories": {
 		         	            "invite": {
 		         	                "yes": {
@@ -2356,7 +2356,8 @@ window.BidspiritLoader = {
 			 } else {		
 				 document.addEventListener('deviceready', function () {
 					 try {
-						 //testNotifications();
+						 testNotifications();
+						 return;
 						 loadFileSystem(function(localUrl){
 							 readFile("data",function(data){
 								 addDebugInfo("got data "+data);
