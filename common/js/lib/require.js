@@ -2263,7 +2263,7 @@ window.BidspiritLoader = {
 			mPush = PushNotification.init({ 
 				"android": {"senderID": "134828532141"},
 		         "ios": {
-		         		"alert": "true", 
+		         		"vibration": "true", 
 		         		"badge": "true", 
 		         		"sound": "true",
 		         	    "categories": {
