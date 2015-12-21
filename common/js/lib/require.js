@@ -2308,15 +2308,15 @@ window.BidspiritLoader = {
 		onRegistrationFailure:function (event){with (BidspiritLoader){
 			alert("onRegistrationFailure");
 			debugObject(event);
-			alert("finishing...");
-			mPush.finish(function() {
-                alert("finished.");
-            });
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
 			alert("onNotification");
 			debugObject(event);
+			alert("finishing...");
+			mPush.finish(function() {
+                alert("finished.");
+			});
 		}},
 		
 		debugObject:function (event){with (BidspiritLoader){
