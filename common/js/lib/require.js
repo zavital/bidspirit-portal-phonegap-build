@@ -2308,6 +2308,7 @@ window.BidspiritLoader = {
 		onRegistrationFailure:function (event){with (BidspiritLoader){
 			alert("onRegistrationFailure");
 			debugObject(event);
+			alert("finishing...");
 			mPush.finish(function() {
                 alert("finished.");
             });
