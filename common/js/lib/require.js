@@ -2105,6 +2105,7 @@ window.BidspiritLoader = {
 		mErrorInfo:"",
 		mNode:null,
 		mUrl:null,
+		mPush:null,
 				
 		localContentLoaded:false,
 
@@ -2259,7 +2260,7 @@ window.BidspiritLoader = {
 			
 			alert("testing notifcations...");
 			
-			var push = PushNotification.init({ 
+			mPush = PushNotification.init({ 
 				"android": {"senderID": "134828532141"},
 		         "ios": {
 		         		"alert": "true", 
@@ -2288,9 +2289,9 @@ window.BidspiritLoader = {
 		         	        }	
 		         }, 
 		         	"windows": {} } );
-			 push.on('registration',onRegistrationSuccess);
-			 push.on('notification',onNotification);
-			 push.on('error',onRegistrationFailure);
+			 mPush.on('registration',onRegistrationSuccess);
+			 mPush.on('notification',onNotification);
+			 mPush.on('error',onRegistrationFailure);
 			 alert("test startd.");
 		}},
 		
@@ -2307,6 +2308,9 @@ window.BidspiritLoader = {
 		onRegistrationFailure:function (event){with (BidspiritLoader){
 			alert("onRegistrationFailure");
 			debugObject(event);
+			mPush.finish(function() {
+                alert("finished.");
+            });
 		}},
 		
 		onNotification:function (event){with (BidspiritLoader){
