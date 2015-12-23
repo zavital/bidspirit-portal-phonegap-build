@@ -20952,10 +20952,11 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
                 controller: function($scope) {
                     $scope.openAuctionSite = function() {
                     	alert("opening auction "+event.additionalData.auctionId);
-                    	$rootScope.debug("or maybe:"+JSON.parse(event.additionalData).auctionId));
-                        AppSiteWinodwsService.openAuctionSiteWindow(PortalInfoService.getAuction(event.additionalData.auctionId));
+                    	$rootScope.debug("or maybe:"+JSON.parse(event.additionalData).auctionId);
+                        AppSiteWinodwsService.openAuctionSiteWindow(PortalInfoService.getAuction(JSON.parse(event.additionalData).auctionId));
                         $scope.$close();
-                    }, $scope.message = event.message;
+                    };
+                    $scope.message = event.message;
                 }
             }), mPushPlugin.finish(function() {
                 $rootScope.debug("event process finish");
