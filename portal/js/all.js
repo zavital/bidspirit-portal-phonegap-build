@@ -19115,7 +19115,7 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
                             response.success ? (scope.model.bidPrice = null, scope.mode = "new", scope.bidLabel = null) : handleError(response);
                         }).error(handleError));
                     });
-                }, scope.openAuctionSite = function() {
+                }, scope.openAuctionSite = function() {                	
                     AppSiteWinodwsService.openAuctionSiteWindow(scope.lot.auction);
                 }, scope.setEditMode = function() {
                     scope.mode = "edit", scope.model.bidPrice = scope.lot.selfAbsenteeBid.price, scope.bidLabel = null, 
@@ -20951,7 +20951,10 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
                 size: "lg",
                 controller: function($scope) {
                     $scope.openAuctionSite = function() {
-                        $scope.$close(), AppSiteWinodwsService.openAuctionSiteWindow(PortalInfoService.getAuction(event.additionalData.auctionId));
+                    	alert("opening auction "+event.additionalData.auctionId);
+                    	$rootScope.debug("or maybe:"+JSON.parse(event.additionalData).auctionId));
+                        AppSiteWinodwsService.openAuctionSiteWindow(PortalInfoService.getAuction(event.additionalData.auctionId));
+                        $scope.$close();
                     }, $scope.message = event.message;
                 }
             }), mPushPlugin.finish(function() {
