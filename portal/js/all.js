@@ -20921,7 +20921,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
             window.plugins.uniqueDeviceID.get(function(uuid) {
                 mDeviceId = uuid, mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown", 
                 $rootScope.$on("auth.newSessionUser", onSessionUserChanged), addDeviceToCurrentUser();
-            }, handleError), mLastPushRegistrationId = LocalStorageService.load("lastPushRegistrationId");
+            }, handleError);
         }
         function registerForPushNotification() {
             $rootScope.debug("Registering...:"), mPushPlugin = PushNotification.init({
