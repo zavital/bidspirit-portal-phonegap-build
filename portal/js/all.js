@@ -20993,9 +20993,12 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
             }), mPushPlugin.on("registration", updateDevicePushRegistration), mPushPlugin.on("notification", handlePushEvent), 
             mPushPlugin.on("error", handleError));
         }
-        function registerForPushIfNeeded() {
-            $rootScope.currentUser && $rootScope.currentUser.pushNotificationRequested && registerForPushNotification();
-        }
+        function registerForPushIfNeeded(){
+			if ($rootScope.currentUser && $rootScope.currentUser.pushNotificationRequestState!="NOT_REQUESTED"){
+				registerForPushNotification();
+			}
+		}
+		
         function handleError(error) {
             debugResult(error, "Push registration error"), LogService.logError(JSON.stringify(error));
         }
