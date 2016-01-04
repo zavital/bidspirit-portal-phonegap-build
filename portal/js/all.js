@@ -21514,6 +21514,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 }), define("portal/js/modules/navigation/mobileMenuController", [ "./navigationModule" ], function(module) {
     module.controller("MobileMenuController", [ "$scope", "$rootScope", "$timeout", "$state", "I18nService", "LocalStorageService", "PortalAuthService", "PortalNavigationService", function($scope, $rootScope, $timeout, $state) {
         function hideMenuIfOn() {
+        	alert("hide -  "+$rootScope.mobileMenuOn);
         	if ($rootScope.mobileMenuOn){
         		$rootScope.mobileMenuOn = !1, window.scrollTo(0, 0);
         	}
@@ -21523,6 +21524,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
         }
         
         $scope.gotoScene=function(scene){
+        	alert("going to "+scene);
         	$state.go("app."+scene);
         	hideAfterDelay();
         }
