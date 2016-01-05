@@ -20972,27 +20972,33 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
     });
 }), define("portal/js/modules/nudges/mobilePushService", [ "./nudgesModule" ], function(module) {
     module.factory("MobilePushService", function($rootScope, $uibModal, ArraysService, SettingsService, LogService, LocalStorageService, ApiService, PathsService, AnalyticsService, PortalInfoService, AppSiteWinodwsService) {
-        function init() {
-            window.plugins && (mDeviceId = device.uuid, mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown", 
-            $rootScope.$on("auth.newSessionUser", onSessionUserChanged), addDeviceToCurrentUser());
-        }
-        function registerForPushNotification() {
-            mDeviceId && ($rootScope.debug("Registering...:"), mPushPlugin = PushNotification.init({
-                android: {
-                    senderID: SettingsService.get("gcmSender")
-                },
-                ios: {
-                    alert: "true",
-                    badge: "true",
-                    sound: "true"
-                },
-                windows: {}
-            }), mPushPlugin.on("registration", updateDevicePushRegistration), mPushPlugin.on("notification", handlePushEvent), 
-            mPushPlugin.on("error", handleError));
-        }
-        function registerForPushIfNeeded() {
-            $rootScope.currentUser && "NOT_REQUESTED" != $rootScope.currentUser.pushNotificationRequestState && registerForPushNotification();
-        }
+
+		function init(){
+			if (!window.device) return;
+			$rootScope.debug("mobile push init with id "+device.uuid);
+			mDeviceId = device.uuid;
+			mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown";
+			$rootScope.$on("auth.newSessionUser", onSessionUserChanged);
+			addDeviceToCurrentUser();
+		}
+		function registerForPushNotification(){		
+			if (!mDeviceId) return;			
+			$rootScope.debug("Registering...:");
+			mPushPlugin = PushNotification.init({ 
+				"android": {"senderID": SettingsService.get("gcmSender")},
+				"ios": 	   {"alert": "true", "badge": "true", "sound": "true"}, 
+				"windows": {}
+			});
+			mPushPlugin.on('registration',updateDevicePushRegistration);
+			mPushPlugin.on('notification',handlePushEvent);
+			mPushPlugin.on('error',handleError);
+		}
+		
+		function registerForPushIfNeeded(){
+			if ($rootScope.currentUser && $rootScope.currentUser.pushNotificationRequestState!="NOT_REQUESTED"){
+				registerForPushNotification();
+			}
+		}
         function handleError(error) {
             debugResult(error, "Push registration error"), LogService.logError(JSON.stringify(error));
         }
