@@ -21029,6 +21029,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
             });
         }
         function updateDevicePushRegistration(event) {
+        	alert(JSON.stringify(event));
             debugResult(event, "Device registration");
             var registrationId = event.registrationId;
             mDeviceId && $rootScope.currentUser && (registrationId != mLastPushRegistrationId || "SUMBITTED" != $rootScope.currentUser.pushNotificationRequestState) && (mLastPushRegistrationId = registrationId, 
