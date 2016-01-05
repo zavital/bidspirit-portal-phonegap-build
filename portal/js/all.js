@@ -20973,7 +20973,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/nudges/mobilePushService", [ "./nudgesModule" ], function(module) {
     module.factory("MobilePushService", function($rootScope, $uibModal, ArraysService, SettingsService, LogService, LocalStorageService, ApiService, PathsService, AnalyticsService, PortalInfoService, AppSiteWinodwsService) {
     	function init(){
-    		alert("init.. with "+window.MacAddress.getMacAddress);
+    		alert("init.. with "+device.uuid);
 			if (!window.MacAddress) return;			
 			window.MacAddress.getMacAddress(function(macAddress){
 				alert(macAddress);
