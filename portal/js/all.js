@@ -20973,8 +20973,8 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/nudges/mobilePushService", [ "./nudgesModule" ], function(module) {
     module.factory("MobilePushService", function($rootScope, $uibModal, ArraysService, SettingsService, LogService, LocalStorageService, ApiService, PathsService, AnalyticsService, PortalInfoService, AppSiteWinodwsService) {
     	function init(){
-    		alert("init.. with "+window.MacAddress);
-			if (!window.plugins) return;			
+    		alert("init.. with "+window.MacAddress.getMacAddress);
+			if (!window.MacAddress) return;			
 			window.MacAddress.getMacAddress(function(macAddress){
 				alert(macAddress);
 				mDeviceId = macAddress;
@@ -21006,6 +21006,7 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
             debugResult(error, "Push registration error"), LogService.logError(JSON.stringify(error));
         }
         function debugResult(result, message) {
+        	alert(JSON.stringify(result));
             $rootScope.devMode && $rootScope.debug((message ? message + ": " : "") + JSON.stringify(result));
         }
         function showAuctionStartAlert(auction) {
