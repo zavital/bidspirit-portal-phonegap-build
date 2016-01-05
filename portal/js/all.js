@@ -20972,12 +20972,19 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
     });
 }), define("portal/js/modules/nudges/mobilePushService", [ "./nudgesModule" ], function(module) {
     module.factory("MobilePushService", function($rootScope, $uibModal, ArraysService, SettingsService, LogService, LocalStorageService, ApiService, PathsService, AnalyticsService, PortalInfoService, AppSiteWinodwsService) {
-        function init() {
-            window.plugins && window.plugins.uniqueDeviceID && window.plugins.uniqueDeviceID.get(function(uuid) {
-                mDeviceId = uuid, mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown", 
-                $rootScope.$on("auth.newSessionUser", onSessionUserChanged), addDeviceToCurrentUser();
-            }, handleError);
-        }
+    	function init(){
+    		alert("init.. with "+window.MacAddress);
+			if (!window.plugins) return;			
+			window.MacAddress.getMacAddress(function(macAddress){
+				alert(macAddress);
+				mDeviceId = macAddress;
+				mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown";
+				$rootScope.$on("auth.newSessionUser", onSessionUserChanged);
+				addDeviceToCurrentUser();
+			},handleError);
+			
+			
+		}
         function registerForPushNotification() {
             mDeviceId && ($rootScope.debug("Registering...:"), mPushPlugin = PushNotification.init({
                 android: {
