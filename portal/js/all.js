@@ -21156,13 +21156,21 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
             }), mPushPlugin.on("registration", updateDevicePushRegistration), mPushPlugin.on("notification", handlePushEvent), 
             mPushPlugin.on("error", handleError));
         }
-        function shouldRegisterForPush() {
-            if (LocalStorageService.load("lastPushRegistrationId")) return !0;
-            var user = $rootScope.currentUser;
-            if (!user) return !1;
-            var requestState = user.pushNotificationRequestState;
-            return requestState ? !1 : !1;
-        }
+
+		function shouldRegisterForPush(){
+			$rootScope.debug("should?");
+			$rootScope.debug("last:"+LocalStorageService.load("lastPushRegistrationId"));
+			if (LocalStorageService.load("lastPushRegistrationId")) return true;
+			var user = $rootScope.currentUser;
+			$rootScope.debug("user:"+(user ? user.email: null));
+			if (!user) return false;
+			var requestState = user.pushNotificationRequestState;
+			$rootScope.debug("requestState:"+requestState);
+			if (!requestState) return false;
+			if (requestState!="NOT_REQUESTED") return true;
+			return false;
+		}
+		
         function registerForPushIfNeeded() {
             shouldRegisterForPush() && registerForPushNotification();
         }
@@ -21222,22 +21230,28 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
                 $rootScope.currentUser.pushNotificationRequestState = "REQUESTED";
             }));
         }
-        function addDeviceToCurrentUser() {
-            var user = $rootScope.currentUser;
-            if (user && mDeviceId) {
-                debugResult({
-                    device: mDeviceId,
-                    userDevices: user.userDevices
-                });
-                var devicedRegisterdForUser = ArraysService.contains(user.userDevices, mDeviceId);
-                devicedRegisterdForUser || ApiService.callApi("/users/addDeviceToUser", {
-                    deviceId: mDeviceId
-                }).then(function() {
-                    user.userDevices ? user.userDevices.push(mDeviceId) : user.userDevices = [ mDeviceId ];
-                });
-            }
-            registerForPushIfNeeded();
-        }
+        function addDeviceToCurrentUser(){
+        	$rootScope.debug("add");
+			var user = $rootScope.currentUser;
+			if (user && mDeviceId){				
+				debugResult({device:mDeviceId, userDevices:user.userDevices});
+				var devicedRegisterdForUser = ArraysService.contains(user.userDevices, mDeviceId);
+				$rootScope.debug("devicedRegisterdForUser:"+devicedRegisterdForUser);
+				if (!devicedRegisterdForUser){					
+					ApiService.callApi("/users/addDeviceToUser",{deviceId:mDeviceId}).then(function(){
+						$rootScope.debug("called");
+						if (user.userDevices){
+							user.userDevices.push(mDeviceId);
+						} else {
+							user.userDevices = [mDeviceId];
+						}
+					});
+				}
+			}	
+			$rootScope.debug("regi if nee");
+			registerForPushIfNeeded();
+		}
+		
         function onSessionUserChanged() {
             var user = $rootScope.currentUser;
             user ? addDeviceToCurrentUser() : mDeviceId && mLastPushRegistrationId && (mLastPushRegistrationId = null);
