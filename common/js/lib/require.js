@@ -2230,7 +2230,7 @@ window.BidspiritLoader = {
 				baseDir.getDirectory(directory, {create: true, exclusive: false}, onSuccess, onFail);
 			}, function(e, where){
 	        	handleError(e, onFail, "failed to get base directory while looking for directory "+directory, where);
-	        }	
+	        });	
 			
 		}},
 		
