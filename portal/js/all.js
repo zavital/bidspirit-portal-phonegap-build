@@ -17148,40 +17148,43 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
             } else deferred.resolve(null);
             return deferred.promise;
         }
-        function getDebugInfoForDirectoryEntry(dirEntry) {
-            var deferred = $q.defer(), debugInfo = {};
-            try {
-                $rootScope.debug("getDebugInfoForDirectoryEntry " + dirEntry.name), dirEntry.createReader().readEntries(function(entries) {
-                    $rootScope.debug(entries.length + " entries");
-                    for (var subPromises = [], i = 0; i < entries.length; i++) {
-                        var entry = entries[i];
-                        try {
-                            subPromises.push(entry.name.length > 2 && entry.isDirectory ? getDebugInfoForDirectoryEntry(entry).then(function(dirDebugInfo) {
-                                debugInfo[entry.name] = dirDebugInfo;
-                            }) : getDebugInfoForFileEntry(entry).then(function(fileDebugInfo) {
-                                debugInfo[entry.name] = fileDebugInfo;
-                            }));
-                        } catch (e) {
-                            deferred.resolve({
-                                error: "Exception getting debugInfo for sub entry " + entry.name + " of directory " + dirEntry.name + ": " + e
-                            });
-                        }
-                    }
-                    $q.all(subPromises).then(function() {
-                        deferred.resolve(debugInfo);
-                    });
-                }, function(error) {
-                    deferred.resolve({
-                        error: "error while reading entries for directory " + dirEntry.name + ": " + error
-                    });
-                });
-            } catch (e) {
-                deferred.resolve({
-                    error: "Exception getting debugInfo for  directory " + dirEntry.name + ": " + e
-                });
-            }
-            return deferred.promise;
-        }
+        function getDebugInfoForDirectoryEntry(dirEntry){
+			var deferred = $q.defer();
+			var debugInfo = {};
+				
+			try {
+				$rootScope.debug("getDebugInfoForDirectoryEntry "+dirEntry.name);
+				dirEntry.createReader().readEntries(function(entries){
+					$rootScope.debug(entries.length+" entries");
+					var subPromises = [];		
+					for (var i=0;i<entries.length;i++){
+						(function(entry){
+							try {
+								if (entry.name.length>2 && entry.isDirectory){
+									subPromises.push(getDebugInfoForDirectoryEntry(entry).then(function(dirDebugInfo){
+										debugInfo[entry.name] = dirDebugInfo;
+									}));
+								} else {
+									subPromises.push(getDebugInfoForFileEntry(entry).then(function(fileDebugInfo){
+										debugInfo[entry.name] = fileDebugInfo;
+									}));
+								}
+							} catch (e){
+								deferred.resolve({error:"Exception getting debugInfo for sub entry "+entry.name+" of directory "+dirEntry.name+": "+e});
+							}
+						})(entries[i]);
+					}
+					$q.all(subPromises).then(function(){
+						deferred.resolve(debugInfo);
+					});
+				},function(error){
+					deferred.resolve({error:"error while reading entries for directory "+dirEntry.name+": "+error});
+				});
+			} catch (e){
+				deferred.resolve({error:"Exception getting debugInfo for  directory "+dirEntry.name+": "+e});
+			}
+			return deferred.promise;	
+		}
         function getDebugInfoForFileEntry(fileEntry) {
             var deferred = $q.defer();
             try {
