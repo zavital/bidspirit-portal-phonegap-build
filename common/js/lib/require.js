@@ -2223,11 +2223,12 @@ window.BidspiritLoader = {
 	         });
 		}},
 
-		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){
+		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){			
 			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, onSuccess, onFail);
 		}},
 		
 		getDirectoryEntry:function(directory, onSuccess,onFail){with (BidspiritLoader){
+			addDebugInfo("getting directory "+directory);
 			mFileSystem.root.getDirectory(FILES_BASE+"/"+directory, {create: true, exclusive: false}, onSuccess, onFail);
 		}},
 		
