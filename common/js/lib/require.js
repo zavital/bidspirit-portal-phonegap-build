@@ -2122,7 +2122,6 @@ window.BidspiritLoader = {
 		}},
 		
 		handleError:function(errorObj, onFail, errorMessage){with (BidspiritLoader){
-			alert("handleError" +errorMessage);
 			var errorInfo="";
 			if (errorMessage){
 				errorInfo+=errorMessage;
@@ -2131,7 +2130,6 @@ window.BidspiritLoader = {
 				errorInfo+=" ("+JSON.stringify(errorObj)+")";
 			}
 			if (errorInfo){
-				alert(errorInfo);
 				addErrorInfo(errorInfo);
 			}
 			if (onFail){
@@ -2175,10 +2173,8 @@ window.BidspiritLoader = {
 		
 		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
 			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
-				alert("got");
 				handleSuccess(function(){onSuccess(entry);},"root.getFile success - "+fileName);
 			}, function(e){
-				alert("err:"+JSON.stringify(e));
 				handleError(e, onFail, "root.getFile error - "+fileName);
 	        });
 		}},
@@ -2206,8 +2202,7 @@ window.BidspiritLoader = {
 	         });
 		}},
 		
-		writeToFile:function(fileName, data, onSuccess, onFail){with (BidspiritLoader){		
-			alert("write");
+		writeToFile:function(fileName, data, onSuccess, onFail){with (BidspiritLoader){			
 			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
 				addDebugInfo("got entry for write - "+fileName);
 				entry.createWriter(function(fileWriter){
