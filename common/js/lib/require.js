@@ -2098,9 +2098,8 @@ var requirejs, require, define;
 	
 	
 window.BidspiritLoader = {
+						
 		
-		FILES_BASE:"bidspirit_"+GlobalConfig.envName+"_files",		
-		mFileSystem:null,
 		mDebugInfo:"",
 		mErrorInfo:"",
 		mNode:null,
@@ -2121,14 +2120,18 @@ window.BidspiritLoader = {
 			mErrorInfo+=message+"\n";
 		}},
 		
-		handleError:function(errorObj, onFail, errorMessage){with (BidspiritLoader){
+		handleError:function(errorObj, onFail, errorMessage, where){with (BidspiritLoader){
 			var errorInfo="";
 			if (errorMessage){
 				errorInfo+=errorMessage;
 			}
+			if (where){
+				errorInfo+=". where: "+where;
+			}
 			if (errorObj){
 				errorInfo+=" ("+JSON.stringify(errorObj)+")";
 			}
+			
 			if (errorInfo){
 				addErrorInfo(errorInfo);
 			}
@@ -2148,35 +2151,29 @@ window.BidspiritLoader = {
 		
 		
 		initFilesBase:function(onSuccess, onFail){with (BidspiritLoader){
-			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(baseEntry){
+			getBaseDirEntry(function(baseEntry){
 				baseEntry.getDirectory("app", {create: true, exclusive: false}, function(){
 					handleSuccess(onSuccess,"files base created")
-				}, function(e){
-					handleError(e, onFail, "failed to create files base subdir app");
+				}, function(e, where){
+					handleError(e, onFail, "failed to create files base subdir app", where);
 		        });
-			}, function(e){
-				handleError(e, onFail, "failed to create files base");
+			}, function(e, where){
+				handleError(e, onFail, "failed to create files base", where);
 	        });
 		}},
 		
-		
-		loadFileSystem:function(onSuccess, onFail){with (BidspiritLoader){	
-			alert(cordova.file.dataDirectory);
-			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
-				addDebugInfo("got fs");
-				mFileSystem = fs;
-				initFilesBase(onSuccess, onFail);
-			},function(e){
-				handleError(e, onFail, "file system error");
-	        });
-		}},
+				
 		
 		
 		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
-			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
-				handleSuccess(function(){onSuccess(entry);},"root.getFile success - "+fileName);
-			}, function(e){
-				handleError(e, onFail, "root.getFile error - "+fileName);
+			getBaseDirEntry(function(baseDirEntry){
+				baseDirEntry.getFile(fileName, options, function(entry){
+					handleSuccess(function(){onSuccess(entry);},"root.getFile success - "+fileName);
+				}, function(e, where){
+					handleError(e, onFail, "getFile error - "+fileName, where);
+		        })
+			}, function(e, where){
+				handleError(e, onFail, "getFile error while looking for base dir - "+fileName, where);
 	        });
 		}},
 		
@@ -2216,21 +2213,25 @@ window.BidspiritLoader = {
 			  			}
 			  		}
 			  		fileWriter.write(data);
-				}, function(e){
-					handleError(e, onFail, "create writer error - "+fileName);
+				}, function(e,where){
+					handleError(e, onFail, "create writer error - "+fileName+", "+where);
 		         });
-	         }, function(e){
-	        	 handleError(e, onFail, "entry.file error for write  - "+fileName);
+	         }, function(e,where){
+	        	 handleError(e, onFail, "entry.file error for write  - "+fileName+", "+where);
 	         });
 		}},
 
-		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){			
-			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, onSuccess, onFail);
+		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){
+			window.resolveLocalFileSystemURL(cordova.file.dataDirectory,onSuccess, onFail);
 		}},
 		
-		getDirectoryEntry:function(directory, onSuccess,onFail){with (BidspiritLoader){
-			addDebugInfo("getting directory "+directory);
-			mFileSystem.root.getDirectory(FILES_BASE+"/"+directory, {create: true, exclusive: false}, onSuccess, onFail);
+		getDirectoryEntry:function(directory, onSuccess, onFail){with (BidspiritLoader){			
+			getBaseDirEntry(function(baseDir){
+				baseDir.getDirectory(directory, {create: true, exclusive: false}, onSuccess, onFail);
+			}, function(e, where){
+	        	handleError(e, onFail, "failed to get base directory while looking for directory "+directory, where);
+	        }	
+			
 		}},
 		
 		reset:function(onSuccess,onFail){with (BidspiritLoader){
@@ -2297,41 +2298,37 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
-					 try {						 
-						 loadFileSystem(function(localUrl){
-							 readFile("app/data",function(data){
-								 addDebugInfo("got data "+data);
-								 if (data){
-									 var versions = data.split(",");
-									 var mobileAppVersion = versions[0];
-									 var portalAppVersion = versions[1];									 
-									 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
-										 addDebugInfo("new mobile version found");
-										 reset(function(){
-											 delete localStorage.contentEmbedFailures;
-											 defaultLoad();
-										 }, function(){
-											 defaultLoadOnError("failed to reset");
-										 });
-									 } else {
-										 getFileEntry("app/content."+portalAppVersion,{create: false, exclusive: false}, function(content){
-											 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
-											 addDebugInfo("loading content from "+content.toURL());
-											 mNode.src = content.toURL();
-										 },function(){
-											 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
-										 });
-									 }
+					 try {		
+						 readFile("app/data",function(data){
+							 addDebugInfo("got data "+data);
+							 if (data){
+								 var versions = data.split(",");
+								 var mobileAppVersion = versions[0];
+								 var portalAppVersion = versions[1];									 
+								 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
+									 addDebugInfo("new mobile version found");
+									 reset(function(){
+										 delete localStorage.contentEmbedFailures;
+										 defaultLoad();
+									 }, function(){
+										 defaultLoadOnError("failed to reset");
+									 });
 								 } else {
-									 addDebugInfo("default load becuase no data found");
-									 defaultLoad();
+									 getFileEntry("app/content."+portalAppVersion,{create: false, exclusive: false}, function(content){
+										 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
+										 addDebugInfo("loading content from "+content.toURL());
+										 mNode.src = content.toURL();
+									 },function(){
+										 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
+									 });
 								 }
-							 },function(){								 
-								 defaultLoadOnError("failed to load data");
-							 });
-						 }, function(){
-							 defaultLoadOnError("failed to get file system");
-						 }); 
+							 } else {
+								 addDebugInfo("default load becuase no data found");
+								 defaultLoad();
+							 }
+						 },function(){								 
+							 defaultLoadOnError("failed to load data");
+						 });
 					} catch (e){
 						defaultLoadOnError("exception while init "+e.message);
 					}
