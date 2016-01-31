@@ -17174,7 +17174,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						});
 					});
 				} catch (e){
-					deferred.resolve("Error while getting mobile app debug info: "+e);
+					deferred.resolve({error:"Error while getting mobile app debug info: "+e});
 				}
 			} else {
 				deferred.resolve(null);
@@ -17185,45 +17185,51 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 		function getDebugInfoForDirectoryEntry(dirEntry){
 			var deferred = $q.defer();
 			var debugInfo = {};
-			var subPromises = [];
+			var subPromises = [];			
 			try {
+				$rootScope.debug("getDebugInfoForDirectoryEntry "+dirEntry.name);
 				dirEntry.readEntries(function(entries){
+					$rootScope.debug(entries.length+" entries");
 					for (var i=0;i<entries.length;i++){
 						var entry = entries[i];
 						try {
 							if (entry.name.length>2 && entry.isDirectory){
-								subPromises.push(getDebugInfoForDirectoryEntry(entry).then(function(entryDebugInfo){
-									debugInfo[entry.name] = entryDebugInfo;
+								subPromises.push(getDebugInfoForDirectoryEntry(entry).then(function(dirDebugInfo){
+									debugInfo[entry.name] = dirDebugInfo;
 								}));
 							} else {
-								waitingPromises.push(getDebugInfoForFileEntry(entry));
+								waitingPromises.push(getDebugInfoForFileEntry(entry)).then(function(fileDebugInfo){
+									debugInfo[entry.name] = fileDebugInfo;
+								}));
 							}
 						} catch (e){
-							deferred.resolve("Exception getting debugInfo for sub entry "+entry.name+" of directory "+dirEntry.name+": "+e);
+							deferred.resolve({error:"Exception getting debugInfo for sub entry "+entry.name+" of directory "+dirEntry.name+": "+e});
 						}
+						return $q.all(subPromises).then(function(){
+							deferred.resolve(debugInfo);
+						});		
 					}
 				},function(error){
-					deferred.resolve("error while reading entries for directory "+entry.name+": "+error);
+					deferred.resolve({error:"error while reading entries for directory "+entry.name+": "+error});
 				});
 			} catch (e){
-				deferred.resolve("Exception getting debugInfo for  directory "+dirEntry.name+": "+e);
+				deferred.resolve({error:"Exception getting debugInfo for  directory "+dirEntry.name+": "+e});
 			}
-			return $q.all(subPromises).then(function(){
-				deferred.resolve(debugInfo);
-			});			
+				
 		}
 		
 		
 		function getDebugInfoForFileEntry(fileEntry){			
 			var deferred = $q.defer();
 			try {
+				$rootScope.debug("getDebugInfoForFileEntry "+fileEntry.name);
 				entry.getMetadata(function(metaData){
 					deferred.resolve(metaData);
 				},function(error){
-					deferred.resolve("Error while getting meta data: "+error);
+					deferred.resolve({error:"Error while getting meta data: "+error});
 				});
 			} catch (e){
-				deferred.resolve("Exception while getting file debug info: "+e);
+				deferred.resolve({error:"Exception while getting file debug info: "+e});
 			}
 			return deferred.promise;
 	
