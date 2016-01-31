@@ -2111,7 +2111,6 @@ window.BidspiritLoader = {
 
 		addDebugInfo:function(message){with (BidspiritLoader){			
 			if (message){
-				alert(message);
 				var now = new Date();
 				mDebugInfo+="("+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+"["+now.getMilliseconds()+"]) "+message+"\n";
 			}
@@ -2321,8 +2320,7 @@ window.BidspiritLoader = {
 									 addDebugInfo("default load becuase no data found");
 									 defaultLoad();
 								 }
-							 },function(){
-								 alert(5);
+							 },function(){								 
 								 defaultLoadOnError("failed to load data");
 							 });
 						 }, function(){
