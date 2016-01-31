@@ -15600,270 +15600,450 @@ define("common/js/modules/i18n/i18nModule", [ "angular" ], function(ng) {
         };
     } ]);
 }), define("common/js/modules/i18n/i18nService", [ "./i18nModule" ], function(module) {
-    module.factory("I18nService", function($interpolate, $http, $log, $q, $filter, $rootScope, StringsService, LocalStorageService, PathsService, SettingsService, DateUtilsService, PortalMobileUtils) {
-        function init(reourcePathFn, preferredLang) {
-            mResourcePathFn = reourcePathFn;
-            var lang;
-            lang = $rootScope.searchAgentRequest ? getLangForSnapshot(preferredLang) : getLangForBrowser(preferredLang), 
-            isSupportedLang(lang) || (lang = DEFAULT_LANG);
-            var promise = setLang(lang);
-            return lang != DEFAULT_LANG ? $q.all([ promise, loadLang(DEFAULT_LANG) ]) : promise;
-        }
-        function getLangForBrowser(preferredLang) {
-            var lang = LocalStorageService.load("lastLang") || PathsService.getQueryParam("lang") || preferredLang;
-            return lang || (lang = SettingsService.get("suggestedLanguage"), "other" == lang && (lang = DEFAULT_LANG)), 
-            lang;
-        }
-        function getLangForSnapshot(preferredLang) {
-            var queryLang = PathsService.getQueryParam("lang");
-            if (queryLang) return StringsService.trim(queryLang).toLowerCase();
-            var region = PathsService.getRegionByDomain();
-            return region ? langByRegion(region) : preferredLang || DEFAULT_LANG;
-        }
-        function setLang(lang) {
-            var defered = $q.defer();
-            return mTextsByLang[lang] ? (mCurrentLang = lang, defered.resolve(), $rootScope.$broadcast("i18n.languageChanged")) : loadLang(lang).then(function() {
-                setLang(lang), defered.resolve();
-            }), defered.promise;
-        }
-        function loadLang(lang) {
-            var promise;
-            return promise = GlobalConfig.isMobileApp ? PortalMobileUtils.getTextsLoadPromise(lang) : $http({
-                url: mResourcePathFn(lang),
-                cache: !0
-            }), promise.then(function(texts) {
-                setTexts(lang, texts.data.split(/\n/m));
-            }), promise;
-        }
-        function reloadTextsAfterDelay(delay) {
-            clearTimeout(mTextReloadTimer), mTextReloadTimer = setTimeout(function() {
-                loadLang(mCurrentLang).then(function() {
-                    $rootScope.$broadcast("i18n.languageChanged");
-                }), mCurrentLang != DEFAULT_LANG && loadLang(DEFAULT_LANG);
-            }, delay);
-        }
-        function setTexts(lang, textLines) {
-            for (var textsMap = {}, i = 0; i < textLines.length; i++) addTextLineToMap(textsMap, textLines[i]);
-            mTextsByLang[lang] = textsMap;
-        }
-        function addTextLineToMap(textsMap, textLine) {
-            var seperatorInd = textLine.indexOf("=");
-            if (-1 == seperatorInd) StringsService.isBlank(textLine) || $log.warn("I18n: Failed to parse lang resource line:" + textLine); else {
-                var key = StringsService.trim(textLine.substr(0, seperatorInd)), val = StringsService.trim(textLine.substr(seperatorInd + 1));
-                textsMap[key] = val;
-            }
-        }
-        function getCurrentLang() {
-            return mCurrentLang;
-        }
-        function getSupportedLangs() {
-            return mSupportedLangs;
-        }
-        function isSupportedLang(lang) {
-            return -1 != mSupportedLangs.indexOf(lang);
-        }
-        function searchTextByKey(key, textsMap) {
-            textsMap || (textsMap = mTextsByLang[mCurrentLang]);
-            var text = textsMap[key];
-            return !text && mTextsByLang[DEFAULT_LANG] && (text = mTextsByLang[DEFAULT_LANG][key]), 
-            text || key == key.toLowerCase() || (text = searchTextByKey(key.toLowerCase(), textsMap)), 
-            text;
-        }
-        function getText(key, params, textsMap) {
-            if (!key) return "";
-            var text = searchTextByKey(key, textsMap);
-            return text ? (params && (translatedParams = {}, angular.forEach(params, function(paramVal, paramKey) {
-                translatedParams[paramKey] = "string" == typeof paramVal ? searchTextByKey(paramVal, textsMap) || paramVal : paramVal;
-            }), text = $interpolate(text)(translatedParams)), text) : ($log.warn("I18n: Failed to find text for key:" + key), 
-            key);
-        }
-        function getTextWithRegion(key, params, region) {
-            if (!region && params && (region = params.region), region || (region = $rootScope.currentRegion), 
-            "ALL" == region && searchTextByKey(key + "_global")) return getText(key + "_global", params);
-            var regionName = getText("region_" + region), paramsWithRegion = angular.copy(params) || {};
-            return paramsWithRegion.region = regionName, paramsWithRegion.country = regionName, 
-            getText(key, paramsWithRegion);
-        }
-        function getDateDisplay(date, time, options, textsMap) {
-            if (options.withoutDayOfMonth) return getMonth(date.getMonth(), textsMap) + " " + $filter("date")(date, "yyyy");
-            var dateStr = $filter("date")(date, "d.M.yy");
-            if (!options.withoutDayOfWeek) {
-                var day = getWeekDay(date.getDay(), textsMap);
-                dateStr = day + ", " + dateStr;
-            }
-            return time && !options.withoutTime ? dateStr + ", " + time : dateStr;
-        }
-        function getTimeLeftDisplay(time) {
-            function and(str) {
-                return getText("time_and", {
-                    text: str
-                });
-            }
-            function timeText(timePart) {
-                return " " + getText("time_" + timePart);
-            }
-            var timeDiff = DateUtilsService.parseMillisLeft(SettingsService.timeUntil(time)), timeDisplay = "";
-            return timeDiff.days > 0 ? (timeDisplay = timeDiff.days + timeText("days"), timeDiff.hours > 0 && (timeDisplay += " " + and(timeDiff.hours + timeText("hours")))) : timeDiff.hours > 0 ? (timeDisplay = timeDiff.hours + timeText("hours"), 
-            timeDiff.minutes > 0 && (timeDisplay += " " + and(timeDiff.minutes + timeText("minutes")))) : timeDisplay = timeDiff.minutes > 0 ? timeDiff.seconds > 45 ? timeDiff.minutes + 1 + timeText("minutes") : timeDiff.seconds > 15 && timeDiff.minutes < 5 ? timeDiff.minutes + timeText("minutes") + " " + and(30 + timeText("seconds")) : timeDiff.minutes + timeText("minutes") : timeDiff.seconds + timeText("seconds"), 
-            timeDisplay;
-        }
-        function getLangField(field) {
-            if (!field) return "";
-            var fieldInCurrentLang = field[getCurrentLang()];
-            if (fieldInCurrentLang) return fieldInCurrentLang;
-            var fieldInDefaultLang = field[DEFAULT_LANG];
-            if (fieldInDefaultLang) return fieldInDefaultLang;
-            for (var lang in field) {
-                var fieldInAnyLang = field[lang];
-                if (fieldInAnyLang) return fieldInAnyLang;
-            }
-            return "";
-        }
-        function langNativeName(lang) {
-            switch (lang) {
-              case "en":
-                return "English";
+	module.factory('I18nService', function($interpolate, $http, $log, $q, $filter, $rootScope, 
+			StringsService , LocalStorageService, PathsService, SettingsService, DateUtilsService, PortalMobileUtils) {
+		
+		var DEFAULT_LANG = "en";
+		
+		var mCurrentLang = null;
+		
+		var mTextsByLang = {};
+		
+		var mResourcePathFn = null;
+		
+		var mTextReloadTimer = null;
+		
+		var mSupportedLangs = ["he","en","ru"];
+		
+		var mLog = [];
+		
+		function  addToLog(message){
+			mLog.push(message);
+		}
+		
+		function getDebugInfo(){
+			return {
+				log:mLog,
+				currentLang:mCurrentLang				
+			}
+		}
+		
+		function  init(reourcePathFn, preferredLang){
+			mResourcePathFn = reourcePathFn;
+			
+			var lang ;
+			
+			
+			if ($rootScope.searchAgentRequest){ 
+				lang = getLangForSnapshot(preferredLang);
+			} else {
+				lang = getLangForBrowser(preferredLang)
+			}
+			if (!isSupportedLang(lang)){
+				lang = DEFAULT_LANG;
+			}
+						
+			var promise = setLang(lang);
+			
+			if (lang!=DEFAULT_LANG){
+				return $q.all([promise, loadLang(DEFAULT_LANG)]);
+			} else {
+				return promise;
+			}
+		}
+		
+		
+		function getLangForBrowser(preferredLang){
+			  var lang = LocalStorageService.load("lastLang") ||  PathsService.getQueryParam("lang") || preferredLang;
+			  if (!lang){
+				  lang = SettingsService.get("suggestedLanguage");
+				  if (lang=="other"){
+					  lang = DEFAULT_LANG;
+				  }
+			  }
+			  return lang;
+		}
+		
+		
+		function getLangForSnapshot(preferredLang){
+			var queryLang = PathsService.getQueryParam("lang");			
+			if (queryLang){ //query lang is the strongest indication for ajax snapshot 
+				return StringsService.trim(queryLang).toLowerCase();
+			}
+			var region = PathsService.getRegionByDomain();
+			if (region){
+				return langByRegion(region);
+			}
+			return preferredLang || DEFAULT_LANG;			
+		}
+		
+		
+		
+		function  setLang(lang){
+			var defered  = $q.defer();
+			addToLog("Setting lang "+lang);
+			if (!mTextsByLang[lang]){
+				 loadLang(lang).then(function(){
+					setLang(lang);
+					defered.resolve();
+				});
+			} else {
+				mCurrentLang = lang;				
+				defered.resolve();
+				$rootScope.$broadcast('i18n.languageChanged');
+			}
+			return defered.promise;
+		}
+		
+		function loadLang(lang){
+			addToLog(lang+": "+"Loading"); 
+			var promise;
+			
+			if (GlobalConfig.isMobileApp){
+				promise = PortalMobileUtils.getTextsLoadPromise(lang);
+			} else {
+				promise = $http({
+					url:mResourcePathFn(lang), 
+					cache:true
+				});
+			}
+			
+			promise.then(function(texts){
+				try {
+					addToLog(lang+": Loaded");
+					var entries = texts.data.split(/\n/m);
+					addToLog(lang+": "+entries.length+" entries found.");
+					setTexts(lang, entries);
+					addToLog(lang+": Success");
+				} catch (e){
+					addToLog(lang+":"+"Exception while parsing lang -  "+e);
+				}
+			},function(error){
+				addToLog(lang+":"+"Error while loading lang -  "+error);
+			});
+			
+			return promise;
+		}
+		
+		
+		function reloadTextsAfterDelay(delay){
+			clearTimeout(mTextReloadTimer);
+			mTextReloadTimer = setTimeout(function(){
+				loadLang(mCurrentLang).then(function(){
+					$rootScope.$broadcast('i18n.languageChanged');
+				});
+				if  (mCurrentLang!=DEFAULT_LANG){
+					loadLang(DEFAULT_LANG);
+				}
+			}, delay);
+			
+		}
+		
+		function setTexts(lang, textLines){
+			var textsMap ={};
+			for (var i=0;i<textLines.length;i++){
+				addTextLineToMap(textsMap, textLines[i]);
+			}
+			mTextsByLang[lang] =textsMap;
+		}
+		
+		function addTextLineToMap(textsMap, textLine){
+			var seperatorInd = textLine.indexOf("=");
+			if (seperatorInd==-1){
+				if (!StringsService.isBlank(textLine)){
+					$log.warn("I18n: Failed to parse lang resource line:"+textLine);
+				}
+			} else {
+				var key = StringsService.trim(textLine.substr(0,seperatorInd));
+				var val = StringsService.trim(textLine.substr(seperatorInd+1));
+				textsMap[key]=val;
+			}
+		}
+		             
+		function  getCurrentLang(){
+			return mCurrentLang;
+		}
+		
+		function  getSupportedLangs(){
+			return mSupportedLangs;
+		}
+		
+		function  isSupportedLang(lang){
+			return mSupportedLangs.indexOf(lang)!=-1;
+		}
+		
+		
+		
+		function  searchTextByKey(key, textsMap){
+			if (!textsMap) {
+				textsMap = mTextsByLang[mCurrentLang];
+			}
+			var text = textsMap[key];			
+			if (!text && mTextsByLang[DEFAULT_LANG]){
+				text = mTextsByLang[DEFAULT_LANG][key];
+			}
+			if (!text && key != key.toLowerCase()){				
+				text = searchTextByKey(key.toLowerCase(), textsMap);
+			}
+			return text;
+		}
+		
+		function  getText(key,params, textsMap){
+			if (!key) return "";
+			var text = searchTextByKey(key, textsMap);
+			
+			if (!text){
+				$log.warn("I18n: Failed to find text for key:"+key);
+				return key;
+			}
+		
+			if(params) {
+				translatedParams = {};
+				angular.forEach(params,function(paramVal,paramKey){
+					if (typeof(paramVal)=="string"){ //the params themselves can be i18n keys
+						translatedParams[paramKey] = searchTextByKey(paramVal, textsMap) || paramVal;
+					}  else {
+						translatedParams[paramKey] = paramVal;
+					}
+				});
+				
+				text = $interpolate(text)(translatedParams); 
+			} 
+			return text;		
+		}
+		
+		function getTextWithRegion(key, params, region){			
+			if (!region && params){
+				region = params.region;			
+			} 
+			if (!region ){
+				region = $rootScope.currentRegion;
+			}			
+			if (region=="ALL" && searchTextByKey(key+"_global")){				
+        		return getText(key+"_global", params);
+        	}
+			
+    		var regionName = getText("region_"+region);
+    		var paramsWithRegion = angular.copy(params) || {};
+    		paramsWithRegion.region = regionName;
+    		paramsWithRegion.country =regionName;
+    		return  getText(key, paramsWithRegion);        		
+        	
+		}
+		
+		function getDateDisplay(date, time, options, textsMap){
+        	if (options.withoutDayOfMonth){        		
+        		return getMonth(date.getMonth(), textsMap)+" "+$filter('date')(date,'yyyy');
+        	} else {
+        		var dateStr =  $filter('date')(date,'d.M.yy');
+        		if (!options.withoutDayOfWeek){
+            		var day = getWeekDay(date.getDay(), textsMap);
+        			dateStr =day + ", " + dateStr;
+        		}       		
+        		
+        		if (time && !options.withoutTime){
+        			return dateStr+", "+time;        			
+        		} else {
+        			return dateStr;
+        		}
+        	}
+		}
+		
+		
+		
+		function getTimeLeftDisplay(time){
+	    	function and(str){
+	    		return getText("time_and",{text:str});
+	    	}
+	    	function timeText(timePart){
+	    		return " "+getText("time_"+timePart);
+	    	}
+			var timeDiff = DateUtilsService.parseMillisLeft( SettingsService.timeUntil(time));
+			var timeDisplay = "";
+    		if (timeDiff.days>0){
+    			timeDisplay = timeDiff.days + timeText("days");
+    			if (timeDiff.hours>0){
+    				timeDisplay += " "+and(timeDiff.hours+ timeText("hours"));
+    			}
+    		} else if (timeDiff.hours>0){
+    			timeDisplay = timeDiff.hours + timeText("hours");
+    			if (timeDiff.minutes>0){
+    				timeDisplay += " "+and(timeDiff.minutes+ timeText("minutes"));
+    			}
+    		} else if (timeDiff.minutes>0){
+    			if (timeDiff.seconds>45){
+    				timeDisplay = (timeDiff.minutes+1) + timeText("minutes");				
+    			} else if (timeDiff.seconds>15 && timeDiff.minutes<5){
+    				timeDisplay = timeDiff.minutes + timeText("minutes")+" "+and(30+ timeText("seconds"));
+    			} else {
+    				timeDisplay = timeDiff.minutes + timeText("minutes");   				
+    			}
+    		} else{
+    			timeDisplay = timeDiff.seconds + timeText("seconds");    			
+    		}
+    		return timeDisplay;
+		}
+		
+		
+		
+		function getLangField(field){
+			if (!field) return "";
+        	
+        	var fieldInCurrentLang = field[getCurrentLang()];
+    		if (fieldInCurrentLang){
+    			return fieldInCurrentLang;
+    		}
+    		
+    		var fieldInDefaultLang = field[DEFAULT_LANG];
+    		if (fieldInDefaultLang){
+    			return fieldInDefaultLang;
+    		}
+    		
+    		for (var lang in field){
+    			var fieldInAnyLang = field[lang];
+    			if (fieldInAnyLang){
+    				return fieldInAnyLang;
+    			}	
+    		}
+    		
+    		return "";
+		}
+		
+		
+		function langNativeName(lang){
+			switch(lang){
+				case "en":return "English";
+				case "ru":return "Русский";
+				case "he":return "עברית";
+				case "jp":return "日本語";
+				case "de":return "Deutsch";
+				case "es":return "Español";
+				case "pt":return "Português";
+				case "zh":return "汉语";
+			}
+		}
+		
+		function langEnglishName(lang){
+			switch(lang){
+				case "en":return "english";
+				case "ru":return "russian";
+				case "he":return "hebrew";
+				case "jp":return "japanese";
+				case "de":return "german";
+				case "es":return "spanish";
+				case "pt":return "portuguese";
+				case "zh":return "chinese";
+			}
+		}
+		
+		function langByRegion(region){			 
+			switch(region){
+				case "IL":return "he";
+				case "RU":return "ru";
+				default:return mCurrentLang || DEFAULT_LANG;
+			}			
+		}
+		
+		
+		function setLangByRegion(region){
+			setLang(langByRegion(region));
+		}
+		
+		function getWeekDay(day,textsMap){
+			var daysArr = getText("week_days",null,textsMap).split(",");
+			return StringsService.trim(daysArr[day]);
+		}
+		
+		function getMonth(month,textsMap){
+			var monthsArr = getText("months",null,textsMap).split(",");
+			return StringsService.trim(monthsArr[month]);
+		}
+		
+		
+		function getPhoneForRegion(phone, region, lang){
+			if (region=="IL" && lang!="he" && phone.indexOf("0")==0){
+				return "(972) "+ phone.substr(1);
+			} else {
+				return phone;
+			}
+		}
+		
+		function sumInCurrency(sum, currency){			
+			var sumStr = StringsService.readableNumber(sum);
+			switch (currency){
+				case "$":
+				case "₪":
+				case "¥":	
+				case "₹":
+					return currency + sumStr;			
+				case "CHF":				
+				case "Rs.":	
+					return currency + " " + sumStr;	
+				default:
+					return sumStr+currency;
+			}
+		}
+		
+		function isoCurrency( currency){
+			switch (currency){
+				case "$":
+					return "USD";
+				case "₪":	
+					return "ILS";
+				case "p":
+					return "RUB";
+				case "₹":
+				case "Rs.":
+					return "INR";	
+				default:
+					return currency;
+			}
+		}
+		
+		
+		function parseCurrency(priceDisplay, currency){
+			var parsed =  (	priceDisplay+"").replace(currency, "").replace(/,|\s/g, "").replace(/\&nbsp\;/g,"") * 1;
+			return !isNaN(parsed) ? parsed : null;
+		}
+		
+		
+		return{
+			
+			init : init,			
 
-              case "ru":
-                return "Русский";
-
-              case "he":
-                return "עברית";
-
-              case "jp":
-                return "日本語";
-
-              case "de":
-                return "Deutsch";
-
-              case "es":
-                return "Español";
-
-              case "pt":
-                return "Português";
-
-              case "zh":
-                return "汉语";
-            }
-        }
-        function langEnglishName(lang) {
-            switch (lang) {
-              case "en":
-                return "english";
-
-              case "ru":
-                return "russian";
-
-              case "he":
-                return "hebrew";
-
-              case "jp":
-                return "japanese";
-
-              case "de":
-                return "german";
-
-              case "es":
-                return "spanish";
-
-              case "pt":
-                return "portuguese";
-
-              case "zh":
-                return "chinese";
-            }
-        }
-        function langByRegion(region) {
-            switch (region) {
-              case "IL":
-                return "he";
-
-              case "RU":
-                return "ru";
-
-              default:
-                return mCurrentLang || DEFAULT_LANG;
-            }
-        }
-        function setLangByRegion(region) {
-            setLang(langByRegion(region));
-        }
-        function getWeekDay(day, textsMap) {
-            var daysArr = getText("week_days", null, textsMap).split(",");
-            return StringsService.trim(daysArr[day]);
-        }
-        function getMonth(month, textsMap) {
-            var monthsArr = getText("months", null, textsMap).split(",");
-            return StringsService.trim(monthsArr[month]);
-        }
-        function getPhoneForRegion(phone, region, lang) {
-            return "IL" == region && "he" != lang && 0 == phone.indexOf("0") ? "(972) " + phone.substr(1) : phone;
-        }
-        function sumInCurrency(sum, currency) {
-            var sumStr = StringsService.readableNumber(sum);
-            switch (currency) {
-              case "$":
-              case "₪":
-              case "¥":
-              case "₹":
-                return currency + sumStr;
-
-              case "CHF":
-              case "Rs.":
-                return currency + " " + sumStr;
-
-              default:
-                return sumStr + currency;
-            }
-        }
-        function isoCurrency(currency) {
-            switch (currency) {
-              case "$":
-                return "USD";
-
-              case "₪":
-                return "ILS";
-
-              case "p":
-                return "RUB";
-
-              case "₹":
-              case "Rs.":
-                return "INR";
-
-              default:
-                return currency;
-            }
-        }
-        function parseCurrency(priceDisplay, currency) {
-            var parsed = 1 * (priceDisplay + "").replace(currency, "").replace(/,|\s/g, "").replace(/\&nbsp\;/g, "");
-            return isNaN(parsed) ? null : parsed;
-        }
-        var DEFAULT_LANG = "en", mCurrentLang = null, mTextsByLang = {}, mResourcePathFn = null, mTextReloadTimer = null, mSupportedLangs = [ "he", "en", "ru" ];
-        return {
-            init: init,
-            getCurrentLang: getCurrentLang,
-            getSupportedLangs: getSupportedLangs,
-            setLang: setLang,
-            setLangByRegion: setLangByRegion,
-            reloadTextsAfterDelay: reloadTextsAfterDelay,
-            langNativeName: langNativeName,
-            langEnglishName: langEnglishName,
-            getPhoneForRegion: getPhoneForRegion,
-            getText: getText,
-            getTextWithRegion: getTextWithRegion,
-            getLangField: getLangField,
-            searchTextByKey: searchTextByKey,
-            getWeekDay: getWeekDay,
-            getMonth: getMonth,
-            getDateDisplay: getDateDisplay,
-            getTimeLeftDisplay: getTimeLeftDisplay,
-            sumInCurrency: sumInCurrency,
-            parseCurrency: parseCurrency,
-            isoCurrency: isoCurrency,
-            DEFAULT_LANG: DEFAULT_LANG
-        };
-    });
+			getCurrentLang : getCurrentLang,
+			getSupportedLangs:getSupportedLangs,
+			setLang : setLang,
+			setLangByRegion:setLangByRegion,
+			reloadTextsAfterDelay:reloadTextsAfterDelay,
+			
+			langNativeName:langNativeName,
+			langEnglishName:langEnglishName,
+			
+			getPhoneForRegion:getPhoneForRegion,
+			
+			getText : getText,
+			getTextWithRegion : getTextWithRegion,
+			getLangField: getLangField,
+			searchTextByKey:searchTextByKey,
+			
+			getWeekDay:getWeekDay,
+			getMonth:getMonth,
+			getDateDisplay:getDateDisplay,
+			getTimeLeftDisplay:getTimeLeftDisplay,
+			
+			getDebugInfo:getDebugInfo,
+			
+			
+			sumInCurrency:sumInCurrency,
+			parseCurrency:parseCurrency,
+			isoCurrency:isoCurrency,
+			
+			DEFAULT_LANG : DEFAULT_LANG
+		};
+		
+		
+	});
 }), define("common/js/modules/i18n/langFieldFilter", [ "./i18nModule" ], function(module) {
     return module.filter("langField", [ "I18nService", function(I18nService) {
         return function(field) {
@@ -17044,28 +17224,39 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         function getLocalTextFileName(lang, version) {
             return "localTexts/" + lang + "." + version + ".properties";
         }
-        function getTextsLoadPromise(lang) {
-            function loadDefaultTexts() {
-                $http({
-                    url: appDefaultPath,
-                    cache: !0
-                }).success(function(texts) {
-                    deferred.resolve({
-                        data: texts
-                    });
-                });
-            }
-            var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
-            return addToDebug("Loaded texts:" + GlobalConfig.loadedTextsVersion + ", settingTexts:" + textsVersion), 
-            GlobalConfig.loadedTextsVersion == textsVersion ? loadDefaultTexts() : loadLocalData(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
-                null != loadedTexts ? (addToDebug("loaded local texts for " + textsVersion), GlobalConfig.loadedTextsVersion = textsVersion, 
-                deferred.resolve({
-                    data: loadedTexts
-                })) : (displayFailure("local texts not found, using default "), loadDefaultTexts());
-            }, function() {
-                displayFailure("failed to read local texts, using default "), loadDefaultTexts();
-            }), deferred.promise;
-        }
+        function getTextsLoadPromise(lang){			
+			var appDefaultPath = "texts/texts."+lang+".properties"
+			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
+			var deferred = $q.defer();
+			
+			function loadDefaultTexts(){
+				$http({url:appDefaultPath, cache:true}).success(function(texts){
+					deferred.resolve({data:texts});
+				});
+			}
+			
+			
+			addToDebug("Loaded texts:"+GlobalConfig.loadedTextsVersion + ", settingTexts:" + textsVersion);
+			
+			if (GlobalConfig.loadedTextsVersion == textsVersion){
+				loadDefaultTexts(); 
+			} else {				
+				loadLocalData(getLocalTextFileName(lang,textsVersion),function(loadedTexts){
+					if (loadedTexts!=null){
+						addToDebug("loaded local texts for "+textsVersion+" in lang "+lang+". data length:"+loadedTexts.length);
+						GlobalConfig.loadedTextsVersion = textsVersion;
+						deferred.resolve({data:loadedTexts});
+					} else {
+						displayFailure("local texts not found, using default ");
+						loadDefaultTexts();						
+					}
+				},function(){
+					displayFailure("failed to read local texts, using default ");
+					loadDefaultTexts();
+				});				
+			}
+			return deferred.promise;
+		}
         function handleUpdateFailure(message) {
             displayFailure(message), BidspiritLoader.reset(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
             LocalStorageService.store("updateFailCounter", updateFailCounter + 1);
@@ -18674,16 +18865,58 @@ define("portal/js/modules/info/infoScenesModule", [ "angular" ], function(ng) {
     return ng.module("app.info", [ "app.info.contact", "app.info.product", "app.info.about", "app.info.helpScreen" ]);
 }), define("portal/js/modules/info/contact/contactModule", [ "angular" ], function(ng) {
     return ng.module("app.info.contact", []);
-}), define("portal/js/modules/info/contact/contactController", [ "./contactModule" ], function(module) {
-    module.controller("ContactController", [ "$rootScope", "$scope", "$state", "PortalInfoService", function($rootScope, $scope, $state, PortalInfoService) {
-        $scope.contact = {}, $scope.send = function() {
-            return $scope.contact.lang = $rootScope.currentLang, PortalInfoService.sendContactRequest($scope.contact).success(function() {
-                $state.go(".thanks"), window.scroll(0, 0);
-            });
-        }, $scope.gotoAuctionHouses = function() {
-            $state.go("app.houses");
-        };
-    } ]);
+}),
+define("portal/js/modules/info/contact/contactController", [ "./contactModule" ], function(module) {
+module.controller('ContactController', [
+                                             '$rootScope', '$scope', '$state', 'PortalInfoService', 'SettingsService','I18nService',
+                                             function ( $rootScope,   $scope,   $state,   PortalInfoService,   SettingsService,  I18nService) {
+                                                   
+                                                $scope.contact = {};
+                                             
+                                                $scope.send = function(){
+                                              	  $scope.contact.lang = $rootScope.currentLang; 
+                                              	  return PortalInfoService.sendContactRequest($scope.contact).success(function(){
+                                              		  $state.go(".thanks");
+                                              		  window.scroll(0,0);
+                                              	  });
+                                                };
+                                                
+                                                $scope.gotoAuctionHouses = function(){
+                                              	  $state.go("app.houses");
+                                                }
+                                                
+                                                $scope.sendDebugInfo = function(){
+                                              	  var message = $scope.contact.message;        	  
+                                              	  $scope.contact.lang = $rootScope.currentLang; 
+                                              	  if (isDebugCode(message)){        		  
+                                              		  PortalInfoService.sendContactRequest({message:getDebugMessage(message),lang:"en"}).success(function(){
+                                              			  $scope.contact.message = "Thanks.";
+                                                  	  });
+                                              		  return true;
+                                              	  } else {
+                                              		  return false;
+                                              	  }
+                                                }
+                                                
+                                                function isDebugCode(message){
+                                              	  return message.length==2 && message.indexOf("d") == 0;
+                                                }
+                                                
+                                                
+                                                getDebugMessage = function(debugCode){
+                                              	  switch (debugCode){
+                                              	  case "d1":return JSON.stringify({
+                                          			  settings:SettingsService.getAll(),
+                                          			  i18nDebug:I18nService.getDebugInfo(),
+                                          			  rootDebug:$rootScope.debugMessage
+                                              	  }, null, 2);
+                                              	  default:return "Unknown debug code :"+debugCode;
+                                              	  }
+                                                }
+                                                
+                                                
+                                                           
+                                          }]);
 }), define("portal/js/modules/info/contact/index", [ "./contactModule", "./contactController" ], function() {}), 
 define("portal/js/modules/info/product/productModule", [ "angular" ], function(ng) {
     return ng.module("app.info.product", []);
@@ -21878,7 +22111,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
         $templateCache.put("/common/templates/dialogs/confirm.html?0.655", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{(dialogData.title || "dialogs_confirm_title") | i18n}}</div>  </div>  <div class="modal-body">{{dialogData.message | i18n:dialogData.params}}</div>  <div class="modal-footer"> <button class="btn btn-danger" ng-click="ok()">{{(dialogData.ok || "dialogs_ok") | i18n}}</button> <button class="btn btn-warning" ng-click="close()">{{(dialogData.cancel || "dialogs_cancel") | i18n}}</button> </div> </div>  '), 
         $templateCache.put("/common/templates/elements/pagination.html?0.655", '<div class="bs-pagination" dir="ltr">  <a class="link" ng-repeat="link in links" ng-href="{{baseHref && link.page && !link.isCurrent ? baseHref+link.page : \'\'}}"  ng-click="onLinkClick(link)" ng-bind-html="link.html" ng-class="{ current:link.isCurrent, disabled:!link.page, enabled:link.page && !link.isCurrent, needsclick:link.isPrev || link.isNext,  prev:link.isPrev,  next:link.isNext}"> </a>   </div>   '), 
         $templateCache.put("/portal/templates/info/allFutureAuctions.html?0.655", '<div class="all-future-auctions"> <table class="table table-striped default-align" bs-text-direction> <tr> <th>{{"future_auction_house" | i18n}}</th> <th>{{"future_auction_time" | i18n}}</th> <th>{{"future_auction_name" | i18n}}</th> </tr> <tr ng-repeat="auction in options.data.auctions"> <td>{{auction.house.details.name | langField}}</td> <td>{{auction| auctionTime}}</td> <td>{{auction.name | langField}}</td> </tr>  </table> </div>  '), 
-        $templateCache.put("/portal/templates/info/contact.html?0.655", '<div  class="contact scene" ng-controller="ContactController" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1>{{\'link_contact\' | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{\'contact_message_line_1\' | i18n}}</h4> <h4 class="message-line">{{\'contact_message_line_2\' | i18n}}</h4>  <bs-linkable-text class="sell-message" options="{ textKey:\'contact_message_sell\',  onLinkClick:gotoAuctionHouses }" > </bs-linkable-text> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" > <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="$state.current.name!=\'app.contact.thanks\'"> <div class="row"> <bs-form-group field-name="name" label="user_details_name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="user_details_email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="user_details_phone" css-class="col-md-5  col-xs-11 float"> <label></label> <input dir="ltr"   name="phone" class="form-control" ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="user_details_country" css-class="col-md-5 col-xs-11 float"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>   </div> <div class="row">  <bs-form-group field-name="message" label="contact_message_body" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="contactForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>   </div> </form> <div class="thanks .container animate-show" ng-show="$state.current.name==\'app.contact.thanks\'"> {{"contact_thanks" | i18n }} </div> </div>  <div class="direct-contact"> <div class="text" ng-bind-html=\'"contact_direct" | i18n:{phone:BidspiritInfo.phoneLink, email:BidspiritInfo.emailLink}\'>  </div> </div> </div> '), 
+        $templateCache.put("/portal/templates/info/contact.html?0.655", '<div  class="contact scene" ng-controller="ContactController" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1>{{\'link_contact\' | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{\'contact_message_line_1\' | i18n}}</h4> <h4 class="message-line">{{\'contact_message_line_2\' | i18n}}</h4>  <bs-linkable-text class="sell-message" options="{ textKey:\'contact_message_sell\',  onLinkClick:gotoAuctionHouses }" > </bs-linkable-text> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" > <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="$state.current.name!=\'app.contact.thanks\'"> <div class="row"> <bs-form-group field-name="name" label="user_details_name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="user_details_email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="user_details_phone" css-class="col-md-5  col-xs-11 float"> <label></label> <input dir="ltr"   name="phone" class="form-control" ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="user_details_country" css-class="col-md-5 col-xs-11 float"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>   </div> <div class="row">  <bs-form-group field-name="message" label="contact_message_body" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="sendDebugInfo() || contactForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>   </div> </form> <div class="thanks .container animate-show" ng-show="$state.current.name==\'app.contact.thanks\'"> {{"contact_thanks" | i18n }} </div> </div>  <div class="direct-contact"> <div class="text" ng-bind-html=\'"contact_direct" | i18n:{phone:BidspiritInfo.phoneLink, email:BidspiritInfo.emailLink}\'>  </div> </div> </div> '), 
         $templateCache.put("/portal/templates/info/product/productMain.html?0.655", '<div ng-controller="ProductController" bs-scroll-to-top> <div class="product scene"> <div class="upper-part">  <div class="dark overlay"> </div> </div>  <div class="main center-block "> <h1 class="center-block col-md-5 col-xs-12" ng-bind-html="mainFeature.title | langField"></h1>  <div class="short-separator"></div> <div class="image center-block  col-md-7 col-xs-12" ng-if="mainFeature.resources!=null" bs-cloudinary-bg="{{mainFeature.resources[\'productsPagePic\']}}"  >  </div> <div class="info center-block  col-md-9 col-lg-7 col-xs-12" ng-bind-html="mainFeature.info | langField">  </div> <div class="orange contact-us common-button center-block center-block"  ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div> </div>  <div class="features"> <h3 class="section-title">{{\'product_features\' | i18n}}</h3> <div class="short-separator"></div> <div ng-include src="\'info/product/productFeatures\' | appTemplate"></div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div>  <div class="contact"> <div class="container col-lg-4 col-md-5 col-sm-6 col xs-10 center-block"> <h3 class="caption">{{\'product_contact_caption\' | i18n}}</h3> <div class="short-separator"></div> <div class="message-line">{{\'product_contact\' | i18n}}</div> <div class="orange contact-us common-button center-block" ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div> </div>  </div> </div>  </div> '), 
         $templateCache.put("/portal/templates/info/product/productFeatures.html?0.655", '<div class="list container-fluid"> <div class="row"> <div class="item col-md-3 col-xs-10"  ng-repeat="feature in features" ng-if  = "feature.code!=\'main\'"> <div class="frame" ng-class="[feature.code,currentLang]"> <div class="image"  bs-cloudinary-bg="{{feature.resources[\'productsPagePic\']}}"  params=" {imageMode:\'fill\',size:\'360x226\'} ">  </div>  <div class="texts"> <h2 class="caption"> {{feature.title | langField}} </h2>   <div class="short-separator"></div> <div class="info" ng-bind-html="feature.info | langField"> </div>  </div> <div ng-if="feature.code==\'bidder\'"> <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> </div>  <div ng-if="feature.code==\'virtualAuctioneer\' && !isMobile">  <div class="orange  common-button center-block" ng-click="showDemo(\'virtualAuctioneer\')" >  <div class="text"> {{\'product_demo_virtual_auctioneer\' | i18n}}  </div> </div> </div>  </div>  </div> </div>  </div> '), 
         $templateCache.put("/portal/templates/info/helpScreen.html?0.655", '<div class="help-screen scene" ng-controller="HelpScreensController" bs-scroll-to-top> <div class="content container">  <div class="float texts"> <h2 class="caption"> {{helpScreen.title | langField}} </h2> <div class="info" ng-bind-html="helpScreen.info | langField">  </div>  <div ng-switch="helpScreen.code"> <div ng-switch-when="live">  <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> <div class="clearfix"></div> </div> <div ng-switch-when="bids"> <div class="orange common-button center-block" ng-click="showRegistration()" ng-if="!currentUser">  <div class="text"> {{\'help_register\' | i18n}}  </div> </div>  </div> <div ng-switch-when="search"> <form name=\'searchForm\' novalidate bs-form  bs-submit="gotoSearch()" class="global-search-form center-block" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" ng-model="data.searchToken" bs-enter-key-action="gotoSearch()"/> </bs-form-group> <div class="button" ng-click="gotoSearch()"></div> <div class="clearfix"></div> </form> </div> </div> </div>   <div class="opposite float screenshot" bs-cloudinary-bg="{{sceenshot}}"></div> <div class="clearfix"></div> <div class="btn home btn-link center-block" ui-sref="app.home"> {{"home_back_to" | i18n }} </div> </div>   </div> '), 
