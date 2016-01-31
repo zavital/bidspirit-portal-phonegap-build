@@ -2160,7 +2160,8 @@ window.BidspiritLoader = {
 		}},
 		
 		
-		loadFileSystem:function(onSuccess, onFail){with (BidspiritLoader){			
+		loadFileSystem:function(onSuccess, onFail){with (BidspiritLoader){	
+			alert(cordova.file.dataDirectory);
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,function(fs){
 				addDebugInfo("got fs");
 				mFileSystem = fs;
