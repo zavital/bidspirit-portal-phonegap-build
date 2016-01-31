@@ -2370,7 +2370,8 @@ window.BidspiritLoader = {
 									 var versions = data.split(",");
 									 var mobileAppVersion = versions[0];
 									 var portalAppVersion = versions[1];
-									 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
+									 var envName = versions[2];
+									 if (GlobalConfig.envName != envName || GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
 										 addDebugInfo("new mobile version found");
 										 reset(function(){
 											 delete localStorage.contentEmbedFailures;
