@@ -17011,7 +17011,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         function updateLocalTextsInAllLangs(newTextsVersion) {
             addToDebug("updating texts to " + newTextsVersion);
             var langs = SettingsService.get("languages"), deferred = $q.defer();
-            return BidspiritLoader.getDirectory("localTexts", function() {
+            return BidspiritLoader.getDirectoryEntry("localTexts", function() {
                 for (var promises = [], i = 0; i < langs.length; i++) promises.push(storeLocalTexts(langs[i], newTextsVersion));
                 return $q.all(promises).then(function() {
                     removeOldLocalTexts(newTextsVersion), deferred.resolve();
@@ -17099,7 +17099,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                     addToDebug("getting content from url " + contentUrl), $http.get(contentUrl).success(function(data) {
                         addToDebug("got data of length" + data.length + ", ..." + data.substr(data.length - 100)), 
                         data.length > 1e5 ? BidspiritLoader.writeToFile("app/content." + appVersion, data + ";\nBidspiritLoader.localContentLoaded=true;", function() {
-                            addToDebug("content saved"), BidspiritLoader.getDirectory("app", function(baseDir) {
+                            addToDebug("content saved"), BidspiritLoader.getDirectoryEntry("app", function(baseDir) {
                                 removeDirectoryFilesOfDiffrentVersion(baseDir, appVersion).then(function() {
                                     BidspiritLoader.writeToFile("app/data", GlobalConfig.mobileAppVersion + "," + appVersion + "," + GlobalConfig.envName, function() {
                                         addToDebug("data file saved"), LocalStorageService.store("updateFailCounter", 0), 
