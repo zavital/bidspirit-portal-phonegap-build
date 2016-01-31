@@ -17185,11 +17185,12 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 		function getDebugInfoForDirectoryEntry(dirEntry){
 			var deferred = $q.defer();
 			var debugInfo = {};
-			var subPromises = [];			
+				
 			try {
 				$rootScope.debug("getDebugInfoForDirectoryEntry "+dirEntry.name);
 				dirEntry.readEntries(function(entries){
 					$rootScope.debug(entries.length+" entries");
+					var subPromises = [];		
 					for (var i=0;i<entries.length;i++){
 						var entry = entries[i];
 						try {
@@ -17204,18 +17205,18 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 							}
 						} catch (e){
 							deferred.resolve({error:"Exception getting debugInfo for sub entry "+entry.name+" of directory "+dirEntry.name+": "+e});
-						}
-						return $q.all(subPromises).then(function(){
-							deferred.resolve(debugInfo);
-						});		
+						}		
 					}
+					$q.all(subPromises).then(function(){
+						deferred.resolve(debugInfo);
+					});
 				},function(error){
 					deferred.resolve({error:"error while reading entries for directory "+entry.name+": "+error});
 				});
 			} catch (e){
 				deferred.resolve({error:"Exception getting debugInfo for  directory "+dirEntry.name+": "+e});
 			}
-				
+			return deferred.promise;	
 		}
 		
 		
