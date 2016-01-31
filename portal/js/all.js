@@ -17188,7 +17188,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				
 			try {
 				$rootScope.debug("getDebugInfoForDirectoryEntry "+dirEntry.name);
-				dirEntry.readEntries(function(entries){
+				dirEntry.createReader().readEntries(function(entries){
 					$rootScope.debug(entries.length+" entries");
 					var subPromises = [];		
 					for (var i=0;i<entries.length;i++){
