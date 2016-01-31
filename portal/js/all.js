@@ -17199,9 +17199,9 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 									debugInfo[entry.name] = dirDebugInfo;
 								}));
 							} else {
-								subPromises.push(getDebugInfoForFileEntry(entry)).then(function(fileDebugInfo){
+								subPromises.push(getDebugInfoForFileEntry(entry).then(function(fileDebugInfo){
 									debugInfo[entry.name] = fileDebugInfo;
-								});
+								}));
 							}
 						} catch (e){
 							deferred.resolve({error:"Exception getting debugInfo for sub entry "+entry.name+" of directory "+dirEntry.name+": "+e});
