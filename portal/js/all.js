@@ -17158,60 +17158,77 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                 handleUpdateFailure("failed to get theme from url " + styleUrl);
             });
         }
-        function getDebugInfo() {
-            var deferred = $q.defer();
-            if (GlobalConfig.isMobileApp) try {
-                BidspiritLoader.getBaseDirEntry(function(baseDir) {
-                    getDebugInfoForDirectoryEntry(baseDir).then(function(debugInfo) {
-                        BidspiritLoader.readFile("data", function(data) {
-                            debugInfo.dataFileContent = data, deferred.resolve(debugInfo);
-                        }, function(error) {
-                            debugInfo.dataFileContent = "Error while reading data file content: " + error, deferred.resolve(debugInfo);
-                        });
-                    });
-                });
-            } catch (e) {
-                deferred.resolve("Error while getting mobile app debug info: " + e);
-            } else deferred.resolve(null);
-            return deferred.promise;
-        }
-        function getDebugInfoForDirectoryEntry(dirEntry) {
-            var deferred = $q.defer(), debugInfo = {}, subPromises = [];
-            try {
-                dirEntry.readEntries(function(entries) {
-                    for (var i = 0; i < entries.length; i++) {
-                        var entry = entries[i];
-                        try {
-                            entry.name.length > 2 && entry.isDirectory ? subPromises.push(getDebugInfoForDirectoryEntry(entry).then(function(entryDebugInfo) {
-                                debugInfo[entry.name] = entryDebugInfo;
-                            })) : waitingPromises.push(getDebugInfoForFileEntry(entry));
-                        } catch (e) {
-                            deferred.resolve("Exception getting debugInfo for sub entry " + entry.name + " of directory " + dirEntry.name + ": " + error);
-                        }
-                    }
-                }, function(error) {
-                    deferred.resolve("error while reading entries for directory " + entry.name + ": " + error);
-                });
-            } catch (e) {
-                deferred.resolve("Exception getting debugInfo for  directory " + dirEntry.name + ": " + error);
-            }
-            return $q.all(subPromises).then(function() {
-                deferred.resolve(debugInfo);
-            });
-        }
-        function getDebugInfoForFileEntry() {
-            var deferred = $q.defer();
-            try {
-                entry.getMetadata(function(metaData) {
-                    deferred.resolve(metaData);
-                }, function(error) {
-                    deferred.resolve("Error while getting meta data: " + error);
-                });
-            } catch (e) {
-                deferred.resolve("Exception while getting file debug info: " + e);
-            }
-            return deferred.promise;
-        }
+        function getDebugInfo(){
+			var deferred = $q.defer();
+			if (GlobalConfig.isMobileApp){
+				try {
+					BidspiritLoader.getBaseDirEntry(function(baseDir){
+						getDebugInfoForDirectoryEntry(baseDir).then(function(debugInfo){
+							BidspiritLoader.readFile("data",function(data){
+								debugInfo.dataFileContent = data;
+								deferred.resolve(debugInfo);
+							},function(error){
+								debugInfo.dataFileContent = "Error while reading data file content: "+error;
+								deferred.resolve(debugInfo);
+							});
+						});
+					});
+				} catch (e){
+					deferred.resolve("Error while getting mobile app debug info: "+e);
+				}
+			} else {
+				deferred.resolve(null);
+			}
+			return deferred.promise;
+		}
+		
+		function getDebugInfoForDirectoryEntry(dirEntry){
+			var deferred = $q.defer();
+			var debugInfo = {};
+			var subPromises = [];
+			try {
+				dirEntry.readEntries(function(entries){
+					for (var i=0;i<entries.length;i++){
+						var entry = entries[i];
+						try {
+							if (entry.name.length>2 && entry.isDirectory){
+								subPromises.push(getDebugInfoForDirectoryEntry(entry).then(function(entryDebugInfo){
+									debugInfo[entry.name] = entryDebugInfo;
+								}));
+							} else {
+								waitingPromises.push(getDebugInfoForFileEntry(entry));
+							}
+						} catch (e){
+							deferred.resolve("Exception getting debugInfo for sub entry "+entry.name+" of directory "+dirEntry.name+": "+e);
+						}
+					}
+				},function(error){
+					deferred.resolve("error while reading entries for directory "+entry.name+": "+error);
+				});
+			} catch (e){
+				deferred.resolve("Exception getting debugInfo for  directory "+dirEntry.name+": "+error);
+			}
+			return $q.all(subPromises).then(function(){
+				deferred.resolve(debugInfo);
+			});			
+		}
+		
+		
+		function getDebugInfoForFileEntry(fileEntry){			
+			var deferred = $q.defer();
+			try {
+				entry.getMetadata(function(metaData){
+					deferred.resolve(metaData);
+				},function(error){
+					deferred.resolve("Error while getting meta data: "+error);
+				});
+			} catch (e){
+				deferred.resolve("Exception while getting file debug info: "+e);
+			}
+			return deferred.promise;
+	
+		}
+		
         return {
             updateBidspiritDataAndTheme: updateBidspiritDataAndTheme,
             loadLocalData: loadLocalData,
