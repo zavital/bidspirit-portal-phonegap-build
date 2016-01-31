@@ -2099,7 +2099,7 @@ var requirejs, require, define;
 	
 window.BidspiritLoader = {
 		
-		FILES_BASE:GlobalConfig.envName+"_files",		
+		FILES_BASE:"bidspirit_"+GlobalConfig.envName+"_files",		
 		mFileSystem:null,
 		mDebugInfo:"",
 		mErrorInfo:"",
@@ -2225,6 +2225,10 @@ window.BidspiritLoader = {
 
 		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){
 			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, onSuccess, onFail);
+		}},
+		
+		getDirectoryEntry:function(directory, onSuccess,onFail){with (BidspiritLoader){
+			mFileSystem.root.getDirectory(FILES_BASE+"/"+directory, {create: true, exclusive: false}, onSuccess, onFail);
 		}},
 		
 		reset:function(onSuccess,onFail){with (BidspiritLoader){
