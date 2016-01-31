@@ -2099,7 +2099,7 @@ var requirejs, require, define;
 	
 window.BidspiritLoader = {
 		
-		FILES_BASE:"files",
+		FILES_BASE:GlobalConfig.envName+"_files",		
 		mFileSystem:null,
 		mDebugInfo:"",
 		mErrorInfo:"",
@@ -2146,9 +2146,14 @@ window.BidspiritLoader = {
 			}
 		}},
 		
+		
 		initFilesBase:function(onSuccess, onFail){with (BidspiritLoader){
 			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(){
-				handleSuccess(onSuccess,"files base created");
+				getDirectory("app", {create: true, exclusive: false}, function(){
+					handleSuccess(onSuccess,"files base created")
+				}, function(e){
+					handleError(e, onFail, "failed to create files base subdir app");
+		        });
 			}, function(e){
 				handleError(e, onFail, "failed to create files base");
 	        });
@@ -2164,6 +2169,7 @@ window.BidspiritLoader = {
 				handleError(e, onFail, "file system error");
 	        });
 		}},
+		
 		
 		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
 			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
@@ -2364,14 +2370,13 @@ window.BidspiritLoader = {
 						 /*testNotifications();
 						 return;*/
 						 loadFileSystem(function(localUrl){
-							 readFile("data",function(data){
+							 readFile("app/data",function(data){
 								 addDebugInfo("got data "+data);
 								 if (data){
 									 var versions = data.split(",");
 									 var mobileAppVersion = versions[0];
-									 var portalAppVersion = versions[1];
-									 var envName = versions[2];
-									 if (GlobalConfig.envName != envName || GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
+									 var portalAppVersion = versions[1];									 
+									 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
 										 addDebugInfo("new mobile version found");
 										 reset(function(){
 											 delete localStorage.contentEmbedFailures;
@@ -2380,7 +2385,7 @@ window.BidspiritLoader = {
 											 defaultLoadOnError("failed to reset");
 										 });
 									 } else {
-										 getFileEntry("content."+portalAppVersion,{create: false, exclusive: false}, function(content){
+										 getFileEntry("app/content."+portalAppVersion,{create: false, exclusive: false}, function(content){
 											 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
 											 addDebugInfo("loading content from "+content.toURL());
 											 mNode.src = content.toURL();
