@@ -2230,8 +2230,7 @@ window.BidspiritLoader = {
 				baseDir.getDirectory(directory, {create: true, exclusive: false}, onSuccess, onFail);
 			}, function(e, where){
 	        	handleError(e, onFail, "failed to get base directory while looking for directory "+directory, where);
-	        });	
-			
+	        });
 		}},
 		
 		reset:function(onSuccess,onFail){with (BidspiritLoader){
@@ -2298,37 +2297,41 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
-					 try {		
-						 readFile("app/data",function(data){
-							 addDebugInfo("got data "+data);
-							 if (data){
-								 var versions = data.split(",");
-								 var mobileAppVersion = versions[0];
-								 var portalAppVersion = versions[1];									 
-								 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
-									 addDebugInfo("new mobile version found");
-									 reset(function(){
-										 delete localStorage.contentEmbedFailures;
-										 defaultLoad();
-									 }, function(){
-										 defaultLoadOnError("failed to reset");
-									 });
+					 try {						 
+						 initFilesBase(function(){
+							 readFile("app/data",function(data){
+								 addDebugInfo("got data "+data);
+								 if (data){
+									 var versions = data.split(",");
+									 var mobileAppVersion = versions[0];
+									 var portalAppVersion = versions[1];									 
+									 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
+										 addDebugInfo("new mobile version found");
+										 reset(function(){
+											 delete localStorage.contentEmbedFailures;
+											 defaultLoad();
+										 }, function(){
+											 defaultLoadOnError("failed to reset");
+										 });
+									 } else {
+										 getFileEntry("app/content."+portalAppVersion,{create: false, exclusive: false}, function(content){
+											 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
+											 addDebugInfo("loading content from "+content.toURL());
+											 mNode.src = content.toURL();
+										 },function(){
+											 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
+										 });
+									 }
 								 } else {
-									 getFileEntry("app/content."+portalAppVersion,{create: false, exclusive: false}, function(content){
-										 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
-										 addDebugInfo("loading content from "+content.toURL());
-										 mNode.src = content.toURL();
-									 },function(){
-										 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
-									 });
+									 addDebugInfo("default load becuase no data found");
+									 defaultLoad();
 								 }
-							 } else {
-								 addDebugInfo("default load becuase no data found");
-								 defaultLoad();
-							 }
-						 },function(){								 
-							 defaultLoadOnError("failed to load data");
-						 });
+							 },function(){								 
+								 defaultLoadOnError("failed to load data");
+							 });
+						 }, function(){
+							 defaultLoadOnError("failed to get file system");
+						 }); 
 					} catch (e){
 						defaultLoadOnError("exception while init "+e.message);
 					}
