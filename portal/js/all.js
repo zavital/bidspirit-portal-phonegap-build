@@ -17206,7 +17206,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 					deferred.resolve("error while reading entries for directory "+entry.name+": "+error);
 				});
 			} catch (e){
-				deferred.resolve("Exception getting debugInfo for  directory "+dirEntry.name+": "+error);
+				deferred.resolve("Exception getting debugInfo for  directory "+dirEntry.name+": "+e);
 			}
 			return $q.all(subPromises).then(function(){
 				deferred.resolve(debugInfo);
