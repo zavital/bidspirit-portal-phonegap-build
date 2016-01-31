@@ -17211,7 +17211,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 						deferred.resolve(debugInfo);
 					});
 				},function(error){
-					deferred.resolve({error:"error while reading entries for directory "+entry.name+": "+error});
+					deferred.resolve({error:"error while reading entries for directory "+dirEntry.name+": "+error});
 				});
 			} catch (e){
 				deferred.resolve({error:"Exception getting debugInfo for  directory "+dirEntry.name+": "+e});
@@ -17224,7 +17224,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			var deferred = $q.defer();
 			try {
 				$rootScope.debug("getDebugInfoForFileEntry "+fileEntry.name);
-				entry.getMetadata(function(metaData){
+				fileEntry.getMetadata(function(metaData){
 					deferred.resolve(metaData);
 				},function(error){
 					deferred.resolve({error:"Error while getting meta data: "+error});
