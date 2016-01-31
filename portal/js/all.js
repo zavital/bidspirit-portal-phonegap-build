@@ -16987,218 +16987,162 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
     });
 }), define("common/js/modules/mobileApp/portalMobileUtils", [ "./mobileAppModule" ], function(module) {
     module.factory("PortalMobileUtils", function($rootScope, $http, $q, SettingsService, LocalStorageService, PathsService) {
-        function displayFailure(message) {
-            $rootScope.debug("Error:" + message), BidspiritLoader.addErrorInfo(message), BidspiritLoader.displayDebugIfDev();
-        }
-        function addToDebug(message) {
-            $rootScope.debug(message);
-        }
-        function storeLocalTexts(lang) {
-            var textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer(), fileName = getLocalTextFileName(lang, textsVersion), url = PathsService.getPortalTextsUrl(lang);
-            return addToDebug("loading lang from url " + url), $http({
-                url: url,
-                cache: !1
-            }).then(function(textsData) {
-                BidspiritLoader.writeToFile(fileName, textsData.data, function() {
-                    addToDebug("stored at " + fileName), deferred.resolve();
-                }, function(error) {
-                    deferred.reject("failed to save file " + fileName + "," + JSON.stringify(error));
-                });
-            }, function(e) {
-                deferred.reject("failed to load updated texts. " + JSON.stringify(e));
-            }), deferred.promise;
-        }
-        function updateLocalTextsInAllLangs(newTextsVersion) {
-            addToDebug("updating texts to " + newTextsVersion);
-            var langs = SettingsService.get("languages"), deferred = $q.defer();
-            return BidspiritLoader.mFileSystem.root.getDirectory(BidspiritLoader.FILES_BASE + "/localTexts", {
-                create: !0,
-                exclusive: !1
-            }, function() {
-                for (var promises = [], i = 0; i < langs.length; i++) promises.push(storeLocalTexts(langs[i], newTextsVersion));
-                return $q.all(promises).then(function() {
-                    removeOldLocalTexts(newTextsVersion), deferred.resolve();
-                }, function(error) {
-                    displayFailure("error while storing local texts:" + error), deferred.reject();
-                });
-            }, function() {
-                displayFailure("failed to get local text directory"), deferred.reject();
-            }), deferred.promise;
-        }
-        function removeOldLocalTexts(currentTextsVersion) {
-            BidspiritLoader.mFileSystem.root.getDirectory(BidspiritLoader.FILES_BASE + "/localTexts", {
-                create: !0,
-                exclusive: !1
-            }, function(directoryEntry) {
-                removeDirectoryFilesOfDiffrentVersion(directoryEntry, currentTextsVersion);
-            });
-        }
-        function getLocalTextFileName(lang, version) {
-            return "localTexts/" + lang + "." + version + ".properties";
-        }
-        function getTextsLoadPromise(lang) {
-            function loadDefaultTexts() {
-                $http({
-                    url: appDefaultPath,
-                    cache: !0
-                }).success(function(texts) {
-                    deferred.resolve({
-                        data: texts
-                    });
-                });
-            }
-            var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
-            return addToDebug("Loaded texts:" + GlobalConfig.loadedTextsVersion + ", settingTexts:" + textsVersion), 
-            GlobalConfig.loadedTextsVersion == textsVersion ? loadDefaultTexts() : BidspiritLoader.readFile(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
-                null != loadedTexts ? (addToDebug("loaded local texts for " + textsVersion + " in lang " + lang + ". data length:" + loadedTexts.length), 
-                loadedTexts.length > 1e4 ? (GlobalConfig.loadedTextsVersion = textsVersion, deferred.resolve({
-                    data: loadedTexts
-                })) : (displayFailure("Text file probably corrupted... Texts too short (" + loadedTexts.length + "), using default"), 
-                removeOldLocalTexts("none"), loadDefaultTexts())) : (displayFailure("local texts not found, using default "), 
-                loadDefaultTexts());
-            }, function() {
-                displayFailure("failed to read local texts, using default "), loadDefaultTexts();
-            }), deferred.promise;
-        }
-        function handleUpdateFailure(message) {
-            displayFailure(message), BidspiritLoader.reset(), updateFailCounter = LocalStorageService.load("updateFailCounter") || 0, 
-            LocalStorageService.store("updateFailCounter", updateFailCounter + 1);
-        }
-        function removeDirectoryFilesOfDiffrentVersion(dirEntry, version) {
-            var deferred = $q.defer();
-            return addToDebug("removing files directory " + dirEntry.name + " with version different than " + version), 
-            dirEntry.createReader().readEntries(function(entries) {
-                for (var removePromises = [], i = 0; i < entries.length; i++) {
-                    var entry = entries[i], isOfNewVersion = -1 != entry.name.indexOf("." + version);
-                    isOfNewVersion || !function(_entry) {
-                        var removeDefered = $q.defer();
-                        addToDebug("removing " + _entry.name), entry.remove(function() {
-                            addToDebug("removed " + _entry.name), removeDefered.resolve();
-                        }, function() {
-                            removeDefered.reject("failed to removed " + _entry.name);
-                        }), removePromises.push(removeDefered.promise);
-                    }(entry);
-                }
-                $q.all(removePromises).then(function() {
-                    deferred.resolve();
-                }, function(error) {
-                    deferred.reject(error);
-                });
-            }, function() {
-                addToDebug("remove old version files - failed to read entries for entry " + dirEntry.name), 
-                deferred.reject();
-            }), deferred.promise;
-        }
-        function updateBidspiritDataAndTheme(appVersion) {
-            addToDebug("updating version to " + appVersion);
-            var contentUrl, styleUrl;
-            GlobalConfig.devMode ? (contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion, 
-            styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion) : (contentUrl = "https:" + SettingsService.get("staticFileBase") + "/portal/js/all.js?v=" + appVersion, 
-            styleUrl = "https:" + SettingsService.get("staticFileBase") + "/portal/styles/style.css?v=" + appVersion), 
-            addToDebug("loading theme from url:" + styleUrl), $http.get(styleUrl).success(function(themeData) {
-                addToDebug("got theme " + themeData.length + " ..." + themeData.substr(themeData.length - 100)), 
-                themeData.length > 1e5 && themeData.match("}$") ? (addToDebug("storing theme..."), 
-                BidspiritLoader.writeToFile("app/theme." + appVersion, themeData, function() {
-                    addToDebug("getting content from url " + contentUrl), $http.get(contentUrl).success(function(data) {
-                        addToDebug("got data of length" + data.length + ", ..." + data.substr(data.length - 100)), 
-                        data.length > 1e5 ? BidspiritLoader.writeToFile("app/content." + appVersion, data + ";\nBidspiritLoader.localContentLoaded=true;", function() {
-                            addToDebug("content saved"), BidspiritLoader.getBaseDirEntry(function(baseDir) {
-                                removeDirectoryFilesOfDiffrentVersion(baseDir, appVersion).then(function() {
-                                    BidspiritLoader.writeToFile("app/data", GlobalConfig.mobileAppVersion + "," + appVersion + "," + GlobalConfig.envName, function() {
-                                        addToDebug("data file saved"), LocalStorageService.store("updateFailCounter", 0), 
-                                        GlobalConfig.devMode && alert("update data done. reloading..."), window.location.reload();
-                                    }, function() {
-                                        handleUpdateFailure("failed to write versions data");
-                                    });
-                                }, function() {
-                                    handleUpdateFailure("failed to clear old file");
-                                });
-                            }, function() {
-                                handleUpdateFailure("failed to write content");
-                            });
-                        }, function() {
-                            handleUpdateFailure("failed to write content");
-                        }) : handleUpdateFailure("bad content. length:" + data.length + ", ..." + data.substr(data.length - 100));
-                    }).error(function(error) {
-                        handleUpdateFailure("failed to get content from url " + contentUrl + ", " + JSON.stringify(error).substr(0, 50) + "...");
-                    });
-                }, function() {
-                    handleUpdateFailure("failed to get store theme");
-                })) : handleUpdateFailure("bad theme data from url " + styleUrl + ": length:" + themeData.length + " ..." + themeData.substr(themeData.length - 100));
-            }).error(function() {
-                handleUpdateFailure("failed to get theme from url " + styleUrl);
-            });
-        }
-        function getDebugInfo() {
-            var deferred = $q.defer();
-            if (GlobalConfig.isMobileApp) try {
-                BidspiritLoader.getBaseDirEntry(function(baseDir) {
-                    getDebugInfoForDirectoryEntry(baseDir).then(function(debugInfo) {
-                        BidspiritLoader.readFile("data", function(data) {
-                            debugInfo.dataFileContent = data, debugInfo.loaderDebugInfo = BidspiritLoader.mDebugInfo.split("\n"), 
-                            deferred.resolve(debugInfo);
-                        }, function(error) {
-                            debugInfo.dataFileContent = "Error while reading data file content: " + error, deferred.resolve(debugInfo);
-                        });
-                    });
-                });
-            } catch (e) {
-                deferred.resolve({
-                    error: "Error while getting mobile app debug info: " + e
-                });
-            } else deferred.resolve(null);
-            return deferred.promise;
-        }
-        function getDebugInfoForDirectoryEntry(dirEntry) {
-            var deferred = $q.defer(), debugInfo = {};
-            try {
-                $rootScope.debug("getDebugInfoForDirectoryEntry " + dirEntry.name), dirEntry.createReader().readEntries(function(entries) {
-                    $rootScope.debug(entries.length + " entries");
-                    for (var subPromises = [], i = 0; i < entries.length; i++) !function(entry) {
-                        try {
-                            subPromises.push(entry.name.length > 2 && entry.isDirectory ? getDebugInfoForDirectoryEntry(entry).then(function(dirDebugInfo) {
-                                debugInfo[entry.name] = dirDebugInfo;
-                            }) : getDebugInfoForFileEntry(entry).then(function(fileDebugInfo) {
-                                debugInfo[entry.name] = fileDebugInfo;
-                            }));
-                        } catch (e) {
-                            deferred.resolve({
-                                error: "Exception getting debugInfo for sub entry " + entry.name + " of directory " + dirEntry.name + ": " + e
-                            });
-                        }
-                    }(entries[i]);
-                    $q.all(subPromises).then(function() {
-                        deferred.resolve(debugInfo);
-                    });
-                }, function(error) {
-                    deferred.resolve({
-                        error: "error while reading entries for directory " + dirEntry.name + ": " + error
-                    });
-                });
-            } catch (e) {
-                deferred.resolve({
-                    error: "Exception getting debugInfo for  directory " + dirEntry.name + ": " + e
-                });
-            }
-            return deferred.promise;
-        }
-        function getDebugInfoForFileEntry(fileEntry) {
-            var deferred = $q.defer();
-            try {
-                $rootScope.debug("getDebugInfoForFileEntry " + fileEntry.name), fileEntry.getMetadata(function(metaData) {
-                    deferred.resolve(metaData);
-                }, function(error) {
-                    deferred.resolve({
-                        error: "Error while getting meta data: " + error
-                    });
-                });
-            } catch (e) {
-                deferred.resolve({
-                    error: "Exception while getting file debug info: " + e
-                });
-            }
-            return deferred.promise;
-        }
+    	function displayFailure(message){
+			$rootScope.debug("Error:"+message);
+			BidspiritLoader.addErrorInfo(message);
+			BidspiritLoader.displayDebugIfDev();
+		}
+		
+		function addToDebug(message){
+			$rootScope.debug(message);
+		}
+		
+		
+		
+		function storeLocalTexts(lang){
+			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
+			var deferred = $q.defer();
+			var fileName = getLocalTextFileName(lang,textsVersion);
+			var url = PathsService.getPortalTextsUrl(lang);
+			addToDebug("loading lang from url "+url);
+			$http({url:url, cache:false}).then(function(textsData){
+				BidspiritLoader.writeToFile(fileName, textsData.data, function(){
+					addToDebug("stored at "+fileName);
+					deferred.resolve();
+				},function(error){					
+					deferred.reject("failed to save file "+fileName+","+JSON.stringify(error));
+				});
+			},function(e){
+				deferred.reject("failed to load updated texts. "+JSON.stringify(e));
+			});
+			return deferred.promise;
+		}
+		
+		
+		
+		function updateLocalTextsInAllLangs(newTextsVersion){
+			addToDebug("updating texts to "+newTextsVersion);
+			var langs = SettingsService.get('languages');
+			var deferred = $q.defer();
+			BidspiritLoader.getDirectory("localTexts", function(){
+				var promises = [];		
+				for (var i=0;i<langs.length;i++){
+					promises.push(storeLocalTexts(langs[i],newTextsVersion));
+				}
+				return $q.all(promises).then(function(){
+					removeOldLocalTexts(newTextsVersion);
+					deferred.resolve();
+				},function(error){
+					displayFailure("error while storing local texts:"+error);
+					deferred.reject();
+				});				
+			}, function(){
+				displayFailure("failed to get local text directory");
+				deferred.reject();
+			});	
+			return deferred.promise;
+		}
+		
+		
+			
+		
+		
+		function removeOldLocalTexts(currentTextsVersion){
+			BidspiritLoader.mFileSystem.root.getDirectory(BidspiritLoader.FILES_BASE+"/localTexts", {create: true, exclusive: false}, function(directoryEntry){
+				removeDirectoryFilesOfDiffrentVersion(directoryEntry,currentTextsVersion);
+			});
+		}
+		
+		
+		function getLocalTextFileName(lang,version){
+			return "localTexts/"+lang+"."+version+".properties";
+		}
+		
+		
+		function getTextsLoadPromise(lang){			
+			var appDefaultPath = "texts/texts."+lang+".properties"
+			var textsVersion = SettingsService.getAll().cacheVersions.TEXTS;
+			var deferred = $q.defer();
+			
+			function loadDefaultTexts(){
+				$http({url:appDefaultPath, cache:true}).success(function(texts){
+					deferred.resolve({data:texts});
+				});
+			}
+			
+			addToDebug("Loaded texts:"+GlobalConfig.loadedTextsVersion + ", settingTexts:" + textsVersion);
+			
+			if (GlobalConfig.loadedTextsVersion == textsVersion){
+				loadDefaultTexts(); 
+			} else {				
+				BidspiritLoader.readFile(getLocalTextFileName(lang,textsVersion),function(loadedTexts){
+					if (loadedTexts!=null){
+						addToDebug("loaded local texts for "+textsVersion+" in lang "+lang+". data length:"+loadedTexts.length);
+						if (loadedTexts.length>10000){
+							GlobalConfig.loadedTextsVersion = textsVersion;
+							deferred.resolve({data:loadedTexts});
+						} else {
+							displayFailure("Text file probably corrupted... Texts too short ("+loadedTexts.length+"), using default");
+							removeOldLocalTexts("none");
+							loadDefaultTexts();
+						}
+					} else {
+						displayFailure("local texts not found, using default ");
+						loadDefaultTexts();
+					}
+				},function(){
+					displayFailure("failed to read local texts, using default ");
+					loadDefaultTexts();
+				});				
+			}
+			return deferred.promise;
+		}
+		
+		
+		function handleUpdateFailure(message){
+			displayFailure(message);
+			BidspiritLoader.reset();
+			updateFailCounter =  LocalStorageService.load("updateFailCounter") || 0;
+			LocalStorageService.store("updateFailCounter",updateFailCounter*1+1);
+		}
+		
+		function removeDirectoryFilesOfDiffrentVersion(dirEntry, version){
+			var deferred = $q.defer();
+			addToDebug("removing files directory "+dirEntry.name+" with version different than "+version);
+			dirEntry.createReader().readEntries(function(entries){
+				var removePromises = [];
+				for (var i=0;i<entries.length;i++){
+					var entry = entries[i];
+					var isOfNewVersion = entry.name.indexOf("."+version)!=-1;
+					if (!isOfNewVersion){						
+						(function(_entry){
+							var removeDefered = $q.defer();
+							addToDebug("removing "+_entry.name);
+							entry.remove(
+								function(){
+									addToDebug("removed "+_entry.name);
+									removeDefered.resolve();
+								}, 
+								function(){
+									removeDefered.reject("failed to removed "+_entry.name);
+								}
+							);
+							removePromises.push(removeDefered.promise);
+						})(entry);
+					}
+				}
+				$q.all(removePromises).then(function(){
+					deferred.resolve();
+				}, function(error){
+					deferred.reject(error);
+				});
+			},function(){
+				addToDebug("remove old version files - failed to read entries for entry "+dirEntry.name);
+				deferred.reject();
+			});
+			return deferred.promise;
+		}
+		
         return {
             updateBidspiritDataAndTheme: updateBidspiritDataAndTheme,
             getTextsLoadPromise: getTextsLoadPromise,
