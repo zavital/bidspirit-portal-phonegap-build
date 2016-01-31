@@ -17162,17 +17162,16 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			var deferred = $q.defer();
 			if (GlobalConfig.isMobileApp){
 				try {
-					BidspiritLoader.getBaseDirEntry(function(baseDir){
-						getDebugInfoForDirectoryEntry(baseDir).then(function(debugInfo){
-							BidspiritLoader.readFile("data",function(data){
-								debugInfo.dataFileContent = data;
-								deferred.resolve(debugInfo);
-							},function(error){
-								debugInfo.dataFileContent = "Error while reading data file content: "+error;
-								deferred.resolve(debugInfo);
-							});
+					getDebugInfoForDirectoryEntry(BidspiritLoader.mFileSystem.root).then(function(debugInfo){
+						BidspiritLoader.readFile("data",function(data){
+							debugInfo.dataFileContent = data;
+							deferred.resolve(debugInfo);
+						},function(error){
+							debugInfo.dataFileContent = "Error while reading data file content: "+error;
+							deferred.resolve(debugInfo);
 						});
 					});
+					
 				} catch (e){
 					deferred.resolve({error:"Error while getting mobile app debug info: "+e});
 				}
