@@ -2250,82 +2250,7 @@ window.BidspiritLoader = {
 			}
 		}},
 		
-		testNotifications:function(){with (BidspiritLoader){
-			
-			/*var pushNotification = window.plugins.pushNotification;
-			window.plugins.uniqueDeviceID.get(function(uuid){alert("uuid:"+uuid)}, function(error){alert("error:"+error)});
-			pushNotification.register(
-					onRegistrationSuccess,
-					onRegistrationFailure,
-				    {
-				        "badge":"true",
-				        "sound":"true",
-				        "alert":"true",
-				        "senderID":"134828532141", 
-				        "ecb":"BidspiritLoader.onNotification"
-				    });	*/
-			
-			alert("testing notifcations...");
-			
-			mPush = PushNotification.init({ 
-				"android": {"senderID": "134828532141"},
-		         "ios": {
-		         		"vibration": "true", 
-		         		"badge": "true", 
-		         		"sound": "true",
-		         	    "categories": {
-		         	            "invite": {
-		         	                "yes": {
-		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Accept", "foreground": true, "destructive": false
-		         	                },
-		         	                "no": {
-		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Reject", "foreground": true, "destructive": false
-		         	                },
-		         	                "maybe": {
-		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Maybe", "foreground": true, "destructive": false
-		         	                }
-		         	            },
-		         	            "delete": {
-		         	                "yes": {
-		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Delete", "foreground": true, "destructive": true
-		         	                },
-		         	                "no": {
-		         	                    "callback": "BidspiritLoader.onCategoryCallback", "title": "Cancel", "foreground": true, "destructive": false
-		         	                }
-		         	            }
-		         	        }	
-		         }, 
-		         	"windows": {} } );
-			 mPush.on('registration',onRegistrationSuccess);
-			 mPush.on('notification',onNotification);
-			 mPush.on('error',onRegistrationFailure);
-			 alert("test startd.");
-		}},
-		
-		onRegistrationSuccess:function (event){with (BidspiritLoader){
-			alert("onRegistrationSuccess");
-			debugObject(event);
-		}},
-		
-		onCategoryCallback:function (event){with (BidspiritLoader){
-			alert("onCategoryCallback");
-			debugObject(event);
-		}},
-		
-		onRegistrationFailure:function (event){with (BidspiritLoader){
-			alert("onRegistrationFailure");
-			debugObject(event);
-		}},
-		
-		onNotification:function (event){with (BidspiritLoader){
-			alert("onNotification");
-			debugObject(event);
-			alert("finishing...");
-			mPush.finish(function() {
-                alert("finished.");
-			});
-		}},
-		
+				
 		debugObject:function (event){with (BidspiritLoader){
 			alert(JSON.stringify(event));
 			serverDebug(JSON.stringify(event));
@@ -2367,9 +2292,7 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
-					 try {
-						 /*testNotifications();
-						 return;*/
+					 try {						 
 						 loadFileSystem(function(localUrl){
 							 readFile("app/data",function(data){
 								 addDebugInfo("got data "+data);
