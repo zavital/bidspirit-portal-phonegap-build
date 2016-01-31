@@ -2172,9 +2172,12 @@ window.BidspiritLoader = {
 		
 		
 		getFileEntry:function(fileName, options, onSuccess, onFail){with (BidspiritLoader){
+			alert("ge");
 			mFileSystem.root.getFile(FILES_BASE+"/"+fileName, options, function(entry){
+				alert("got");
 				handleSuccess(function(){onSuccess(entry);},"root.getFile success - "+fileName);
 			}, function(e){
+				alert("err"+e);
 				handleError(e, onFail, "root.getFile error - "+fileName);
 	        });
 		}},
@@ -2202,7 +2205,8 @@ window.BidspiritLoader = {
 	         });
 		}},
 		
-		writeToFile:function(fileName, data, onSuccess, onFail){with (BidspiritLoader){			
+		writeToFile:function(fileName, data, onSuccess, onFail){with (BidspiritLoader){		
+			alert(1);
 			getFileEntry(fileName, {create: true, exclusive: false}, function(entry){
 				addDebugInfo("got entry for write - "+fileName);
 				entry.createWriter(function(fileWriter){
