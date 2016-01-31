@@ -17143,6 +17143,147 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 			return deferred.promise;
 		}
 		
+				
+		function updateBidspiritDataAndTheme(appVersion){
+			addToDebug("updating version to "+appVersion);
+			var contentUrl, styleUrl;			
+			if (GlobalConfig.devMode){
+				contentUrl = SettingsService.get("portalAddress") + "debug/all.debug.js?v=" + appVersion;
+				styleUrl = SettingsService.get("portalAddress") + "/portal/styles/style.css?v=" + appVersion;
+			} else {
+				contentUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/js/all.js?v=" + appVersion;
+				styleUrl = "https:"+SettingsService.get("staticFileBase")+"/portal/styles/style.css?v=" + appVersion;
+			}
+			addToDebug("loading theme from url:"+styleUrl);
+			$http.get(styleUrl).success(function(themeData){
+				addToDebug("got theme "+themeData.length+" ..."+themeData.substr(themeData.length-100));
+				if (themeData.length>100000 && themeData.match("}$")){
+					addToDebug("storing theme...");
+					BidspiritLoader.writeToFile("app/theme."+appVersion,themeData,function(){
+						addToDebug("getting content from url "+contentUrl);
+						$http.get(contentUrl).success(function(data){
+							addToDebug("got data of length"+data.length+", ..."+data.substr(data.length-100));
+							if (data.length>100000){
+								BidspiritLoader.writeToFile("app/content."+appVersion, data+";\nBidspiritLoader.localContentLoaded=true;",function(){
+									addToDebug("content saved");
+									BidspiritLoader.getDirectory("app",function(baseDir){
+										removeDirectoryFilesOfDiffrentVersion(baseDir,appVersion).then(function(){
+											BidspiritLoader.writeToFile("app/data",GlobalConfig.mobileAppVersion+","+appVersion+","+GlobalConfig.envName, function(){
+												addToDebug("data file saved");
+												LocalStorageService.store("updateFailCounter", 0);
+												if (GlobalConfig.devMode){
+									  				alert("update data done. reloading...");
+									  			}
+												window.location.reload();
+											}, function(){
+												handleUpdateFailure("failed to write versions data");												
+											});
+										},function(){
+											handleUpdateFailure("failed to clear old file");
+										});	
+									}, function(){
+										handleUpdateFailure("failed to write content");
+									});
+					  			},
+					  			function(){
+									handleUpdateFailure("failed to write content");
+								});
+									
+							} else {
+								handleUpdateFailure("bad content. length:"+data.length+", ..."+data.substr(data.length-100));
+							}	
+						}).error(function(error){
+							handleUpdateFailure("failed to get content from url "+contentUrl+", "+JSON.stringify(error).substr(0,50)+"...");
+						});
+					},function(){
+						handleUpdateFailure("failed to get store theme");							
+					});
+				} else {
+					handleUpdateFailure("bad theme data from url "+styleUrl+": length:"+themeData.length+" ..."+themeData.substr(themeData.length-100));
+				}
+			}).error(function(){
+				handleUpdateFailure("failed to get theme from url "+styleUrl);
+			});
+		}		
+		
+		function getDebugInfo(){
+			var deferred = $q.defer();
+			if (GlobalConfig.isMobileApp){
+				try {
+					BidspiritLoader.getBaseDirEntry(function(baseDir){
+						getDebugInfoForDirectoryEntry(baseDir).then(function(debugInfo){
+							BidspiritLoader.readFile("data",function(data){
+								debugInfo.dataFileContent = data;
+								debugInfo.loaderDebugInfo = BidspiritLoader.mDebugInfo.split("\n");
+								deferred.resolve(debugInfo);
+							},function(error){
+								debugInfo.dataFileContent = "Error while reading data file content: "+error;
+								deferred.resolve(debugInfo);
+							});
+						});
+					});
+				} catch (e){
+					deferred.resolve({error:"Error while getting mobile app debug info: "+e});
+				}
+			} else {
+				deferred.resolve(null);
+			}
+			return deferred.promise;
+		}
+		
+		function getDebugInfoForDirectoryEntry(dirEntry){
+			var deferred = $q.defer();
+			var debugInfo = {};				
+			try {
+				$rootScope.debug("getDebugInfoForDirectoryEntry "+dirEntry.name);
+				dirEntry.createReader().readEntries(function(entries){
+					$rootScope.debug(entries.length+" entries");
+					var subPromises = [];		
+					for (var i=0;i<entries.length;i++){
+						(function(entry){
+							try {
+								if (entry.name.length>2 && entry.isDirectory){
+									subPromises.push(getDebugInfoForDirectoryEntry(entry).then(function(dirDebugInfo){
+										debugInfo[entry.name] = dirDebugInfo;
+									}));
+								} else {
+									subPromises.push(getDebugInfoForFileEntry(entry).then(function(fileDebugInfo){
+										debugInfo[entry.name] = fileDebugInfo;
+									}));
+								}
+							} catch (e){
+								deferred.resolve({error:"Exception getting debugInfo for sub entry "+entry.name+" of directory "+dirEntry.name+": "+e});
+							}
+						})(entries[i]);
+					}
+					$q.all(subPromises).then(function(){
+						deferred.resolve(debugInfo);
+					});
+				},function(error){
+					deferred.resolve({error:"error while reading entries for directory "+dirEntry.name+": "+error});
+				});
+			} catch (e){
+				deferred.resolve({error:"Exception getting debugInfo for  directory "+dirEntry.name+": "+e});
+			}
+			return deferred.promise;	
+		}
+		
+		
+		function getDebugInfoForFileEntry(fileEntry){			
+			var deferred = $q.defer();
+			try {
+				$rootScope.debug("getDebugInfoForFileEntry "+fileEntry.name);
+				fileEntry.getMetadata(function(metaData){
+					deferred.resolve(metaData);
+				},function(error){
+					deferred.resolve({error:"Error while getting meta data: "+error});
+				});
+			} catch (e){
+				deferred.resolve({error:"Exception while getting file debug info: "+e});
+			}
+			return deferred.promise;
+	
+		}
         return {
             updateBidspiritDataAndTheme: updateBidspiritDataAndTheme,
             getTextsLoadPromise: getTextsLoadPromise,
