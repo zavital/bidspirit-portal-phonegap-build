@@ -17199,7 +17199,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 									debugInfo[entry.name] = dirDebugInfo;
 								}));
 							} else {
-								waitingPromises.push(getDebugInfoForFileEntry(entry)).then(function(fileDebugInfo){
+								subPromises.push(getDebugInfoForFileEntry(entry)).then(function(fileDebugInfo){
 									debugInfo[entry.name] = fileDebugInfo;
 								});
 							}
