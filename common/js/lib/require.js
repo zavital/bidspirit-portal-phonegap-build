@@ -2149,8 +2149,8 @@ window.BidspiritLoader = {
 		
 		
 		initFilesBase:function(onSuccess, onFail){with (BidspiritLoader){
-			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(){
-				getDirectory("app", {create: true, exclusive: false}, function(){
+			mFileSystem.root.getDirectory(FILES_BASE, {create: true, exclusive: false}, function(baseEntry){
+				baseEntry.getDirectory("app", {create: true, exclusive: false}, function(){
 					handleSuccess(onSuccess,"files base created")
 				}, function(e){
 					handleError(e, onFail, "failed to create files base subdir app");
