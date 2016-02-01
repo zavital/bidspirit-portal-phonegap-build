@@ -36,12 +36,8 @@
     <preference name="permissions" value="none"/>    
     <feature name="http://api.phonegap.com/1.0/network" />    
     <feature name="http://api.phonegap.com/1.0/device" />
-    <feature name="http://api.phonegap.com/1.0/notification"/>
-    
-    
-    
-    
-        
+    <feature name="http://api.phonegap.com/1.0/notification"/>  
+               
     <icon src="icon.png" />
     
     <icon src="icon-android.png" gap:platform="android" />
