@@ -24,7 +24,7 @@
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
 					appVersion : '0.678',
-					mobileAppVersion : '105',
+					mobileAppVersion : '106',
 					loadedTextsVersion : '2016-02-12_02-00-45',
 					envName : "prod",					
 					isMobileApp:true,
@@ -38,6 +38,8 @@
 				GlobalConfig.templatesCacheVersion =  GlobalConfig.appVersion;
 				
 				GlobalConfig.devMode = false;
+				
+				GlobalConfig.devMode = GlobalConfig.bidmoodEnv;
 				
 				debugMode = false;
 				
