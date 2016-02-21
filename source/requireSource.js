@@ -2110,6 +2110,7 @@ window.BidspiritLoader = {
 
 		addDebugInfo:function(message){with (BidspiritLoader){			
 			if (message){
+				//alert(message);
 				var now = new Date();
 				mDebugInfo+="("+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+"["+now.getMilliseconds()+"]) "+message+"\n";
 			}
@@ -2233,15 +2234,43 @@ window.BidspiritLoader = {
 	        });
 		}},
 		
+		removeEntriesOneByOne:function(entries,onSuccess,onFail){with (BidspiritLoader){
+			
+			if (entries.length==0){
+				onSuccess();
+			} else {
+				var entry = entries.pop();
+				addDebugInfo("removing entry "+entry.name);
+				if (entry.isDirectory){
+					entry.removeRecursively(function(){
+						removeEntriesOneByOne(entries, onSuccess, onFail)
+					},function(){
+						handleError(e, "failed to remove directory "+entry.name, onFail);
+					});
+				}else if (entry.isFile){
+					entry.remove(function(){
+						removeEntriesOneByOne(entries, onSuccess, onFail)
+					},function(){
+						handleError(e, "failed to remove file "+entry.name, onFail);
+					});
+				}
+			}
+		}},
+		
 		reset:function(onSuccess,onFail){with (BidspiritLoader){
 			getBaseDirEntry(function(entry){
 				addDebugInfo("got Files base entry for reset");
-				entry.removeRecursively(function(){
-					addDebugInfo("reset files base success");
-					initFilesBase(onSuccess, onFail);
+				entry.createReader().readEntries(function(entries){
+					addDebugInfo("removing "+entries.length+" entries.");
+					removeEntriesOneByOne(entries, function(){
+						addDebugInfo("reset files base success");
+						initFilesBase(onSuccess, onFail);
+					}, function(){
+						handleError(e, "reset failed - error on removeEntriesOneByOne", onFail);
+					});
 				},
 				function(e){
-					handleError(e, "reset failed - error on removeRecursively", onFail);	
+					handleError(e, "reset failed - error on read entries", onFail);	
 				})
 			},function(e){
 				handleError(e, "reset failed - error on get files base", onFail);
