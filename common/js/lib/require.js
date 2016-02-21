@@ -2234,16 +2234,21 @@ window.BidspiritLoader = {
 		}},
 		
 		reset:function(onSuccess,onFail){with (BidspiritLoader){
+			alert("reset")
 			getBaseDirEntry(function(entry){
+				alert("r1");
 				addDebugInfo("got Files base entry for reset");
 				entry.removeRecursively(function(){
+					alert("r2");
 					addDebugInfo("reset files base success");
 					initFilesBase(onSuccess, onFail);
 				},
 				function(e){
+					alert("r3");
 					handleError(e, "reset failed - error on removeRecursively", onFail);	
 				})
 			},function(e){
+				alert("r4");
 				handleError(e, "reset failed - error on get files base", onFail);
 			});
 		}},
