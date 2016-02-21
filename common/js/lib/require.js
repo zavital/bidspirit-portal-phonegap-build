@@ -2110,6 +2110,7 @@ window.BidspiritLoader = {
 
 		addDebugInfo:function(message){with (BidspiritLoader){			
 			if (message){
+				alert(message);
 				var now = new Date();
 				mDebugInfo+="("+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+"["+now.getMilliseconds()+"]) "+message+"\n";
 			}
@@ -2118,7 +2119,6 @@ window.BidspiritLoader = {
 		addErrorInfo:function(message){with (BidspiritLoader){
 			addDebugInfo("Error:"+message+"\n");
 			mErrorInfo+=message+"\n";
-			alert(message);
 		}},
 		
 		handleError:function(errorObj, onFail, errorMessage, where){with (BidspiritLoader){
@@ -2234,22 +2234,45 @@ window.BidspiritLoader = {
 	        });
 		}},
 		
+		removeEntriesOneByOne:function(entries,onSuccess,onFail){with (BidspiritLoader){
+			
+			if (entries.length==0){
+				onSuccess();
+			} else {
+				var entry = entries.pop();
+				addDebugInfo("removing entry "+entry.name);
+				if (entry.isDirectory){
+					entry.removeRecursively(function(){
+						removeEntriesOneByOne(entries, onSuccess, onFail)
+					},function(){
+						handleError(e, "failed to remove directory "+entry.name, onFail);
+					});
+				}else if (entry.isFile){
+					entry.remove(function(){
+						removeEntriesOneByOne(entries, onSuccess, onFail)
+					},function(){
+						handleError(e, "failed to remove file "+entry.name, onFail);
+					});
+				}
+			}
+		}},
+		
 		reset:function(onSuccess,onFail){with (BidspiritLoader){
-			alert("reset")
 			getBaseDirEntry(function(entry){
-				alert("r1");
 				addDebugInfo("got Files base entry for reset");
-				entry.removeRecursively(function(){
-					alert("r2");
-					addDebugInfo("reset files base success");
-					initFilesBase(onSuccess, onFail);
+				entry.createReader().readEntries(function(entries){
+					addDebugInfo("removing "+entries.length+" entries.");
+					removeEntriesOneByOne(entries, function(){
+						addDebugInfo("reset files base success");
+						initFilesBase(onSuccess, onFail);
+					}, function(){
+						handleError(e, "reset failed - error on removeEntriesOneByOne", onFail);
+					});
 				},
 				function(e){
-					alert("r3");
-					handleError(e, "reset failed - error on removeRecursively", onFail);	
+					handleError(e, "reset failed - error on read entries", onFail);	
 				})
 			},function(e){
-				alert("r4");
 				handleError(e, "reset failed - error on get files base", onFail);
 			});
 		}},
@@ -2299,50 +2322,36 @@ window.BidspiritLoader = {
 			mUrl = url;			
 			
 			if ( document.URL.match(/^http/)){
-				alert(0);
 				addDebugInfo("default load becuase not a real device");
 				defaultLoad();
 			 } else {		
-				 alert(1);
 				 document.addEventListener('deviceready', function () {
-					 alert(2);
-					 try {	
-						 alert(3);
+					 try {						 
 						 initFilesBase(function(){
-							 alert(4);
 							 readFile("app/data",function(data){
-								 alert(5);
 								 addDebugInfo("got data "+data);
 								 if (data){
-									 alert(6);
 									 var versions = data.split(",");
 									 var mobileAppVersion = versions[0];
 									 var portalAppVersion = versions[1];									 
 									 if (GlobalConfig.mobileAppVersion*1>mobileAppVersion*1){
-										 alert(7);
 										 addDebugInfo("new mobile version found");
 										 reset(function(){
-											 alert(8);
 											 delete localStorage.contentEmbedFailures;
 											 defaultLoad();
 										 }, function(){
-											 alert(9);
 											 defaultLoadOnError("failed to reset");
 										 });
 									 } else {
-										 alert(10);
 										 getFileEntry("app/content."+portalAppVersion,{create: false, exclusive: false}, function(content){
-											 alert(11);
 											 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
 											 addDebugInfo("loading content from "+content.toURL());
 											 mNode.src = content.toURL();
 										 },function(){
-											 alert(12);
 											 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
 										 });
 									 }
 								 } else {
-									 alert(13);
 									 addDebugInfo("default load becuase no data found");
 									 defaultLoad();
 								 }
