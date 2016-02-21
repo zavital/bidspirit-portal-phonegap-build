@@ -2118,6 +2118,7 @@ window.BidspiritLoader = {
 		addErrorInfo:function(message){with (BidspiritLoader){
 			addDebugInfo("Error:"+message+"\n");
 			mErrorInfo+=message+"\n";
+			alert(message);
 		}},
 		
 		handleError:function(errorObj, onFail, errorMessage, where){with (BidspiritLoader){
