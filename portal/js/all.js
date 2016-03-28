@@ -22,6 +22,14 @@
   * License MIT
   */
 
+/*!
+ * Pusher JavaScript Library v3.0.0
+ * http://pusher.com/
+ *
+ * Copyright 2014, Pusher
+ * Released under the MIT licence.
+ */
+
 /**
  * @license RequireJS domReady 2.0.1 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -15589,6 +15597,11 @@ define("common/js/modules/paths/pathsModule", [ "angular" ], function(ng) {
             }
             return newQueryStr;
         }
+        function addQueryParamToUrl(url, key, val) {
+            var hashParts = url.split("#"), url = hashParts[0], separator = -1 == url.indexOf("?") ? "?" : "&";
+            return url += separator + key + "=" + val, hashParts.length > 1 && (url += "#" + hashParts[1]), 
+            url;
+        }
         return mStatesProvider = angular.module("commonModules").$stateProvider, mReloadTimer = null, 
         {
             commonTemplatePath: commonTemplatePath,
@@ -15607,6 +15620,7 @@ define("common/js/modules/paths/pathsModule", [ "angular" ], function(ng) {
             newLocationWithParam: newLocationWithParam,
             newLocationWithoutParam: newLocationWithoutParam,
             getQueryStringWithoutKey: getQueryStringWithoutKey,
+            addQueryParamToUrl: addQueryParamToUrl,
             validateHttps: validateHttps,
             getAppSiteUrl: getAppSiteUrl,
             getPortalTextsUrl: getPortalTextsUrl,
@@ -16591,7 +16605,7 @@ define("common/js/modules/cloudinary/cloudinaryModule", [ "angular" ], function(
         }
         function getCollageUrl(imageUrls, collageSettings) {
             for (var result = "", i = 0; i < collageSettings.length && i < imageUrls.length; i++) i > 0 && (result += "/l_", 
-            result += imageUrls[i].split("/")[1] + ","), result += "a_ignore,g_north_west,c_fill" + jsonParamsToUrlParams(collageSettings[i]);
+            result += imageUrls[i] + ","), result += "a_ignore,g_north_west,c_fill" + jsonParamsToUrlParams(collageSettings[i]);
             return result += "/" + imageUrls[0], BASE_URL + result;
         }
         return BASE_URL = "https://res.cloudinary.com/bidspirit/image/upload/", {
@@ -17335,6 +17349,29 @@ define("common/js/modules/catalogUtils/catalogUtilsModule", [ "angular" ], funct
                 withoutDayOfWeek: withoutDayOfWeek
             }, textsMap);
         }
+        function getLeadingBidInfo(lot) {
+            var info = {}, currency = lot.auction.catalogInfo.currency, leadingBid = lot.leadingBid, selfPreBid = lot.selfAbsenteeBid, soldLotBid = lot.soldLotBid;
+            isSelfLeading = selfPreBid ? selfPreBid.userIdInApp == leadingBid.userIdInApp : !1, 
+            info.isPastItem = "ENDED" == lot.auction.state || null != soldLotBid;
+            var selfPreBidPrice = selfPreBid ? I18nService.sumInCurrency(selfPreBid.price, currency) : null, displayPrice = I18nService.sumInCurrency(leadingBid.price, currency);
+            return info.label = "leading_bid", soldLotBid ? (info.leadingBidType = "sold", lot.selfSoldLotBid && selfPreBid.price > soldLotBid.price ? (info.message = "leading_bid_max", 
+            info.messagePrice = selfPreBidPrice, info.leadingBidType += " self") : selfPreBid && (info.messagePrice = selfPreBidPrice, 
+            info.leadingBidType += " outbidded", leadingBid.price > selfPreBid.price ? info.message = "leading_bid_lost" : leadingBid.price == selfPreBid.price && (info.message = "leading_bid_outbidded_time"))) : info.isPastItem && leadingBid.underReserved && !isSelfLeading ? (info.leadingBidType = "outbidded", 
+            info.message = "leading_bid_under_reserved", info.messagePrice = selfPreBidPrice) : isSelfLeading && leadingBid.underReserved ? (info.leadingBidType = "outbidded", 
+            info.message = "leading_bid_under_reserved", info.messagePrice = selfPreBidPrice) : selfPreBid && !isSelfLeading ? (info.leadingBidType = "outbidded", 
+            info.messagePrice = selfPreBidPrice, info.message = leadingBid.price == selfPreBid.price ? "leading_bid_outbidded_time" : "leading_bid_outbidded_price") : isSelfLeading && (info.leadingBidType = "self", 
+            info.label = "leading_bid_self", info.message = "leading_bid_max", info.messagePrice = selfPreBidPrice), 
+            info.isSelfLeading = isSelfLeading, info.displayPrice = displayPrice, info;
+        }
+        function auctionComparableDate(auction) {
+            return auction.date + " " + auction.time;
+        }
+        function compareAuctions(auction1, auction2) {
+            return auctionComparableDate(auction1).localeCompare(auctionComparableDate(auction2));
+        }
+        function sortAuctions(auctions) {
+            auctions.sort(compareAuctions);
+        }
         return {
             sortLots: sortLots,
             getPaddedIndex: getPaddedIndex,
@@ -17344,7 +17381,10 @@ define("common/js/modules/catalogUtils/catalogUtilsModule", [ "angular" ], funct
             getLotPage: getLotPage,
             getAuctionTimeDisplay: getAuctionTimeDisplay,
             getHouseBadgeForLot: getHouseBadgeForLot,
-            checkLotMatchPhrase: checkLotMatchPhrase
+            checkLotMatchPhrase: checkLotMatchPhrase,
+            getLeadingBidInfo: getLeadingBidInfo,
+            sortAuctions: sortAuctions,
+            compareAuctions: compareAuctions
         };
     });
 }), define("common/js/modules/catalogUtils/index", [ "./catalogUtilsModule", "./catalogUtilsService" ], function() {}), 
@@ -17496,12 +17536,12 @@ define("commonModules", [ "angular", "ngdir/angular-ui-router", "common/js/modul
 define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
     return ng.module("app.main", []);
 }), define("portal/js/modules/main/portalMainController", [ "./portalMainModule" ], function(module) {
-    module.controller("MainController", [ "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "OsInfoService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "MobilePushService", "PortalNavigationService", "HeartBeatService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", function($scope, $rootScope, $state, $timeout, ArraysService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, OsInfoService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, MobilePushService, PortalNavigationService, HeartBeatService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService) {
+    module.controller("MainController", [ "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "OsInfoService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "AuctionStateListenerService", "CometService", "MobilePushService", "PortalNavigationService", "HeartBeatService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", function($scope, $rootScope, $state, $timeout, ArraysService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, OsInfoService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, AuctionStateListenerService, CometService, MobilePushService, PortalNavigationService, HeartBeatService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService) {
         function onInit() {
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isMobile = OsInfoService.isMobile(), 
-            PortalStates.init(), PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", 
-            initLog(), initRegions(), HeartBeatService.init(), PortalNavigationService.init(), 
-            LegalApprovalService.init(), GlobalConfig.isMobileApp && (MobilePushService.init(), 
+            PortalStates.init(), AuctionStateListenerService.init(), PortalTextsService.init(), 
+            onLangUpdate(), $scope.dataState = "loaded", initLog(), initRegions(), HeartBeatService.init(), 
+            PortalNavigationService.init(), LegalApprovalService.init(), GlobalConfig.isMobileApp && (MobilePushService.init(), 
             hideSplash()));
         }
         function hideSplash() {
@@ -17573,7 +17613,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }, GlobalConfig.isMobileApp && !OsInfoService.isMobileAppDebug() ? document.addEventListener("deviceready", init, !1) : init();
     } ]);
 }), define("portal/js/modules/main/portalInfoService", [ "./portalMainModule" ], function(module) {
-    module.factory("PortalInfoService", function($q, $rootScope, $timeout, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, OsInfoService, PortalNavigationService, SessionInfo, SessionsService, CachedApiService) {
+    module.factory("PortalInfoService", function($q, $rootScope, $timeout, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, OsInfoService, SessionInfo, SessionsService, CachedApiService) {
         function resetData() {
             mHouses = [], mHousesMap = {}, mAuctions = [], mAuctionsMap = {}, mHousesAuctions = {}, 
             mInfo = {};
@@ -19060,7 +19100,7 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
         }
         function getBidLabel(lot) {
             var bid, labelKey = null, bidType = null;
-            return lot.selfSoldLotBid ? (bidType = "self-sold", bid = lot.selfSoldLotBid, labelKey = "lot_self_sold_bid") : lot.soldLotBid ? (bidType = "sold", 
+            return lot.selfSoldLotBid ? (bidType = "self-sold", bid = lot.selfSoldLotBid, labelKey = "lot_self_sold_bid") : lot.soldLotBid ? (bidType = lot.selfAbsenteeBid ? "outbidded" : "sold", 
             bid = lot.soldLotBid, labelKey = "lot_sold_bid") : lot.selfAbsenteeBid && (bidType = "self-absentee", 
             bid = lot.selfAbsenteeBid, labelKey = "lot_self_absentee_bid"), bid ? {
                 text: I18nService.getText(labelKey),
@@ -19120,24 +19160,29 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
         };
     });
 }), define("portal/js/modules/auctions/catalogs/catalogAccountService", [ "./catalogsModule" ], function(module) {
-    module.factory("CatalogAccountService", function($q, $log, $rootScope, $uibModal, ArraysService, ApiService, PathsService, CatalogUtilsService, PortalAuthService, CatalogsService, PortalInfoService, AccountService) {
-        function loadForAuction(auction) {
+    module.factory("CatalogAccountService", function($q, $log, $rootScope, $uibModal, ArraysService, ApiService, PathsService, CatalogUtilsService, CometService, PortalAuthService, CatalogsService, PortalInfoService, AccountService) {
+        function loadForAuction(auction, noCache) {
             var deferred = $q.defer(), currentUserId = $rootScope.currentUser ? $rootScope.currentUser.id : null;
-            return isCurrentCacheAuction(auction) && currentUserId == mCachedCatalogAccountInfo.userId ? deferred.resolve() : (mCachedCatalogAccountInfo = null, 
+            return isCurrentCacheAuction(auction) && currentUserId == mCachedCatalogAccountInfo.userId && !noCache ? deferred.resolve() : (mCachedCatalogAccountInfo = null, 
             CatalogsService.getAuctionItems(auction).then(function() {
                 ApiService.callApi("/account/getAccountInfoAndSoldLotsForAuction", {
                     auctionId: auction.id
                 }).success(function(info) {
                     info.accountInfo && (info.accountInfo.soldLotsBids = ArraysService.getFilteredList(info.auctionSoldLotsBids, "userIdInApp", !0, info.accountInfo.userIdInApp), 
                     parseAccountInfo(auction, info.accountInfo)), AccountService.addBidsInfoToItems(auction, info.auctionSoldLotsBids, "soldLotBid"), 
-                    mCachedCatalogAccountInfo = info, mCachedCatalogAccountInfo.auction = auction, mCachedCatalogAccountInfo.userId = currentUserId, 
+                    AccountService.addBidsInfoToItems(auction, info.leadingBids, "leadingBid"), mCachedCatalogAccountInfo = info, 
+                    mCachedCatalogAccountInfo.auction = auction, mCachedCatalogAccountInfo.userId = currentUserId, 
                     auction.absenteeBidsEnabled = info.absenteeBidsEnabled, auction.house && (auction.house.increments = mCachedCatalogAccountInfo.increments), 
+                    currentUserId && CometService.setPrivateChannel(info.accountInfo.privateCometChannel), 
                     $rootScope.$broadcast("account.dataLoaded"), deferred.resolve();
                 });
             })), deferred.promise;
         }
         function isCurrentCacheAuction(auction) {
             return mCachedCatalogAccountInfo && mCachedCatalogAccountInfo.auction.id == auction.id;
+        }
+        function isCurrentUserIdInApp(userIdInApp) {
+            return mCachedCatalogAccountInfo && mCachedCatalogAccountInfo.accountInfo ? userIdInApp == mCachedCatalogAccountInfo.accountInfo.userIdInApp : !1;
         }
         function parseAccountInfo(auction, accountInfo) {
             PortalAuthService.setCurrentHouseApprovalState(auction.houseId, accountInfo.approvalState), 
@@ -19152,9 +19197,49 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
                 AccountService.setBidInfoForItem(items[i], "selfSoldLotBid", null);
             }), loadForAuction(mCachedCatalogAccountInfo.auction)) : void 0;
         }
+        function convertAppSiteBid(bid) {
+            return bid ? {
+                price: bid.price,
+                itemIdInApp: bid.itemId,
+                userIdInApp: bid.bidderUserId
+            } : null;
+        }
+        function handleLeadingBidUpdate(updateInfo) {
+            var item = CatalogsService.getItemByIdInApp(mCachedCatalogAccountInfo.auction, updateInfo.lotId);
+            AccountService.updateLeadingBid(item, convertAppSiteBid(updateInfo.preBid));
+        }
+        function handleSelfBidUpdate(updatedBid) {
+            if (isCurrentUserIdInApp(updatedBid.bidderUserId)) {
+                var item = CatalogsService.getItemByIdInApp(mCachedCatalogAccountInfo.auction, updatedBid.lotItemId);
+                AccountService.handleAbsenteeBidUpdate(item, new convertAppSiteBid(updatedBid));
+            }
+        }
+        function handleSelfBidCancel(canceledBid) {
+            if (isCurrentUserIdInApp(canceledBid.bidderUserId)) {
+                var item = CatalogsService.getItemByIdInApp(mCachedCatalogAccountInfo.auction, canceledBid.lotItemId);
+                AccountService.handleAbsenteeBidUpdate(item, null);
+            }
+        }
         var mCachedCatalogAccountInfo = null;
-        return $rootScope.$on("auth.newSessionUser", reloadAccountInfo), {
-            loadForAuction: loadForAuction
+        return $rootScope.$on("auth.newSessionUser", reloadAccountInfo), CometService.scope.$on("cometEvent", function(e, event) {
+            if (mCachedCatalogAccountInfo && mCachedCatalogAccountInfo.auction && mCachedCatalogAccountInfo.auction.house.code == event.houseCode) switch (event.name) {
+              case "Catalog.leadingBidUpdate":
+                handleLeadingBidUpdate(event.arg);
+                break;
+
+              case "Account.selfPreBidUpdate":
+                handleSelfBidUpdate(event.arg);
+                break;
+
+              case "Account.selfPresaleBidCancel":
+                handleSelfBidCancel(event.arg);
+            }
+        }), $rootScope.$on("auctionContextChanged", function(e, auction) {
+            auction && isCurrentCacheAuction(auction) || (mCachedCatalogAccountInfo = null);
+        }), {
+            loadForAuction: loadForAuction,
+            handleLeadingBidUpdate: handleLeadingBidUpdate,
+            scope: mScope
         };
     });
 }), define("portal/js/modules/auctions/catalogs/lotElements/lotElementModule", [ "angular" ], function(ng) {
@@ -19267,7 +19352,7 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
         };
     });
 }), define("portal/js/modules/auctions/catalogs/lotElements/lotPriceDirective", [ "./lotElementModule" ], function(module) {
-    module.directive("bsLotPrice", function($timeout, PathsService, I18nService, DomUtilsService, CatalogsService, StructuredDataService) {
+    module.directive("bsLotPrice", function($timeout, PathsService, I18nService, DomUtilsService, CatalogsService, StructuredDataService, BidRulesService) {
         return {
             restrict: "E",
             replace: !0,
@@ -19279,12 +19364,15 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
             },
             link: function(scope) {
                 var lot = scope.lot, currency = lot.auction.catalogInfo.currency;
-                lot.auction.catalogInfo.startPriceHidden ? (scope.showStartPrice = !1, scope.showNoPrice = !1, 
-                lot.estimatedPrice ? (scope.showEstimatedPrice = !0, scope.estimatedPrice = StructuredDataService.getPriceStructuredDataTag(lot.estimatedPrice, currency)) : scope.showEstimatedPrice = !1) : (lot.startPrice ? (scope.showStartPrice = !0, 
-                scope.showNoPrice = !1, scope.startPrice = I18nService.sumInCurrency(lot.startPrice, currency), 
-                scope.startPrice = StructuredDataService.getPriceStructuredDataTag(scope.startPrice, currency)) : (scope.showStartPrice = !1, 
-                scope.showNoPrice = !0), lot.estimatedPrice && !scope.singleRow && (scope.showEstimatedPrice = !0, 
-                scope.estimatedPrice = lot.estimatedPrice, scope.startPrice || (scope.estimatedPrice = StructuredDataService.getPriceStructuredDataTag(scope.estimatedPrice, currency))));
+                if (lot.auction.catalogInfo.startPriceHidden) scope.showStartPrice = !1, scope.showNoPrice = !1, 
+                lot.estimatedPrice ? (scope.showEstimatedPrice = !0, scope.estimatedPrice = StructuredDataService.getPriceStructuredDataTag(lot.estimatedPrice, currency)) : scope.showEstimatedPrice = !1; else {
+                    var startPrice = lot.startPrice;
+                    !startPrice && lot.auction.showLeadingBids && (startPrice = BidRulesService.minBidPrice(lot)), 
+                    startPrice ? (scope.showStartPrice = !0, scope.showNoPrice = !1, scope.startPrice = I18nService.sumInCurrency(startPrice, currency), 
+                    scope.startPrice = StructuredDataService.getPriceStructuredDataTag(scope.startPrice, currency)) : (scope.showStartPrice = !1, 
+                    scope.showNoPrice = !0), lot.estimatedPrice && !scope.singleRow && (scope.showEstimatedPrice = !0, 
+                    scope.estimatedPrice = lot.estimatedPrice, scope.startPrice || (scope.estimatedPrice = StructuredDataService.getPriceStructuredDataTag(scope.estimatedPrice, currency)));
+                }
             },
             templateUrl: PathsService.appTemplatePath("auctions/catalogs/elements/lotPrice")
         };
@@ -19317,14 +19405,14 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
         };
     });
 }), define("portal/js/modules/auctions/catalogs/lotElements/lotBidFormDirective", [ "./lotElementModule" ], function(module) {
-    module.directive("bsLotBidForm", function($timeout, $rootScope, $state, PathsService, DialogsService, I18nService, PopupsService, PortalTextsService, PortalAuthService, AppSiteWinodwsService, CatalogsService, BidRulesService, AccountService, CatalogAccountService) {
+    module.directive("bsLotBidForm", function($timeout, $rootScope, $state, PathsService, DialogsService, I18nService, DomUtilsService, PopupsService, PortalTextsService, PortalAuthService, AppSiteWinodwsService, CatalogsService, CatalogUtilsService, BidRulesService, AccountService, CatalogAccountService) {
         return mRecentBidInputValue = {}, {
             restrict: "E",
             replace: !0,
             scope: {
                 lot: "="
             },
-            link: function(scope) {
+            link: function(scope, element) {
                 function showBidConfirmation() {
                     PopupsService.showPopup({
                         contentInclude: "auctions/catalogs/lotPage/common/confirmation/confirmBid",
@@ -19344,11 +19432,47 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
                     AccountService.showApprovalPopup(house)) : "USER_NOT_APPROVED" == errorResponse.errorKey ? (PortalAuthService.setCurrentHouseApprovalState(house.id, errorResponse.approvalState), 
                     AccountService.showApprovalPopup(house)) : PopupsService.showHouseConnectivityErrorPopup(house);
                 }
+                function focusOnInput() {
+                    var input = element[0].querySelector(".input-bg input");
+                    input && (input.focus(), $timeout(function() {
+                        input.focus();
+                    }, 120));
+                }
                 function initLabel() {
                     scope.bidLabel = CatalogsService.getBidLabel(scope.lot);
                 }
+                function handleMinBidPriceDisplay() {
+                    if (scope.lot.auction.showLeadingBids) {
+                        var minPrice = BidRulesService.newPreBidMinPrice(scope.lot);
+                        scope.minPrice = I18nService.sumInCurrency(minPrice, currency), scope.showMinPrice = scope.isFocused || scope.isSelfLeading ? !1 : !0;
+                    } else scope.minPrice = null, scope.showMinPrice = !1;
+                }
+                function handleLeadingBidDisplay() {
+                    if (scope.lot.auction.showLeadingBids) if (scope.lot.leadingBid) {
+                        var leadingBidInfo = CatalogUtilsService.getLeadingBidInfo(scope.lot);
+                        scope.leadingBidMessage = I18nService.getText(leadingBidInfo.message, {
+                            price: leadingBidInfo.messagePrice
+                        }), leadingBidInfo.isPastItem ? scope.leadingBidLine = null : (scope.leadingBidLine = I18nService.getText(leadingBidInfo.label) + ": " + leadingBidInfo.displayPrice, 
+                        scope.leadingBidType = leadingBidInfo.leadingBidType, scope.isSelfLeading = leadingBidInfo.isSelfLeading, 
+                        scope.isSelfLeading ? (scope.leadingBidMessage = I18nService.getText("leading_bid_you"), 
+                        scope.model.bidPrice = scope.lot.selfAbsenteeBid.price, scope.showMinPrice = !1, 
+                        angular.element(element[0].querySelector(".high-bidder-message")).removeClass("blink")) : (scope.model.bidPrice = null, 
+                        scope.lot.selfAbsenteeBid && DomUtilsService.addCssClassTemporarily(element[0].querySelector(".high-bidder-message"), "blink", 2e3, 1500)), 
+                        scope.setEditMode({
+                            focus: !1
+                        }));
+                    } else scope.leadingBidLine = null; else scope.leadingBidLine = null;
+                }
                 function initMode() {
-                    scope.lot.soldLotBid ? scope.mode = "sold" : "READY" == scope.lot.auction.state ? scope.mode = 0 == scope.lot.auction.absenteeBidsEnabled || scope.lot.auction.catalogOnly ? "disabled" : scope.lot.selfAbsenteeBid ? "existing" : "new" : "RUNNING" == scope.lot.auction.state ? scope.mode = 0 == scope.lot.auction.absenteeBidsEnabled ? "disabled" : "running" : "ENDED" == scope.lot.auction.state && (scope.mode = "ended");
+                    scope.lot.soldLotBid ? (scope.mode = "sold", scope.lot.selfSoldLotBid ? scope.bidInfoClass = "self-sold" : scope.lot.leadingBid && scope.lot.soldLotBid && scope.lot.selfAbsenteeBid && (scope.bidInfoClass = "outbidded")) : "READY" == scope.lot.auction.state ? 0 == scope.lot.auction.absenteeBidsEnabled || scope.lot.auction.catalogOnly ? scope.mode = "disabled" : scope.lot.selfAbsenteeBid ? (scope.mode = "existing", 
+                    scope.model.bidPrice = scope.lot.selfAbsenteeBid.price) : scope.mode = "new" : "RUNNING" == scope.lot.auction.state ? scope.mode = 0 == scope.lot.auction.absenteeBidsEnabled ? "disabled" : "running" : "ENDED" == scope.lot.auction.state && (scope.mode = "ended");
+                }
+                function saveRecentBidInputValue() {
+                    isNaN(scope.model.bidPrice) && "" != scope.model.bidPrice || (mRecentBidInputValue = {
+                        lotId: scope.lot.id,
+                        price: scope.model.bidPrice,
+                        time: new Date().getTime()
+                    });
                 }
                 function checkIfShouldScrollToForm() {
                     return mRecentBidInputValue.lotId == scope.lot.id && new Date().getTime() < mRecentBidInputValue.time + 12e4 ? !0 : void 0;
@@ -19361,8 +19485,9 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
                     "new" != scope.mode && (scope.mode = "edit")), checkIfShouldScrollToForm() && (scope.scrollToForm = !0);
                 }
                 function init() {
-                    initMode(), initLabel(), loadRecentBidInputValue();
+                    initMode(), initLabel(), loadRecentBidInputValue(), handleLeadingBidDisplay(), handleMinBidPriceDisplay();
                 }
+                var currency = scope.lot.auction.catalogInfo.currency;
                 scope.model = {}, scope.tryToPlaceBid = function() {
                     var house = scope.lot.auction.house;
                     AccountService.validateRegisteredInHouseAndThen(house, {}, function() {
@@ -19375,7 +19500,7 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
                         title: "dialogs_notice_title",
                         params: {
                             lotIndex: scope.lot.itemIndex,
-                            price: I18nService.sumInCurrency(bid.price, scope.lot.auction.catalogInfo.currency)
+                            price: I18nService.sumInCurrency(bid.price, currency)
                         }
                     }).then(function(confirmed) {
                         confirmed && (mRecentBidInputValue.lotId = null, AccountService.removeAbsenteeBid(scope.lot.auction.houseId, scope.lot).success(function(response) {
@@ -19384,11 +19509,8 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
                     });
                 }, scope.openAuctionSite = function() {
                     AppSiteWinodwsService.openAuctionSiteWindow(scope.lot.auction);
-                }, scope.setEditMode = function() {
-                    scope.mode = "edit", scope.model.bidPrice = scope.lot.selfAbsenteeBid.price, scope.bidLabel = null, 
-                    scope.focusNow = !0, $timeout(function() {
-                        scope.focusNow = !1;
-                    }, 50);
+                }, scope.setEditMode = function(options) {
+                    scope.mode = "edit", scope.bidLabel = null, options.focus && focusOnInput();
                 }, scope.cancelEdit = function() {
                     scope.mode = "existing", scope.model.bidPrice = null, scope.bidLabel = CatalogsService.getBidLabel(scope.lot);
                 }, scope.gotoHousePage = function() {
@@ -19399,16 +19521,16 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
                     var disabledMessageKey, houseParams = PortalTextsService.getHouseTextParams(scope.lot.auction.house);
                     return disabledMessageKey = scope.lot.auction.catalogOnly ? "bid_form_catalog_only" : "bid_form_disabled", 
                     I18nService.getText(disabledMessageKey, houseParams);
-                }, scope.saveRecentBidInputValue = function() {
-                    isNaN(scope.model.bidPrice) && "" != scope.model.bidPrice || (mRecentBidInputValue = {
-                        lotId: scope.lot.id,
-                        price: scope.model.bidPrice,
-                        time: new Date().getTime()
-                    });
+                }, scope.onMinPriceClick = function() {
+                    scope.showMinPrice = !1, focusOnInput();
+                }, scope.onInputFocus = function() {
+                    scope.isFocused = !0, handleMinBidPriceDisplay();
+                }, scope.onInputBlur = function() {
+                    saveRecentBidInputValue(), scope.isFocused = !1, scope.model.bidPrice || (scope.isSelfLeading ? scope.model.bidPrice = scope.lot.selfAbsenteeBid.price : handleMinBidPriceDisplay());
                 }, init(), scope.$watch("lot.lastBidUpdate", init), scope.$on("account.dataLoaded", init), 
                 scope.$on("auth.newSessionUser", function() {
                     CatalogAccountService.loadForAuction(scope.lot.auction);
-                });
+                }), scope.$on("account.dataLoaded", init);
             },
             templateUrl: PathsService.appTemplatePath("auctions/catalogs/elements/bidForm")
         };
@@ -19581,7 +19703,7 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
         };
     });
 }), define("portal/js/modules/auctions/catalogs/lotElements/lotAlertFlagDirective", [ "./lotElementModule" ], function(module) {
-    module.directive("bsLotAlertFlag", function($rootScope, $timeout, PopupsService, PathsService, OsInfoService, UserAlertsService) {
+    module.directive("bsLotAlertFlag", function($rootScope, $timeout, PathsService, OsInfoService, UserAlertsService) {
         return {
             restrict: "E",
             replace: !0,
@@ -19616,7 +19738,39 @@ define("portal/js/modules/auctions/catalogs/catalogsModule", [ "angular" ], func
             templateUrl: PathsService.appTemplatePath("alerts/common/alertFlag")
         };
     });
-}), define("portal/js/modules/auctions/catalogs/lotElements/index", [ "./lotElementModule", "./lotFilters", "./lotImageDirective", "./lotPriceDirective", "./lotTextsService", "./lotBidFormDirective", "./confirmBidController", "./lotBadgeDirective", "./lotExpirationDirective", "./lotFavoriteFlagDirective", "./lotShareButtons", "./lotAlertFlagDirective" ], function() {}), 
+}), define("portal/js/modules/auctions/catalogs/lotElements/leadingBidDirective", [ "./lotElementModule" ], function(module) {
+    module.directive("leadingBid", function(PathsService, CatalogUtilsService) {
+        return {
+            restrict: "E",
+            replace: !0,
+            scope: {
+                lot: "="
+            },
+            link: function(scope) {
+                scope.$watch("lot.lastBidUpdate", function() {
+                    scope.info = CatalogUtilsService.getLeadingBidInfo(scope.lot);
+                });
+            },
+            templateUrl: PathsService.appTemplatePath("auctions/catalogs/elements/leadingBid")
+        };
+    });
+}), define("portal/js/modules/auctions/catalogs/lotElements/leadingBidMessageDirective", [ "./lotElementModule" ], function(module) {
+    module.directive("leadingBidMessage", function(PathsService, CatalogUtilsService) {
+        return {
+            restrict: "E",
+            replace: !0,
+            scope: {
+                lot: "="
+            },
+            link: function(scope) {
+                scope.$watch("lot.lastBidUpdate", function() {
+                    scope.info = CatalogUtilsService.getLeadingBidInfo(scope.lot);
+                });
+            },
+            template: '<div class="leading-bid-message">{{info.message |i18n:{price:info.messagePrice}  }}</div>'
+        };
+    });
+}), define("portal/js/modules/auctions/catalogs/lotElements/index", [ "./lotElementModule", "./lotFilters", "./lotImageDirective", "./lotPriceDirective", "./lotTextsService", "./lotBidFormDirective", "./confirmBidController", "./lotBadgeDirective", "./lotExpirationDirective", "./lotFavoriteFlagDirective", "./lotShareButtons", "./lotAlertFlagDirective", "./leadingBidDirective", "./leadingBidMessageDirective" ], function() {}), 
 define("portal/js/modules/auctions/catalogs/auctionInfo/auctionInfoModule", [ "angular" ], function(ng) {
     return ng.module("app.auctions.catalogs.auctionInfo", []);
 }), define("portal/js/modules/auctions/catalogs/auctionInfo/auctionInfoDirective", [ "./auctionInfoModule" ], function(module) {
@@ -19765,7 +19919,7 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
             var phrase = CatalogsService.getNavState().filterData.phrase;
             $timeout(function() {
                 CatalogsService.getNavState().filterData.phrase = phrase;
-            }, 100), setScroll(), udpateDocumentInfo();
+            }, 100), mLoadTime = new Date().getTime(), setScroll(), udpateDocumentInfo();
         }
         function udpateDocumentInfo() {
             var auction = $scope.data.auction;
@@ -19784,11 +19938,12 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
             DomUtilsService.setMetaTag("name", "twitter:label1", I18nService.getText("auction_date"));
         }
         function setScroll() {
-            if (mPreviousState && 0 == mPreviousState.url.indexOf("lotPage") && $scope.pagesData) {
+            var timeSinceLoad = new Date().getTime() - mLoadTime;
+            if (mPreviousState && 0 == mPreviousState.url.indexOf("lotPage") && $scope.pagesData && 5e3 > timeSinceLoad && !mScrolledToLot) {
                 var lotId = mPreviousState.args.lotId;
                 $scope.pagesData.currentPage = CatalogUtilsService.getLotPage($scope.pagesData.visibleItems, lotId, $scope.pagesData.itemsPerPage), 
-                $scope.scrollTo = lotId;
-            } else lastSceneIsOfPageFromThisAuction() ? scrollToPagination() : window.scrollTo(0, 0);
+                $scope.scrollTo = lotId, mScrolledToLot = !0;
+            } else lastSceneIsOfPageFromThisAuction() || timeSinceLoad > 4e3 ? scrollToPagination() : window.scrollTo(0, 0);
         }
         function scrollToPagination() {
             $scope.scrollToPagination = !0, $timeout(function() {
@@ -19807,8 +19962,8 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
             mPreviousState = $rootScope.$previousState;
             var navState = CatalogsService.getNavState();
             $scope.mobileElementsDimensions = CatalogsService.getMobileElementsDimensions(), 
-            lastSceneIsOfPageFromThisAuction(navState) ? (loadNavStateInfo(navState), showFakeLoader()) : (window.scrollTo(0, 0), 
-            PortalInfoService.loadAuction($stateParams.auctionId).then(function(auction) {
+            lastSceneIsOfPageFromThisAuction(navState) ? ($scope.auction = PortalInfoService.getAuction($stateParams.auctionId), 
+            loadNavStateInfo(navState), showFakeLoader()) : (window.scrollTo(0, 0), PortalInfoService.loadAuction($stateParams.auctionId).then(function(auction) {
                 auction ? ($scope.auction = auction, CatalogsService.getAuctionItems(auction).then(function(items) {
                     CatalogsService.resetNavState(auction, items), loadNavStateInfo(navState), CatalogAccountService.loadForAuction(auction), 
                     CatalogsService.updatePageItems();
@@ -19839,7 +19994,7 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
                 });
             }
         }
-        var mPreviousState = null, mFakeLoaderTimer = null;
+        var mPreviousState = null, mFakeLoaderTimer = null, mLoadTime = null, mScrolledToLot = !1;
         init();
     } ]);
 }), define("portal/js/modules/auctions/catalogs/list/catalogListItemsDirective", [ "./catalogListModule" ], function(module) {
@@ -19872,7 +20027,7 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
                         name: I18nService.getText("catalog_filter_all_categories")
                     }), scope.filterData.categories = categories;
                 }
-                var mLastSearchPhrase = "", mTimeout = null, foundItems = null;
+                var mLastSearchPhrase = null, mTimeout = null, foundItems = null;
                 scope.scrollToInput = !1, element.bind("keydown keypress", function(event) {
                     13 == event.which && element.find("input")[0].blur();
                 }), scope.searchAfterDelay = function() {
@@ -19885,6 +20040,14 @@ define("portal/js/modules/auctions/catalogs/list/catalogListModule", [ "angular"
                     scope.pagesData.visibleItems = CatalogsService.filterListWithSoldState(foundItems || scope.data.items, scope.filterData.soldState), 
                     scope.pagesData.itemsCount = scope.pagesData.visibleItems.length, scope.pagesData.currentPage = 1, 
                     scope.filterData.lastSearchTime = new Date().getTime();
+                    var messageKey;
+                    scope.filterData.phrase ? (messageKey = "search_results", mLastSearchPhrase = scope.filterData.phrase) : messageKey = "catalog_results_count", 
+                    scope.resultMessage = I18nService.getText(messageKey, {
+                        count: scope.pagesData.visibleItems.length,
+                        token: scope.filterData.phrase
+                    });
+                }, scope.clearSearch = function() {
+                    scope.filterData.phrase = "", searchIfChanged();
                 }, scope.$on("i18n.languageChanged", function() {
                     setCategories();
                 }), setCategories();
@@ -20038,10 +20201,10 @@ define("portal/js/modules/auctions/catalogs/search/searchModule", [ "angular" ],
         }, $scope.gotoLot = function(lot) {
             mSearchInfo.lastLot = lot;
             var auction = lot.auction;
-            (auction.timedAuction || auction.showLeadingBids) && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
+            auction.timedAuction && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
                 message: "auth_timed_auction"
             }, function() {
-                AppSiteWinodwsService.openAuctionSiteWindow(auction, !1, lot);
+                AppSiteWinodwsService.openAuctionSiteWindow(auction, lot);
             }) : $state.go("app.lotPage", {
                 source: "search",
                 auctionId: lot.auctionId,
@@ -20053,16 +20216,19 @@ define("portal/js/modules/auctions/catalogs/search/searchModule", [ "angular" ],
 define("portal/js/modules/auctions/catalogs/lotPage/lotPageModule", [ "angular" ], function(ng) {
     return ng.module("app.auctions.catalogs.lotPage", []);
 }), define("portal/js/modules/auctions/catalogs/lotPage/lotPageController", [ "./lotPageModule" ], function(module) {
-    module.controller("LotPageController", [ "$scope", "$state", "$stateParams", "$uibModal", "$rootScope", "$timeout", "$window", "AnalyticsService", "StringsService", "PathsService", "I18nService", "PortalAuthService", "PortalInfoService", "DomUtilsService", "CatalogUtilsService", "StructuredDataService", "PopupsService", "AccountService", "UserAlertsService", "CatalogsService", "CatalogAccountService", "MyAccountService", function($scope, $state, $stateParams, $uibModal, $rootScope, $timeout, $window, AnalyticsService, StringsService, PathsService, I18nService, PortalAuthService, PortalInfoService, DomUtilsService, CatalogUtilsService, StructuredDataService, PopupsService, AccountService, UserAlertsService, CatalogsService, CatalogAccountService, MyAccountService) {
+    module.controller("LotPageController", [ "$scope", "$state", "$stateParams", "$uibModal", "$rootScope", "$timeout", "$window", "AnalyticsService", "StringsService", "PathsService", "I18nService", "PortalAuthService", "PortalInfoService", "DomUtilsService", "CatalogUtilsService", "StructuredDataService", "PopupsService", "AccountService", "UserAlertsService", "CatalogsService", "CatalogAccountService", "MyAccountService", function($scope, $state, $stateParams, $uibModal, $rootScope, $timeout, $window, AnalyticsService, StringsService, PathsService, I18nService, PortalAuthService, PortalInfoService, DomUtilsService, CatalogUtilsService, StructuredDataService, PopupsService, AccountService, UserAlertsService, CatalogsService, CatalogAccountService) {
         function initTexts() {
             var item = $scope.data.item;
             if (item) {
-                var artist = I18nService.getLangField(item.artist), name = I18nService.getLangField(item.name), description = I18nService.getLangField(item.description), details = I18nService.getLangField(item.details), title = "", lotDesc = description + "<br>" + details;
-                artist ? (title = StringsService.stripTags(artist), name && (title += "<br>", name.length > 60 ? (title += StringsService.trimToWord(name, 60), 
-                $scope.showMore = !0, lotDesc = name + "<br>" + lotDesc) : title += name)) : name ? name.length > 120 ? (title = StringsService.trimToWord(name, 120), 
-                $scope.showMore = !0, lotDesc = name + "<br>" + lotDesc) : title = name : description && (title = StringsService.trimToWord(description, 120), 
-                description.length > 100 && ($scope.showMore = !0)), item.lotTitle = title, $scope.data.lotTitle = title, 
-                $scope.data.lotDesc = lotDesc, StringsService.isBlank(StringsService.stripTags($scope.data.lotDesc)) && ($scope.data.lotDesc = "");
+                var artist = I18nService.getLangField(item.artist), name = I18nService.getLangField(item.name), description = I18nService.getLangField(item.description), details = I18nService.getLangField(item.details), shortTitle = "", fullTitle = "", fullTitle = "", lotDesc = description + "<br>" + details;
+                artist ? (shortTitle = StringsService.stripTags(artist), fullTitle = artist, name && (shortTitle += "<br>", 
+                fullTitle += "<br>" + name, name.length > 60 ? (shortTitle += StringsService.trimToWord(name, 55), 
+                $scope.showMore = !0, lotDesc = name + "<br>" + lotDesc) : shortTitle += name)) : name ? (fullTitle = name, 
+                name.length > 120 ? (shortTitle = StringsService.trimToWord(name, 120), $scope.showMore = !0, 
+                lotDesc = name + "<br>" + lotDesc) : shortTitle = name) : description && (shortTitle = StringsService.trimToWord(description, 120), 
+                description.length > 100 && ($scope.showMore = !0)), item.lotTitle = shortTitle, 
+                $scope.data.shortTitle = shortTitle, $scope.data.fullTitle = fullTitle, $scope.data.lotDesc = lotDesc, 
+                StringsService.isBlank(StringsService.stripTags($scope.data.lotDesc)) && ($scope.data.lotDesc = "");
             }
         }
         function initFavoriteMessageWatch() {
@@ -20144,25 +20310,18 @@ define("portal/js/modules/auctions/catalogs/lotPage/lotPageModule", [ "angular" 
             }
         }
         function handleMissingAuction() {
-            $state.go("account" == $stateParams.source && $rootScope.currentUser ? "app.myAccount" : "app.home");
+            $state.go("app.home");
         }
         function handleMissingItem() {
-            "account" == $stateParams.source && $rootScope.currentUser ? $state.go("app.myAccount", {
-                houseId: $scope.data.auction.houseId
+            $scope.isFromAcount && $rootScope.currentUser ? $state.go("app.myAccount", {
+                houseId: $scope.data.auction.houseId,
+                itemsType: $stateParams.source
             }) : $state.go("app.catalog", {
                 auctionId: $stateParams.auctionId
             });
         }
         function getItem() {
-            switch ($stateParams.source) {
-              case "account":
-                return MyAccountService.getAccountItem($scope.data.auction, $stateParams.lotId);
-
-              case "search":
-              case "favorites":
-              case "catalog":
-                return CatalogsService.getAuctionItem($scope.data.auction, $stateParams.lotId);
-            }
+            return CatalogsService.getAuctionItem($scope.data.auction, $stateParams.lotId);
         }
         function loadItem() {
             getItem().then(function(item) {
@@ -20172,7 +20331,8 @@ define("portal/js/modules/auctions/catalogs/lotPage/lotPageModule", [ "angular" 
             }), $scope.$on("catalog.inquirySent", displayInquiryToast);
         }
         function init() {
-            $scope.source = $stateParams.source, PortalInfoService.loadAuction($stateParams.auctionId).then(function(auction) {
+            $scope.source = $stateParams.source, ("won" == $scope.source || "absentee" == $scope.source) && ($scope.isFromAcount = !0), 
+            PortalInfoService.loadAuction($stateParams.auctionId).then(function(auction) {
                 auction ? ($scope.data.auction = PortalInfoService.getAuction($stateParams.auctionId), 
                 loadItem()) : handleMissingAuction();
             });
@@ -20188,6 +20348,8 @@ define("portal/js/modules/auctions/catalogs/lotPage/lotPageModule", [ "angular" 
             $scope.scrollToDescriptionFlag = !0, $timeout(function() {
                 $scope.scrollToDescriptionFlag = !1;
             });
+        }, $scope.showFullText = function() {
+            $scope.data.showFullText = !0;
         }, $scope.showIncrements = function() {
             var title = I18nService.getText("house_increments_title", {
                 house: I18nService.getLangField($scope.data.auction.house.details.name)
@@ -20233,7 +20395,7 @@ define("portal/js/modules/auctions/catalogs/lotPage/lotPageModule", [ "angular" 
         }, init();
     } ]);
 }), define("portal/js/modules/auctions/catalogs/lotPage/lotPageNavigationDirective", [ "./lotPageModule" ], function(module) {
-    module.directive("bsLotPageNavigation", function($stateParams, PathsService, CatalogsService, ArraysService) {
+    module.directive("bsLotPageNavigation", function($stateParams, PathsService, PortalNavigationService, CatalogsService, ArraysService) {
         return {
             restrict: "E",
             replace: !0,
@@ -20245,6 +20407,9 @@ define("portal/js/modules/auctions/catalogs/lotPage/lotPageModule", [ "angular" 
                     var items = CatalogsService.getNavState().pagesData.visibleItems, lotInd = ArraysService.getIndById(items, scope.lot.id);
                     lotInd > 0 && (scope.previousLotId = items[lotInd - 1].id), lotInd < items.length - 1 && (scope.nextLotId = items[lotInd + 1].id);
                 }
+                scope.backToList = function() {
+                    PortalNavigationService.backFromLotPageToList(scope.lot.auction.house.id, $stateParams.source);
+                };
             },
             templateUrl: PathsService.appTemplatePath("auctions/catalogs/lotPage/common/navigation/lotPageNavigation")
         };
@@ -20406,13 +20571,6 @@ define("portal/js/modules/auctions/lists/auctionsListsModule", [ "angular" ], fu
                         auction.clickedRecently = !1;
                     }, 2e3);
                 }
-                function handleTimedAutionClick(auction) {
-                    "ENDED" == auction.state && auction.catalogInfo ? $state.go("app.catalog", {
-                        auctionId: auction.id
-                    }) : PortalAuthService.validateCompleteUserProfile({
-                        message: "auth_timed_auction"
-                    }) && AppSiteWinodwsService.openAuctionSiteWindow(auction);
-                }
                 function initTimeInfo() {
                     scope.today = DateUtilsService.formatToServerDate(new Date()), angular.forEach(scope.auctions, function(auction) {
                         var minutes = PortalInfoService.getMinutesUntilAuction(auction);
@@ -20438,7 +20596,7 @@ define("portal/js/modules/auctions/lists/auctionsListsModule", [ "angular" ], fu
                         $rootScope.lastAuctionClick = {
                             state: $state.current.name,
                             auctionId: auction.id
-                        }, house.bidspiritSiteId ? "RUNNING" == auction.state ? AppSiteWinodwsService.openAuctionSiteWindow(auction) : auction.timedAuction || auction.showLeadingBids ? handleTimedAutionClick(auction) : $state.go("app.catalog", {
+                        }, house.bidspiritSiteId ? "RUNNING" == auction.state ? AppSiteWinodwsService.openAuctionSiteWindow(auction) : $state.go("app.catalog", {
                             auctionId: auction.id,
                             page: 1
                         }) : auction.externalUrl && window.open(auction.externalUrl, "_system");
@@ -20480,7 +20638,7 @@ define("portal/js/modules/auctions/lists/auctionsListsModule", [ "angular" ], fu
                         return !1;
 
                       case "READY":
-                        return !auction.externalUrl && !auction.catalogInfo || auction.timedAuction || auction.showLeadingBids ? !1 : !0;
+                        return !auction.externalUrl && !auction.catalogInfo || auction.timedAuction ? !1 : !0;
 
                       case "RUNNING":
                         return !1;
@@ -20695,7 +20853,7 @@ define("portal/js/modules/houses/housesModule", [ "angular" ], function(ng) {
 define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
     return ng.module("app.account", [ "app.account.myAccount", "app.account.favorites" ]);
 }), define("portal/js/modules/account/accountService", [ "./accountModule" ], function(module) {
-    module.factory("AccountService", function($q, $log, $rootScope, $uibModal, $uibModalStack, $state, AnalyticsService, ArraysService, ApiService, PathsService, DialogsService, CatalogUtilsService, I18nService, PopupsService, PortalAuthService, CatalogsService, PortalInfoService) {
+    module.factory("AccountService", function($q, $log, $rootScope, $uibModal, $uibModalStack, $state, AnalyticsService, ArraysService, ApiService, PathsService, DialogsService, CatalogUtilsService, I18nService, LogService, PopupsService, PortalAuthService, CatalogsService, PortalInfoService) {
         function requestApprovalFromHouse(house, userStateId) {
             return ApiService.callApi("/account/requestApprovalFromHouse", {
                 houseId: house.id,
@@ -20712,7 +20870,13 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
             }
         }
         function setBidInfoForItem(item, bidFieldName, bid) {
-            item && (item[bidFieldName] = bid, item.lastBidUpdate = new Date().getTime());
+            if (item) {
+                var oldBid = item[bidFieldName];
+                oldBid && bid && oldBid.price == bid.price || (item[bidFieldName] = bid, item.lastBidUpdate = new Date().getTime());
+            } else LogService.logError("Trying to update field " + bidFieldName + " for non existing item to bid " + JSON.stringify(bid));
+        }
+        function updateLeadingBid(item, bid) {
+            item.leadingBid = bid, item.lastBidUpdate = new Date().getTime();
         }
         function addFavoriteFlagToItems(auction, itemIds) {
             if (itemIds) for (var i = 0; i < itemIds.length; i++) {
@@ -20790,15 +20954,18 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
                 lotId: lot.id,
                 price: price
             }).success(function(response) {
-                response.success ? setBidInfoForItem(lot, "selfAbsenteeBid", response.bid) : handleFailure(response);
+                response.success ? handleAbsenteeBidUpdate(lot, response.bid) : handleFailure(response);
             });
+        }
+        function handleAbsenteeBidUpdate(lot, bid) {
+            setBidInfoForItem(lot, "selfAbsenteeBid", bid);
         }
         function removeAbsenteeBid(houseId, lot) {
             return ApiService.callApi("/account/removeAbsenteeBid", {
                 houseId: houseId,
                 lotId: lot.id
             }).success(function(response) {
-                response.success ? setBidInfoForItem(lot, "selfAbsenteeBid", null) : handleFailure(response);
+                response.success ? handleAbsenteeBidUpdate(lot, null) : handleFailure(response);
             });
         }
         function setFavoriteItem(house, lot, isOn) {
@@ -20851,7 +21018,7 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
                 deferred.resolve(itemsWithAuctions);
             }), deferred.promise;
         }
-        var mFavoritesSceneInfo = {}, mWaitingActionAfterHouseApprovalRequest = {};
+        var mFavoritesSceneInfo = {}, mWaitingActionAfterHouseApprovalRequest = {}, mScope = $rootScope.$new();
         return $rootScope.$on("auth.houseApprovalChanged", checkIfActionWaitingAfterHouseApprovalRequest), 
         {
             addBidsInfoToItems: addBidsInfoToItems,
@@ -20868,7 +21035,10 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
             favoritesSceneInfo: mFavoritesSceneInfo,
             setItemAlert: setItemAlert,
             addItemAlertToItems: addItemAlertToItems,
-            getItemsWithAlerts: getItemsWithAlerts
+            getItemsWithAlerts: getItemsWithAlerts,
+            updateLeadingBid: updateLeadingBid,
+            handleAbsenteeBidUpdate: handleAbsenteeBidUpdate,
+            scope: mScope
         };
     });
 }), define("portal/js/modules/account/houseApprovalDirective", [ "./accountModule" ], function(module) {
@@ -20934,7 +21104,7 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/account/bidRulesService", [ "./accountModule" ], function(module) {
     module.factory("BidRulesService", function($q, $rootScope, $uibModal, ArraysService, StringsService, I18nService, PopupsService) {
         function validBid(lot, price) {
-            var errorKey = null, currency = lot.auction.catalogInfo.currency, minPrice = lot.startPrice, textParams = {
+            var errorKey = null, currency = lot.auction.catalogInfo.currency, minPrice = newPreBidMinPrice(lot), textParams = {
                 price: price
             };
             if (StringsService.isBlank(price)) errorKey = "empty"; else {
@@ -20957,6 +21127,15 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
             }
             return !0;
         }
+        function minBidPrice(lot) {
+            if (lot.startPrice) return lot.startPrice;
+            var increments = lot.auction.house.increments;
+            if (!increments) return 0;
+            var price = Object.keys(increments)[0];
+            if (0 != price) return price;
+            var step = increments[price];
+            return step;
+        }
         function getNearIncrementPrices(lot, price) {
             for (var increments = lot.auction.house.increments, step = getStepForPrice(increments, price), stepPrice = 1 * increments[step], prevIncrementPrice = 1 * step, nextIncrementPrice = prevIncrementPrice + stepPrice; price >= nextIncrementPrice; ) prevIncrementPrice = nextIncrementPrice, 
             nextIncrementPrice += stepPrice;
@@ -20968,13 +21147,23 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
         function getStepForPrice(increments, price) {
             var prevStep = null;
             for (var step in increments) {
-                if (step >= price) return prevStep ? prevStep : step;
+                if (step > price) return prevStep ? prevStep : step;
                 prevStep = step;
             }
             return prevStep;
         }
+        function newPreBidMinPrice(lot) {
+            var minPrice = minBidPrice(lot);
+            if (lot.leadingBid) {
+                var leadingBidPrice = lot.leadingBid.price;
+                return lot.selfAbsenteeBid && lot.selfAbsenteeBid.userIdInApp == lot.leadingBid.userIdInApp ? leadingBidPrice : getNearIncrementPrices(lot, leadingBidPrice).next;
+            }
+            return minPrice;
+        }
         return {
-            validBid: validBid
+            validBid: validBid,
+            minBidPrice: minBidPrice,
+            newPreBidMinPrice: newPreBidMinPrice
         };
     });
 }), define("portal/js/modules/account/favorites/favoritesModule", [ "angular" ], function(ng) {
@@ -21045,10 +21234,10 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
                 $scope.data.sceneInfo.lastClickedLot = lot, $scope.data.sceneInfo.lastClickedLotInd = ArraysService.getIndById($scope.data.sceneInfo.items, lot.id), 
                 $scope.data.sceneInfo.lastClickedLotTime = new Date().getTime();
                 var auction = lot.auction;
-                (auction.timedAuction || auction.showLeadingBids) && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
+                auction.timedAuction && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
                     message: "auth_timed_auction"
                 }, function() {
-                    AppSiteWinodwsService.openAuctionSiteWindow(auction, !1, lot);
+                    AppSiteWinodwsService.openAuctionSiteWindow(auction, lot);
                 }) : $state.go("app.lotPage", {
                     source: "favorites",
                     auctionId: lot.auctionId,
@@ -21077,7 +21266,7 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
 define("portal/js/modules/account/myAccount/myAccountModule", [ "angular" ], function(ng) {
     return ng.module("app.account.myAccount", []);
 }), define("portal/js/modules/account/myAccount/myAccountContoller", [ "./myAccountModule" ], function(module) {
-    module.controller("MyAccountController", [ "$rootScope", "$scope", "$state", "$stateParams", "$uibModal", "ArraysService", "I18nService", "PortalTextsService", "PortalInfoService", "PortalAuthService", "AccountService", "MyAccountService", function($rootScope, $scope, $state, $stateParams, $uibModal, ArraysService, I18nService, PortalTextsService, PortalInfoService, PortalAuthService, AccountService, MyAccountService) {
+    module.controller("MyAccountController", [ "$rootScope", "$scope", "$state", "$stateParams", "$uibModal", "ArraysService", "I18nService", "PortalTextsService", "PortalInfoService", "PortalAuthService", "AccountService", "MyAccountService", "CatalogUtilsService", function($rootScope, $scope, $state, $stateParams, $uibModal, ArraysService, I18nService, PortalTextsService, PortalInfoService, PortalAuthService, AccountService, MyAccountService, CatalogUtilsService) {
         function setItemsType() {
             $scope.itemsType = $stateParams.itemsType, $scope.titleKey = "link_" + $scope.itemsType, 
             $scope.messageKey = "my_account_message_" + $scope.itemsType, $scope.viewKey = "my_account_view_" + $scope.itemsType;
@@ -21095,7 +21284,9 @@ define("portal/js/modules/account/myAccount/myAccountModule", [ "angular" ], fun
                 auctionInfo.wonLots && "won" == $scope.itemsType && (soldAuctions.push(auctionInfo), 
                 empty = !1);
             }
-            ArraysService.inverse(soldAuctions), houseEntry = {
+            soldAuctions.sort(function(auction1Info, auction2Info) {
+                return CatalogUtilsService.compareAuctions(auction1Info.auction, auction2Info.auction);
+            }), houseEntry = {
                 auctions: {
                     current: currentAuctions,
                     sold: soldAuctions
@@ -21115,8 +21306,8 @@ define("portal/js/modules/account/myAccount/myAccountModule", [ "angular" ], fun
         function loadNewOpenedHouse() {
             var allClosed = !0;
             $scope.error = null;
-            for (houseId in $scope.data.opened) $scope.data.opened[houseId] && !$scope.data.loading[houseId] && ($scope.data.loading[houseId] = !0, 
-            allClosed = !1, $scope.loadAccountEntryForHouse(houseId));
+            for (houseId in $scope.data.opened) $scope.data.opened[houseId] && (allClosed = !1, 
+            $scope.data.loading[houseId] || ($scope.data.loading[houseId] = !0, $scope.loadAccountEntryForHouse(houseId)));
             allClosed && $state.go("app.myAccount", {
                 houseId: null
             });
@@ -21172,7 +21363,7 @@ define("portal/js/modules/account/myAccount/myAccountModule", [ "angular" ], fun
         };
     });
 }), define("portal/js/modules/account/myAccount/myAccountAuctionBidsDirective", [ "./myAccountModule" ], function(module) {
-    module.directive("bsMyAccountAuctionBids", function($rootScope, $filter, $uibModal, $state, PathsService, I18nService, CatalogUtilsService, AppSiteWinodwsService, AccountService) {
+    module.directive("bsMyAccountAuctionBids", function($rootScope, $filter, $uibModal, $stateParams, $state, PathsService, I18nService, CatalogUtilsService, AppSiteWinodwsService, AccountService) {
         return {
             restrict: "E",
             replace: !0,
@@ -21203,12 +21394,12 @@ define("portal/js/modules/account/myAccount/myAccountModule", [ "angular" ], fun
                 scope.currency = auction.catalogInfo.currency, scope.scrollTo = $rootScope.$previousState.args.lotId, 
                 CatalogUtilsService.sortLots(scope.lots), scope.gotoLot = function(lot) {
                     var auction = lot.auction;
-                    (auction.timedAuction || auction.showLeadingBids) && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
+                    auction.timedAuction && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
                         message: "auth_timed_auction"
                     }, function() {
-                        AppSiteWinodwsService.openAuctionSiteWindow(auction, !1, lot);
+                        AppSiteWinodwsService.openAuctionSiteWindow(auction, lot);
                     }) : $state.go("app.lotPage", {
-                        source: "account",
+                        source: $stateParams.itemsType,
                         auctionId: lot.auction.id,
                         lotId: lot.id
                     });
@@ -21374,8 +21565,11 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
                 templateUrl: PathsService.appTemplatePath("alerts/popups/auctionStartPopup"),
                 size: "lg",
                 controller: function($scope) {
-                    $scope.auction = angular.copy(auction), $scope.auction.state = "RUNNING", $scope.openAuctionSite = function() {
+                    $scope.auction = angular.copy(auction), $scope.message = auction.catalogOnly && !auction.absenteeBidsOnly ? "push_auction_start_message" : "push_auction_start_message_no_live", 
+                    $scope.auction.state = "RUNNING", $scope.openAuctionSite = function() {
                         AppSiteWinodwsService.openAuctionSiteWindow($scope.auction), $scope.$close();
+                    }, $scope.dismiss = function() {
+                        $scope.$close();
                     };
                 }
             });
@@ -21573,14 +21767,17 @@ define("portal/js/modules/ads/adsModule", [ "angular" ], function(ng) {
             }), defered.promise;
         }
         function initHouseAds(adsInfo) {
-            for (var ads = adsInfo.houseAds, relevantAds = [], i = 0; i < ads.length; i++) {
-                var ad = ads[i];
-                initAd(ad), ad.house && relevantAds.push(ad);
+            var ads = adsInfo.houseAds || [];
+            if (ads) {
+                for (var relevantAds = [], i = 0; i < ads.length; i++) {
+                    var ad = ads[i];
+                    initAd(ad), ad.house && relevantAds.push(ad);
+                }
+                adsInfo.houseAds = relevantAds, ArraysService.shuffle(adsInfo.houseAds);
             }
-            adsInfo.houseAds = relevantAds, ArraysService.shuffle(adsInfo.houseAds);
         }
         function initItemsAds(adsInfo) {
-            for (var ads = adsInfo.itemAds, relevantAds = [], futureAds = [], i = 0; i < ads.length; i++) {
+            for (var ads = adsInfo.itemAds || [], relevantAds = [], futureAds = [], i = 0; i < ads.length; i++) {
                 var ad = ads[i];
                 initAd(ad), ad.house && ad.auction && (relevantAds.push(ad), PortalInfoService.getMinutesUntilAuction(ad.auction) > -300 && futureAds.push(ad));
             }
@@ -21779,7 +21976,9 @@ define("portal/js/modules/ads/adsModule", [ "angular" ], function(ng) {
             restrict: "E",
             replace: !0,
             link: function(scope) {
-                scope.houseAd = AdsService.getHouseAds()[0], scope.onClick = function() {
+                AdsService.getAdsInfo().then(function() {
+                    scope.houseAd = AdsService.getHouseAds()[0];
+                }), scope.onClick = function() {
                     switch (AnalyticsService.trackEvent("houseAction", "clickOnHouseAd", "house:" + scope.houseAd.house.code), 
                     LogService.logMessage("HOUSE_AD_CLICK " + scope.houseAd.adType + " " + scope.houseAd.house.code), 
                     scope.houseAd.adType) {
@@ -21788,14 +21987,14 @@ define("portal/js/modules/ads/adsModule", [ "angular" ], function(ng) {
                         (auction.timedAuction || auction.showLeadingBids) && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
                             message: "auth_timed_auction"
                         }, function() {
-                            AppSiteWinodwsService.openAuctionSiteWindow(auction, !1);
+                            AppSiteWinodwsService.openAuctionSiteWindow(auction);
                         }) : $state.go("app.catalog", {
                             auctionId: auction.id
                         });
                         break;
 
                       case "EXTERNAL_AD":
-                        PortalNavigationService.openWindow(scope.houseAd.externalUrl);
+                        scope.houseAd.externalUrl.match(/.{3,}\.bidspirit\.com/) ? AppSiteWinodwsService.openBidspiritSiteUrl(scope.houseAd.externalUrl, scope.houseAd.house.id) : PortalNavigationService.openWindow(scope.houseAd.externalUrl);
                     }
                 };
             },
@@ -21849,7 +22048,7 @@ define("portal/js/modules/ads/adsModule", [ "angular" ], function(ng) {
                     (auction.timedAuction || auction.showLeadingBids) && "ENDED" != auction.state ? AccountService.validateRegisteredInHouseAndThen(auction.house, {
                         message: "auth_timed_auction"
                     }, function() {
-                        AppSiteWinodwsService.openAuctionSiteWindow(auction, !1, lot);
+                        AppSiteWinodwsService.openAuctionSiteWindow(auction, lot);
                     }) : $state.go("app.lotPage", {
                         source: "catalog",
                         auctionId: auction.id,
@@ -22186,7 +22385,3801 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
             }
         };
     });
-}), define("portal/js/modules/components/index", [ "./componentsModule", "./houseCarouselDirective", "./contentLoaderDirective", "./pageFooterDirective", "./popupsService", "./structuredDataService", "./upperPartDirective" ], function() {}), 
+}), function(b, c) {
+    "function" == typeof define && define.amd ? define("pusher", [], function() {
+        return b.Pusher = c();
+    }) : "object" == typeof exports ? module.exports = c() : b.Pusher = c();
+}(this, function() {
+    return function() {
+        function b(a, d) {
+            (null === a || void 0 === a) && b.warn("Warning", "You must pass your app key when you instantiate Pusher."), 
+            d = d || {};
+            var c = this;
+            this.key = a, this.config = b.Util.extend(b.getGlobalConfig(), d.cluster ? b.getClusterConfig(d.cluster) : {}, d), 
+            this.channels = new b.Channels(), this.global_emitter = new b.EventsDispatcher(), 
+            this.sessionID = Math.floor(1e9 * Math.random()), this.timeline = new b.Timeline(this.key, this.sessionID, {
+                cluster: this.config.cluster,
+                features: b.Util.getClientFeatures(),
+                params: this.config.timelineParams || {},
+                limit: 50,
+                level: b.Timeline.INFO,
+                version: b.VERSION
+            }), this.config.disableStats || (this.timelineSender = new b.TimelineSender(this.timeline, {
+                host: this.config.statsHost,
+                path: "/timeline/v2/jsonp"
+            })), this.connection = new b.ConnectionManager(this.key, b.Util.extend({
+                getStrategy: function(a) {
+                    return a = b.Util.extend({}, c.config, a), b.StrategyBuilder.build(b.getDefaultStrategy(a), a);
+                },
+                timeline: this.timeline,
+                activityTimeout: this.config.activity_timeout,
+                pongTimeout: this.config.pong_timeout,
+                unavailableTimeout: this.config.unavailable_timeout
+            }, this.config, {
+                encrypted: this.isEncrypted()
+            })), this.connection.bind("connected", function() {
+                c.subscribeAll(), c.timelineSender && c.timelineSender.send(c.connection.isEncrypted());
+            }), this.connection.bind("message", function(a) {
+                var d = 0 === a.event.indexOf("pusher_internal:");
+                if (a.channel) {
+                    var b = c.channel(a.channel);
+                    b && b.handleEvent(a.event, a.data);
+                }
+                d || c.global_emitter.emit(a.event, a.data);
+            }), this.connection.bind("disconnected", function() {
+                c.channels.disconnect();
+            }), this.connection.bind("error", function(a) {
+                b.warn("Error", a);
+            }), b.instances.push(this), this.timeline.info({
+                instances: b.instances.length
+            }), b.isReady && c.connect();
+        }
+        var c = b.prototype;
+        b.instances = [], b.isReady = !1, b.debug = function() {
+            b.log && b.log(b.Util.stringify.apply(this, arguments));
+        }, b.warn = function() {
+            var a = b.Util.stringify.apply(this, arguments);
+            window.console && (window.console.warn ? window.console.warn(a) : window.console.log && window.console.log(a)), 
+            b.log && b.log(a);
+        }, b.ready = function() {
+            b.isReady = !0;
+            for (var a = 0, d = b.instances.length; d > a; a++) b.instances[a].connect();
+        }, c.channel = function(a) {
+            return this.channels.find(a);
+        }, c.allChannels = function() {
+            return this.channels.all();
+        }, c.connect = function() {
+            if (this.connection.connect(), this.timelineSender && !this.timelineSenderTimer) {
+                var a = this.connection.isEncrypted(), d = this.timelineSender;
+                this.timelineSenderTimer = new b.PeriodicTimer(6e4, function() {
+                    d.send(a);
+                });
+            }
+        }, c.disconnect = function() {
+            this.connection.disconnect(), this.timelineSenderTimer && (this.timelineSenderTimer.ensureAborted(), 
+            this.timelineSenderTimer = null);
+        }, c.bind = function(a, d) {
+            return this.global_emitter.bind(a, d), this;
+        }, c.bind_all = function(a) {
+            return this.global_emitter.bind_all(a), this;
+        }, c.subscribeAll = function() {
+            for (var a in this.channels.channels) this.channels.channels.hasOwnProperty(a) && this.subscribe(a);
+        }, c.subscribe = function(a) {
+            return a = this.channels.add(a, this), "connected" === this.connection.state && a.subscribe(), 
+            a;
+        }, c.unsubscribe = function(a) {
+            (a = this.channels.remove(a)) && "connected" === this.connection.state && a.unsubscribe();
+        }, c.send_event = function(a, d, b) {
+            return this.connection.send_event(a, d, b);
+        }, c.isEncrypted = function() {
+            return "https:" === b.Util.getDocument().location.protocol ? !0 : Boolean(this.config.encrypted);
+        }, b.HTTP = {}, this.Pusher = b;
+    }.call(this), function() {
+        function b(a) {
+            window.clearTimeout(a);
+        }
+        function c(a) {
+            window.clearInterval(a);
+        }
+        function a(a, d, b, c) {
+            var k = this;
+            this.clear = d, this.timer = a(function() {
+                null !== k.timer && (k.timer = c(k.timer));
+            }, b);
+        }
+        var d = a.prototype;
+        d.isRunning = function() {
+            return null !== this.timer;
+        }, d.ensureAborted = function() {
+            this.timer && (this.clear(this.timer), this.timer = null);
+        }, Pusher.Timer = function(d, c) {
+            return new a(setTimeout, b, d, function() {
+                return c(), null;
+            });
+        }, Pusher.PeriodicTimer = function(d, b) {
+            return new a(setInterval, c, d, function(a) {
+                return b(), a;
+            });
+        };
+    }.call(this), function() {
+        Pusher.Util = {
+            now: function() {
+                return Date.now ? Date.now() : new Date().valueOf();
+            },
+            defer: function(b) {
+                return new Pusher.Timer(0, b);
+            },
+            extend: function(b) {
+                for (var c = 1; c < arguments.length; c++) {
+                    var d, a = arguments[c];
+                    for (d in a) b[d] = a[d] && a[d].constructor && a[d].constructor === Object ? Pusher.Util.extend(b[d] || {}, a[d]) : a[d];
+                }
+                return b;
+            },
+            stringify: function() {
+                for (var b = [ "Pusher" ], c = 0; c < arguments.length; c++) b.push("string" == typeof arguments[c] ? arguments[c] : void 0 === window.JSON ? arguments[c].toString() : JSON.stringify(arguments[c]));
+                return b.join(" : ");
+            },
+            arrayIndexOf: function(b, c) {
+                var a = Array.prototype.indexOf;
+                if (null === b) return -1;
+                if (a && b.indexOf === a) return b.indexOf(c);
+                for (var a = 0, d = b.length; d > a; a++) if (b[a] === c) return a;
+                return -1;
+            },
+            objectApply: function(b, c) {
+                for (var a in b) Object.prototype.hasOwnProperty.call(b, a) && c(b[a], a, b);
+            },
+            keys: function(b) {
+                var c = [];
+                return Pusher.Util.objectApply(b, function(a, d) {
+                    c.push(d);
+                }), c;
+            },
+            values: function(b) {
+                var c = [];
+                return Pusher.Util.objectApply(b, function(a) {
+                    c.push(a);
+                }), c;
+            },
+            apply: function(b, c, a) {
+                for (var d = 0; d < b.length; d++) c.call(a || window, b[d], d, b);
+            },
+            map: function(b, c) {
+                for (var a = [], d = 0; d < b.length; d++) a.push(c(b[d], d, b, a));
+                return a;
+            },
+            mapObject: function(b, c) {
+                var a = {};
+                return Pusher.Util.objectApply(b, function(d, b) {
+                    a[b] = c(d);
+                }), a;
+            },
+            filter: function(b, c) {
+                c = c || function(a) {
+                    return !!a;
+                };
+                for (var a = [], d = 0; d < b.length; d++) c(b[d], d, b, a) && a.push(b[d]);
+                return a;
+            },
+            filterObject: function(b, c) {
+                var a = {};
+                return Pusher.Util.objectApply(b, function(d, h) {
+                    (c && c(d, h, b, a) || Boolean(d)) && (a[h] = d);
+                }), a;
+            },
+            flatten: function(b) {
+                var c = [];
+                return Pusher.Util.objectApply(b, function(a, d) {
+                    c.push([ d, a ]);
+                }), c;
+            },
+            any: function(b, c) {
+                for (var a = 0; a < b.length; a++) if (c(b[a], a, b)) return !0;
+                return !1;
+            },
+            all: function(b, c) {
+                for (var a = 0; a < b.length; a++) if (!c(b[a], a, b)) return !1;
+                return !0;
+            },
+            method: function(b) {
+                var c = Array.prototype.slice.call(arguments, 1);
+                return function(a) {
+                    return a[b].apply(a, c.concat(arguments));
+                };
+            },
+            getWindow: function() {
+                return window;
+            },
+            getDocument: function() {
+                return document;
+            },
+            getLocalStorage: function() {
+                try {
+                    return window.localStorage;
+                } catch (b) {}
+            },
+            getClientFeatures: function() {
+                return Pusher.Util.keys(Pusher.Util.filterObject({
+                    ws: Pusher.WSTransport
+                }, function(b) {
+                    return b.isSupported({});
+                }));
+            },
+            addWindowListener: function(b, c) {
+                var a = Pusher.Util.getWindow();
+                void 0 !== a.addEventListener ? a.addEventListener(b, c, !1) : a.attachEvent("on" + b, c);
+            },
+            removeWindowListener: function(b, c) {
+                var a = Pusher.Util.getWindow();
+                void 0 !== a.addEventListener ? a.removeEventListener(b, c, !1) : a.detachEvent("on" + b, c);
+            },
+            isXHRSupported: function() {
+                var b = window.XMLHttpRequest;
+                return Boolean(b) && void 0 !== new b().withCredentials;
+            },
+            isXDRSupported: function(b) {
+                b = b ? "https:" : "http:";
+                var c = Pusher.Util.getDocument().location.protocol;
+                return Boolean(window.XDomainRequest) && c === b;
+            }
+        };
+    }.call(this), function() {
+        Pusher.VERSION = "3.0.0", Pusher.PROTOCOL = 7, Pusher.host = "ws.pusherapp.com", 
+        Pusher.ws_port = 80, Pusher.wss_port = 443, Pusher.sockjs_host = "sockjs.pusher.com", 
+        Pusher.sockjs_http_port = 80, Pusher.sockjs_https_port = 443, Pusher.sockjs_path = "/pusher", 
+        Pusher.stats_host = "stats.pusher.com", Pusher.channel_auth_endpoint = "/pusher/auth", 
+        Pusher.channel_auth_transport = "ajax", Pusher.activity_timeout = 12e4, Pusher.pong_timeout = 3e4, 
+        Pusher.unavailable_timeout = 1e4, Pusher.cdn_http = "http://js.pusher.com/", Pusher.cdn_https = "https://js.pusher.com/", 
+        Pusher.dependency_suffix = ".min", Pusher.getDefaultStrategy = function(b) {
+            return [ [ ":def", "ws_options", {
+                hostUnencrypted: b.wsHost + ":" + b.wsPort,
+                hostEncrypted: b.wsHost + ":" + b.wssPort
+            } ], [ ":def", "wss_options", [ ":extend", ":ws_options", {
+                encrypted: !0
+            } ] ], [ ":def", "sockjs_options", {
+                hostUnencrypted: b.httpHost + ":" + b.httpPort,
+                hostEncrypted: b.httpHost + ":" + b.httpsPort,
+                httpPath: b.httpPath
+            } ], [ ":def", "timeouts", {
+                loop: !0,
+                timeout: 15e3,
+                timeoutLimit: 6e4
+            } ], [ ":def", "ws_manager", [ ":transport_manager", {
+                lives: 2,
+                minPingDelay: 1e4,
+                maxPingDelay: b.activity_timeout
+            } ] ], [ ":def", "streaming_manager", [ ":transport_manager", {
+                lives: 2,
+                minPingDelay: 1e4,
+                maxPingDelay: b.activity_timeout
+            } ] ], [ ":def_transport", "ws", "ws", 3, ":ws_options", ":ws_manager" ], [ ":def_transport", "wss", "ws", 3, ":wss_options", ":ws_manager" ], [ ":def_transport", "sockjs", "sockjs", 1, ":sockjs_options" ], [ ":def_transport", "xhr_streaming", "xhr_streaming", 1, ":sockjs_options", ":streaming_manager" ], [ ":def_transport", "xdr_streaming", "xdr_streaming", 1, ":sockjs_options", ":streaming_manager" ], [ ":def_transport", "xhr_polling", "xhr_polling", 1, ":sockjs_options" ], [ ":def_transport", "xdr_polling", "xdr_polling", 1, ":sockjs_options" ], [ ":def", "ws_loop", [ ":sequential", ":timeouts", ":ws" ] ], [ ":def", "wss_loop", [ ":sequential", ":timeouts", ":wss" ] ], [ ":def", "sockjs_loop", [ ":sequential", ":timeouts", ":sockjs" ] ], [ ":def", "streaming_loop", [ ":sequential", ":timeouts", [ ":if", [ ":is_supported", ":xhr_streaming" ], ":xhr_streaming", ":xdr_streaming" ] ] ], [ ":def", "polling_loop", [ ":sequential", ":timeouts", [ ":if", [ ":is_supported", ":xhr_polling" ], ":xhr_polling", ":xdr_polling" ] ] ], [ ":def", "http_loop", [ ":if", [ ":is_supported", ":streaming_loop" ], [ ":best_connected_ever", ":streaming_loop", [ ":delayed", 4e3, [ ":polling_loop" ] ] ], [ ":polling_loop" ] ] ], [ ":def", "http_fallback_loop", [ ":if", [ ":is_supported", ":http_loop" ], [ ":http_loop" ], [ ":sockjs_loop" ] ] ], [ ":def", "strategy", [ ":cached", 18e5, [ ":first_connected", [ ":if", [ ":is_supported", ":ws" ], b.encrypted ? [ ":best_connected_ever", ":ws_loop", [ ":delayed", 2e3, [ ":http_fallback_loop" ] ] ] : [ ":best_connected_ever", ":ws_loop", [ ":delayed", 2e3, [ ":wss_loop" ] ], [ ":delayed", 5e3, [ ":http_fallback_loop" ] ] ], ":http_fallback_loop" ] ] ] ] ];
+        };
+    }.call(this), function() {
+        Pusher.getGlobalConfig = function() {
+            return {
+                wsHost: Pusher.host,
+                wsPort: Pusher.ws_port,
+                wssPort: Pusher.wss_port,
+                httpHost: Pusher.sockjs_host,
+                httpPort: Pusher.sockjs_http_port,
+                httpsPort: Pusher.sockjs_https_port,
+                httpPath: Pusher.sockjs_path,
+                statsHost: Pusher.stats_host,
+                authEndpoint: Pusher.channel_auth_endpoint,
+                authTransport: Pusher.channel_auth_transport,
+                activity_timeout: Pusher.activity_timeout,
+                pong_timeout: Pusher.pong_timeout,
+                unavailable_timeout: Pusher.unavailable_timeout
+            };
+        }, Pusher.getClusterConfig = function(b) {
+            return {
+                wsHost: "ws-" + b + ".pusher.com",
+                httpHost: "sockjs-" + b + ".pusher.com"
+            };
+        };
+    }.call(this), function() {
+        function b(b) {
+            var a = function(a) {
+                Error.call(this, a), this.name = b;
+            };
+            return Pusher.Util.extend(a.prototype, Error.prototype), a;
+        }
+        Pusher.Errors = {
+            BadEventName: b("BadEventName"),
+            RequestTimedOut: b("RequestTimedOut"),
+            TransportPriorityTooLow: b("TransportPriorityTooLow"),
+            TransportClosed: b("TransportClosed"),
+            UnsupportedTransport: b("UnsupportedTransport"),
+            UnsupportedStrategy: b("UnsupportedStrategy")
+        };
+    }.call(this), function() {
+        function b(a) {
+            this.callbacks = new c(), this.global_callbacks = [], this.failThrough = a;
+        }
+        function c() {
+            this._callbacks = {};
+        }
+        var a = b.prototype;
+        a.bind = function(a, b, c) {
+            return this.callbacks.add(a, b, c), this;
+        }, a.bind_all = function(a) {
+            return this.global_callbacks.push(a), this;
+        }, a.unbind = function(a, b, c) {
+            return this.callbacks.remove(a, b, c), this;
+        }, a.unbind_all = function(a, b) {
+            return this.callbacks.remove(a, b), this;
+        }, a.emit = function(a, b) {
+            var c;
+            for (c = 0; c < this.global_callbacks.length; c++) this.global_callbacks[c](a, b);
+            var e = this.callbacks.get(a);
+            if (e && 0 < e.length) for (c = 0; c < e.length; c++) e[c].fn.call(e[c].context || window, b); else this.failThrough && this.failThrough(a, b);
+            return this;
+        }, c.prototype.get = function(a) {
+            return this._callbacks["_" + a];
+        }, c.prototype.add = function(a, b, c) {
+            a = "_" + a, this._callbacks[a] = this._callbacks[a] || [], this._callbacks[a].push({
+                fn: b,
+                context: c
+            });
+        }, c.prototype.remove = function(a, b, c) {
+            a || b || c ? (a = a ? [ "_" + a ] : Pusher.Util.keys(this._callbacks), b || c ? Pusher.Util.apply(a, function(a) {
+                this._callbacks[a] = Pusher.Util.filter(this._callbacks[a] || [], function(a) {
+                    return b && b !== a.fn || c && c !== a.context;
+                }), 0 === this._callbacks[a].length && delete this._callbacks[a];
+            }, this) : Pusher.Util.apply(a, function(a) {
+                delete this._callbacks[a];
+            }, this)) : this._callbacks = {};
+        }, Pusher.EventsDispatcher = b;
+    }.call(this), function() {
+        function b(a, d) {
+            this.lastId = 0, this.prefix = a, this.name = d;
+        }
+        var c = b.prototype;
+        c.create = function(a) {
+            this.lastId++;
+            var d = this.lastId, b = this.prefix + d, c = this.name + "[" + d + "]", e = !1, g = function() {
+                e || (a.apply(null, arguments), e = !0);
+            };
+            return this[d] = g, {
+                number: d,
+                id: b,
+                name: c,
+                callback: g
+            };
+        }, c.remove = function(a) {
+            delete this[a.number];
+        }, Pusher.ScriptReceiverFactory = b, Pusher.ScriptReceivers = new b("_pusher_script_", "Pusher.ScriptReceivers");
+    }.call(this), function() {
+        function b(a) {
+            this.src = a;
+        }
+        var c = b.prototype;
+        c.send = function(a) {
+            var d = this, b = "Error loading " + d.src;
+            d.script = document.createElement("script"), d.script.id = a.id, d.script.src = d.src, 
+            d.script.type = "text/javascript", d.script.charset = "UTF-8", d.script.addEventListener ? (d.script.onerror = function() {
+                a.callback(b);
+            }, d.script.onload = function() {
+                a.callback(null);
+            }) : d.script.onreadystatechange = function() {
+                ("loaded" === d.script.readyState || "complete" === d.script.readyState) && a.callback(null);
+            }, void 0 === d.script.async && document.attachEvent && /opera/i.test(navigator.userAgent) ? (d.errorScript = document.createElement("script"), 
+            d.errorScript.id = a.id + "_error", d.errorScript.text = a.name + "('" + b + "');", 
+            d.script.async = d.errorScript.async = !1) : d.script.async = !0;
+            var c = document.getElementsByTagName("head")[0];
+            c.insertBefore(d.script, c.firstChild), d.errorScript && c.insertBefore(d.errorScript, d.script.nextSibling);
+        }, c.cleanup = function() {
+            this.script && (this.script.onload = this.script.onerror = null, this.script.onreadystatechange = null), 
+            this.script && this.script.parentNode && this.script.parentNode.removeChild(this.script), 
+            this.errorScript && this.errorScript.parentNode && this.errorScript.parentNode.removeChild(this.errorScript), 
+            this.errorScript = this.script = null;
+        }, Pusher.ScriptRequest = b;
+    }.call(this), function() {
+        function b(a) {
+            this.options = a, this.receivers = a.receivers || Pusher.ScriptReceivers, this.loading = {};
+        }
+        var c = b.prototype;
+        c.load = function(a, d, b) {
+            var c = this;
+            if (c.loading[a] && 0 < c.loading[a].length) c.loading[a].push(b); else {
+                c.loading[a] = [ b ];
+                var e = new Pusher.ScriptRequest(c.getPath(a, d)), g = c.receivers.create(function(d) {
+                    if (c.receivers.remove(g), c.loading[a]) {
+                        var b = c.loading[a];
+                        delete c.loading[a];
+                        for (var h = function(a) {
+                            a || e.cleanup();
+                        }, m = 0; m < b.length; m++) b[m](d, h);
+                    }
+                });
+                e.send(g);
+            }
+        }, c.getRoot = function(a) {
+            var d = Pusher.Util.getDocument().location.protocol;
+            return (a && a.encrypted || "https:" === d ? this.options.cdn_https : this.options.cdn_http).replace(/\/*$/, "") + "/" + this.options.version;
+        }, c.getPath = function(a, d) {
+            return this.getRoot(d) + "/" + a + this.options.suffix + ".js";
+        }, Pusher.DependencyLoader = b;
+    }.call(this), function() {
+        function b() {
+            Pusher.ready();
+        }
+        function c(a) {
+            document.body ? a() : setTimeout(function() {
+                c(a);
+            }, 0);
+        }
+        function a() {
+            c(b);
+        }
+        Pusher.DependenciesReceivers = new Pusher.ScriptReceiverFactory("_pusher_dependencies", "Pusher.DependenciesReceivers"), 
+        Pusher.Dependencies = new Pusher.DependencyLoader({
+            cdn_http: Pusher.cdn_http,
+            cdn_https: Pusher.cdn_https,
+            version: Pusher.VERSION,
+            suffix: Pusher.dependency_suffix,
+            receivers: Pusher.DependenciesReceivers
+        }), window.JSON ? a() : Pusher.Dependencies.load("json2", {}, a);
+    }(), function() {
+        for (var b = String.fromCharCode, c = 0; 64 > c; c++) "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c);
+        var a = function(a) {
+            var d = a.charCodeAt(0);
+            return 128 > d ? a : 2048 > d ? b(192 | d >>> 6) + b(128 | 63 & d) : b(224 | d >>> 12 & 15) + b(128 | d >>> 6 & 63) + b(128 | 63 & d);
+        }, d = function(a) {
+            var d = [ 0, 2, 1 ][a.length % 3];
+            return a = a.charCodeAt(0) << 16 | (1 < a.length ? a.charCodeAt(1) : 0) << 8 | (2 < a.length ? a.charCodeAt(2) : 0), 
+            [ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(a >>> 18), "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(a >>> 12 & 63), d >= 2 ? "=" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(a >>> 6 & 63), d >= 1 ? "=" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(63 & a) ].join("");
+        }, h = window.btoa || function(a) {
+            return a.replace(/[\s\S]{1,3}/g, d);
+        };
+        Pusher.Base64 = {
+            encode: function(d) {
+                return h(d.replace(/[^\x00-\x7F]/g, a));
+            }
+        };
+    }.call(this), function() {
+        function b(a, b) {
+            this.url = a, this.data = b;
+        }
+        function c(a) {
+            return Pusher.Util.mapObject(a, function(a) {
+                return "object" == typeof a && (a = JSON.stringify(a)), encodeURIComponent(Pusher.Base64.encode(a.toString()));
+            });
+        }
+        var a = b.prototype;
+        a.send = function(a) {
+            if (!this.request) {
+                var b = Pusher.Util.filterObject(this.data, function(a) {
+                    return void 0 !== a;
+                }), b = Pusher.Util.map(Pusher.Util.flatten(c(b)), Pusher.Util.method("join", "=")).join("&");
+                this.request = new Pusher.ScriptRequest(this.url + "/" + a.number + "?" + b), this.request.send(a);
+            }
+        }, a.cleanup = function() {
+            this.request && this.request.cleanup();
+        }, Pusher.JSONPRequest = b;
+    }.call(this), function() {
+        function b(a, b, c) {
+            this.key = a, this.session = b, this.events = [], this.options = c || {}, this.uniqueID = this.sent = 0;
+        }
+        var c = b.prototype;
+        b.ERROR = 3, b.INFO = 6, b.DEBUG = 7, c.log = function(a, b) {
+            a <= this.options.level && (this.events.push(Pusher.Util.extend({}, b, {
+                timestamp: Pusher.Util.now()
+            })), this.options.limit && this.events.length > this.options.limit && this.events.shift());
+        }, c.error = function(a) {
+            this.log(b.ERROR, a);
+        }, c.info = function(a) {
+            this.log(b.INFO, a);
+        }, c.debug = function(a) {
+            this.log(b.DEBUG, a);
+        }, c.isEmpty = function() {
+            return 0 === this.events.length;
+        }, c.send = function(a, b) {
+            var c = this, f = Pusher.Util.extend({
+                session: c.session,
+                bundle: c.sent + 1,
+                key: c.key,
+                lib: "js",
+                version: c.options.version,
+                cluster: c.options.cluster,
+                features: c.options.features,
+                timeline: c.events
+            }, c.options.params);
+            return c.events = [], a(f, function(a, g) {
+                a || c.sent++, b && b(a, g);
+            }), !0;
+        }, c.generateUniqueID = function() {
+            return this.uniqueID++, this.uniqueID;
+        }, Pusher.Timeline = b;
+    }.call(this), function() {
+        function b(b, a) {
+            this.timeline = b, this.options = a || {};
+        }
+        b.prototype.send = function(b, a) {
+            var d = this;
+            d.timeline.isEmpty() || d.timeline.send(function(a, f) {
+                var e = new Pusher.JSONPRequest("http" + (b ? "s" : "") + "://" + (d.host || d.options.host) + d.options.path, a), g = Pusher.ScriptReceivers.create(function(a, b) {
+                    Pusher.ScriptReceivers.remove(g), e.cleanup(), b && b.host && (d.host = b.host), 
+                    f && f(a, b);
+                });
+                e.send(g);
+            }, a);
+        }, Pusher.TimelineSender = b;
+    }.call(this), function() {
+        function b(a) {
+            this.strategies = a;
+        }
+        function c(a, b, c) {
+            var h = Pusher.Util.map(a, function(a, d, h, f) {
+                return a.connect(b, c(d, f));
+            });
+            return {
+                abort: function() {
+                    Pusher.Util.apply(h, d);
+                },
+                forceMinPriority: function(a) {
+                    Pusher.Util.apply(h, function(b) {
+                        b.forceMinPriority(a);
+                    });
+                }
+            };
+        }
+        function a(a) {
+            return Pusher.Util.all(a, function(a) {
+                return Boolean(a.error);
+            });
+        }
+        function d(a) {
+            !a.error && !a.aborted && (a.abort(), a.aborted = !0);
+        }
+        var h = b.prototype;
+        h.isSupported = function() {
+            return Pusher.Util.any(this.strategies, Pusher.Util.method("isSupported"));
+        }, h.connect = function(b, d) {
+            return c(this.strategies, b, function(b, c) {
+                return function(h, f) {
+                    (c[b].error = h) ? a(c) && d(!0) : (Pusher.Util.apply(c, function(a) {
+                        a.forceMinPriority(f.transport.priority);
+                    }), d(null, f));
+                };
+            });
+        }, Pusher.BestConnectedEverStrategy = b;
+    }.call(this), function() {
+        function b(a, b, d) {
+            this.strategy = a, this.transports = b, this.ttl = d.ttl || 18e5, this.encrypted = d.encrypted, 
+            this.timeline = d.timeline;
+        }
+        function c(a) {
+            return "pusherTransport" + (a ? "Encrypted" : "Unencrypted");
+        }
+        function a(a) {
+            var b = Pusher.Util.getLocalStorage();
+            if (b) try {
+                var h = b[c(a)];
+                if (h) return JSON.parse(h);
+            } catch (k) {
+                d(a);
+            }
+            return null;
+        }
+        function d(a) {
+            var b = Pusher.Util.getLocalStorage();
+            if (b) try {
+                delete b[c(a)];
+            } catch (d) {}
+        }
+        var h = b.prototype;
+        h.isSupported = function() {
+            return this.strategy.isSupported();
+        }, h.connect = function(b, h) {
+            var g = this.encrypted, k = a(g), l = [ this.strategy ];
+            if (k && k.timestamp + this.ttl >= Pusher.Util.now()) {
+                var n = this.transports[k.transport];
+                n && (this.timeline.info({
+                    cached: !0,
+                    transport: k.transport,
+                    latency: k.latency
+                }), l.push(new Pusher.SequentialStrategy([ n ], {
+                    timeout: 2 * k.latency + 1e3,
+                    failFast: !0
+                })));
+            }
+            var m = Pusher.Util.now(), p = l.pop().connect(b, function s(a, k) {
+                if (a) d(g), 0 < l.length ? (m = Pusher.Util.now(), p = l.pop().connect(b, s)) : h(a); else {
+                    var n = k.transport.name, t = Pusher.Util.now() - m, r = Pusher.Util.getLocalStorage();
+                    if (r) try {
+                        r[c(g)] = JSON.stringify({
+                            timestamp: Pusher.Util.now(),
+                            transport: n,
+                            latency: t
+                        });
+                    } catch (u) {}
+                    h(null, k);
+                }
+            });
+            return {
+                abort: function() {
+                    p.abort();
+                },
+                forceMinPriority: function(a) {
+                    b = a, p && p.forceMinPriority(a);
+                }
+            };
+        }, Pusher.CachedStrategy = b;
+    }.call(this), function() {
+        function b(a, b) {
+            this.strategy = a, this.options = {
+                delay: b.delay
+            };
+        }
+        var c = b.prototype;
+        c.isSupported = function() {
+            return this.strategy.isSupported();
+        }, c.connect = function(a, b) {
+            var f, c = this.strategy, e = new Pusher.Timer(this.options.delay, function() {
+                f = c.connect(a, b);
+            });
+            return {
+                abort: function() {
+                    e.ensureAborted(), f && f.abort();
+                },
+                forceMinPriority: function(b) {
+                    a = b, f && f.forceMinPriority(b);
+                }
+            };
+        }, Pusher.DelayedStrategy = b;
+    }.call(this), function() {
+        function b(a) {
+            this.strategy = a;
+        }
+        var c = b.prototype;
+        c.isSupported = function() {
+            return this.strategy.isSupported();
+        }, c.connect = function(a, b) {
+            var c = this.strategy.connect(a, function(a, e) {
+                e && c.abort(), b(a, e);
+            });
+            return c;
+        }, Pusher.FirstConnectedStrategy = b;
+    }.call(this), function() {
+        function b(a, b, c) {
+            this.test = a, this.trueBranch = b, this.falseBranch = c;
+        }
+        var c = b.prototype;
+        c.isSupported = function() {
+            return (this.test() ? this.trueBranch : this.falseBranch).isSupported();
+        }, c.connect = function(a, b) {
+            return (this.test() ? this.trueBranch : this.falseBranch).connect(a, b);
+        }, Pusher.IfStrategy = b;
+    }.call(this), function() {
+        function b(a, b) {
+            this.strategies = a, this.loop = Boolean(b.loop), this.failFast = Boolean(b.failFast), 
+            this.timeout = b.timeout, this.timeoutLimit = b.timeoutLimit;
+        }
+        var c = b.prototype;
+        c.isSupported = function() {
+            return Pusher.Util.any(this.strategies, Pusher.Util.method("isSupported"));
+        }, c.connect = function(a, b) {
+            var c = this, f = this.strategies, e = 0, g = this.timeout, k = null, l = function(n, m) {
+                m ? b(null, m) : (e += 1, c.loop && (e %= f.length), e < f.length ? (g && (g *= 2, 
+                c.timeoutLimit && (g = Math.min(g, c.timeoutLimit))), k = c.tryStrategy(f[e], a, {
+                    timeout: g,
+                    failFast: c.failFast
+                }, l)) : b(!0));
+            }, k = this.tryStrategy(f[e], a, {
+                timeout: g,
+                failFast: this.failFast
+            }, l);
+            return {
+                abort: function() {
+                    k.abort();
+                },
+                forceMinPriority: function(b) {
+                    a = b, k && k.forceMinPriority(b);
+                }
+            };
+        }, c.tryStrategy = function(a, b, c, f) {
+            var e = null, g = null;
+            return 0 < c.timeout && (e = new Pusher.Timer(c.timeout, function() {
+                g.abort(), f(!0);
+            })), g = a.connect(b, function(a, b) {
+                a && e && e.isRunning() && !c.failFast || (e && e.ensureAborted(), f(a, b));
+            }), {
+                abort: function() {
+                    e && e.ensureAborted(), g.abort();
+                },
+                forceMinPriority: function(a) {
+                    g.forceMinPriority(a);
+                }
+            };
+        }, Pusher.SequentialStrategy = b;
+    }.call(this), function() {
+        function b(a, b, c, e) {
+            this.name = a, this.priority = b, this.transport = c, this.options = e || {};
+        }
+        function c(a, b) {
+            return Pusher.Util.defer(function() {
+                b(a);
+            }), {
+                abort: function() {},
+                forceMinPriority: function() {}
+            };
+        }
+        var a = b.prototype;
+        a.isSupported = function() {
+            return this.transport.isSupported({
+                encrypted: this.options.encrypted
+            });
+        }, a.connect = function(a, b) {
+            if (!this.isSupported()) return c(new Pusher.Errors.UnsupportedStrategy(), b);
+            if (this.priority < a) return c(new Pusher.Errors.TransportPriorityTooLow(), b);
+            var f = this, e = !1, g = this.transport.createConnection(this.name, this.priority, this.options.key, this.options), k = null, l = function() {
+                g.unbind("initialized", l), g.connect();
+            }, n = function() {
+                k = new Pusher.Handshake(g, function(a) {
+                    e = !0, q(), b(null, a);
+                });
+            }, m = function(a) {
+                q(), b(a);
+            }, p = function() {
+                q(), b(new Pusher.Errors.TransportClosed(g));
+            }, q = function() {
+                g.unbind("initialized", l), g.unbind("open", n), g.unbind("error", m), g.unbind("closed", p);
+            };
+            return g.bind("initialized", l), g.bind("open", n), g.bind("error", m), g.bind("closed", p), 
+            g.initialize(), {
+                abort: function() {
+                    e || (q(), k ? k.close() : g.close());
+                },
+                forceMinPriority: function(a) {
+                    e || f.priority < a && (k ? k.close() : g.close());
+                }
+            };
+        }, Pusher.TransportStrategy = b;
+    }.call(this), function() {
+        function b(a, b, c) {
+            return a + (b.encrypted ? "s" : "") + "://" + (b.encrypted ? b.hostEncrypted : b.hostUnencrypted) + c;
+        }
+        function c(a, b) {
+            return "/app/" + a + ("?protocol=" + Pusher.PROTOCOL + "&client=js&version=" + Pusher.VERSION + (b ? "&" + b : ""));
+        }
+        Pusher.URLSchemes = {
+            ws: {
+                getInitial: function(a, d) {
+                    return b("ws", d, c(a, "flash=false"));
+                }
+            },
+            sockjs: {
+                getInitial: function(a, c) {
+                    return b("http", c, c.httpPath || "/pusher", "");
+                },
+                getPath: function(a) {
+                    return c(a);
+                }
+            },
+            http: {
+                getInitial: function(a, d) {
+                    var h = (d.httpPath || "/pusher") + c(a);
+                    return b("http", d, h);
+                }
+            }
+        };
+    }.call(this), function() {
+        function b(a, b, c, f, e) {
+            Pusher.EventsDispatcher.call(this), this.hooks = a, this.name = b, this.priority = c, 
+            this.key = f, this.options = e, this.state = "new", this.timeline = e.timeline, 
+            this.activityTimeout = e.activityTimeout, this.id = this.timeline.generateUniqueID();
+        }
+        var c = b.prototype;
+        Pusher.Util.extend(c, Pusher.EventsDispatcher.prototype), c.handlesActivityChecks = function() {
+            return Boolean(this.hooks.handlesActivityChecks);
+        }, c.supportsPing = function() {
+            return Boolean(this.hooks.supportsPing);
+        }, c.initialize = function() {
+            var a = this;
+            a.timeline.info(a.buildTimelineMessage({
+                transport: a.name + (a.options.encrypted ? "s" : "")
+            })), a.hooks.isInitialized() ? a.changeState("initialized") : a.hooks.file ? (a.changeState("initializing"), 
+            Pusher.Dependencies.load(a.hooks.file, {
+                encrypted: a.options.encrypted
+            }, function(b, c) {
+                a.hooks.isInitialized() ? (a.changeState("initialized"), c(!0)) : (b && a.onError(b), 
+                a.onClose(), c(!1));
+            })) : a.onClose();
+        }, c.connect = function() {
+            var a = this;
+            if (a.socket || "initialized" !== a.state) return !1;
+            var b = a.hooks.urls.getInitial(a.key, a.options);
+            try {
+                a.socket = a.hooks.getSocket(b, a.options);
+            } catch (c) {
+                return Pusher.Util.defer(function() {
+                    a.onError(c), a.changeState("closed");
+                }), !1;
+            }
+            return a.bindListeners(), Pusher.debug("Connecting", {
+                transport: a.name,
+                url: b
+            }), a.changeState("connecting"), !0;
+        }, c.close = function() {
+            return this.socket ? (this.socket.close(), !0) : !1;
+        }, c.send = function(a) {
+            var b = this;
+            return "open" === b.state ? (Pusher.Util.defer(function() {
+                b.socket && b.socket.send(a);
+            }), !0) : !1;
+        }, c.ping = function() {
+            "open" === this.state && this.supportsPing() && this.socket.ping();
+        }, c.onOpen = function() {
+            this.hooks.beforeOpen && this.hooks.beforeOpen(this.socket, this.hooks.urls.getPath(this.key, this.options)), 
+            this.changeState("open"), this.socket.onopen = void 0;
+        }, c.onError = function(a) {
+            this.emit("error", {
+                type: "WebSocketError",
+                error: a
+            }), this.timeline.error(this.buildTimelineMessage({
+                error: a.toString()
+            }));
+        }, c.onClose = function(a) {
+            a ? this.changeState("closed", {
+                code: a.code,
+                reason: a.reason,
+                wasClean: a.wasClean
+            }) : this.changeState("closed"), this.unbindListeners(), this.socket = void 0;
+        }, c.onMessage = function(a) {
+            this.emit("message", a);
+        }, c.onActivity = function() {
+            this.emit("activity");
+        }, c.bindListeners = function() {
+            var a = this;
+            a.socket.onopen = function() {
+                a.onOpen();
+            }, a.socket.onerror = function(b) {
+                a.onError(b);
+            }, a.socket.onclose = function(b) {
+                a.onClose(b);
+            }, a.socket.onmessage = function(b) {
+                a.onMessage(b);
+            }, a.supportsPing() && (a.socket.onactivity = function() {
+                a.onActivity();
+            });
+        }, c.unbindListeners = function() {
+            this.socket && (this.socket.onopen = void 0, this.socket.onerror = void 0, this.socket.onclose = void 0, 
+            this.socket.onmessage = void 0, this.supportsPing() && (this.socket.onactivity = void 0));
+        }, c.changeState = function(a, b) {
+            this.state = a, this.timeline.info(this.buildTimelineMessage({
+                state: a,
+                params: b
+            })), this.emit(a, b);
+        }, c.buildTimelineMessage = function(a) {
+            return Pusher.Util.extend({
+                cid: this.id
+            }, a);
+        }, Pusher.TransportConnection = b;
+    }.call(this), function() {
+        function b(a) {
+            this.hooks = a;
+        }
+        var c = b.prototype;
+        c.isSupported = function(a) {
+            return this.hooks.isSupported(a);
+        }, c.createConnection = function(a, b, c, f) {
+            return new Pusher.TransportConnection(this.hooks, a, b, c, f);
+        }, Pusher.Transport = b;
+    }.call(this), function() {
+        Pusher.WSTransport = new Pusher.Transport({
+            urls: Pusher.URLSchemes.ws,
+            handlesActivityChecks: !1,
+            supportsPing: !1,
+            isInitialized: function() {
+                return Boolean(window.WebSocket || window.MozWebSocket);
+            },
+            isSupported: function() {
+                return Boolean(window.WebSocket || window.MozWebSocket);
+            },
+            getSocket: function(a) {
+                return new (window.WebSocket || window.MozWebSocket)(a);
+            }
+        }), Pusher.SockJSTransport = new Pusher.Transport({
+            file: "sockjs",
+            urls: Pusher.URLSchemes.sockjs,
+            handlesActivityChecks: !0,
+            supportsPing: !1,
+            isSupported: function() {
+                return !0;
+            },
+            isInitialized: function() {
+                return void 0 !== window.SockJS;
+            },
+            getSocket: function(a, b) {
+                return new SockJS(a, null, {
+                    js_path: Pusher.Dependencies.getPath("sockjs", {
+                        encrypted: b.encrypted
+                    }),
+                    ignore_null_origin: b.ignoreNullOrigin
+                });
+            },
+            beforeOpen: function(a, b) {
+                a.send(JSON.stringify({
+                    path: b
+                }));
+            }
+        });
+        var b = {
+            urls: Pusher.URLSchemes.http,
+            handlesActivityChecks: !1,
+            supportsPing: !0,
+            isInitialized: function() {
+                return Boolean(Pusher.HTTP.Socket);
+            }
+        }, c = Pusher.Util.extend({
+            getSocket: function(a) {
+                return Pusher.HTTP.getStreamingSocket(a);
+            }
+        }, b), b = Pusher.Util.extend({
+            getSocket: function(a) {
+                return Pusher.HTTP.getPollingSocket(a);
+            }
+        }, b), a = {
+            file: "xhr",
+            isSupported: Pusher.Util.isXHRSupported
+        }, d = {
+            file: "xdr",
+            isSupported: function(a) {
+                return Pusher.Util.isXDRSupported(a.encrypted);
+            }
+        };
+        Pusher.XHRStreamingTransport = new Pusher.Transport(Pusher.Util.extend({}, c, a)), 
+        Pusher.XDRStreamingTransport = new Pusher.Transport(Pusher.Util.extend({}, c, d)), 
+        Pusher.XHRPollingTransport = new Pusher.Transport(Pusher.Util.extend({}, b, a)), 
+        Pusher.XDRPollingTransport = new Pusher.Transport(Pusher.Util.extend({}, b, d));
+    }.call(this), function() {
+        function b(a, b, c) {
+            this.manager = a, this.transport = b, this.minPingDelay = c.minPingDelay, this.maxPingDelay = c.maxPingDelay, 
+            this.pingDelay = void 0;
+        }
+        var c = b.prototype;
+        c.createConnection = function(a, b, c, f) {
+            var e = this;
+            f = Pusher.Util.extend({}, f, {
+                activityTimeout: e.pingDelay
+            });
+            var g = e.transport.createConnection(a, b, c, f), k = null, l = function() {
+                g.unbind("open", l), g.bind("closed", n), k = Pusher.Util.now();
+            }, n = function(a) {
+                g.unbind("closed", n), 1002 === a.code || 1003 === a.code ? e.manager.reportDeath() : !a.wasClean && k && (a = Pusher.Util.now() - k, 
+                a < 2 * e.maxPingDelay && (e.manager.reportDeath(), e.pingDelay = Math.max(a / 2, e.minPingDelay)));
+            };
+            return g.bind("open", l), g;
+        }, c.isSupported = function(a) {
+            return this.manager.isAlive() && this.transport.isSupported(a);
+        }, Pusher.AssistantToTheTransportManager = b;
+    }.call(this), function() {
+        function b(a) {
+            this.options = a || {}, this.livesLeft = this.options.lives || 1/0;
+        }
+        var c = b.prototype;
+        c.getAssistant = function(a) {
+            return new Pusher.AssistantToTheTransportManager(this, a, {
+                minPingDelay: this.options.minPingDelay,
+                maxPingDelay: this.options.maxPingDelay
+            });
+        }, c.isAlive = function() {
+            return 0 < this.livesLeft;
+        }, c.reportDeath = function() {
+            this.livesLeft -= 1;
+        }, Pusher.TransportManager = b;
+    }.call(this), function() {
+        function b(a) {
+            return function(b) {
+                return [ a.apply(this, arguments), b ];
+            };
+        }
+        function c(a, b) {
+            if (0 === a.length) return [ [], b ];
+            var h = d(a[0], b), f = c(a.slice(1), h[1]);
+            return [ [ h[0] ].concat(f[0]), f[1] ];
+        }
+        function a(a, b) {
+            if ("string" == typeof a[0] && ":" === a[0].charAt(0)) {
+                var h = b[a[0].slice(1)];
+                if (1 < a.length) {
+                    if ("function" != typeof h) throw "Calling non-function " + a[0];
+                    var f = [ Pusher.Util.extend({}, b) ].concat(Pusher.Util.map(a.slice(1), function(a) {
+                        return d(a, Pusher.Util.extend({}, b))[0];
+                    }));
+                    return h.apply(this, f);
+                }
+                return [ h, b ];
+            }
+            return c(a, b);
+        }
+        function d(b, c) {
+            if ("string" == typeof b) {
+                var d;
+                if ("string" == typeof b && ":" === b.charAt(0)) {
+                    if (d = c[b.slice(1)], void 0 === d) throw "Undefined symbol " + b;
+                    d = [ d, c ];
+                } else d = [ b, c ];
+                return d;
+            }
+            return "object" == typeof b && b instanceof Array && 0 < b.length ? a(b, c) : [ b, c ];
+        }
+        var h = {
+            ws: Pusher.WSTransport,
+            sockjs: Pusher.SockJSTransport,
+            xhr_streaming: Pusher.XHRStreamingTransport,
+            xdr_streaming: Pusher.XDRStreamingTransport,
+            xhr_polling: Pusher.XHRPollingTransport,
+            xdr_polling: Pusher.XDRPollingTransport
+        }, f = {
+            isSupported: function() {
+                return !1;
+            },
+            connect: function(a, b) {
+                var c = Pusher.Util.defer(function() {
+                    b(new Pusher.Errors.UnsupportedStrategy());
+                });
+                return {
+                    abort: function() {
+                        c.ensureAborted();
+                    },
+                    forceMinPriority: function() {}
+                };
+            }
+        }, e = {
+            extend: function(a, b, c) {
+                return [ Pusher.Util.extend({}, b, c), a ];
+            },
+            def: function(a, b, c) {
+                if (void 0 !== a[b]) throw "Redefining symbol " + b;
+                return a[b] = c, [ void 0, a ];
+            },
+            def_transport: function(a, b, c, d, e, p) {
+                var q = h[c];
+                if (!q) throw new Pusher.Errors.UnsupportedTransport(c);
+                return c = a.enabledTransports && -1 === Pusher.Util.arrayIndexOf(a.enabledTransports, b) || a.disabledTransports && -1 !== Pusher.Util.arrayIndexOf(a.disabledTransports, b) ? f : new Pusher.TransportStrategy(b, d, p ? p.getAssistant(q) : q, Pusher.Util.extend({
+                    key: a.key,
+                    encrypted: a.encrypted,
+                    timeline: a.timeline,
+                    ignoreNullOrigin: a.ignoreNullOrigin
+                }, e)), d = a.def(a, b, c)[1], d.transports = a.transports || {}, d.transports[b] = c, 
+                [ void 0, d ];
+            },
+            transport_manager: b(function(a, b) {
+                return new Pusher.TransportManager(b);
+            }),
+            sequential: b(function(a, b) {
+                var c = Array.prototype.slice.call(arguments, 2);
+                return new Pusher.SequentialStrategy(c, b);
+            }),
+            cached: b(function(a, b, c) {
+                return new Pusher.CachedStrategy(c, a.transports, {
+                    ttl: b,
+                    timeline: a.timeline,
+                    encrypted: a.encrypted
+                });
+            }),
+            first_connected: b(function(a, b) {
+                return new Pusher.FirstConnectedStrategy(b);
+            }),
+            best_connected_ever: b(function() {
+                var a = Array.prototype.slice.call(arguments, 1);
+                return new Pusher.BestConnectedEverStrategy(a);
+            }),
+            delayed: b(function(a, b, c) {
+                return new Pusher.DelayedStrategy(c, {
+                    delay: b
+                });
+            }),
+            "if": b(function(a, b, c, d) {
+                return new Pusher.IfStrategy(b, c, d);
+            }),
+            is_supported: b(function(a, b) {
+                return function() {
+                    return b.isSupported();
+                };
+            })
+        };
+        Pusher.StrategyBuilder = {
+            build: function(a, b) {
+                var c = Pusher.Util.extend({}, e, b);
+                return d(a, c)[1].strategy;
+            }
+        };
+    }.call(this), function() {
+        Pusher.Protocol = {
+            decodeMessage: function(b) {
+                try {
+                    var c = JSON.parse(b.data);
+                    if ("string" == typeof c.data) try {
+                        c.data = JSON.parse(c.data);
+                    } catch (a) {
+                        if (!(a instanceof SyntaxError)) throw a;
+                    }
+                    return c;
+                } catch (d) {
+                    throw {
+                        type: "MessageParseError",
+                        error: d,
+                        data: b.data
+                    };
+                }
+            },
+            encodeMessage: function(b) {
+                return JSON.stringify(b);
+            },
+            processHandshake: function(b) {
+                if (b = this.decodeMessage(b), "pusher:connection_established" === b.event) {
+                    if (!b.data.activity_timeout) throw "No activity timeout specified in handshake";
+                    return {
+                        action: "connected",
+                        id: b.data.socket_id,
+                        activityTimeout: 1e3 * b.data.activity_timeout
+                    };
+                }
+                if ("pusher:error" === b.event) return {
+                    action: this.getCloseAction(b.data),
+                    error: this.getCloseError(b.data)
+                };
+                throw "Invalid handshake";
+            },
+            getCloseAction: function(b) {
+                return 4e3 > b.code ? 1002 <= b.code && 1004 >= b.code ? "backoff" : null : 4e3 === b.code ? "ssl_only" : 4100 > b.code ? "refused" : 4200 > b.code ? "backoff" : 4300 > b.code ? "retry" : "refused";
+            },
+            getCloseError: function(b) {
+                return 1e3 !== b.code && 1001 !== b.code ? {
+                    type: "PusherError",
+                    data: {
+                        code: b.code,
+                        message: b.reason || b.message
+                    }
+                } : null;
+            }
+        };
+    }.call(this), function() {
+        function b(a, b) {
+            Pusher.EventsDispatcher.call(this), this.id = a, this.transport = b, this.activityTimeout = b.activityTimeout, 
+            this.bindListeners();
+        }
+        var c = b.prototype;
+        Pusher.Util.extend(c, Pusher.EventsDispatcher.prototype), c.handlesActivityChecks = function() {
+            return this.transport.handlesActivityChecks();
+        }, c.send = function(a) {
+            return this.transport.send(a);
+        }, c.send_event = function(a, b, c) {
+            return a = {
+                event: a,
+                data: b
+            }, c && (a.channel = c), Pusher.debug("Event sent", a), this.send(Pusher.Protocol.encodeMessage(a));
+        }, c.ping = function() {
+            this.transport.supportsPing() ? this.transport.ping() : this.send_event("pusher:ping", {});
+        }, c.close = function() {
+            this.transport.close();
+        }, c.bindListeners = function() {
+            var a = this, b = {
+                message: function(b) {
+                    var c;
+                    try {
+                        c = Pusher.Protocol.decodeMessage(b);
+                    } catch (d) {
+                        a.emit("error", {
+                            type: "MessageParseError",
+                            error: d,
+                            data: b.data
+                        });
+                    }
+                    if (void 0 !== c) {
+                        switch (Pusher.debug("Event recd", c), c.event) {
+                          case "pusher:error":
+                            a.emit("error", {
+                                type: "PusherError",
+                                data: c.data
+                            });
+                            break;
+
+                          case "pusher:ping":
+                            a.emit("ping");
+                            break;
+
+                          case "pusher:pong":
+                            a.emit("pong");
+                        }
+                        a.emit("message", c);
+                    }
+                },
+                activity: function() {
+                    a.emit("activity");
+                },
+                error: function(b) {
+                    a.emit("error", {
+                        type: "WebSocketError",
+                        error: b
+                    });
+                },
+                closed: function(b) {
+                    c(), b && b.code && a.handleCloseEvent(b), a.transport = null, a.emit("closed");
+                }
+            }, c = function() {
+                Pusher.Util.objectApply(b, function(b, c) {
+                    a.transport.unbind(c, b);
+                });
+            };
+            Pusher.Util.objectApply(b, function(b, c) {
+                a.transport.bind(c, b);
+            });
+        }, c.handleCloseEvent = function(a) {
+            var b = Pusher.Protocol.getCloseAction(a);
+            (a = Pusher.Protocol.getCloseError(a)) && this.emit("error", a), b && this.emit(b);
+        }, Pusher.Connection = b;
+    }.call(this), function() {
+        function b(a, b) {
+            this.transport = a, this.callback = b, this.bindListeners();
+        }
+        var c = b.prototype;
+        c.close = function() {
+            this.unbindListeners(), this.transport.close();
+        }, c.bindListeners = function() {
+            var a = this;
+            a.onMessage = function(b) {
+                a.unbindListeners();
+                try {
+                    var c = Pusher.Protocol.processHandshake(b);
+                    "connected" === c.action ? a.finish("connected", {
+                        connection: new Pusher.Connection(c.id, a.transport),
+                        activityTimeout: c.activityTimeout
+                    }) : (a.finish(c.action, {
+                        error: c.error
+                    }), a.transport.close());
+                } catch (f) {
+                    a.finish("error", {
+                        error: f
+                    }), a.transport.close();
+                }
+            }, a.onClosed = function(b) {
+                a.unbindListeners();
+                var c = Pusher.Protocol.getCloseAction(b) || "backoff";
+                b = Pusher.Protocol.getCloseError(b), a.finish(c, {
+                    error: b
+                });
+            }, a.transport.bind("message", a.onMessage), a.transport.bind("closed", a.onClosed);
+        }, c.unbindListeners = function() {
+            this.transport.unbind("message", this.onMessage), this.transport.unbind("closed", this.onClosed);
+        }, c.finish = function(a, b) {
+            this.callback(Pusher.Util.extend({
+                transport: this.transport,
+                action: a
+            }, b));
+        }, Pusher.Handshake = b;
+    }.call(this), function() {
+        function b(a, b) {
+            Pusher.EventsDispatcher.call(this), this.key = a, this.options = b || {}, this.state = "initialized", 
+            this.connection = null, this.encrypted = !!b.encrypted, this.timeline = this.options.timeline, 
+            this.connectionCallbacks = this.buildConnectionCallbacks(), this.errorCallbacks = this.buildErrorCallbacks(), 
+            this.handshakeCallbacks = this.buildHandshakeCallbacks(this.errorCallbacks);
+            var c = this;
+            Pusher.Network.bind("online", function() {
+                c.timeline.info({
+                    netinfo: "online"
+                }), ("connecting" === c.state || "unavailable" === c.state) && c.retryIn(0);
+            }), Pusher.Network.bind("offline", function() {
+                c.timeline.info({
+                    netinfo: "offline"
+                }), c.connection && c.sendActivityCheck();
+            }), this.updateStrategy();
+        }
+        var c = b.prototype;
+        Pusher.Util.extend(c, Pusher.EventsDispatcher.prototype), c.connect = function() {
+            !this.connection && !this.runner && (this.strategy.isSupported() ? (this.updateState("connecting"), 
+            this.startConnecting(), this.setUnavailableTimer()) : this.updateState("failed"));
+        }, c.send = function(a) {
+            return this.connection ? this.connection.send(a) : !1;
+        }, c.send_event = function(a, b, c) {
+            return this.connection ? this.connection.send_event(a, b, c) : !1;
+        }, c.disconnect = function() {
+            this.disconnectInternally(), this.updateState("disconnected");
+        }, c.isEncrypted = function() {
+            return this.encrypted;
+        }, c.startConnecting = function() {
+            var a = this, b = function(c, f) {
+                c ? a.runner = a.strategy.connect(0, b) : "error" === f.action ? (a.emit("error", {
+                    type: "HandshakeError",
+                    error: f.error
+                }), a.timeline.error({
+                    handshakeError: f.error
+                })) : (a.abortConnecting(), a.handshakeCallbacks[f.action](f));
+            };
+            a.runner = a.strategy.connect(0, b);
+        }, c.abortConnecting = function() {
+            this.runner && (this.runner.abort(), this.runner = null);
+        }, c.disconnectInternally = function() {
+            this.abortConnecting(), this.clearRetryTimer(), this.clearUnavailableTimer(), this.connection && this.abandonConnection().close();
+        }, c.updateStrategy = function() {
+            this.strategy = this.options.getStrategy({
+                key: this.key,
+                timeline: this.timeline,
+                encrypted: this.encrypted
+            });
+        }, c.retryIn = function(a) {
+            var b = this;
+            b.timeline.info({
+                action: "retry",
+                delay: a
+            }), a > 0 && b.emit("connecting_in", Math.round(a / 1e3)), b.retryTimer = new Pusher.Timer(a || 0, function() {
+                b.disconnectInternally(), b.connect();
+            });
+        }, c.clearRetryTimer = function() {
+            this.retryTimer && (this.retryTimer.ensureAborted(), this.retryTimer = null);
+        }, c.setUnavailableTimer = function() {
+            var a = this;
+            a.unavailableTimer = new Pusher.Timer(a.options.unavailableTimeout, function() {
+                a.updateState("unavailable");
+            });
+        }, c.clearUnavailableTimer = function() {
+            this.unavailableTimer && this.unavailableTimer.ensureAborted();
+        }, c.sendActivityCheck = function() {
+            var a = this;
+            a.stopActivityCheck(), a.connection.ping(), a.activityTimer = new Pusher.Timer(a.options.pongTimeout, function() {
+                a.timeline.error({
+                    pong_timed_out: a.options.pongTimeout
+                }), a.retryIn(0);
+            });
+        }, c.resetActivityCheck = function() {
+            var a = this;
+            a.stopActivityCheck(), a.connection.handlesActivityChecks() || (a.activityTimer = new Pusher.Timer(a.activityTimeout, function() {
+                a.sendActivityCheck();
+            }));
+        }, c.stopActivityCheck = function() {
+            this.activityTimer && this.activityTimer.ensureAborted();
+        }, c.buildConnectionCallbacks = function() {
+            var a = this;
+            return {
+                message: function(b) {
+                    a.resetActivityCheck(), a.emit("message", b);
+                },
+                ping: function() {
+                    a.send_event("pusher:pong", {});
+                },
+                activity: function() {
+                    a.resetActivityCheck();
+                },
+                error: function(b) {
+                    a.emit("error", {
+                        type: "WebSocketError",
+                        error: b
+                    });
+                },
+                closed: function() {
+                    a.abandonConnection(), a.shouldRetry() && a.retryIn(1e3);
+                }
+            };
+        }, c.buildHandshakeCallbacks = function(a) {
+            var b = this;
+            return Pusher.Util.extend({}, a, {
+                connected: function(a) {
+                    b.activityTimeout = Math.min(b.options.activityTimeout, a.activityTimeout, a.connection.activityTimeout || 1/0), 
+                    b.clearUnavailableTimer(), b.setConnection(a.connection), b.socket_id = b.connection.id, 
+                    b.updateState("connected", {
+                        socket_id: b.socket_id
+                    });
+                }
+            });
+        }, c.buildErrorCallbacks = function() {
+            function a(a) {
+                return function(c) {
+                    c.error && b.emit("error", {
+                        type: "WebSocketError",
+                        error: c.error
+                    }), a(c);
+                };
+            }
+            var b = this;
+            return {
+                ssl_only: a(function() {
+                    b.encrypted = !0, b.updateStrategy(), b.retryIn(0);
+                }),
+                refused: a(function() {
+                    b.disconnect();
+                }),
+                backoff: a(function() {
+                    b.retryIn(1e3);
+                }),
+                retry: a(function() {
+                    b.retryIn(0);
+                })
+            };
+        }, c.setConnection = function(a) {
+            this.connection = a;
+            for (var b in this.connectionCallbacks) this.connection.bind(b, this.connectionCallbacks[b]);
+            this.resetActivityCheck();
+        }, c.abandonConnection = function() {
+            if (this.connection) {
+                this.stopActivityCheck();
+                for (var a in this.connectionCallbacks) this.connection.unbind(a, this.connectionCallbacks[a]);
+                return a = this.connection, this.connection = null, a;
+            }
+        }, c.updateState = function(a, b) {
+            var c = this.state;
+            this.state = a, c !== a && (Pusher.debug("State changed", c + " -> " + a), this.timeline.info({
+                state: a,
+                params: b
+            }), this.emit("state_change", {
+                previous: c,
+                current: a
+            }), this.emit(a, b));
+        }, c.shouldRetry = function() {
+            return "connecting" === this.state || "connected" === this.state;
+        }, Pusher.ConnectionManager = b;
+    }.call(this), function() {
+        function b() {
+            Pusher.EventsDispatcher.call(this);
+            var b = this;
+            void 0 !== window.addEventListener && (window.addEventListener("online", function() {
+                b.emit("online");
+            }, !1), window.addEventListener("offline", function() {
+                b.emit("offline");
+            }, !1));
+        }
+        Pusher.Util.extend(b.prototype, Pusher.EventsDispatcher.prototype), b.prototype.isOnline = function() {
+            return void 0 === window.navigator.onLine ? !0 : window.navigator.onLine;
+        }, Pusher.NetInfo = b, Pusher.Network = new b();
+    }.call(this), function() {
+        function b() {
+            this.reset();
+        }
+        var c = b.prototype;
+        c.get = function(a) {
+            return Object.prototype.hasOwnProperty.call(this.members, a) ? {
+                id: a,
+                info: this.members[a]
+            } : null;
+        }, c.each = function(a) {
+            var b = this;
+            Pusher.Util.objectApply(b.members, function(c, f) {
+                a(b.get(f));
+            });
+        }, c.setMyID = function(a) {
+            this.myID = a;
+        }, c.onSubscription = function(a) {
+            this.members = a.presence.hash, this.count = a.presence.count, this.me = this.get(this.myID);
+        }, c.addMember = function(a) {
+            return null === this.get(a.user_id) && this.count++, this.members[a.user_id] = a.user_info, 
+            this.get(a.user_id);
+        }, c.removeMember = function(a) {
+            var b = this.get(a.user_id);
+            return b && (delete this.members[a.user_id], this.count--), b;
+        }, c.reset = function() {
+            this.members = {}, this.count = 0, this.me = this.myID = null;
+        }, Pusher.Members = b;
+    }.call(this), function() {
+        function b(a, b) {
+            Pusher.EventsDispatcher.call(this, function(b) {
+                Pusher.debug("No callbacks on " + a + " for " + b);
+            }), this.name = a, this.pusher = b, this.subscribed = !1;
+        }
+        var c = b.prototype;
+        Pusher.Util.extend(c, Pusher.EventsDispatcher.prototype), c.authorize = function(a, b) {
+            return b(!1, {});
+        }, c.trigger = function(a, b) {
+            if (0 !== a.indexOf("client-")) throw new Pusher.Errors.BadEventName("Event '" + a + "' does not start with 'client-'");
+            return this.pusher.send_event(a, b, this.name);
+        }, c.disconnect = function() {
+            this.subscribed = !1;
+        }, c.handleEvent = function(a, b) {
+            0 === a.indexOf("pusher_internal:") ? "pusher_internal:subscription_succeeded" === a && (this.subscribed = !0, 
+            this.emit("pusher:subscription_succeeded", b)) : this.emit(a, b);
+        }, c.subscribe = function() {
+            var a = this;
+            a.authorize(a.pusher.connection.socket_id, function(b, c) {
+                b ? a.handleEvent("pusher:subscription_error", c) : a.pusher.send_event("pusher:subscribe", {
+                    auth: c.auth,
+                    channel_data: c.channel_data,
+                    channel: a.name
+                });
+            });
+        }, c.unsubscribe = function() {
+            this.pusher.send_event("pusher:unsubscribe", {
+                channel: this.name
+            });
+        }, Pusher.Channel = b;
+    }.call(this), function() {
+        function b(a, b) {
+            Pusher.Channel.call(this, a, b);
+        }
+        var c = b.prototype;
+        Pusher.Util.extend(c, Pusher.Channel.prototype), c.authorize = function(a, b) {
+            return new Pusher.Channel.Authorizer(this, this.pusher.config).authorize(a, b);
+        }, Pusher.PrivateChannel = b;
+    }.call(this), function() {
+        function b(a, b) {
+            Pusher.PrivateChannel.call(this, a, b), this.members = new Pusher.Members();
+        }
+        var c = b.prototype;
+        Pusher.Util.extend(c, Pusher.PrivateChannel.prototype), c.authorize = function(a, b) {
+            var c = this;
+            Pusher.PrivateChannel.prototype.authorize.call(c, a, function(a, e) {
+                if (!a) {
+                    if (void 0 === e.channel_data) return Pusher.warn("Invalid auth response for channel '" + c.name + "', expected 'channel_data' field"), 
+                    void b("Invalid auth response");
+                    var g = JSON.parse(e.channel_data);
+                    c.members.setMyID(g.user_id);
+                }
+                b(a, e);
+            });
+        }, c.handleEvent = function(a, b) {
+            switch (a) {
+              case "pusher_internal:subscription_succeeded":
+                this.members.onSubscription(b), this.subscribed = !0, this.emit("pusher:subscription_succeeded", this.members);
+                break;
+
+              case "pusher_internal:member_added":
+                var c = this.members.addMember(b);
+                this.emit("pusher:member_added", c);
+                break;
+
+              case "pusher_internal:member_removed":
+                (c = this.members.removeMember(b)) && this.emit("pusher:member_removed", c);
+                break;
+
+              default:
+                Pusher.PrivateChannel.prototype.handleEvent.call(this, a, b);
+            }
+        }, c.disconnect = function() {
+            this.members.reset(), Pusher.PrivateChannel.prototype.disconnect.call(this);
+        }, Pusher.PresenceChannel = b;
+    }.call(this), function() {
+        function b() {
+            this.channels = {};
+        }
+        var c = b.prototype;
+        c.add = function(a, b) {
+            if (!this.channels[a]) {
+                var f, c = this.channels;
+                f = 0 === a.indexOf("private-") ? new Pusher.PrivateChannel(a, b) : 0 === a.indexOf("presence-") ? new Pusher.PresenceChannel(a, b) : new Pusher.Channel(a, b), 
+                c[a] = f;
+            }
+            return this.channels[a];
+        }, c.all = function() {
+            return Pusher.Util.values(this.channels);
+        }, c.find = function(a) {
+            return this.channels[a];
+        }, c.remove = function(a) {
+            var b = this.channels[a];
+            return delete this.channels[a], b;
+        }, c.disconnect = function() {
+            Pusher.Util.objectApply(this.channels, function(a) {
+                a.disconnect();
+            });
+        }, Pusher.Channels = b;
+    }.call(this), function() {
+        Pusher.Channel.Authorizer = function(b, a) {
+            this.channel = b, this.type = a.authTransport, this.options = a, this.authOptions = (a || {}).auth || {};
+        }, Pusher.Channel.Authorizer.prototype = {
+            composeQuery: function(b) {
+                b = "socket_id=" + encodeURIComponent(b) + "&channel_name=" + encodeURIComponent(this.channel.name);
+                for (var a in this.authOptions.params) b += "&" + encodeURIComponent(a) + "=" + encodeURIComponent(this.authOptions.params[a]);
+                return b;
+            },
+            authorize: function(b, a) {
+                return Pusher.authorizers[this.type].call(this, b, a);
+            }
+        };
+        var b = 1;
+        Pusher.auth_callbacks = {}, Pusher.authorizers = {
+            ajax: function(b, a) {
+                var d;
+                d = Pusher.XHR ? new Pusher.XHR() : window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP"), 
+                d.open("POST", this.options.authEndpoint, !0), d.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                for (var h in this.authOptions.headers) d.setRequestHeader(h, this.authOptions.headers[h]);
+                return d.onreadystatechange = function() {
+                    if (4 === d.readyState) if (200 === d.status) {
+                        var b, c = !1;
+                        try {
+                            b = JSON.parse(d.responseText), c = !0;
+                        } catch (g) {
+                            a(!0, "JSON returned from webapp was invalid, yet status code was 200. Data was: " + d.responseText);
+                        }
+                        c && a(!1, b);
+                    } else Pusher.warn("Couldn't get auth info from your webapp", d.status), a(!0, d.status);
+                }, d.send(this.composeQuery(b)), d;
+            },
+            jsonp: function(c, a) {
+                void 0 !== this.authOptions.headers && Pusher.warn("Warn", "To send headers with the auth request, you must use AJAX, rather than JSONP.");
+                var d = b.toString();
+                b++;
+                var h = Pusher.Util.getDocument(), f = h.createElement("script");
+                Pusher.auth_callbacks[d] = function(b) {
+                    a(!1, b);
+                }, f.src = this.options.authEndpoint + "?callback=" + encodeURIComponent("Pusher.auth_callbacks['" + d + "']") + "&" + this.composeQuery(c), 
+                d = h.getElementsByTagName("head")[0] || h.documentElement, d.insertBefore(f, d.firstChild);
+            }
+        };
+    }.call(this), Pusher;
+}), !function(a, b) {
+    "object" == typeof exports && "object" == typeof module ? module.exports = b() : "function" == typeof define && define.amd ? define("pubnub", [], b) : "object" == typeof exports ? exports.PUBNUB = b() : a.PUBNUB = b();
+}(this, function() {
+    return function(a) {
+        function b(d) {
+            if (c[d]) return c[d].exports;
+            var e = c[d] = {
+                exports: {},
+                id: d,
+                loaded: !1
+            };
+            return a[d].call(e.exports, e, e.exports, b), e.loaded = !0, e.exports;
+        }
+        var c = {};
+        return b.m = a, b.c = c, b.p = "", b(0);
+    }([ function(a, b, c) {
+        function d(a, b) {
+            var c = q.HmacSHA256(a, b);
+            return c.toString(q.enc.Base64);
+        }
+        function e(a) {
+            return document.getElementById(a);
+        }
+        function f(a) {
+            console.error(a);
+        }
+        function g(a, b) {
+            var c = [];
+            return s.each(a.split(/\s+/), function(a) {
+                s.each((b || document).getElementsByTagName(a), function(a) {
+                    c.push(a);
+                });
+            }), c;
+        }
+        function h(a, b, c) {
+            s.each(a.split(","), function(a) {
+                var d = function(a) {
+                    a || (a = window.event), c(a) || (a.cancelBubble = !0, a.preventDefault && a.preventDefault(), 
+                    a.stopPropagation && a.stopPropagation());
+                };
+                b.addEventListener ? b.addEventListener(a, d, !1) : b.attachEvent ? b.attachEvent("on" + a, d) : b["on" + a] = d;
+            });
+        }
+        function i() {
+            return g("head")[0];
+        }
+        function j(a, b, c) {
+            return c ? void a.setAttribute(b, c) : a && a.getAttribute && a.getAttribute(b);
+        }
+        function k(a, b) {
+            for (var c in b) if (b.hasOwnProperty(c)) try {
+                a.style[c] = b[c] + ("|width|height|top|left|".indexOf(c) > 0 && "number" == typeof b[c] ? "px" : "");
+            } catch (d) {
+                return;
+            }
+        }
+        function l(a) {
+            return document.createElement(a);
+        }
+        function m(a) {
+            var b, c, d = 0, e = 0, f = !0, g = a.timeout || s.DEF_TIMEOUT, h = a.data || {}, i = a.fail || function() {}, j = a.success || function() {}, k = function(a, e) {
+                d || (d = 1, clearTimeout(c), b && (b.onerror = b.onload = null, b.abort && b.abort(), 
+                b = null), a && i(e));
+            }, l = function() {
+                if (!e) {
+                    var a;
+                    e = 1, clearTimeout(c);
+                    try {
+                        a = JSON.parse(b.responseText);
+                    } catch (d) {
+                        return k(1);
+                    }
+                    j(a);
+                }
+            };
+            c = s.timeout(function() {
+                k(1);
+            }, g);
+            try {
+                b = "undefined" != typeof XDomainRequest && new XDomainRequest() || new XMLHttpRequest(), 
+                b.onerror = b.onabort = function() {
+                    k(1, b.responseText || {
+                        error: "Network Connection Error"
+                    });
+                }, b.onload = b.onloadend = l, h.pnsdk = u;
+                var m = s.build_url(a.url, h);
+                b.open("GET", m, f), f && (b.timeout = g), b.send();
+            } catch (n) {
+                k(1, {
+                    error: "XHR Failed",
+                    stacktrace: n
+                });
+            }
+            return k;
+        }
+        function n() {
+            if (!("onLine" in navigator)) return 1;
+            try {
+                return navigator.onLine;
+            } catch (a) {
+                return !0;
+            }
+        }
+        function o(a) {
+            return "sendBeacon" in navigator ? navigator.sendBeacon(a) : !1;
+        }
+        c(1);
+        var p = c(2), q = c(3), r = c(4), s = c(5), t = c(10), u = "PubNub-JS-Web/" + r.version;
+        window.console || (window.console = window.console || {}), console.log || (console.log = console.error = (window.opera || {}).postError || function() {});
+        var v = function() {
+            var a = {}, b = !1;
+            try {
+                b = window.localStorage;
+            } catch (c) {
+                return;
+            }
+            var d = function(a) {
+                return -1 === document.cookie.indexOf(a) ? null : ((document.cookie || "").match(RegExp(a + "=([^;]+)")) || [])[1] || null;
+            }, e = function(a, b) {
+                document.cookie = a + "=" + b + "; expires=Thu, 1 Aug 2030 20:00:00 UTC; path=/";
+            }, f = function() {
+                try {
+                    return e("pnctest", "1"), "1" === d("pnctest");
+                } catch (a) {
+                    return !1;
+                }
+            }();
+            return {
+                get: function(c) {
+                    try {
+                        return b ? b.getItem(c) : f ? d(c) : a[c];
+                    } catch (e) {
+                        return a[c];
+                    }
+                },
+                set: function(c, d) {
+                    try {
+                        if (b) return b.setItem(c, d) && 0;
+                        f && e(c, d), a[c] = d;
+                    } catch (g) {
+                        a[c] = d;
+                    }
+                }
+            };
+        }(), w = {
+            list: {},
+            unbind: function(a) {
+                w.list[a] = [];
+            },
+            bind: function(a, b) {
+                (w.list[a] = w.list[a] || []).push(b);
+            },
+            fire: function(a, b) {
+                s.each(w.list[a] || [], function(a) {
+                    a(b);
+                });
+            }
+        }, x = function(a) {
+            var b = a.leave_on_unload || 0;
+            a.xdr = m, a.db = v, a.error = a.error || f, a._is_online = n, a.hmac_SHA256 = d, 
+            a.crypto_obj = p(), a.sendBeacon = o, a.params = {
+                pnsdk: u
+            };
+            var c = function(a) {
+                return x(a);
+            }, q = s.PN_API(a);
+            for (var r in q) q.hasOwnProperty(r) && (c[r] = q[r]);
+            return c.css = k, c.$ = e, c.create = l, c.bind = h, c.head = i, c.search = g, c.attr = j, 
+            c.events = w, c.init = c, c.secure = c, c.crypto_obj = p(), c.WS = t, c.PNmessage = s.PNmessage, 
+            h("beforeunload", window, function() {
+                return b && c["each-channel"](function(a) {
+                    c.LEAVE(a.name, 0);
+                }), !0;
+            }), c.ready(), a.notest ? c : (h("offline", window, c.offline), h("offline", document, c.offline), 
+            c);
+        };
+        x.init = x, x.secure = x, x.crypto_obj = p(), x.WS = t, x.db = v, x.PNmessage = s.PNmessage, 
+        x.uuid = s.uuid, x.css = k, x.$ = e, x.create = e, x.bind = h, x.head = i, x.search = g, 
+        x.attr = j, x.events = w, x.map = s.map, x.each = s.each, x.grep = s.grep, x.supplent = s.supplant, 
+        x.now = s.now, x.unique = s.unique, x.updater = s.updater, window.jQuery && (window.jQuery.PUBNUB = x), 
+        a.exports = x;
+    }, function(module, exports) {
+        (function() {
+            window.JSON && window.JSON.stringify || function() {
+                function toJSON() {
+                    try {
+                        return this.valueOf();
+                    } catch (b) {
+                        return null;
+                    }
+                }
+                function quote(a) {
+                    return escapable.lastIndex = 0, escapable.test(a) ? '"' + a.replace(escapable, function(a) {
+                        var b = meta[a];
+                        return "string" == typeof b ? b : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+                    }) + '"' : '"' + a + '"';
+                }
+                function str(a, b) {
+                    var c, d, e, f, g, h = gap, i = b[a];
+                    switch (i && "object" == typeof i && (i = toJSON.call(i, a)), "function" == typeof rep && (i = rep.call(b, a, i)), 
+                    typeof i) {
+                      case "string":
+                        return quote(i);
+
+                      case "number":
+                        return isFinite(i) ? String(i) : "null";
+
+                      case "boolean":
+                      case "null":
+                        return String(i);
+
+                      case "object":
+                        if (!i) return "null";
+                        if (gap += indent, g = [], "[object Array]" === Object.prototype.toString.apply(i)) {
+                            for (f = i.length, c = 0; f > c; c += 1) g[c] = str(c, i) || "null";
+                            return e = 0 === g.length ? "[]" : gap ? "[\n" + gap + g.join(",\n" + gap) + "\n" + h + "]" : "[" + g.join(",") + "]", 
+                            gap = h, e;
+                        }
+                        if (rep && "object" == typeof rep) for (f = rep.length, c = 0; f > c; c += 1) d = rep[c], 
+                        "string" == typeof d && (e = str(d, i), e && g.push(quote(d) + (gap ? ": " : ":") + e)); else for (d in i) Object.hasOwnProperty.call(i, d) && (e = str(d, i), 
+                        e && g.push(quote(d) + (gap ? ": " : ":") + e));
+                        return e = 0 === g.length ? "{}" : gap ? "{\n" + gap + g.join(",\n" + gap) + "\n" + h + "}" : "{" + g.join(",") + "}", 
+                        gap = h, e;
+                    }
+                }
+                window.JSON || (window.JSON = {});
+                var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g, escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g, gap, indent, meta = {
+                    "\b": "\\b",
+                    "	": "\\t",
+                    "\n": "\\n",
+                    "\f": "\\f",
+                    "\r": "\\r",
+                    '"': '\\"',
+                    "\\": "\\\\"
+                }, rep;
+                "function" != typeof JSON.stringify && (JSON.stringify = function(a, b, c) {
+                    var d;
+                    if (gap = "", indent = "", "number" == typeof c) for (d = 0; c > d; d += 1) indent += " "; else "string" == typeof c && (indent = c);
+                    if (rep = b, b && "function" != typeof b && ("object" != typeof b || "number" != typeof b.length)) throw new Error("JSON.stringify");
+                    return str("", {
+                        "": a
+                    });
+                }), "function" != typeof JSON.parse && (JSON.parse = function(text) {
+                    return eval("(" + text + ")");
+                });
+            }();
+        }).call(window);
+    }, function(a, b, c) {
+        function d() {
+            function a(a) {
+                return e.SHA256(a).toString(e.enc.Hex);
+            }
+            function b(a) {
+                return a = a || {}, a.hasOwnProperty("encryptKey") || (a.encryptKey = l.encryptKey), 
+                a.hasOwnProperty("keyEncoding") || (a.keyEncoding = l.keyEncoding), a.hasOwnProperty("keyLength") || (a.keyLength = l.keyLength), 
+                a.hasOwnProperty("mode") || (a.mode = l.mode), -1 == i.indexOf(a.keyEncoding.toLowerCase()) && (a.keyEncoding = l.keyEncoding), 
+                -1 == j.indexOf(parseInt(a.keyLength, 10)) && (a.keyLength = l.keyLength), -1 == k.indexOf(a.mode.toLowerCase()) && (a.mode = l.mode), 
+                a;
+            }
+            function c(a, b) {
+                return "base64" === b.keyEncoding ? e.enc.Base64.parse(a) : "hex" === b.keyEncoding ? e.enc.Hex.parse(a) : a;
+            }
+            function d(b, d) {
+                return b = c(b, d), d.encryptKey ? e.enc.Utf8.parse(a(b).slice(0, 32)) : b;
+            }
+            function f(a) {
+                return "ecb" === a.mode ? e.mode.ECB : e.mode.CBC;
+            }
+            function g(a) {
+                return "cbc" === a.mode ? e.enc.Utf8.parse(h) : null;
+            }
+            var h = "0123456789012345", i = [ "hex", "utf8", "base64", "binary" ], j = [ 128, 256 ], k = [ "ecb", "cbc" ], l = {
+                encryptKey: !0,
+                keyEncoding: "utf8",
+                keyLength: 256,
+                mode: "cbc"
+            };
+            return {
+                encrypt: function(a, c, h) {
+                    if (!c) return a;
+                    h = b(h);
+                    var i = g(h), j = f(h), k = d(c, h), l = JSON.stringify(a), m = e.AES.encrypt(l, k, {
+                        iv: i,
+                        mode: j
+                    }).ciphertext, n = m.toString(e.enc.Base64);
+                    return n || a;
+                },
+                decrypt: function(a, c, h) {
+                    if (!c) return a;
+                    h = b(h);
+                    var i = g(h), j = f(h), k = d(c, h);
+                    try {
+                        var l = e.enc.Base64.parse(a), m = e.AES.decrypt({
+                            ciphertext: l
+                        }, k, {
+                            iv: i,
+                            mode: j
+                        }).toString(e.enc.Utf8), n = JSON.parse(m);
+                        return n;
+                    } catch (o) {
+                        return;
+                    }
+                }
+            };
+        }
+        var e = c(3);
+        a.exports = d;
+    }, function(a) {
+        var c = c || function(a, b) {
+            var c = {}, d = c.lib = {}, e = function() {}, f = d.Base = {
+                extend: function(a) {
+                    e.prototype = this;
+                    var b = new e();
+                    return a && b.mixIn(a), b.hasOwnProperty("init") || (b.init = function() {
+                        b.$super.init.apply(this, arguments);
+                    }), b.init.prototype = b, b.$super = this, b;
+                },
+                create: function() {
+                    var a = this.extend();
+                    return a.init.apply(a, arguments), a;
+                },
+                init: function() {},
+                mixIn: function(a) {
+                    for (var b in a) a.hasOwnProperty(b) && (this[b] = a[b]);
+                    a.hasOwnProperty("toString") && (this.toString = a.toString);
+                },
+                clone: function() {
+                    return this.init.prototype.extend(this);
+                }
+            }, g = d.WordArray = f.extend({
+                init: function(a, c) {
+                    a = this.words = a || [], this.sigBytes = c != b ? c : 4 * a.length;
+                },
+                toString: function(a) {
+                    return (a || i).stringify(this);
+                },
+                concat: function(a) {
+                    var b = this.words, c = a.words, d = this.sigBytes;
+                    if (a = a.sigBytes, this.clamp(), d % 4) for (var e = 0; a > e; e++) b[d + e >>> 2] |= (c[e >>> 2] >>> 24 - 8 * (e % 4) & 255) << 24 - 8 * ((d + e) % 4); else if (65535 < c.length) for (e = 0; a > e; e += 4) b[d + e >>> 2] = c[e >>> 2]; else b.push.apply(b, c);
+                    return this.sigBytes += a, this;
+                },
+                clamp: function() {
+                    var b = this.words, c = this.sigBytes;
+                    b[c >>> 2] &= 4294967295 << 32 - 8 * (c % 4), b.length = a.ceil(c / 4);
+                },
+                clone: function() {
+                    var a = f.clone.call(this);
+                    return a.words = this.words.slice(0), a;
+                },
+                random: function(b) {
+                    for (var c = [], d = 0; b > d; d += 4) c.push(4294967296 * a.random() | 0);
+                    return new g.init(c, b);
+                }
+            }), h = c.enc = {}, i = h.Hex = {
+                stringify: function(a) {
+                    var b = a.words;
+                    a = a.sigBytes;
+                    for (var c = [], d = 0; a > d; d++) {
+                        var e = b[d >>> 2] >>> 24 - 8 * (d % 4) & 255;
+                        c.push((e >>> 4).toString(16)), c.push((15 & e).toString(16));
+                    }
+                    return c.join("");
+                },
+                parse: function(a) {
+                    for (var b = a.length, c = [], d = 0; b > d; d += 2) c[d >>> 3] |= parseInt(a.substr(d, 2), 16) << 24 - 4 * (d % 8);
+                    return new g.init(c, b / 2);
+                }
+            }, j = h.Latin1 = {
+                stringify: function(a) {
+                    var b = a.words;
+                    a = a.sigBytes;
+                    for (var c = [], d = 0; a > d; d++) c.push(String.fromCharCode(b[d >>> 2] >>> 24 - 8 * (d % 4) & 255));
+                    return c.join("");
+                },
+                parse: function(a) {
+                    for (var b = a.length, c = [], d = 0; b > d; d++) c[d >>> 2] |= (255 & a.charCodeAt(d)) << 24 - 8 * (d % 4);
+                    return new g.init(c, b);
+                }
+            }, k = h.Utf8 = {
+                stringify: function(a) {
+                    try {
+                        return decodeURIComponent(escape(j.stringify(a)));
+                    } catch (b) {
+                        throw Error("Malformed UTF-8 data");
+                    }
+                },
+                parse: function(a) {
+                    return j.parse(unescape(encodeURIComponent(a)));
+                }
+            }, l = d.BufferedBlockAlgorithm = f.extend({
+                reset: function() {
+                    this._data = new g.init(), this._nDataBytes = 0;
+                },
+                _append: function(a) {
+                    "string" == typeof a && (a = k.parse(a)), this._data.concat(a), this._nDataBytes += a.sigBytes;
+                },
+                _process: function(b) {
+                    var c = this._data, d = c.words, e = c.sigBytes, f = this.blockSize, h = e / (4 * f), h = b ? a.ceil(h) : a.max((0 | h) - this._minBufferSize, 0);
+                    if (b = h * f, e = a.min(4 * b, e), b) {
+                        for (var i = 0; b > i; i += f) this._doProcessBlock(d, i);
+                        i = d.splice(0, b), c.sigBytes -= e;
+                    }
+                    return new g.init(i, e);
+                },
+                clone: function() {
+                    var a = f.clone.call(this);
+                    return a._data = this._data.clone(), a;
+                },
+                _minBufferSize: 0
+            });
+            d.Hasher = l.extend({
+                cfg: f.extend(),
+                init: function(a) {
+                    this.cfg = this.cfg.extend(a), this.reset();
+                },
+                reset: function() {
+                    l.reset.call(this), this._doReset();
+                },
+                update: function(a) {
+                    return this._append(a), this._process(), this;
+                },
+                finalize: function(a) {
+                    return a && this._append(a), this._doFinalize();
+                },
+                blockSize: 16,
+                _createHelper: function(a) {
+                    return function(b, c) {
+                        return new a.init(c).finalize(b);
+                    };
+                },
+                _createHmacHelper: function(a) {
+                    return function(b, c) {
+                        return new m.HMAC.init(a, c).finalize(b);
+                    };
+                }
+            });
+            var m = c.algo = {};
+            return c;
+        }(Math);
+        !function(a) {
+            for (var b = c, d = b.lib, e = d.WordArray, f = d.Hasher, d = b.algo, g = [], h = [], i = function(a) {
+                return 4294967296 * (a - (0 | a)) | 0;
+            }, j = 2, k = 0; 64 > k; ) {
+                var l;
+                a: {
+                    l = j;
+                    for (var m = a.sqrt(l), n = 2; m >= n; n++) if (!(l % n)) {
+                        l = !1;
+                        break a;
+                    }
+                    l = !0;
+                }
+                l && (8 > k && (g[k] = i(a.pow(j, .5))), h[k] = i(a.pow(j, 1 / 3)), k++), j++;
+            }
+            var o = [], d = d.SHA256 = f.extend({
+                _doReset: function() {
+                    this._hash = new e.init(g.slice(0));
+                },
+                _doProcessBlock: function(a, b) {
+                    for (var c = this._hash.words, d = c[0], e = c[1], f = c[2], g = c[3], i = c[4], j = c[5], k = c[6], l = c[7], m = 0; 64 > m; m++) {
+                        if (16 > m) o[m] = 0 | a[b + m]; else {
+                            var n = o[m - 15], p = o[m - 2];
+                            o[m] = ((n << 25 | n >>> 7) ^ (n << 14 | n >>> 18) ^ n >>> 3) + o[m - 7] + ((p << 15 | p >>> 17) ^ (p << 13 | p >>> 19) ^ p >>> 10) + o[m - 16];
+                        }
+                        n = l + ((i << 26 | i >>> 6) ^ (i << 21 | i >>> 11) ^ (i << 7 | i >>> 25)) + (i & j ^ ~i & k) + h[m] + o[m], 
+                        p = ((d << 30 | d >>> 2) ^ (d << 19 | d >>> 13) ^ (d << 10 | d >>> 22)) + (d & e ^ d & f ^ e & f), 
+                        l = k, k = j, j = i, i = g + n | 0, g = f, f = e, e = d, d = n + p | 0;
+                    }
+                    c[0] = c[0] + d | 0, c[1] = c[1] + e | 0, c[2] = c[2] + f | 0, c[3] = c[3] + g | 0, 
+                    c[4] = c[4] + i | 0, c[5] = c[5] + j | 0, c[6] = c[6] + k | 0, c[7] = c[7] + l | 0;
+                },
+                _doFinalize: function() {
+                    var b = this._data, c = b.words, d = 8 * this._nDataBytes, e = 8 * b.sigBytes;
+                    return c[e >>> 5] |= 128 << 24 - e % 32, c[(e + 64 >>> 9 << 4) + 14] = a.floor(d / 4294967296), 
+                    c[(e + 64 >>> 9 << 4) + 15] = d, b.sigBytes = 4 * c.length, this._process(), this._hash;
+                },
+                clone: function() {
+                    var a = f.clone.call(this);
+                    return a._hash = this._hash.clone(), a;
+                }
+            });
+            b.SHA256 = f._createHelper(d), b.HmacSHA256 = f._createHmacHelper(d);
+        }(Math), function() {
+            var a = c, b = a.enc.Utf8;
+            a.algo.HMAC = a.lib.Base.extend({
+                init: function(a, c) {
+                    a = this._hasher = new a.init(), "string" == typeof c && (c = b.parse(c));
+                    var d = a.blockSize, e = 4 * d;
+                    c.sigBytes > e && (c = a.finalize(c)), c.clamp();
+                    for (var f = this._oKey = c.clone(), g = this._iKey = c.clone(), h = f.words, i = g.words, j = 0; d > j; j++) h[j] ^= 1549556828, 
+                    i[j] ^= 909522486;
+                    f.sigBytes = g.sigBytes = e, this.reset();
+                },
+                reset: function() {
+                    var a = this._hasher;
+                    a.reset(), a.update(this._iKey);
+                },
+                update: function(a) {
+                    return this._hasher.update(a), this;
+                },
+                finalize: function(a) {
+                    var b = this._hasher;
+                    return a = b.finalize(a), b.reset(), b.finalize(this._oKey.clone().concat(a));
+                }
+            });
+        }(), function() {
+            var a = c, b = a.lib.WordArray;
+            a.enc.Base64 = {
+                stringify: function(a) {
+                    var b = a.words, c = a.sigBytes, d = this._map;
+                    a.clamp(), a = [];
+                    for (var e = 0; c > e; e += 3) for (var f = (b[e >>> 2] >>> 24 - 8 * (e % 4) & 255) << 16 | (b[e + 1 >>> 2] >>> 24 - 8 * ((e + 1) % 4) & 255) << 8 | b[e + 2 >>> 2] >>> 24 - 8 * ((e + 2) % 4) & 255, g = 0; 4 > g && c > e + .75 * g; g++) a.push(d.charAt(f >>> 6 * (3 - g) & 63));
+                    if (b = d.charAt(64)) for (;a.length % 4; ) a.push(b);
+                    return a.join("");
+                },
+                parse: function(a) {
+                    var c = a.length, d = this._map, e = d.charAt(64);
+                    e && (e = a.indexOf(e), -1 != e && (c = e));
+                    for (var e = [], f = 0, g = 0; c > g; g++) if (g % 4) {
+                        var h = d.indexOf(a.charAt(g - 1)) << 2 * (g % 4), i = d.indexOf(a.charAt(g)) >>> 6 - 2 * (g % 4);
+                        e[f >>> 2] |= (h | i) << 24 - 8 * (f % 4), f++;
+                    }
+                    return b.create(e, f);
+                },
+                _map: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+            };
+        }(), function(a) {
+            function b(a, b, c, d, e, f, g) {
+                return a = a + (b & c | ~b & d) + e + g, (a << f | a >>> 32 - f) + b;
+            }
+            function d(a, b, c, d, e, f, g) {
+                return a = a + (b & d | c & ~d) + e + g, (a << f | a >>> 32 - f) + b;
+            }
+            function e(a, b, c, d, e, f, g) {
+                return a = a + (b ^ c ^ d) + e + g, (a << f | a >>> 32 - f) + b;
+            }
+            function f(a, b, c, d, e, f, g) {
+                return a = a + (c ^ (b | ~d)) + e + g, (a << f | a >>> 32 - f) + b;
+            }
+            for (var g = c, h = g.lib, i = h.WordArray, j = h.Hasher, h = g.algo, k = [], l = 0; 64 > l; l++) k[l] = 4294967296 * a.abs(a.sin(l + 1)) | 0;
+            h = h.MD5 = j.extend({
+                _doReset: function() {
+                    this._hash = new i.init([ 1732584193, 4023233417, 2562383102, 271733878 ]);
+                },
+                _doProcessBlock: function(a, c) {
+                    for (var g = 0; 16 > g; g++) {
+                        var h = c + g, i = a[h];
+                        a[h] = 16711935 & (i << 8 | i >>> 24) | 4278255360 & (i << 24 | i >>> 8);
+                    }
+                    var g = this._hash.words, h = a[c + 0], i = a[c + 1], j = a[c + 2], l = a[c + 3], m = a[c + 4], n = a[c + 5], o = a[c + 6], p = a[c + 7], q = a[c + 8], r = a[c + 9], s = a[c + 10], t = a[c + 11], u = a[c + 12], v = a[c + 13], w = a[c + 14], x = a[c + 15], y = g[0], z = g[1], A = g[2], B = g[3], y = b(y, z, A, B, h, 7, k[0]), B = b(B, y, z, A, i, 12, k[1]), A = b(A, B, y, z, j, 17, k[2]), z = b(z, A, B, y, l, 22, k[3]), y = b(y, z, A, B, m, 7, k[4]), B = b(B, y, z, A, n, 12, k[5]), A = b(A, B, y, z, o, 17, k[6]), z = b(z, A, B, y, p, 22, k[7]), y = b(y, z, A, B, q, 7, k[8]), B = b(B, y, z, A, r, 12, k[9]), A = b(A, B, y, z, s, 17, k[10]), z = b(z, A, B, y, t, 22, k[11]), y = b(y, z, A, B, u, 7, k[12]), B = b(B, y, z, A, v, 12, k[13]), A = b(A, B, y, z, w, 17, k[14]), z = b(z, A, B, y, x, 22, k[15]), y = d(y, z, A, B, i, 5, k[16]), B = d(B, y, z, A, o, 9, k[17]), A = d(A, B, y, z, t, 14, k[18]), z = d(z, A, B, y, h, 20, k[19]), y = d(y, z, A, B, n, 5, k[20]), B = d(B, y, z, A, s, 9, k[21]), A = d(A, B, y, z, x, 14, k[22]), z = d(z, A, B, y, m, 20, k[23]), y = d(y, z, A, B, r, 5, k[24]), B = d(B, y, z, A, w, 9, k[25]), A = d(A, B, y, z, l, 14, k[26]), z = d(z, A, B, y, q, 20, k[27]), y = d(y, z, A, B, v, 5, k[28]), B = d(B, y, z, A, j, 9, k[29]), A = d(A, B, y, z, p, 14, k[30]), z = d(z, A, B, y, u, 20, k[31]), y = e(y, z, A, B, n, 4, k[32]), B = e(B, y, z, A, q, 11, k[33]), A = e(A, B, y, z, t, 16, k[34]), z = e(z, A, B, y, w, 23, k[35]), y = e(y, z, A, B, i, 4, k[36]), B = e(B, y, z, A, m, 11, k[37]), A = e(A, B, y, z, p, 16, k[38]), z = e(z, A, B, y, s, 23, k[39]), y = e(y, z, A, B, v, 4, k[40]), B = e(B, y, z, A, h, 11, k[41]), A = e(A, B, y, z, l, 16, k[42]), z = e(z, A, B, y, o, 23, k[43]), y = e(y, z, A, B, r, 4, k[44]), B = e(B, y, z, A, u, 11, k[45]), A = e(A, B, y, z, x, 16, k[46]), z = e(z, A, B, y, j, 23, k[47]), y = f(y, z, A, B, h, 6, k[48]), B = f(B, y, z, A, p, 10, k[49]), A = f(A, B, y, z, w, 15, k[50]), z = f(z, A, B, y, n, 21, k[51]), y = f(y, z, A, B, u, 6, k[52]), B = f(B, y, z, A, l, 10, k[53]), A = f(A, B, y, z, s, 15, k[54]), z = f(z, A, B, y, i, 21, k[55]), y = f(y, z, A, B, q, 6, k[56]), B = f(B, y, z, A, x, 10, k[57]), A = f(A, B, y, z, o, 15, k[58]), z = f(z, A, B, y, v, 21, k[59]), y = f(y, z, A, B, m, 6, k[60]), B = f(B, y, z, A, t, 10, k[61]), A = f(A, B, y, z, j, 15, k[62]), z = f(z, A, B, y, r, 21, k[63]);
+                    g[0] = g[0] + y | 0, g[1] = g[1] + z | 0, g[2] = g[2] + A | 0, g[3] = g[3] + B | 0;
+                },
+                _doFinalize: function() {
+                    var b = this._data, c = b.words, d = 8 * this._nDataBytes, e = 8 * b.sigBytes;
+                    c[e >>> 5] |= 128 << 24 - e % 32;
+                    var f = a.floor(d / 4294967296);
+                    for (c[(e + 64 >>> 9 << 4) + 15] = 16711935 & (f << 8 | f >>> 24) | 4278255360 & (f << 24 | f >>> 8), 
+                    c[(e + 64 >>> 9 << 4) + 14] = 16711935 & (d << 8 | d >>> 24) | 4278255360 & (d << 24 | d >>> 8), 
+                    b.sigBytes = 4 * (c.length + 1), this._process(), b = this._hash, c = b.words, d = 0; 4 > d; d++) e = c[d], 
+                    c[d] = 16711935 & (e << 8 | e >>> 24) | 4278255360 & (e << 24 | e >>> 8);
+                    return b;
+                },
+                clone: function() {
+                    var a = j.clone.call(this);
+                    return a._hash = this._hash.clone(), a;
+                }
+            }), g.MD5 = j._createHelper(h), g.HmacMD5 = j._createHmacHelper(h);
+        }(Math), function() {
+            var a = c, b = a.lib, d = b.Base, e = b.WordArray, b = a.algo, f = b.EvpKDF = d.extend({
+                cfg: d.extend({
+                    keySize: 4,
+                    hasher: b.MD5,
+                    iterations: 1
+                }),
+                init: function(a) {
+                    this.cfg = this.cfg.extend(a);
+                },
+                compute: function(a, b) {
+                    for (var c = this.cfg, d = c.hasher.create(), f = e.create(), g = f.words, h = c.keySize, c = c.iterations; g.length < h; ) {
+                        i && d.update(i);
+                        var i = d.update(a).finalize(b);
+                        d.reset();
+                        for (var j = 1; c > j; j++) i = d.finalize(i), d.reset();
+                        f.concat(i);
+                    }
+                    return f.sigBytes = 4 * h, f;
+                }
+            });
+            a.EvpKDF = function(a, b, c) {
+                return f.create(c).compute(a, b);
+            };
+        }(), c.lib.Cipher || function(a) {
+            var b = c, d = b.lib, e = d.Base, f = d.WordArray, g = d.BufferedBlockAlgorithm, h = b.enc.Base64, i = b.algo.EvpKDF, j = d.Cipher = g.extend({
+                cfg: e.extend(),
+                createEncryptor: function(a, b) {
+                    return this.create(this._ENC_XFORM_MODE, a, b);
+                },
+                createDecryptor: function(a, b) {
+                    return this.create(this._DEC_XFORM_MODE, a, b);
+                },
+                init: function(a, b, c) {
+                    this.cfg = this.cfg.extend(c), this._xformMode = a, this._key = b, this.reset();
+                },
+                reset: function() {
+                    g.reset.call(this), this._doReset();
+                },
+                process: function(a) {
+                    return this._append(a), this._process();
+                },
+                finalize: function(a) {
+                    return a && this._append(a), this._doFinalize();
+                },
+                keySize: 4,
+                ivSize: 4,
+                _ENC_XFORM_MODE: 1,
+                _DEC_XFORM_MODE: 2,
+                _createHelper: function(a) {
+                    return {
+                        encrypt: function(b, c, d) {
+                            return ("string" == typeof c ? p : o).encrypt(a, b, c, d);
+                        },
+                        decrypt: function(b, c, d) {
+                            return ("string" == typeof c ? p : o).decrypt(a, b, c, d);
+                        }
+                    };
+                }
+            });
+            d.StreamCipher = j.extend({
+                _doFinalize: function() {
+                    return this._process(!0);
+                },
+                blockSize: 1
+            });
+            var k = b.mode = {}, l = function(b, c, d) {
+                var e = this._iv;
+                e ? this._iv = a : e = this._prevBlock;
+                for (var f = 0; d > f; f++) b[c + f] ^= e[f];
+            }, m = (d.BlockCipherMode = e.extend({
+                createEncryptor: function(a, b) {
+                    return this.Encryptor.create(a, b);
+                },
+                createDecryptor: function(a, b) {
+                    return this.Decryptor.create(a, b);
+                },
+                init: function(a, b) {
+                    this._cipher = a, this._iv = b;
+                }
+            })).extend();
+            m.Encryptor = m.extend({
+                processBlock: function(a, b) {
+                    var c = this._cipher, d = c.blockSize;
+                    l.call(this, a, b, d), c.encryptBlock(a, b), this._prevBlock = a.slice(b, b + d);
+                }
+            }), m.Decryptor = m.extend({
+                processBlock: function(a, b) {
+                    var c = this._cipher, d = c.blockSize, e = a.slice(b, b + d);
+                    c.decryptBlock(a, b), l.call(this, a, b, d), this._prevBlock = e;
+                }
+            }), k = k.CBC = m, m = (b.pad = {}).Pkcs7 = {
+                pad: function(a, b) {
+                    for (var c = 4 * b, c = c - a.sigBytes % c, d = c << 24 | c << 16 | c << 8 | c, e = [], g = 0; c > g; g += 4) e.push(d);
+                    c = f.create(e, c), a.concat(c);
+                },
+                unpad: function(a) {
+                    a.sigBytes -= 255 & a.words[a.sigBytes - 1 >>> 2];
+                }
+            }, d.BlockCipher = j.extend({
+                cfg: j.cfg.extend({
+                    mode: k,
+                    padding: m
+                }),
+                reset: function() {
+                    j.reset.call(this);
+                    var a = this.cfg, b = a.iv, a = a.mode;
+                    if (this._xformMode == this._ENC_XFORM_MODE) var c = a.createEncryptor; else c = a.createDecryptor, 
+                    this._minBufferSize = 1;
+                    this._mode = c.call(a, this, b && b.words);
+                },
+                _doProcessBlock: function(a, b) {
+                    this._mode.processBlock(a, b);
+                },
+                _doFinalize: function() {
+                    var a = this.cfg.padding;
+                    if (this._xformMode == this._ENC_XFORM_MODE) {
+                        a.pad(this._data, this.blockSize);
+                        var b = this._process(!0);
+                    } else b = this._process(!0), a.unpad(b);
+                    return b;
+                },
+                blockSize: 4
+            });
+            var n = d.CipherParams = e.extend({
+                init: function(a) {
+                    this.mixIn(a);
+                },
+                toString: function(a) {
+                    return (a || this.formatter).stringify(this);
+                }
+            }), k = (b.format = {}).OpenSSL = {
+                stringify: function(a) {
+                    var b = a.ciphertext;
+                    return a = a.salt, (a ? f.create([ 1398893684, 1701076831 ]).concat(a).concat(b) : b).toString(h);
+                },
+                parse: function(a) {
+                    a = h.parse(a);
+                    var b = a.words;
+                    if (1398893684 == b[0] && 1701076831 == b[1]) {
+                        var c = f.create(b.slice(2, 4));
+                        b.splice(0, 4), a.sigBytes -= 16;
+                    }
+                    return n.create({
+                        ciphertext: a,
+                        salt: c
+                    });
+                }
+            }, o = d.SerializableCipher = e.extend({
+                cfg: e.extend({
+                    format: k
+                }),
+                encrypt: function(a, b, c, d) {
+                    d = this.cfg.extend(d);
+                    var e = a.createEncryptor(c, d);
+                    return b = e.finalize(b), e = e.cfg, n.create({
+                        ciphertext: b,
+                        key: c,
+                        iv: e.iv,
+                        algorithm: a,
+                        mode: e.mode,
+                        padding: e.padding,
+                        blockSize: a.blockSize,
+                        formatter: d.format
+                    });
+                },
+                decrypt: function(a, b, c, d) {
+                    return d = this.cfg.extend(d), b = this._parse(b, d.format), a.createDecryptor(c, d).finalize(b.ciphertext);
+                },
+                _parse: function(a, b) {
+                    return "string" == typeof a ? b.parse(a, this) : a;
+                }
+            }), b = (b.kdf = {}).OpenSSL = {
+                execute: function(a, b, c, d) {
+                    return d || (d = f.random(8)), a = i.create({
+                        keySize: b + c
+                    }).compute(a, d), c = f.create(a.words.slice(b), 4 * c), a.sigBytes = 4 * b, n.create({
+                        key: a,
+                        iv: c,
+                        salt: d
+                    });
+                }
+            }, p = d.PasswordBasedCipher = o.extend({
+                cfg: o.cfg.extend({
+                    kdf: b
+                }),
+                encrypt: function(a, b, c, d) {
+                    return d = this.cfg.extend(d), c = d.kdf.execute(c, a.keySize, a.ivSize), d.iv = c.iv, 
+                    a = o.encrypt.call(this, a, b, c.key, d), a.mixIn(c), a;
+                },
+                decrypt: function(a, b, c, d) {
+                    return d = this.cfg.extend(d), b = this._parse(b, d.format), c = d.kdf.execute(c, a.keySize, a.ivSize, b.salt), 
+                    d.iv = c.iv, o.decrypt.call(this, a, b, c.key, d);
+                }
+            });
+        }(), function() {
+            for (var a = c, b = a.lib.BlockCipher, d = a.algo, e = [], f = [], g = [], h = [], i = [], j = [], k = [], l = [], m = [], n = [], o = [], p = 0; 256 > p; p++) o[p] = 128 > p ? p << 1 : p << 1 ^ 283;
+            for (var q = 0, r = 0, p = 0; 256 > p; p++) {
+                var s = r ^ r << 1 ^ r << 2 ^ r << 3 ^ r << 4, s = s >>> 8 ^ 255 & s ^ 99;
+                e[q] = s, f[s] = q;
+                var t = o[q], u = o[t], v = o[u], w = 257 * o[s] ^ 16843008 * s;
+                g[q] = w << 24 | w >>> 8, h[q] = w << 16 | w >>> 16, i[q] = w << 8 | w >>> 24, j[q] = w, 
+                w = 16843009 * v ^ 65537 * u ^ 257 * t ^ 16843008 * q, k[s] = w << 24 | w >>> 8, 
+                l[s] = w << 16 | w >>> 16, m[s] = w << 8 | w >>> 24, n[s] = w, q ? (q = t ^ o[o[o[v ^ t]]], 
+                r ^= o[o[r]]) : q = r = 1;
+            }
+            var x = [ 0, 1, 2, 4, 8, 16, 32, 64, 128, 27, 54 ], d = d.AES = b.extend({
+                _doReset: function() {
+                    for (var a = this._key, b = a.words, c = a.sigBytes / 4, a = 4 * ((this._nRounds = c + 6) + 1), d = this._keySchedule = [], f = 0; a > f; f++) if (c > f) d[f] = b[f]; else {
+                        var g = d[f - 1];
+                        f % c ? c > 6 && 4 == f % c && (g = e[g >>> 24] << 24 | e[g >>> 16 & 255] << 16 | e[g >>> 8 & 255] << 8 | e[255 & g]) : (g = g << 8 | g >>> 24, 
+                        g = e[g >>> 24] << 24 | e[g >>> 16 & 255] << 16 | e[g >>> 8 & 255] << 8 | e[255 & g], 
+                        g ^= x[f / c | 0] << 24), d[f] = d[f - c] ^ g;
+                    }
+                    for (b = this._invKeySchedule = [], c = 0; a > c; c++) f = a - c, g = c % 4 ? d[f] : d[f - 4], 
+                    b[c] = 4 > c || 4 >= f ? g : k[e[g >>> 24]] ^ l[e[g >>> 16 & 255]] ^ m[e[g >>> 8 & 255]] ^ n[e[255 & g]];
+                },
+                encryptBlock: function(a, b) {
+                    this._doCryptBlock(a, b, this._keySchedule, g, h, i, j, e);
+                },
+                decryptBlock: function(a, b) {
+                    var c = a[b + 1];
+                    a[b + 1] = a[b + 3], a[b + 3] = c, this._doCryptBlock(a, b, this._invKeySchedule, k, l, m, n, f), 
+                    c = a[b + 1], a[b + 1] = a[b + 3], a[b + 3] = c;
+                },
+                _doCryptBlock: function(a, b, c, d, e, f, g, h) {
+                    for (var i = this._nRounds, j = a[b] ^ c[0], k = a[b + 1] ^ c[1], l = a[b + 2] ^ c[2], m = a[b + 3] ^ c[3], n = 4, o = 1; i > o; o++) var p = d[j >>> 24] ^ e[k >>> 16 & 255] ^ f[l >>> 8 & 255] ^ g[255 & m] ^ c[n++], q = d[k >>> 24] ^ e[l >>> 16 & 255] ^ f[m >>> 8 & 255] ^ g[255 & j] ^ c[n++], r = d[l >>> 24] ^ e[m >>> 16 & 255] ^ f[j >>> 8 & 255] ^ g[255 & k] ^ c[n++], m = d[m >>> 24] ^ e[j >>> 16 & 255] ^ f[k >>> 8 & 255] ^ g[255 & l] ^ c[n++], j = p, k = q, l = r;
+                    p = (h[j >>> 24] << 24 | h[k >>> 16 & 255] << 16 | h[l >>> 8 & 255] << 8 | h[255 & m]) ^ c[n++], 
+                    q = (h[k >>> 24] << 24 | h[l >>> 16 & 255] << 16 | h[m >>> 8 & 255] << 8 | h[255 & j]) ^ c[n++], 
+                    r = (h[l >>> 24] << 24 | h[m >>> 16 & 255] << 16 | h[j >>> 8 & 255] << 8 | h[255 & k]) ^ c[n++], 
+                    m = (h[m >>> 24] << 24 | h[j >>> 16 & 255] << 16 | h[k >>> 8 & 255] << 8 | h[255 & l]) ^ c[n++], 
+                    a[b] = p, a[b + 1] = q, a[b + 2] = r, a[b + 3] = m;
+                },
+                keySize: 8
+            });
+            a.AES = b._createHelper(d);
+        }(), c.mode.ECB = function() {
+            var a = c.lib.BlockCipherMode.extend();
+            return a.Encryptor = a.extend({
+                processBlock: function(a, b) {
+                    this._cipher.encryptBlock(a, b);
+                }
+            }), a.Decryptor = a.extend({
+                processBlock: function(a, b) {
+                    this._cipher.decryptBlock(a, b);
+                }
+            }), a;
+        }(), a.exports = c;
+    }, function(a) {
+        a.exports = {
+            name: "pubnub",
+            preferGlobal: !1,
+            version: "3.14.1",
+            author: "PubNub <support@pubnub.com>",
+            description: "Publish & Subscribe Real-time Messaging with PubNub",
+            contributors: [ {
+                name: "Stephen Blum",
+                email: "stephen@pubnub.com"
+            } ],
+            bin: {},
+            scripts: {
+                test: "grunt test --force"
+            },
+            main: "./node.js/pubnub.js",
+            browser: "./modern/dist/pubnub.js",
+            repository: {
+                type: "git",
+                url: "git://github.com/pubnub/javascript.git"
+            },
+            keywords: [ "cloud", "publish", "subscribe", "websockets", "comet", "bosh", "xmpp", "real-time", "messaging" ],
+            dependencies: {
+                agentkeepalive: "~0.2",
+                lodash: "^4.1.0"
+            },
+            noAnalyze: !1,
+            devDependencies: {
+                "babel-core": "^6.5.2",
+                "babel-eslint": "^5.0.0",
+                "babel-plugin-transform-class-properties": "^6.5.2",
+                "babel-plugin-transform-flow-strip-types": "^6.5.0",
+                "babel-preset-es2015": "^6.5.0",
+                chai: "^3.5.0",
+                eslint: "^2.2.0",
+                "eslint-config-airbnb": "^6.0.2",
+                "eslint-plugin-flowtype": "^2.1.0",
+                "eslint-plugin-mocha": "^2.0.0",
+                "eslint-plugin-react": "^4.1.0",
+                "flow-bin": "^0.22.0",
+                grunt: "^0.4.5",
+                "grunt-babel": "^6.0.0",
+                "grunt-contrib-clean": "^1.0.0",
+                "grunt-contrib-copy": "^0.8.2",
+                "grunt-contrib-uglify": "^0.11.1",
+                "grunt-env": "^0.4.4",
+                "grunt-eslint": "^18.0.0",
+                "grunt-flow": "^1.0.3",
+                "grunt-karma": "^0.12.1",
+                "grunt-mocha-istanbul": "^3.0.1",
+                "grunt-text-replace": "^0.4.0",
+                "grunt-webpack": "^1.0.11",
+                "imports-loader": "^0.6.5",
+                isparta: "^4.0.0",
+                "json-loader": "^0.5.4",
+                karma: "^0.13.21",
+                "karma-chai": "^0.1.0",
+                "karma-mocha": "^0.2.1",
+                "karma-phantomjs-launcher": "^1.0.0",
+                "karma-spec-reporter": "0.0.24",
+                "load-grunt-tasks": "^3.4.0",
+                mocha: "^2.4.5",
+                nock: "^1.1.0",
+                "node-uuid": "^1.4.7",
+                nodeunit: "^0.9.0",
+                "phantomjs-prebuilt": "^2.1.4",
+                proxyquire: "^1.7.4",
+                sinon: "^1.17.2",
+                "uglify-js": "^2.6.1",
+                underscore: "^1.7.0",
+                webpack: "^1.12.13",
+                "webpack-dev-server": "^1.14.1"
+            },
+            bundleDependencies: [],
+            license: "MIT",
+            engine: {
+                node: ">=0.8"
+            },
+            files: [ "core", "node.js", "modern", "CHANGELOG", "FUTURE.md", "LICENSE", "README.md" ]
+        };
+    }, function(a, b, c) {
+        function d(a) {
+            return a && a.__esModule ? a : {
+                "default": a
+            };
+        }
+        function e() {
+            return "x" + ++s + +new Date();
+        }
+        function f(a, b) {
+            var c = [];
+            return r.each(a, function(a, d) {
+                b ? a.search("-pnpres") < 0 && d.subscribed && c.push(a) : d.subscribed && c.push(a);
+            }), c.sort();
+        }
+        function g(a, b) {
+            var c = [];
+            return r.each(a, function(a, d) {
+                b ? a.search("-pnpres") < 0 && d.subscribed && c.push(a) : d.subscribed && c.push(a);
+            }), c.sort();
+        }
+        function h() {
+            t || (t = 1, r.each(u, function(a) {
+                a();
+            }));
+        }
+        function i(a) {
+            var b = a || {
+                apns: {}
+            };
+            return b.getPubnubMessage = function() {
+                var a = {};
+                if (Object.keys(b.apns).length) {
+                    a.pn_apns = {
+                        aps: {
+                            alert: b.apns.alert,
+                            badge: b.apns.badge
+                        }
+                    };
+                    for (var c in b.apns) a.pn_apns[c] = b.apns[c];
+                    var d = [ "badge", "alert" ];
+                    for (var c in d) delete a.pn_apns[d[c]];
+                }
+                b.gcm && (a.pn_gcm = {
+                    data: b.gcm
+                });
+                for (var c in b) a[c] = b[c];
+                var e = [ "apns", "gcm", "publish", "channel", "callback", "error" ];
+                for (var c in e) delete a[e[c]];
+                return a;
+            }, b.publish = function() {
+                var a = b.getPubnubMessage();
+                b.pubnub && b.channel && b.pubnub.publish({
+                    message: a,
+                    channel: b.channel,
+                    callback: b.callback,
+                    error: b.error
+                });
+            }, b;
+        }
+        function j(a) {
+            function b(a) {
+                return a || (a = {}), r.each(wa, function(b, c) {
+                    b in a || (a[b] = c);
+                }), a;
+            }
+            function c(a) {
+                var b = [];
+                return r.each(a, function(a) {
+                    b.push(a);
+                }), b;
+            }
+            function d(a) {
+                return c(a).sort();
+            }
+            function i(a) {
+                var b = "", c = d(a);
+                for (var e in c) {
+                    var f = c[e];
+                    b += f + "=" + r.pamEncode(a[f]), e != c.length - 1 && (b += "&");
+                }
+                return b;
+            }
+            function j(a, b, c) {
+                var d = !1;
+                if ("undefined" == typeof a) return b;
+                if ("number" == typeof a) d = !(a > B || 0 == a); else {
+                    if ("boolean" == typeof a) return a ? C : 0;
+                    d = !0;
+                }
+                return d ? (c && c("Presence Heartbeat value invalid. Valid range ( x > " + B + " or x = 0). Current Value : " + (b || B)), 
+                b || B) : a;
+            }
+            function l(a, b) {
+                return Ia.encrypt(a, b || Ba) || a;
+            }
+            function n(a, b) {
+                return Ia.decrypt(a, b || Ba) || Ia.decrypt(a, Ba) || a;
+            }
+            function p() {
+                return clearTimeout(qa), !sa || sa >= 500 || 1 > sa || !f(na, !0).length && !g(oa, !0).length ? void (ta = !1) : (ta = !0, 
+                void Ja.presence_heartbeat({
+                    callback: function() {
+                        qa = r.timeout(p, sa * A);
+                    },
+                    error: function(a) {
+                        xa && xa("Presence Heartbeat unable to reach Pubnub servers." + JSON.stringify(a)), 
+                        qa = r.timeout(p, sa * A);
+                    }
+                }));
+            }
+            function q() {
+                !ta && p();
+            }
+            function s(a) {
+                if (ua) {
+                    if (!ea.length) return;
+                } else {
+                    if (a && (ea.sending = 0), ea.sending || !ea.length) return;
+                    ea.sending = 1;
+                }
+                P(ea.shift());
+            }
+            function x(a) {
+                var b = 0;
+                return r.each(g(oa), function(c) {
+                    var d = oa[c];
+                    d && (b++, (a || function() {})(d));
+                }), b;
+            }
+            function E(a) {
+                var b = 0;
+                return r.each(f(na), function(c) {
+                    var d = na[c];
+                    d && (b++, (a || function() {})(d));
+                }), b;
+            }
+            function F(a, b, c) {
+                if ("object" == ("undefined" == typeof a ? "undefined" : k(a))) {
+                    if (a.error) {
+                        var d = {};
+                        return a.message && (d.message = a.message), a.payload && (d.payload = a.payload), 
+                        void (c && c(d));
+                    }
+                    if (a.payload) return void (a.next_page ? b && b(a.payload, a.next_page) : b && b(a.payload));
+                }
+                b && b(a);
+            }
+            function G(a, b) {
+                if ("object" == ("undefined" == typeof a ? "undefined" : k(a)) && a.error) {
+                    var c = {};
+                    return a.message && (c.message = a.message), a.payload && (c.payload = a.payload), 
+                    void (b && b(c));
+                }
+                b && b(a);
+            }
+            function H(a, c, d, e) {
+                var c = a.callback || c, f = a.error || xa, g = za();
+                e = e || {}, e.auth || (e.auth = a.auth_key || V.getAuthKey());
+                var h = [ W.getStandardOrigin(), "v1", "channel-registration", "sub-key", V.getSubscribeKey() ];
+                h.push.apply(h, d), g && (e.callback = g), P({
+                    callback: g,
+                    data: b(e),
+                    success: function(a) {
+                        F(a, c, f);
+                    },
+                    fail: function(a) {
+                        G(a, f);
+                    },
+                    url: h
+                });
+            }
+            function I() {
+                ya() || K(1, {
+                    error: "Offline. Please check your network settings."
+                }), N && clearTimeout(N), N = r.timeout(I, A);
+            }
+            function J() {
+                $ && Ja.time(function(a) {
+                    M(function() {}, a), a || K(1, {
+                        error: "Heartbeat failed to connect to Pubnub Servers.Please check your network settings."
+                    }), O && clearTimeout(O), O = r.timeout(J, Z);
+                });
+            }
+            function K(a, b) {
+                ja && ja(a, b), ja = null, clearTimeout(N), clearTimeout(O);
+            }
+            function L(a) {
+                var b = r.rnow() - ga;
+                return b - a / 1e4;
+            }
+            function M(a, b) {
+                function c(b) {
+                    if (b) {
+                        var c = b / 1e4, e = (r.rnow() - d) / 2;
+                        ga = r.rnow() - (c + e), a && a(ga);
+                    }
+                }
+                var d = r.rnow();
+                b && c(b) || Ja.time(c);
+            }
+            var N, O, P = a.xdr, Q = a.subscribe_key, R = a.publish_key, S = a.ssl, T = a.origin, U = a.auth_key, V = new o["default"]().setAuthKey(U || "").setSubscribeKey(Q).setPublishKey(R), W = new m["default"](P, V, S, T), X = +a.windowing || w, Y = (+a.timeout || y) * A, Z = (+a.keepalive || z) * A, $ = a.timecheck || 0, _ = a.noleave || 0, aa = a.secret_key || "", ba = a.hmac_SHA256, ca = a.ssl ? "s" : "", da = function() {}, ea = [], fa = !0, ga = 0, ha = 0, ia = 0, ja = 0, ka = a.restore || 0, la = 0, ma = !1, na = {}, oa = {}, pa = {}, qa = null, ra = j(a.heartbeat || a.pnexpires || 0, a.error), sa = a.heartbeat_interval || ra / 2 - 1, ta = !1, ua = a.no_wait_for_pending, va = a["compatible_3.5"] || !1, wa = a.params || {}, xa = a.error || function() {}, ya = a._is_online || function() {
+                return 1;
+            }, za = a.jsonp_cb || function() {
+                return 0;
+            }, Aa = a.db || {
+                get: function() {},
+                set: function() {}
+            }, Ba = a.cipher_key, Ca = a.uuid || !a.unique_uuid && Aa && Aa.get(V.getSubscribeKey() + "uuid") || "", Da = a.instance_id || !1, Ea = "", Fa = a.shutdown, Ga = "undefined" != typeof a.use_send_beacon ? a.use_send_beacon : !0, Ha = Ga ? a.sendBeacon : null;
+            2 === ra && (sa = 1);
+            var Ia = a.crypto_obj || {
+                encrypt: function(a) {
+                    return a;
+                },
+                decrypt: function(a) {
+                    return a;
+                }
+            }, Ja = {
+                LEAVE: function(a, c, d, e, f) {
+                    var g, h, i = {
+                        uuid: Ca,
+                        auth: d || V.getAuthKey()
+                    }, j = W.nextOrigin(!1), e = e || function() {}, k = f || function() {}, l = za();
+                    if (a.indexOf(v) > 0) return !0;
+                    if (va) {
+                        if (!ca) return !1;
+                        if ("0" == l) return !1;
+                    }
+                    if (_) return !1;
+                    if ("0" != l && (i.callback = l), Da && (i.instanceid = Ea), g = [ j, "v2", "presence", "sub_key", V.getSubscribeKey(), "channel", r.encode(a), "leave" ], 
+                    h = b(i), Ha) {
+                        var m = r.buildURL(g, h);
+                        if (Ha(m)) return e && e({
+                            status: 200,
+                            action: "leave",
+                            message: "OK",
+                            service: "Presence"
+                        }), !0;
+                    }
+                    return P({
+                        blocking: c || ca,
+                        callback: l,
+                        data: h,
+                        success: function(a) {
+                            F(a, e, k);
+                        },
+                        fail: function(a) {
+                            G(a, k);
+                        },
+                        url: g
+                    }), !0;
+                },
+                LEAVE_GROUP: function(a, c, d, e, f) {
+                    var g, h, i = {
+                        uuid: Ca,
+                        auth: d || V.getAuthKey()
+                    }, j = W.nextOrigin(!1), e = e || function() {}, k = f || function() {}, l = za();
+                    if (a.indexOf(v) > 0) return !0;
+                    if (va) {
+                        if (!ca) return !1;
+                        if ("0" == l) return !1;
+                    }
+                    if (_) return !1;
+                    if ("0" != l && (i.callback = l), a && a.length > 0 && (i["channel-group"] = a), 
+                    Da && (i.instanceid = Ea), g = [ j, "v2", "presence", "sub_key", V.getSubscribeKey(), "channel", r.encode(","), "leave" ], 
+                    h = b(i), Ha) {
+                        var m = r.buildURL(g, h);
+                        if (Ha(m)) return e && e({
+                            status: 200,
+                            action: "leave",
+                            message: "OK",
+                            service: "Presence"
+                        }), !0;
+                    }
+                    return P({
+                        blocking: c || ca,
+                        callback: l,
+                        data: h,
+                        success: function(a) {
+                            F(a, e, k);
+                        },
+                        fail: function(a) {
+                            G(a, k);
+                        },
+                        url: g
+                    }), !0;
+                },
+                set_resumed: function(a) {
+                    ma = a;
+                },
+                get_cipher_key: function() {
+                    return Ba;
+                },
+                set_cipher_key: function(a) {
+                    Ba = a;
+                },
+                raw_encrypt: function(a, b) {
+                    return l(a, b);
+                },
+                raw_decrypt: function(a, b) {
+                    return n(a, b);
+                },
+                get_heartbeat: function() {
+                    return ra;
+                },
+                set_heartbeat: function(a, b) {
+                    ra = j(a, ra, xa), sa = b || ra / 2 - 1, 2 == ra && (sa = 1), da(), p();
+                },
+                get_heartbeat_interval: function() {
+                    return sa;
+                },
+                set_heartbeat_interval: function(a) {
+                    sa = a, p();
+                },
+                get_version: function() {
+                    return D;
+                },
+                getGcmMessageObject: function(a) {
+                    return {
+                        data: a
+                    };
+                },
+                getApnsMessageObject: function(a) {
+                    var b = {
+                        aps: {
+                            badge: 1,
+                            alert: ""
+                        }
+                    };
+                    for (var c in a) c[b] = a[c];
+                    return b;
+                },
+                _add_param: function(a, b) {
+                    wa[a] = b;
+                },
+                channel_group: function Ka(a, b) {
+                    var c, Ka, d = a.channel_group, b = b || a.callback, e = a.channels || a.channel, f = a.cloak, g = [], h = {}, i = a.mode || "add";
+                    if (d) {
+                        var j = d.split(":");
+                        j.length > 1 ? (c = "*" === j[0] ? null : j[0], Ka = j[1]) : Ka = j[0];
+                    }
+                    c && g.push("namespace") && g.push(r.encode(c)), g.push("channel-group"), Ka && "*" !== Ka && g.push(Ka), 
+                    e ? (r.isArray(e) && (e = e.join(",")), h[i] = e, h.cloak = fa ? "true" : "false") : "remove" === i && g.push("remove"), 
+                    "undefined" != typeof f && (h.cloak = f ? "true" : "false"), H(a, b, g, h);
+                },
+                channel_group_list_groups: function(a, b) {
+                    var c;
+                    c = a.namespace || a.ns || a.channel_group || null, c && (a.channel_group = c + ":*"), 
+                    Ja.channel_group(a, b);
+                },
+                channel_group_list_channels: function(a, b) {
+                    return a.channel_group ? void Ja.channel_group(a, b) : xa("Missing Channel Group");
+                },
+                channel_group_remove_channel: function(a, b) {
+                    return a.channel_group ? a.channel || a.channels ? (a.mode = "remove", void Ja.channel_group(a, b)) : xa("Missing Channel") : xa("Missing Channel Group");
+                },
+                channel_group_remove_group: function(a, b) {
+                    return a.channel_group ? a.channel ? xa("Use channel_group_remove_channel if you want to remove a channel from a group.") : (a.mode = "remove", 
+                    void Ja.channel_group(a, b)) : xa("Missing Channel Group");
+                },
+                channel_group_add_channel: function(a, b) {
+                    return a.channel_group ? a.channel || a.channels ? void Ja.channel_group(a, b) : xa("Missing Channel") : xa("Missing Channel Group");
+                },
+                channel_group_cloak: function(a, b) {
+                    return "undefined" == typeof a.cloak ? void b(fa) : (fa = a.cloak, void Ja.channel_group(a, b));
+                },
+                channel_group_list_namespaces: function(a, b) {
+                    var c = [ "namespace" ];
+                    H(a, b, c);
+                },
+                channel_group_remove_namespace: function(a, b) {
+                    var c = [ "namespace", a.namespace, "remove" ];
+                    H(a, b, c);
+                },
+                history: function(a, c) {
+                    var c = a.callback || c, d = a.count || a.limit || 100, e = a.reverse || "false", f = a.error || function() {}, g = a.auth_key || V.getAuthKey(), h = a.cipher_key, i = a.channel, j = a.channel_group, l = a.start, m = a.end, o = a.include_token, p = a.string_message_token || !1, q = {}, r = za();
+                    return i || j ? c ? V.getSubscribeKey() ? (q.stringtoken = "true", q.count = d, 
+                    q.reverse = e, q.auth = g, j && (q["channel-group"] = j, i || (i = ",")), r && (q.callback = r), 
+                    l && (q.start = l), m && (q.end = m), o && (q.include_token = "true"), p && (q.string_message_token = "true"), 
+                    void W.fetchHistory(i, {
+                        callback: r,
+                        data: b(q),
+                        success: function(a) {
+                            if ("object" == ("undefined" == typeof a ? "undefined" : k(a)) && a.error) return void f({
+                                message: a.message,
+                                payload: a.payload
+                            });
+                            for (var b = a[0], d = [], e = 0; e < b.length; e++) if (o) {
+                                var g = n(b[e].message, h), i = b[e].timetoken;
+                                try {
+                                    d.push({
+                                        message: JSON.parse(g),
+                                        timetoken: i
+                                    });
+                                } catch (j) {
+                                    d.push({
+                                        message: g,
+                                        timetoken: i
+                                    });
+                                }
+                            } else {
+                                var g = n(b[e], h);
+                                try {
+                                    d.push(JSON.parse(g));
+                                } catch (j) {
+                                    d.push(g);
+                                }
+                            }
+                            c([ d, a[1], a[2] ]);
+                        },
+                        fail: function(a) {
+                            G(a, f);
+                        }
+                    })) : xa("Missing Subscribe Key") : xa("Missing Callback") : xa("Missing Channel");
+                },
+                replay: function(a, c) {
+                    var c = c || a.callback || function() {}, d = a.auth_key || V.getAuthKey(), e = a.source, f = a.destination, g = a.error || a.error || function() {}, h = a.stop, i = a.start, j = a.end, k = a.reverse, l = a.limit, m = za(), n = {};
+                    return e ? f ? V.getPublishKey() ? V.getSubscribeKey() ? ("0" != m && (n.callback = m), 
+                    h && (n.stop = "all"), k && (n.reverse = "true"), i && (n.start = i), j && (n.end = j), 
+                    l && (n.count = l), n.auth = d, void W.fetchReplay(e, f, {
+                        callback: m,
+                        success: function(a) {
+                            F(a, c, g);
+                        },
+                        fail: function() {
+                            c([ 0, "Disconnected" ]);
+                        },
+                        data: b(n)
+                    })) : xa("Missing Subscribe Key") : xa("Missing Publish Key") : xa("Missing Destination Channel") : xa("Missing Source Channel");
+                },
+                auth: function(a) {
+                    V.setAuthKey(a), da();
+                },
+                time: function(a) {
+                    var c = za(), d = {
+                        uuid: Ca,
+                        auth: V.getAuthKey()
+                    };
+                    Da && (d.instanceid = Ea), W.fetchTime(c, {
+                        callback: c,
+                        data: b(d),
+                        success: function(b) {
+                            a(b[0]);
+                        },
+                        fail: function() {
+                            a(0);
+                        }
+                    });
+                },
+                publish: function(a, c) {
+                    var d = a.message;
+                    if (!d) return xa("Missing Message");
+                    var e, c = c || a.callback || d.callback || a.success || function() {}, f = a.channel || d.channel, g = a.auth_key || V.getAuthKey(), h = a.cipher_key, i = a.error || d.error || function() {}, j = a.post || !1, k = "store_in_history" in a ? a.store_in_history : !0, m = za(), n = "push", o = {
+                        uuid: Ca,
+                        auth: g
+                    };
+                    return a.prepend && (n = "unshift"), f ? V.getPublishKey() ? V.getSubscribeKey() ? (d.getPubnubMessage && (d = d.getPubnubMessage()), 
+                    d = JSON.stringify(l(d, h)), e = [ W.getStandardOrigin(), "publish", V.getPublishKey(), V.getSubscribeKey(), 0, r.encode(f), m, r.encode(d) ], 
+                    k || (o.store = "0"), Da && (o.instanceid = Ea), ea[n]({
+                        callback: m,
+                        url: e,
+                        data: b(o),
+                        fail: function(a) {
+                            G(a, i), s(1);
+                        },
+                        success: function(a) {
+                            F(a, c, i), s(1);
+                        },
+                        mode: j ? "POST" : "GET"
+                    }), void s()) : xa("Missing Subscribe Key") : xa("Missing Publish Key") : xa("Missing Channel");
+                },
+                unsubscribe: function(a, b) {
+                    var c = a.channel, d = a.channel_group, e = a.auth_key || V.getAuthKey(), b = b || a.callback || function() {}, f = a.error || function() {};
+                    if (la = 0, ka = 1, !c && !d) return xa("Missing Channel or Channel Group");
+                    if (!V.getSubscribeKey()) return xa("Missing Subscribe Key");
+                    if (c) {
+                        var g = r.isArray(c) ? c : ("" + c).split(","), h = [], i = [];
+                        if (r.each(g, function(a) {
+                            na[a] && h.push(a);
+                        }), 0 == h.length) return void b({
+                            action: "leave"
+                        });
+                        r.each(h, function(a) {
+                            i.push(a + v);
+                        }), r.each(h.concat(i), function(a) {
+                            a in na && (na[a] = 0), a in pa && delete pa[a];
+                        });
+                        var j = !0;
+                        t && (j = Ja.LEAVE(h.join(","), 0, e, b, f)), j || b({
+                            action: "leave"
+                        });
+                    }
+                    if (d) {
+                        var k = r.isArray(d) ? d : ("" + d).split(","), l = [], m = [];
+                        if (r.each(k, function(a) {
+                            oa[a] && l.push(a);
+                        }), 0 == l.length) return void b({
+                            action: "leave"
+                        });
+                        r.each(l, function(a) {
+                            m.push(a + v);
+                        }), r.each(l.concat(m), function(a) {
+                            a in oa && (oa[a] = 0), a in pa && delete pa[a];
+                        });
+                        var j = !0;
+                        t && (j = Ja.LEAVE_GROUP(l.join(","), 0, e, b, f)), j || b({
+                            action: "leave"
+                        });
+                    }
+                    da();
+                },
+                subscribe: function(a, c) {
+                    function d(a) {
+                        a ? r.timeout(da, C) : (W.shiftStandardOrigin(!0), W.shiftSubscribeOrigin(!0), r.timeout(function() {
+                            Ja.time(d);
+                        }, A)), E(function(b) {
+                            return a && b.disconnected ? (b.disconnected = 0, b.reconnect(b.name)) : void (a || b.disconnected || (b.disconnected = 1, 
+                            b.disconnect(b.name)));
+                        }), x(function(b) {
+                            return a && b.disconnected ? (b.disconnected = 0, b.reconnect(b.name)) : void (a || b.disconnected || (b.disconnected = 1, 
+                            b.disconnect(b.name)));
+                        });
+                    }
+                    function e() {
+                        var a = za(), c = f(na).join(","), h = g(oa).join(",");
+                        if (c || h) {
+                            c || (c = ","), K();
+                            var i = b({
+                                uuid: Ca,
+                                auth: V.getAuthKey()
+                            });
+                            h && (i["channel-group"] = h);
+                            var j = JSON.stringify(pa);
+                            j.length > 2 && (i.state = JSON.stringify(pa)), ra && (i.heartbeat = ra), Da && (i.instanceid = Ea), 
+                            q(), ja = P({
+                                timeout: B,
+                                callback: a,
+                                fail: function(a) {
+                                    a && a.error && a.service ? (G(a, o), d(!1)) : Ja.time(function(b) {
+                                        !b && G(a, o), d(b);
+                                    });
+                                },
+                                data: b(i),
+                                url: [ W.getSubscribeOrigin(), "subscribe", V.getSubscribeKey(), r.encode(c), a, la ],
+                                success: function(a) {
+                                    if (!a || "object" == ("undefined" == typeof a ? "undefined" : k(a)) && "error" in a && a.error) return o(a), 
+                                    r.timeout(da, A);
+                                    if (p(a[1]), la = !la && ka && Aa.get(V.getSubscribeKey()) || a[1], E(function(a) {
+                                        a.connected || (a.connected = 1, a.connect(a.name));
+                                    }), x(function(a) {
+                                        a.connected || (a.connected = 1, a.connect(a.name));
+                                    }), ma && !ka) return la = 0, ma = !1, Aa.set(V.getSubscribeKey(), 0), void r.timeout(e, C);
+                                    y && (la = 1e4, y = 0), Aa.set(V.getSubscribeKey(), a[1]);
+                                    var b = function() {
+                                        var b = "", c = "";
+                                        a.length > 3 ? (b = a[3], c = a[2]) : b = a.length > 2 ? a[2] : r.map(f(na), function(b) {
+                                            return r.map(Array(a[0].length).join(",").split(","), function() {
+                                                return b;
+                                            });
+                                        }).join(",");
+                                        var d = b.split(","), e = c ? c.split(",") : [];
+                                        return function() {
+                                            var a = d.shift() || ia, b = e.shift(), c = {};
+                                            b ? (a && a.indexOf("-pnpres") >= 0 && b.indexOf("-pnpres") < 0 && (b += "-pnpres"), 
+                                            c = oa[b] || na[b] || {
+                                                callback: function() {}
+                                            }) : c = na[a];
+                                            var f = [ c.callback || ha, a.split(v)[0] ];
+                                            return b && f.push(b.split(v)[0]), f;
+                                        };
+                                    }(), c = L(+a[1]);
+                                    r.each(a[0], function(d) {
+                                        var e = b(), f = n(d, na[e[1]] ? na[e[1]].cipher_key : null);
+                                        e[0] && e[0](f, a, e[2] || e[1], c, e[1]);
+                                    }), r.timeout(e, C);
+                                }
+                            });
+                        }
+                    }
+                    var h = a.channel, i = a.channel_group, c = c || a.callback, c = c || a.message, j = a.connect || function() {}, l = a.reconnect || function() {}, m = a.disconnect || function() {}, o = a.error || o || function() {}, p = a.idle || function() {}, s = a.presence || 0, w = a.noheresync || 0, y = a.backfill || 0, z = a.timetoken || 0, B = a.timeout || Y, C = a.windowing || X, D = a.state, F = a.heartbeat || a.pnexpires, H = a.heartbeat_interval, I = a.restore || ka;
+                    return V.setAuthKey(a.auth_key || V.getAuthKey()), ka = I, la = z, h || i ? c ? V.getSubscribeKey() ? ((F || 0 === F || H || 0 === H) && Ja.set_heartbeat(F, H), 
+                    h && r.each((h.join ? h.join(",") : "" + h).split(","), function(d) {
+                        var e = na[d] || {};
+                        na[ia = d] = {
+                            name: d,
+                            connected: e.connected,
+                            disconnected: e.disconnected,
+                            subscribed: 1,
+                            callback: ha = c,
+                            cipher_key: a.cipher_key,
+                            connect: j,
+                            disconnect: m,
+                            reconnect: l
+                        }, D && (pa[d] = d in D ? D[d] : D), s && (Ja.subscribe({
+                            channel: d + v,
+                            callback: s,
+                            restore: I
+                        }), e.subscribed || w || Ja.here_now({
+                            channel: d,
+                            data: b({
+                                uuid: Ca,
+                                auth: V.getAuthKey()
+                            }),
+                            callback: function(a) {
+                                r.each("uuids" in a ? a.uuids : [], function(b) {
+                                    s({
+                                        action: "join",
+                                        uuid: b,
+                                        timestamp: Math.floor(r.rnow() / 1e3),
+                                        occupancy: a.occupancy || 1
+                                    }, a, d);
+                                });
+                            }
+                        }));
+                    }), i && r.each((i.join ? i.join(",") : "" + i).split(","), function(d) {
+                        var e = oa[d] || {};
+                        oa[d] = {
+                            name: d,
+                            connected: e.connected,
+                            disconnected: e.disconnected,
+                            subscribed: 1,
+                            callback: ha = c,
+                            cipher_key: a.cipher_key,
+                            connect: j,
+                            disconnect: m,
+                            reconnect: l
+                        }, s && (Ja.subscribe({
+                            channel_group: d + v,
+                            callback: s,
+                            restore: I,
+                            auth_key: V.getAuthKey()
+                        }), e.subscribed || w || Ja.here_now({
+                            channel_group: d,
+                            data: b({
+                                uuid: Ca,
+                                auth: V.getAuthKey()
+                            }),
+                            callback: function(a) {
+                                r.each("uuids" in a ? a.uuids : [], function(b) {
+                                    s({
+                                        action: "join",
+                                        uuid: b,
+                                        timestamp: Math.floor(r.rnow() / 1e3),
+                                        occupancy: a.occupancy || 1
+                                    }, a, d);
+                                });
+                            }
+                        }));
+                    }), da = function() {
+                        K(), r.timeout(e, C);
+                    }, t ? void da() : u.push(da)) : xa("Missing Subscribe Key") : xa("Missing Callback") : xa("Missing Channel");
+                },
+                here_now: function(a, c) {
+                    var c = a.callback || c, d = a.debug, e = a.error || function() {}, f = a.auth_key || V.getAuthKey(), g = a.channel, h = a.channel_group, i = za(), j = "uuids" in a ? a.uuids : !0, k = a.state, l = {
+                        uuid: Ca,
+                        auth: f
+                    };
+                    if (j || (l.disable_uuids = 1), k && (l.state = 1), !c) return xa("Missing Callback");
+                    if (!V.getSubscribeKey()) return xa("Missing Subscribe Key");
+                    var m = [ W.getStandardOrigin(), "v2", "presence", "sub_key", V.getSubscribeKey() ];
+                    g && m.push("channel") && m.push(r.encode(g)), "0" != i && (l.callback = i), h && (l["channel-group"] = h, 
+                    !g && m.push("channel") && m.push(",")), Da && (l.instanceid = Ea), P({
+                        callback: i,
+                        data: b(l),
+                        success: function(a) {
+                            F(a, c, e);
+                        },
+                        fail: function(a) {
+                            G(a, e);
+                        },
+                        debug: d,
+                        url: m
+                    });
+                },
+                where_now: function(a, c) {
+                    var c = a.callback || c, d = a.error || function() {}, e = a.auth_key || V.getAuthKey(), f = za(), g = a.uuid || Ca, h = {
+                        auth: e
+                    };
+                    return c ? V.getSubscribeKey() ? ("0" != f && (h.callback = f), Da && (h.instanceid = Ea), 
+                    void P({
+                        callback: f,
+                        data: b(h),
+                        success: function(a) {
+                            F(a, c, d);
+                        },
+                        fail: function(a) {
+                            G(a, d);
+                        },
+                        url: [ W.getStandardOrigin(), "v2", "presence", "sub_key", V.getSubscribeKey(), "uuid", r.encode(g) ]
+                    })) : xa("Missing Subscribe Key") : xa("Missing Callback");
+                },
+                state: function La(a, c) {
+                    var d, c = a.callback || c || function() {}, e = a.error || function() {}, f = a.auth_key || V.getAuthKey(), g = za(), La = a.state, h = a.uuid || Ca, i = a.channel, j = a.channel_group, k = b({
+                        auth: f
+                    });
+                    return V.getSubscribeKey() ? h ? i || j ? ("0" != g && (k.callback = g), "undefined" != typeof i && na[i] && na[i].subscribed && La && (pa[i] = La), 
+                    "undefined" != typeof j && oa[j] && oa[j].subscribed && (La && (pa[j] = La), k["channel-group"] = j, 
+                    i || (i = ",")), k.state = JSON.stringify(La), Da && (k.instanceid = Ea), d = La ? [ W.getStandardOrigin(), "v2", "presence", "sub-key", V.getSubscribeKey(), "channel", i, "uuid", h, "data" ] : [ W.getStandardOrigin(), "v2", "presence", "sub-key", V.getSubscribeKey(), "channel", i, "uuid", r.encode(h) ], 
+                    void P({
+                        callback: g,
+                        data: b(k),
+                        success: function(a) {
+                            F(a, c, e);
+                        },
+                        fail: function(a) {
+                            G(a, e);
+                        },
+                        url: d
+                    })) : xa("Missing Channel") : xa("Missing UUID") : xa("Missing Subscribe Key");
+                },
+                grant: function(a, c) {
+                    var c = a.callback || c, d = a.error || function() {}, e = a.channel || a.channels, f = a.channel_group, g = za(), h = a.ttl, j = a.read ? "1" : "0", k = a.write ? "1" : "0", l = a.manage ? "1" : "0", m = a.auth_key || a.auth_keys;
+                    if (!c) return xa("Missing Callback");
+                    if (!V.getSubscribeKey()) return xa("Missing Subscribe Key");
+                    if (!V.getPublishKey()) return xa("Missing Publish Key");
+                    if (!aa) return xa("Missing Secret Key");
+                    var n = Math.floor(new Date().getTime() / 1e3), o = V.getSubscribeKey() + "\n" + V.getPublishKey() + "\ngrant\n", p = {
+                        w: k,
+                        r: j,
+                        timestamp: n
+                    };
+                    a.manage && (p.m = l), r.isArray(e) && (e = e.join(",")), r.isArray(m) && (m = m.join(",")), 
+                    "undefined" != typeof e && null != e && e.length > 0 && (p.channel = e), "undefined" != typeof f && null != f && f.length > 0 && (p["channel-group"] = f), 
+                    "0" != g && (p.callback = g), (h || 0 === h) && (p.ttl = h), m && (p.auth = m), 
+                    p = b(p), m || delete p.auth, o += i(p);
+                    var q = ba(o, aa);
+                    q = q.replace(/\+/g, "-"), q = q.replace(/\//g, "_"), p.signature = q, P({
+                        callback: g,
+                        data: p,
+                        success: function(a) {
+                            F(a, c, d);
+                        },
+                        fail: function(a) {
+                            G(a, d);
+                        },
+                        url: [ W.getStandardOrigin(), "v1", "auth", "grant", "sub-key", V.getSubscribeKey() ]
+                    });
+                },
+                mobile_gw_provision: function(a) {
+                    var b, c = a.callback || function() {}, d = a.auth_key || V.getAuthKey(), e = a.error || function() {}, f = za(), g = a.channel, h = a.op, i = a.gw_type, j = a.device_id;
+                    if (!j) return xa("Missing Device ID (device_id)");
+                    if (!i) return xa("Missing GW Type (gw_type: gcm or apns)");
+                    if (!h) return xa("Missing GW Operation (op: add or remove)");
+                    if (!g) return xa("Missing gw destination Channel (channel)");
+                    if (!V.getPublishKey()) return xa("Missing Publish Key");
+                    if (!V.getSubscribeKey()) return xa("Missing Subscribe Key");
+                    var k = {
+                        uuid: Ca,
+                        auth: d,
+                        type: i
+                    };
+                    b = [ W.getStandardOrigin(), "v1/push/sub-key", V.getSubscribeKey(), "devices", j ], 
+                    "add" == h ? k.add = g : "remove" == h && (k.remove = g), Da && (k.instanceid = Ea), 
+                    P({
+                        callback: f,
+                        data: k,
+                        success: function(a) {
+                            F(a, c, e);
+                        },
+                        fail: function(a) {
+                            G(a, e);
+                        },
+                        url: b
+                    });
+                },
+                audit: function(a, c) {
+                    var c = a.callback || c, d = a.error || function() {}, e = a.channel, f = a.channel_group, g = a.auth_key, h = za();
+                    if (!c) return xa("Missing Callback");
+                    if (!V.getSubscribeKey()) return xa("Missing Subscribe Key");
+                    if (!V.getPublishKey()) return xa("Missing Publish Key");
+                    if (!aa) return xa("Missing Secret Key");
+                    var j = Math.floor(new Date().getTime() / 1e3), k = V.getSubscribeKey() + "\n" + V.getPublishKey() + "\naudit\n", l = {
+                        timestamp: j
+                    };
+                    "0" != h && (l.callback = h), "undefined" != typeof e && null != e && e.length > 0 && (l.channel = e), 
+                    "undefined" != typeof f && null != f && f.length > 0 && (l["channel-group"] = f), 
+                    g && (l.auth = g), l = b(l), g || delete l.auth, k += i(l);
+                    var m = ba(k, aa);
+                    m = m.replace(/\+/g, "-"), m = m.replace(/\//g, "_"), l.signature = m, P({
+                        callback: h,
+                        data: l,
+                        success: function(a) {
+                            F(a, c, d);
+                        },
+                        fail: function(a) {
+                            G(a, d);
+                        },
+                        url: [ W.getStandardOrigin(), "v1", "auth", "audit", "sub-key", V.getSubscribeKey() ]
+                    });
+                },
+                revoke: function(a, b) {
+                    a.read = !1, a.write = !1, Ja.grant(a, b);
+                },
+                set_uuid: function(a) {
+                    Ca = a, da();
+                },
+                get_uuid: function() {
+                    return Ca;
+                },
+                isArray: function(a) {
+                    return r.isArray(a);
+                },
+                get_subscribed_channels: function() {
+                    return f(na, !0);
+                },
+                presence_heartbeat: function(a) {
+                    var c = a.callback || function() {}, d = a.error || function() {}, e = za(), h = {
+                        uuid: Ca,
+                        auth: V.getAuthKey()
+                    }, i = JSON.stringify(pa);
+                    i.length > 2 && (h.state = JSON.stringify(pa)), ra > 0 && 320 > ra && (h.heartbeat = ra), 
+                    "0" != e && (h.callback = e);
+                    var j = r.encode(f(na, !0).join(",")), k = g(oa, !0).join(",");
+                    j || (j = ","), k && (h["channel-group"] = k), Da && (h.instanceid = Ea), P({
+                        callback: e,
+                        data: b(h),
+                        url: [ W.getStandardOrigin(), "v2", "presence", "sub-key", V.getSubscribeKey(), "channel", j, "heartbeat" ],
+                        success: function(a) {
+                            F(a, c, d);
+                        },
+                        fail: function(a) {
+                            G(a, d);
+                        }
+                    });
+                },
+                stop_timers: function() {
+                    clearTimeout(N), clearTimeout(O), clearTimeout(qa);
+                },
+                shutdown: function() {
+                    Ja.stop_timers(), Fa && Fa();
+                },
+                xdr: P,
+                ready: h,
+                db: Aa,
+                uuid: r.generateUUID,
+                map: r.map,
+                each: r.each,
+                "each-channel": E,
+                grep: r.grep,
+                offline: function() {
+                    K(1, {
+                        message: "Offline. Please check your network settings."
+                    });
+                },
+                supplant: r.supplant,
+                now: r.rnow,
+                unique: e,
+                updater: r.updater
+            };
+            return Ca || (Ca = Ja.uuid()), Ea || (Ea = Ja.uuid()), Aa.set(V.getSubscribeKey() + "uuid", Ca), 
+            N = r.timeout(I, A), O = r.timeout(J, Z), qa = r.timeout(q, (sa - 3) * A), M(), 
+            Ja;
+        }
+        var k = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(a) {
+            return typeof a;
+        } : function(a) {
+            return a && "function" == typeof Symbol && a.constructor === Symbol ? "symbol" : typeof a;
+        }, l = c(6), m = d(l), n = c(7), o = d(n), p = c(4), q = c(9), r = c(8), s = 1, t = !1, u = [], v = "-pnpres", w = 10, x = 15e3, y = 310, z = 60, A = 1e3, B = 5, C = 30, D = p.version;
+        a.exports = {
+            PN_API: j,
+            unique: e,
+            PNmessage: i,
+            DEF_TIMEOUT: x,
+            timeout: r.timeout,
+            build_url: r.buildURL,
+            each: r.each,
+            uuid: r.generateUUID,
+            URLBIT: q.URLBIT,
+            grep: r.grep,
+            supplant: r.supplant,
+            now: r.rnow,
+            updater: r.updater,
+            map: r.map
+        };
+    }, function(a, b, c) {
+        function d(a) {
+            return a && a.__esModule ? a : {
+                "default": a
+            };
+        }
+        function e(a, b) {
+            if (!(a instanceof b)) throw new TypeError("Cannot call a class as a function");
+        }
+        Object.defineProperty(b, "__esModule", {
+            value: !0
+        });
+        var f = function() {
+            function a(a, b) {
+                for (var c = 0; c < b.length; c++) {
+                    var d = b[c];
+                    d.enumerable = d.enumerable || !1, d.configurable = !0, "value" in d && (d.writable = !0), 
+                    Object.defineProperty(a, d.key, d);
+                }
+            }
+            return function(b, c, d) {
+                return c && a(b.prototype, c), d && a(b, d), b;
+            };
+        }(), g = c(7), h = (d(g), c(8)), i = function() {
+            function a(b, c) {
+                var d = arguments.length <= 2 || void 0 === arguments[2] ? !1 : arguments[2], f = arguments.length <= 3 || void 0 === arguments[3] ? "pubsub.pubnub.com" : arguments[3];
+                e(this, a), this._xdr = b, this._keychain = c, this._maxSubDomain = 20, this._currentSubDomain = Math.floor(Math.random() * this._maxSubDomain), 
+                this._providedFQDN = (d ? "https://" : "http://") + f, this.shiftStandardOrigin(!1), 
+                this.shiftSubscribeOrigin(!1);
+            }
+            return f(a, [ {
+                key: "nextOrigin",
+                value: function(a) {
+                    if (-1 === this._providedFQDN.indexOf("pubsub.")) return this._providedFQDN;
+                    var b = void 0;
+                    return a ? b = h.generateUUID().split("-")[0] : (this._currentSubDomain = this._currentSubDomain + 1, 
+                    this._currentSubDomain >= this._maxSubDomain && (this._currentSubDomain = 1), b = this._currentSubDomain.toString()), 
+                    this._providedFQDN.replace("pubsub", "ps" + b);
+                }
+            }, {
+                key: "shiftStandardOrigin",
+                value: function() {
+                    var a = arguments.length <= 0 || void 0 === arguments[0] ? !1 : arguments[0];
+                    return this._standardOrigin = this.nextOrigin(a), this._standardOrigin;
+                }
+            }, {
+                key: "shiftSubscribeOrigin",
+                value: function() {
+                    var a = arguments.length <= 0 || void 0 === arguments[0] ? !1 : arguments[0];
+                    return this._subscribeOrigin = this.nextOrigin(a), this._subscribeOrigin;
+                }
+            }, {
+                key: "fetchHistory",
+                value: function(a, b) {
+                    var c = b.data, d = b.callback, e = b.success, f = b.fail, g = [ this.getStandardOrigin(), "v2", "history", "sub-key", this._keychain.getSubscribeKey(), "channel", h.encode(a) ];
+                    this._xdr({
+                        data: c,
+                        callback: d,
+                        success: e,
+                        fail: f,
+                        url: g
+                    });
+                }
+            }, {
+                key: "fetchReplay",
+                value: function(a, b, c) {
+                    var d = c.data, e = c.callback, f = c.success, g = c.fail, h = [ this.getStandardOrigin(), "v1", "replay", this._keychain.getPublishKey(), this._keychain.getSubscribeKey(), a, b ];
+                    this._xdr({
+                        data: d,
+                        callback: e,
+                        success: f,
+                        fail: g,
+                        url: h
+                    });
+                }
+            }, {
+                key: "fetchTime",
+                value: function(a, b) {
+                    var c = b.data, d = b.callback, e = b.success, f = b.fail, g = [ this.getStandardOrigin(), "time", a ];
+                    this._xdr({
+                        data: c,
+                        callback: d,
+                        success: e,
+                        fail: f,
+                        url: g
+                    });
+                }
+            }, {
+                key: "getOrigin",
+                value: function() {
+                    return this._providedFQDN;
+                }
+            }, {
+                key: "getStandardOrigin",
+                value: function() {
+                    return this._standardOrigin;
+                }
+            }, {
+                key: "getSubscribeOrigin",
+                value: function() {
+                    return this._subscribeOrigin;
+                }
+            } ]), a;
+        }();
+        b["default"] = i;
+    }, function(a, b) {
+        function c(a, b) {
+            if (!(a instanceof b)) throw new TypeError("Cannot call a class as a function");
+        }
+        Object.defineProperty(b, "__esModule", {
+            value: !0
+        });
+        var d = function() {
+            function a(a, b) {
+                for (var c = 0; c < b.length; c++) {
+                    var d = b[c];
+                    d.enumerable = d.enumerable || !1, d.configurable = !0, "value" in d && (d.writable = !0), 
+                    Object.defineProperty(a, d.key, d);
+                }
+            }
+            return function(b, c, d) {
+                return c && a(b.prototype, c), d && a(b, d), b;
+            };
+        }(), e = function() {
+            function a() {
+                c(this, a);
+            }
+            return d(a, [ {
+                key: "setSubscribeKey",
+                value: function(a) {
+                    return this._subscribeKey = a, this;
+                }
+            }, {
+                key: "setPublishKey",
+                value: function(a) {
+                    return this._publishKey = a, this;
+                }
+            }, {
+                key: "setAuthKey",
+                value: function(a) {
+                    return this._authKey = a, this;
+                }
+            }, {
+                key: "getSubscribeKey",
+                value: function() {
+                    return this._subscribeKey;
+                }
+            }, {
+                key: "getPublishKey",
+                value: function() {
+                    return this._publishKey;
+                }
+            }, {
+                key: "getAuthKey",
+                value: function() {
+                    return this._authKey;
+                }
+            } ]), a;
+        }();
+        b["default"] = e;
+    }, function(a, b, c) {
+        function d() {
+            return +new Date();
+        }
+        function e(a) {
+            return !!a && "string" != typeof a && (Array.isArray && Array.isArray(a) || "number" == typeof a.length);
+        }
+        function f(a, b) {
+            if (a && b) if (e(a)) for (var c = 0, d = a.length; d > c; ) b.call(a[c], a[c], c++); else for (var c in a) a.hasOwnProperty && a.hasOwnProperty(c) && b.call(a[c], c, a[c]);
+        }
+        function g(a) {
+            return encodeURIComponent(a);
+        }
+        function h(a, b) {
+            var c = a.join(q.URLBIT), d = [];
+            return b ? (f(b, function(a, b) {
+                var c = "object" === ("undefined" == typeof b ? "undefined" : p(b)) ? JSON.stringify(b) : b;
+                "undefined" != typeof b && null !== b && g(c).length > 0 && d.push(a + "=" + g(c));
+            }), c += "?" + d.join(q.PARAMSBIT)) : c;
+        }
+        function i(a, b) {
+            var c, e = 0, f = function g() {
+                e + b > d() ? (clearTimeout(c), c = setTimeout(g, b)) : (e = d(), a());
+            };
+            return f;
+        }
+        function j(a, b) {
+            var c = [];
+            return f(a || [], function(a) {
+                b(a) && c.push(a);
+            }), c;
+        }
+        function k(a, b) {
+            return a.replace(r, function(a, c) {
+                return b[c] || a;
+            });
+        }
+        function l(a, b) {
+            return "undefined" != typeof setTimeout ? setTimeout(a, b) : void 0;
+        }
+        function m(a) {
+            var b = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(a) {
+                var b = 16 * Math.random() | 0, c = "x" === a ? b : 3 & b | 8;
+                return c.toString(16);
+            });
+            return a && a(b), b;
+        }
+        function n(a, b) {
+            var c = [];
+            return f(a || [], function(a, d) {
+                c.push(b(a, d));
+            }), c;
+        }
+        function o(a) {
+            return encodeURIComponent(a).replace(/[!'()*~]/g, function(a) {
+                return "%" + a.charCodeAt(0).toString(16).toUpperCase();
+            });
+        }
+        var p = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(a) {
+            return typeof a;
+        } : function(a) {
+            return a && "function" == typeof Symbol && a.constructor === Symbol ? "symbol" : typeof a;
+        }, q = c(9), r = /{([\w\-]+)}/g;
+        a.exports = {
+            buildURL: h,
+            encode: g,
+            each: f,
+            updater: i,
+            rnow: d,
+            isArray: e,
+            map: n,
+            pamEncode: o,
+            generateUUID: m,
+            timeout: l,
+            supplant: k,
+            grep: j
+        };
+    }, function(a) {
+        a.exports = {
+            PARAMSBIT: "&",
+            URLBIT: "/"
+        };
+    }, function(a) {
+        var c = function(a, b) {
+            if (!(this instanceof c)) return new c(a, b);
+            var d = this, a = d.url = a || "", e = (d.protocol = b || "Sec-WebSocket-Protocol", 
+            a.split("/")), f = {
+                ssl: "wss:" === e[0],
+                origin: e[2],
+                publish_key: e[3],
+                subscribe_key: e[4],
+                channel: e[5]
+            };
+            return d.CONNECTING = 0, d.OPEN = 1, d.CLOSING = 2, d.CLOSED = 3, d.CLOSE_NORMAL = 1e3, 
+            d.CLOSE_GOING_AWAY = 1001, d.CLOSE_PROTOCOL_ERROR = 1002, d.CLOSE_UNSUPPORTED = 1003, 
+            d.CLOSE_TOO_LARGE = 1004, d.CLOSE_NO_STATUS = 1005, d.CLOSE_ABNORMAL = 1006, d.onclose = d.onerror = d.onmessage = d.onopen = d.onsend = function() {}, 
+            d.binaryType = "", d.extensions = "", d.bufferedAmount = 0, d.trasnmitting = !1, 
+            d.buffer = [], d.readyState = d.CONNECTING, a ? (d.pubnub = PUBNUB.init(f), d.pubnub.setup = f, 
+            d.setup = f, void d.pubnub.subscribe({
+                restore: !1,
+                channel: f.channel,
+                disconnect: d.onerror,
+                reconnect: d.onopen,
+                error: function() {
+                    d.onclose({
+                        code: d.CLOSE_ABNORMAL,
+                        reason: "Missing URL",
+                        wasClean: !1
+                    });
+                },
+                callback: function(a) {
+                    d.onmessage({
+                        data: a
+                    });
+                },
+                connect: function() {
+                    d.readyState = d.OPEN, d.onopen();
+                }
+            })) : (d.readyState = d.CLOSED, d.onclose({
+                code: d.CLOSE_ABNORMAL,
+                reason: "Missing URL",
+                wasClean: !0
+            }), d);
+        };
+        c.prototype.send = function(a) {
+            var b = this;
+            b.pubnub.publish({
+                channel: b.pubnub.setup.channel,
+                message: a,
+                callback: function(a) {
+                    b.onsend({
+                        data: a
+                    });
+                }
+            });
+        }, c.prototype.close = function() {
+            var a = this;
+            a.pubnub.unsubscribe({
+                channel: a.pubnub.setup.channel
+            }), a.readyState = a.CLOSED, a.onclose({});
+        }, a.exports = c;
+    } ]);
+}), define("portal/js/modules/components/cometService", [ "./componentsModule", "pusher", "pubnub" ], function(module, Pusher, Pubnub) {
+    module.factory("CometService", function($rootScope, $stateParams, $http, $interval, $timeout, PathsService, SessionInfo, LogService, SettingsService, PortalInfoService) {
+        function initComet(settings) {
+            mInitialized || (mPusher = new Pusher(settings.pusherKey, {
+                encrypted: !0
+            }), mPubnub = Pubnub.init({
+                subscribe_key: settings.pubnubKey,
+                ssl: !0,
+                uuid: SessionInfo.sessionId
+            }), mPusher.connection.bind("state_change", onPusherStateChange), $interval(cleanupOldServerCalls, 6e5)), 
+            mInitialized = !0, mCurrentChannel = settings.pushMessagesChannel, mLastServerCalls = {}, 
+            initChannel(mCurrentChannel, !0);
+        }
+        function initChannel(channelName, isGlobalChannel) {
+            mPubnub && (mPubnub.subscribe({
+                channel: channelName,
+                callback: function(event) {
+                    debug("Pubnub event " + event.name + " from channel " + channelName), onPubnubEvent(event);
+                },
+                connect: function(channel) {
+                    channel == channelName && isGlobalChannel && (debug("Pubnub connected to " + channelName), 
+                    mPubnubState = "connected", udpateState());
+                },
+                reconnect: function() {
+                    isGlobalChannel && (debug("Pubnub reconnected"), mPubnubState = "connected", udpateState());
+                },
+                error: function(errMessage) {
+                    debug("Pubnub error: " + errMessage), udpateState();
+                },
+                disconnect: function() {
+                    isGlobalChannel && (debug("Pubnub disconnected"), mPubnubState = "disconnected", 
+                    udpateState());
+                }
+            }), mPusher.subscribe(channelName).bind(channelName, function(event) {
+                debug("pusher event on channel " + channelName), onPusherEvent(event);
+            }).bind("pusher:subscription_succeeded", function() {}));
+        }
+        function onPubnubEvent(event) {
+            handleEvent(event);
+        }
+        function setPrivateChannel(privateChannel) {
+            privateChannel && mPrivateChannel != privateChannel && (unsubsribe(mPrivateChannel), 
+            mPrivateChannel = privateChannel, initChannel(mPrivateChannel));
+        }
+        function onPusherEvent(event) {
+            try {
+                decodedJson = decodeURIComponent(event).replace(/\+/g, " ");
+            } catch (e) {
+                return void LogService.logError("Failed to decode pusher event " + event, e);
+            }
+            var parsedEvent = JSON.parse(decodedJson);
+            handleEvent(parsedEvent);
+        }
+        function onPusherStateChange(states) {
+            mPusherState = states.current, debug("Pusher " + mPusherState), udpateState();
+        }
+        function handleEvent(event) {
+            if (mCurrentHouse && event.houseCode == mCurrentHouse.code) switch (event.name) {
+              case "Catalog.leadingBidUpdate":
+              case "Account.selfPreBidUpdate":
+              case "Account.selfPresaleBidCancel":
+              case "Auction.stateChanged":
+                fireEvent(event);
+            }
+        }
+        function fireEvent(event) {
+            var fired = !1;
+            return mLastServerCalls[event.id] || (isOldEvent(event) || (mLastServerCalls[event.id] = new Date().getTime(), 
+            $timeout(function() {
+                mScope.$broadcast("cometEvent", event);
+            }, 100)), fired = !0), fired;
+        }
+        function isOldEvent(event) {
+            var secondsSinceEvent = (new Date().getTime(), Math.floor(SettingsService.timeSince(event.eventTime) / 1e3));
+            return secondsSinceEvent > 10 && LogService.logMessage("Old message - " + secondsSinceEvent + " seconds ago."), 
+            secondsSinceEvent > 40 ? !0 : !1;
+        }
+        function cleanupOldServerCalls() {
+            var callIdsToRemove = [], now = new Date().getTime();
+            for (callId in mLastServerCalls) now - mLastServerCalls[callId] > 6e4 && callIdsToRemove.push(callId);
+            for (var i = 0; i < callIdsToRemove.length; i++) delete mLastServerCalls[callIdsToRemove[i]];
+        }
+        function udpateState() {
+            debug("current state pubnub:" + mPubnubState + ", pusher:" + mPusherState), mConnectedChannel || "connected" != mPubnubState && "connected" != mPusherState || (mConnectedChannel = mCurrentChannel);
+        }
+        function debug(message) {
+            window.console && $rootScope.devMode && console.debug(message);
+        }
+        function listenToHouseEvents(houseId) {
+            stopListening(), mCurrentHouse = PortalInfoService.getHouse(houseId), $http.get(PathsService.getAppSiteUrl(mCurrentHouse.site.code) + "/lgapi/system/settings/getPublicSettings.api").then(function(response) {
+                var settings = response.data.response;
+                initComet(settings);
+            });
+        }
+        function unsubsribe(channel) {
+            channel && (mPubnub.unsubscribe({
+                channel: channel
+            }), mPusher.unsubscribe(channel));
+        }
+        function stopListening() {
+            mCurrentHouse && (mCurrentHouse = null, unsubsribe(mCurrentChannel), mCurrentChannel = null, 
+            mConnectedChannel = null, unsubsribe(mPrivateChannel), mPrivateChannel = null, "disconnected" != mPusherState && mPusher.disconnect());
+        }
+        return mScope = $rootScope.$new(), mInitialized = null, mCurrentHouse = null, mPusher = null, 
+        mPubnub = null, mPubnubState = null, mPusherState = null, mCurrentChannel = null, 
+        mConnectedChannel = null, mPrivateChannel = null, mLastServerCalls = null, {
+            scope: mScope,
+            stopListening: stopListening,
+            listenToHouseEvents: listenToHouseEvents,
+            setPrivateChannel: setPrivateChannel
+        };
+    });
+}), define("portal/js/modules/components/index", [ "./componentsModule", "./houseCarouselDirective", "./contentLoaderDirective", "./pageFooterDirective", "./popupsService", "./structuredDataService", "./upperPartDirective", "./cometService" ], function() {}), 
 define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(ng) {
     return ng.module("app.navigation", []);
 }), define("portal/js/modules/navigation/upperNavigationController", [ "./navigationModule" ], function(module) {
@@ -22294,16 +26287,15 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
         }, 300);
     } ]);
 }), define("portal/js/modules/navigation/appSiteWinodwsService", [ "./navigationModule" ], function(module) {
-    module.factory("AppSiteWinodwsService", function($rootScope, PathsService, StringsService, I18nService, PortalAuthService, SessionsService, PuffinService) {
-        function getAuctionSiteUrl(auction, sessionToken) {
+    module.factory("AppSiteWinodwsService", function($rootScope, PathsService, StringsService, I18nService, PortalAuthService, SessionsService, PuffinService, OsInfoService) {
+        function getAuctionSiteUrl(auction) {
             if (!auction.house) return null;
-            var siteCode = auction.house.site.code, url = PathsService.getAppSiteUrl(siteCode) + "/", query = "?lang=" + $rootScope.currentLang + "&fromPortal=1";
-            ("demo" == siteCode || "dev" == siteCode) && (query += "&code=" + auction.house.code), 
-            sessionToken && (query += "&pt=" + sessionToken);
+            var siteCode = auction.house.site.code, url = PathsService.getAppSiteUrl(siteCode) + "/";
+            ("demo" == siteCode || "dev" == siteCode) && (url = PathsService.addQueryParamToUrl(url, "code", auction.house.code));
             var hash;
             return hash = "RUNNING" == auction.state ? "live" : "catalog~" + auction.auctionIdInApp + "~" + auction.dayIdInApp, 
-            /iPad|iPhone|iPod/.test(navigator.userAgent) && (query += "&hashValue=" + hash), 
-            url + query + "#" + hash;
+            /iPad|iPhone|iPod/.test(navigator.userAgent) && (url = PathsService.addQueryParamToUrl(url, "hashValue", hash)), 
+            url + "#" + hash;
         }
         function showDemo(demoCode) {
             var url = "https://demo.bidspirit.com/?demoMode=1&";
@@ -22333,22 +26325,27 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             }
             window.open(url, "_system");
         }
-        function openAuctionSiteWindow(auction, noAutoLogin, lot) {
+        function openAuctionSiteWindow(auction, lot) {
             if (auction) {
-                var token = null;
-                $rootScope.currentUser && "UNCONFIRMED_EMAIL" != $rootScope.currentUser.registrationStage && !noAutoLogin && (token = StringsService.randomString(10));
-                var url = getAuctionSiteUrl(auction, token) + (lot ? "~" + lot.idInApp : "");
-                GlobalConfig.isMobileApp && "RUNNING" == auction.state && auction.hasVideo ? PuffinService.tryToLaunchWithPuffin(url) : window.open(url, "_system"), 
-                token && PortalAuthService.createTokenForAppSite(auction.houseId, token);
+                var url = getAuctionSiteUrl(auction) + (lot ? "~" + lot.idInApp : "");
+                openBidspiritSiteUrl(url, auction.houseId, auction);
             }
+        }
+        function openBidspiritSiteUrl(url, houseId, auction) {
+            var token = null;
+            $rootScope.currentUser && "UNCONFIRMED_EMAIL" != $rootScope.currentUser.registrationStage && (token = StringsService.randomString(10), 
+            url = PathsService.addQueryParamToUrl(url, "pt", token)), url = PathsService.addQueryParamToUrl(url, "lang", $rootScope.currentLang), 
+            url = PathsService.addQueryParamToUrl(url, "fromPortal", "1"), GlobalConfig.isMobileApp && auction && "RUNNING" == auction.state && auction.hasVideo ? PuffinService.tryToLaunchWithPuffin(url) : OsInfoService.isMobile() && !GlobalConfig.isMobileApp ? window.location = url : window.open(url, "_system"), 
+            token && PortalAuthService.createTokenForAppSite(houseId, token);
         }
         return {
             openAuctionSiteWindow: openAuctionSiteWindow,
+            openBidspiritSiteUrl: openBidspiritSiteUrl,
             showDemo: showDemo
         };
     });
 }), define("portal/js/modules/navigation/portalNavigationService", [ "./navigationModule" ], function(module) {
-    module.factory("PortalNavigationService", function($timeout, $rootScope, $state, OsInfoService, LogService, AnalyticsService, StructuredDataService) {
+    module.factory("PortalNavigationService", function($timeout, $rootScope, $state, $stateParams, OsInfoService, LogService, AnalyticsService, PortalInfoService, StructuredDataService) {
         function init() {
             $rootScope.$on("$stateChangeStart", function(event, toState, toArgs, fromState, fromArgs) {
                 $rootScope.$previousState = fromState, $rootScope.$previousState.args = fromArgs, 
@@ -22361,10 +26358,10 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             }), AnalyticsService.trackEvent("init", GlobalConfig.isMobileApp ? "mobile" : "web");
         }
         function openWindow(url, options) {
-            GlobalConfig.isMobileApp ? window.open(url, "_system") : OsInfoService.isMobile() ? window.location = url : window.open(url, "_blank", options);
+            GlobalConfig.isMobileApp ? window.open(url, "_system") : OsInfoService.isMobile() ? window.location = url : window.open(url, "_system", options);
         }
         function getNewWindowTarget() {
-            return GlobalConfig.isMobileApp ? "_system" : OsInfoService.isMobile() ? "_self" : "_blank";
+            return GlobalConfig.isMobileApp ? "_system" : OsInfoService.isMobile() ? "_self" : "_system";
         }
         function trackPageView() {
             if (!$rootScope.searchAgentRequest) {
@@ -22375,6 +26372,27 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
                         scene: scene
                     }), AnalyticsService.trackPage(scene), mLastTrackedScene = scene);
                 }
+            }
+        }
+        function backFromLotPageToList(houseId, source) {
+            switch (source) {
+              case "favorites":
+                return void $state.go("app.favorites");
+
+              case "won":
+                return void $state.go("app.myAccount", {
+                    houseId: houseId,
+                    itemsType: "won"
+                });
+
+              case "absentee":
+                return void $state.go("app.myAccount", {
+                    houseId: houseId,
+                    itemsType: "absentee"
+                });
+
+              case "search":
+                return void $state.go("app.search");
             }
         }
         function goBack(ignoreBackFn) {
@@ -22406,6 +26424,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             goBack: goBack,
             setBackFn: setBackFn,
             goHome: goHome,
+            backFromLotPageToList: backFromLotPageToList,
             goBackAfterDelay: goBackAfterDelay,
             openWindow: openWindow,
             getNewWindowTarget: getNewWindowTarget,
@@ -22437,7 +26456,66 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             templateUrl: PathsService.appTemplatePath("elements/navigation/installAppButton")
         };
     });
-}), define("portal/js/modules/navigation/index", [ "./navigationModule", "./upperNavigationController", "./mobileMenuController", "./reloadController", "./appSiteWinodwsService", "./portalNavigationService", "./installAppButtonDirective" ], function() {}), 
+}), define("portal/js/modules/navigation/auctionStateListenerService", [ "./navigationModule" ], function(module) {
+    module.factory("AuctionStateListenerService", function($timeout, $rootScope, $state, $stateParams, $uibModalStack, $uibModal, PathsService, PortalNavigationService, CometService, PopupsService, PortalInfoService, AppSiteWinodwsService) {
+        function init() {
+            $rootScope.$on("$stateChangeSuccess", function(event, scene) {
+                if ($stateParams.auctionId) {
+                    if (!mCurrentContextAuction || mCurrentContextAuction.id != $stateParams.auctionId) {
+                        if (mCurrentContextAuction = PortalInfoService.getAuction($stateParams.auctionId), 
+                        !mCurrentContextAuction) return void CometService.stopListening();
+                        "RUNNING" == mCurrentContextAuction.state ? alertForAuctionStart() : mCurrentContextAuction.showLeadingBids ? mCurrentHouse && mCurrentHouse.id == mCurrentContextAuction.houseId || CometService.listenToHouseEvents(mCurrentContextAuction.houseId) : CometService.stopListening(), 
+                        $rootScope.$broadcast("auctionContextChanged", mCurrentContextAuction);
+                    }
+                } else "app.popupScene" != scene.name && (CometService.stopListening(), mCurrentContextAuction = null, 
+                $rootScope.$broadcast("auctionContextChanged"));
+            }), CometService.scope.$on("cometEvent", function(e, event) {
+                switch (event.name) {
+                  case "Auction.stateChanged":
+                    handleAuctionStateChanged(event);
+                }
+            });
+        }
+        function handleAuctionStateChanged(event) {
+            var stateChangeInfo = event.arg;
+            if (mCurrentContextAuction && mCurrentContextAuction.house.code == event.houseCode && stateChangeInfo.id == mCurrentContextAuction.auctionIdInApp) switch (stateChangeInfo.state) {
+              case "PRE_AUCTION":
+              case "RUNNING":
+              case "PAUSED":
+                mCurrentContextAuction.state = "RUNNING", alertForAuctionStart();
+            }
+        }
+        function onAuctionAlertClosed() {
+            var prevState = $rootScope.$previousState ? $rootScope.$previousState.name : null;
+            switch (prevState) {
+              case "app.lotPage":
+                PortalNavigationService.backFromLotPageToList(mCurrentContextAuction.house.id, $rootScope.$previousState.args.source);
+                break;
+
+              default:
+                $state.go("app.home");
+            }
+        }
+        function alertForAuctionStart() {
+            "app.catalog" == $state.$current.name && $uibModal.open({
+                templateUrl: PathsService.appTemplatePath("alerts/popups/auctionStartPopup"),
+                backdrop: "static",
+                controller: function($scope) {
+                    $scope.auction = angular.copy(mCurrentContextAuction), $scope.message = "auction_started_popup_message", 
+                    $scope.openAuctionSite = function() {
+                        AppSiteWinodwsService.openAuctionSiteWindow($scope.auction), $scope.$close(), onAuctionAlertClosed();
+                    }, $scope.dismiss = function() {
+                        $scope.$close(), onAuctionAlertClosed();
+                    };
+                }
+            });
+        }
+        var mCurrentContextAuction = null;
+        return {
+            init: init
+        };
+    });
+}), define("portal/js/modules/navigation/index", [ "./navigationModule", "./upperNavigationController", "./mobileMenuController", "./reloadController", "./appSiteWinodwsService", "./portalNavigationService", "./installAppButtonDirective", "./auctionStateListenerService" ], function() {}), 
 define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/index", "./auth/index", "./userDetails/index", "./alerts/index", "./info/index", "./auctions/index", "./houses/index", "./account/index", "./nudges/index", "./ads/index", "./components/index", "./navigation/index" ], function(ng) {
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.auctions", "app.houses", "app.account", "app.nudges", "app.ads", "app.components", "app.navigation" ]);
 }), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
@@ -22450,124 +26528,126 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     return angular.module("app", [ "ngAnimate", "ngUpload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
         $locationProvider.hashPrefix("!"), initAnalytics(AnalyticsProvider);
     }).run(function($templateCache) {
-        $templateCache.put("/common/templates/forms/asyncButton.html?0.711", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
-        $templateCache.put("/common/templates/forms/formGroup.html?0.711", '<div class="form-group {{cssClass}}"> <div> <div ng-transclude></div> </div>  </div> '), 
-        $templateCache.put("/common/templates/dialogs/scopeAlert.html?0.711", "<div style=\"display:{{alert.message?'block':'none'}}\"> <uib-alert  type=\"{{alert.type || 'info'}}\" close=\"hideScopeAlert()\"> {{alert.message | i18n}} </uib-alert> </div> "), 
-        $templateCache.put("/common/templates/dialogs/alert.html?0.711", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{((dialogData.title || "dialogs_notice_title") | i18n) | capitalize}}</div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.ok || "dialogs_ok") | i18n}}</button> </div> </div>  '), 
-        $templateCache.put("/common/templates/dialogs/image.html?0.711", '<div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button> <h4 class="modal-title">{{dialogData.imageName}}</h4> </div>  <div class="modal-body"><img ng-src="{{dialogData.imagePath | cloudinary}}" class="img-responsive"> </ </div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.close || "dialogs_close") | i18n}}</button> </div> '), 
-        $templateCache.put("/common/templates/dialogs/confirm.html?0.711", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{(dialogData.title || "dialogs_confirm_title") | i18n}}</div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-danger" ng-click="ok()">{{(dialogData.ok || "dialogs_ok") | i18n}}</button> <button class="btn btn-warning" ng-click="close()">{{(dialogData.cancel || "dialogs_cancel") | i18n}}</button> </div> </div>  '), 
-        $templateCache.put("/common/templates/elements/pagination.html?0.711", '<div class="bs-pagination" dir="ltr">  <a class="link" ng-repeat="link in links" ng-href="{{baseHref && link.page && !link.isCurrent ? baseHref+link.page : \'\'}}"  ng-click="onLinkClick(link)" ng-bind-html="link.html" ng-class="{ current:link.isCurrent, disabled:!link.page, enabled:link.page && !link.isCurrent, needsclick:link.isPrev || link.isNext,  prev:link.isPrev,  next:link.isNext}"> </a>   </div>   '), 
-        $templateCache.put("/portal/templates/info/allFutureAuctions.html?0.711", '<div class="all-future-auctions"> <table class="table table-striped default-align" bs-text-direction> <tr> <th>{{"future_auction_house" | i18n}}</th> <th>{{"future_auction_time" | i18n}}</th> <th>{{"future_auction_name" | i18n}}</th> </tr> <tr ng-repeat="auction in options.data.auctions"> <td>{{auction.house.details.name | langField}}</td> <td>{{auction| auctionTime}}</td> <td>{{auction.name | langField}}</td> </tr>  </table> </div>  '), 
-        $templateCache.put("/portal/templates/info/contact.html?0.711", '<div  class="contact scene" ng-controller="ContactController" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1>{{\'link_contact\' | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{\'contact_message_line_1\' | i18n}}</h4> <h4 class="message-line">{{\'contact_message_line_2\' | i18n}}</h4>  <bs-linkable-text class="sell-message" options="{ textKey:\'contact_message_sell\',  onLinkClick:gotoAuctionHouses }" > </bs-linkable-text> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" > <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="$state.current.name!=\'app.contact.thanks\'"> <div class="row"> <bs-form-group field-name="name" label="user_details_name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="user_details_email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="user_details_phone" css-class="col-md-5  col-xs-11 float"> <label></label> <input dir="ltr"   name="phone" class="form-control" ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="user_details_country" css-class="col-md-5 col-xs-11 float"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>   </div> <div class="row">  <bs-form-group field-name="message" label="contact_message_body" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="sendDebugInfo() || contactForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>   </div> </form> <div class="thanks .container animate-show" ng-show="$state.current.name==\'app.contact.thanks\'"> {{"contact_thanks" | i18n }} </div> </div>  <div class="direct-contact"> <div class="text" ng-bind-html=\'"contact_direct" | i18n:{phone:BidspiritInfo.phoneLink, email:BidspiritInfo.emailLink}\'>  </div> </div> </div> '), 
-        $templateCache.put("/portal/templates/info/product/productMain.html?0.711", '<div ng-controller="ProductController" bs-scroll-to-top> <div class="product scene"> <div class="upper-part">  <div class="dark overlay"> </div> </div>  <div class="main center-block "> <h1 class="center-block col-md-5 col-xs-12" ng-bind-html="mainFeature.title | langField"></h1>  <div class="short-separator"></div> <div class="image center-block  col-md-7 col-xs-12" ng-if="mainFeature.resources!=null" bs-cloudinary-bg="{{mainFeature.resources[\'productsPagePic\']}}"  >  </div> <div class="info center-block  col-md-9 col-lg-7 col-xs-12" ng-bind-html="mainFeature.info | langField">  </div> <div class="orange contact-us common-button center-block center-block"  ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div> </div>  <div class="features"> <h3 class="section-title">{{\'product_features\' | i18n}}</h3> <div class="short-separator"></div> <div ng-include src="\'info/product/productFeatures\' | appTemplate"></div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div>  <div class="contact"> <div class="container col-lg-4 col-md-5 col-sm-6 col xs-10 center-block"> <h3 class="caption">{{\'product_contact_caption\' | i18n}}</h3> <div class="short-separator"></div> <div class="message-line">{{\'product_contact\' | i18n}}</div> <div class="orange contact-us common-button center-block" ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div> </div>  </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/info/product/productFeatures.html?0.711", '<div class="list container-fluid"> <div class="row"> <div class="item col-md-3 col-xs-10"  ng-repeat="feature in features" ng-if  = "feature.code!=\'main\'"> <div class="frame" ng-class="[feature.code,currentLang]"> <div class="image"  bs-cloudinary-bg="{{feature.resources[\'productsPagePic\']}}"  params=" {imageMode:\'fill\',size:\'360x226\'} ">  </div>  <div class="texts"> <h2 class="caption"> {{feature.title | langField}} </h2>   <div class="short-separator"></div> <div class="info" ng-bind-html="feature.info | langField"> </div>  </div> <div ng-if="feature.code==\'bidder\'"> <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> </div>  <div ng-if="feature.code==\'virtualAuctioneer\' && !isMobile">  <div class="orange  common-button center-block" ng-click="showDemo(\'virtualAuctioneer\')" >  <div class="text"> {{\'product_demo_virtual_auctioneer\' | i18n}}  </div> </div> </div>  </div>  </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/info/helpScreen.html?0.711", '<div class="help-screen scene" ng-controller="HelpScreensController" bs-scroll-to-top> <div class="content container">  <div class="float texts"> <h2 class="caption"> {{helpScreen.title | langField}} </h2> <div class="info" ng-bind-html="helpScreen.info | langField">  </div>  <div ng-switch="helpScreen.code"> <div ng-switch-when="live">  <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> <div class="clearfix"></div> </div> <div ng-switch-when="bids"> <div class="orange common-button center-block" ng-click="showRegistration()" ng-if="!currentUser">  <div class="text"> {{\'help_register\' | i18n}}  </div> </div>  </div> <div ng-switch-when="search"> <form name=\'searchForm\' novalidate bs-form  bs-submit="gotoSearch()" class="global-search-form center-block" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" ng-model="data.searchToken" bs-enter-key-action="gotoSearch()"/> </bs-form-group> <div class="button" ng-click="gotoSearch()"></div> <div class="clearfix"></div> </form> </div> </div> </div>   <div class="opposite float screenshot" bs-cloudinary-bg="{{sceenshot}}"></div> <div class="clearfix"></div> <div class="btn home btn-link center-block" ui-sref="app.home"> {{"home_back_to" | i18n }} </div> </div>   </div> '), 
-        $templateCache.put("/portal/templates/info/about.html?0.711", '<div  class="about scene" bs-scroll-to-top ng-controller="AboutController"> <div class="wide upper-part" >  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <H1>{{\'about_upper_caption\' | i18n}}</H1> <div class="short-separator"></div> <h2 class="text">{{\'about_upper_text\' | i18n}}</h2> </div> </div> </div> <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div class="portal-info"> <div class="line">{{\'about_portal_info_line_1\' | i18n}}</div> <div class="line">{{\'about_portal_info_line_2\' | i18n}}</div> </div>  <div class="short-separator"></div>  <div class="company-info"> <div class="line">{{\'about_company_info\' | i18n}}</div> </div> </div> <div class="contact"> <div class="container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div class="caption">{{\'about_contact_caption\' | i18n}}</div> <div class="short-separator"></div> <div class="message-line">{{\'contact_message_line_1\' | i18n}}</div> <div class="message-line">{{\'contact_message_line_2\' | i18n}}</div> <div class="orange common-button center-block" ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div> </div>  </div> <div ng-if="versionInfo" class="version-info" dir="ltr">{{versionInfo}}</div> </div> '), 
-        $templateCache.put("/portal/templates/info/upgradeRequired.html?0.711", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{"dialogs_notice_title" | i18n}}</div>  </div>  <div class="modal-body" ng-bind-html="\'upgrade_required_message\' | i18n"></div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-primary" ng-click="redirectToUpgrade()">{{"upgrade_required_upgrade_now" | i18n}}</button> </div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/manage/userAlertsMain.html?0.711", '<div ng-controller="UserAlertsController" class="userAlerts scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"user_alerts_title" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container">  <uib-accordion ng-if="currentUser" class="col-lg-8 col-md-9 col-sm-10 col-xs-12 center-block">  <uib-accordion-group is-open="opened[\'catalogs\']" class="catalogs"> <ng-include src="\'alerts/manage/newCatalogsSection\' | appTemplate"></ng-include>  </uib-accordion-group>  <uib-accordion-group is-open="opened[\'auctionsStart\']" class="auctions-start"  bs-text-direction> <ng-include src="\'alerts/manage/auctionsStartSection\' | appTemplate"></ng-include> </uib-accordion-group>  <uib-accordion-group is-open="opened[\'itemAlerts\']" class="item-alerts"  bs-text-direction ng-if="enableAlerts"> <ng-include src="\'alerts/manage/itemAlertsSection\' | appTemplate"></ng-include> </uib-accordion-group>   </uib-accordion>   </div>   </div> '), 
-        $templateCache.put("/portal/templates/alerts/manage/itemAlertsSection.html?0.711", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_item_alerts_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'itemAlerts\']" >{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-alerts" ng-if="itemsWithAlerts.length==0">{{"user_alerts_item_alerts_none" | i18n}}</div> <div class="item-alert-entry" ng-repeat="item in itemsWithAlerts"> <bs-lot-image lot="item" size="100x100" as-bg="true" image-mode="\'fit\'" class="float lot-pic"></bs-lot-image>  <div class="float info" ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"> <div class="item-index"> {{"lot_number" | i18n:{number:item.itemIndex} }}</div>  <div class="lot-text" ng-bind-html="item | lotText:100 "></div>   <bs-lot-price lot="item"  single-row="true" break-on-row="true"></bs-lot-price>  </div>  <bs-lot-alert-flag  lot="item"></bs-lot-alert-flag>  <bs-lot-badge lot="item" ></bs-lot-badge>  <div class="newLine"></div> </div> </div> '), 
-        $templateCache.put("/portal/templates/alerts/manage/auctionsStartSection.html?0.711", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_auctions_start_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'auctionsStart\']" >{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-auctions" ng-if="auctions.length==0">{{"auction_start_alert_no_auctions" | i18n}}</div> <div class="auction-entry" ng-repeat="auction in auctions"> <div class="float image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:\'100x100\'} "> </div> <div class="float texts"> <div class="name"> {{auction.house.details.name | langField}} - {{"auction_label_number" | i18n:{number:auction.number} }}&nbsp; <span class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span>  </div>  <div class="time" > {{auction | auctionTime}}  </div> <div class="description"> <div ng-bind-html="auction.name | langField"></div> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button> <div class="newLine"></div> </div> </div> '), 
-        $templateCache.put("/portal/templates/alerts/manage/newCatalogsSection.html?0.711", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-sm-8  float">{{"user_alerts_new_catalogs_title" | i18n}}</div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[\'catalogs\']">{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div ng-if="!saved"> <h4>{{"user_alerts_new_catalogs_message" | i18n}}</h4> <div class="alerts-choice-form" > <div class="form-group" ng-click="setChoice(\'ALL_HOUSES_FOR_REGION_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="ALL_HOUSES_FOR_REGION_ALERTS"/> <label ><span></span>{{"user_alerts_all_houses" | i18nWithRegion }}</label>  </div> <div ng-show="false" class="form-group" ng-click="setChoice(\'SOME_HOUSES_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="SOME_HOUSES_ALERTS"/>  <label><span></span>{{"user_alerts_some_houses" | i18n }}</label>  <div class="housesList" ng-show="housesListVisible"> <div class="caption">{{"user_alerts_choose_houses" | i18n }} </div>  <div class="float house" ng-repeat="house in houses" check-on-click="true" ng-if="devMode || (house.site.code && house.site.code!=\'demo\')" > <input type="checkbox" bs-checklist-model="data.housesToAlert" checklist-value="house.code" > {{house.details.name | langField}} </div> <div class="clearfix"></div>  </div> </div> <div class="form-group" ng-click="setChoice(\'NO_HOUSES_ALERTS\')"> <input type="radio"  ng-model="data.housesAlertChoice" value="NO_HOUSES_ALERTS"/> <label><span></span>{{"user_alerts_no_houses" | i18n }}</label>  </div> <div class="clearfix"></div> </div> <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"   action-fn="save()" label="\'dialogs_save\'" > </bs-async-button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <div ng-click="closeAll()" class="cancel btn btn-link">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </div>  <div ng-if="saved"> <h4>{{"user_alerts_saved" | i18n}}</h4> <br><br> <div ng-click="closeAll()" class="btn btn-link btn-lg">{{"dialogs_close" | i18n}}</div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/alerts/popups/itemAlertPopup.html?0.711", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"alert_notice_title" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-bind-html="itemAlertMessage"></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="$close()">{{"dialogs_close" | i18n}}</button> </div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/popups/installAppPopup.html?0.711", '<div class="install-app-popup"> <div class="alert-icon"></div> <div class="message-title default-align" ng-bind-html="options.messageTitle|i18n"></div> <div class="message default-align" ng-bind-html="options.message | i18n"></div> <br> <div ng-if="!options.mobileDevice"> <div class="col-xs-4 search-app">{{"app_install_search_app" | i18n }}</div> <div class="col-xs-4 install-app-qr-code"></div> <dic class="col-xs-4"></dic> <div class="clearfix"></div> </div> <div class="app-links"> <install-app-button ng-repeat="platform in options.platforms" platform="platform"></install-app-button> </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/popups/confirmFirstAlertPopup.html?0.711", '<div bs-text-direction > <div class="modal-header"> <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body" > <div class="alert-icon"></div>  <div class="message" ng-bind-html="messageKey | i18n"></div> </div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-link text-warning" ng-click="$close()">{{"dialogs_cancel" | i18n}}</button>  <button class="btn btn-primary" ng-click="onConfirm()">{{"first_auction_alert_confirm" | i18n}}</button> </div>    </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/popups/auctionStartPopup.html?0.711", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"alert_notice_title" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" ng-bind-html="\'push_auction_start_message\' | i18n:{house:(auction.house.details.name | langField)} "></div> <div ng-if="auction.catalogOnly || auction.absenteeBidsOnly" ng-bind-html="\'push_auction_start_message_no_live\' | i18n:{house:(auction.house.details.name | langField),url:auction.house.website} "></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="$close()">{{"dialogs_close" | i18n}}</button> </div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/common/alertFlag.html?0.711", '<div  ng-show="visible" class="alert-flag flag-button "  ng-class="{on:isFlagOn,off:!isFlagOn,\'just-changed\':justChanged, fixed:notEditable}" ng-click="toggleAlert()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()"  >  <!--  <div class="tooltip-catcher" ng-if="!justChanged && showTooltip" uib-tooltip="{{(isFlagOn ? onTitle : offTitle ) | i18n}}" tooltip-placement="right" >&nbsp;</div> -->  <div  class="fade-in-out fade toast"  ng-animate ng-class="{on:showToast,off:!showToast}" >{{toastMessage | i18n}}</div>   </div> '), 
-        $templateCache.put("/portal/templates/portalMain.html?0.711", '   <div ng-include src="\'elements/navigation/upperNavigation\' | appTemplate"></div>   <div  ng-show="!mobileMenuOn" class="page-body" ui-view dir="{{dir}}" ng-show="dataState==\'loaded\'" style="min-height:{{viewPort.innerHeight-300+\'px\'}}"></div>  <bs-content-loader loaded="dataState==\'loaded\'"></bs-content-loader>   <bs-page-footer dir="{{dir}}" ng-show="!mobileMenuOn"></bs-page-footer> '), 
-        $templateCache.put("/portal/templates/ads/homeFeaturedItems.html?0.711", '<div class="featured-items subframe"> <div class="featured-item" ng-repeat="itemAd in itemAds" ng-hide="itemAd.hidden" ng-click="gotoLot()"> <div class="pic" ng-style="{\'background-image\':\'url(\'+itemAd.ad.imageUrl+\')\'}"></div> <div class="text"> <div class="house">{{itemAd.ad.house.details.name | langField }}</div> <div class="caption">{{itemAd.ad.caption | langField }}</div> </div> </div> </div> '), 
-        $templateCache.put("/portal/templates/ads/homeHouseAd.html?0.711", '<div class="house-promotion subframe"  ng-click="onClick()">  <img class="float pic" ng-src="{{houseAd.imageUrl}}">  <div class="float info"> <div class="title">{{houseAd.title | langField }}</div> <div class="text"> {{houseAd.text  | langField }}</div> </div>  <div class="clearfix"></div>  </div> '), 
-        $templateCache.put("/portal/templates/ads/homeAds.html?0.711", '<div class="home-promotions"> <div class="inner"> <home-house-ad class="float" ng-if="adsInfoLoaded"></home-house-ad> <home-mobile-promotion class="opposite float"></home-mobile-promotion> <div class="clearfix"></div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/ads/homeMobilePromotion.html?0.711", '<div class="home-mobile-promotion frame" ng-click="showInstallPopup()">  <div class="float install-app-qr-code"></div>  <div class="float texts"> <div class="title"> {{\'home_mobile_app_title\'|i18n}} </div>  <div class="text"> {{\'home_mobile_app_text\'|i18n}} </div> </div>  <div class="clearfix"></div>  </div> '), 
-        $templateCache.put("/portal/templates/nudges/modal/housesAlertsModal.html?0.711", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>    <div class="action orange common-button"  ng-click="options.showRegisterForm()"> <div class="text">{{\'link_register\' | i18n}}</div></div>  '), 
-        $templateCache.put("/portal/templates/nudges/modal/nudgeModalPopup.html?0.711", '<div class="nudge-modal-popup" ng-class="nudgeType" bs-text-direction> <div class="content" ng-include src="(\'nudges/modal/\'+options.data.nudgeType+\'Modal\') | appTemplate" ng-class="nudgeType"> </div>  </div> '), 
-        $templateCache.put("/portal/templates/nudges/navbar/nudgeNavbarPopup.html?0.711", '<div class="nudge-navbar-popup" ng-show="isVisible" ng-class="nudgeType" ng-click="onClick()" bs-text-direction> <div class="close button">x</div> <div class="content" ng-if="isVisible" ng-include src="(\'nudges/navbar/\'+nudgeType+\'NavBar\') | appTemplate" ng-class="nudgeType">  </div>   </div> '), 
-        $templateCache.put("/portal/templates/nudges/navbar/housesAlertsNavBar.html?0.711", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>   <div class="action orange common-button"  ui-sref="app.alerts"> <div class="text">{{\'alerts_promotion_configure_command\' | i18n}}</div></div>  '), 
-        $templateCache.put("/portal/templates/nudges/scenes/installApp.html?0.711", '<div class="install-app-nudge scene" ng-controller="InstallAppNudgeController" bs-scroll-to-top> <div class="content container"> <div class="logo-icon"></div>  <div class="message default-align" ng-bind-html="\'app_install_nudge_message\' | i18n"></div> <br>  <div class="orange common-button center-block" ng-click="gotoStorePage()"> <div class="text">{{"app_install_nudge_download" | i18n }}</div> </div>  <div class="no-install" ng-click="continueOnBrowser()"> {{"app_install_nudge_continue" | i18n }} </div> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/auctions/results/houseSelection.html?0.711", '<div class="house-selection" > <div class="space hidden-sm"> </div> <h3 class="caption"> {{\'auctions_results_select_house\' | i18n}}</h3> <uib-dropdown  class="btn-group"  is-open="housesListOpen" ng-if="viewPort.pcMedia">  <div uib-dropdown-toggle type="button" class="default-align selected entry" > <div class="float"> <div ng-if="data.currentHouse"> <div class="float icon"  bs-cloudinary-bg="{{data.currentHouse.resources[\'mainPageLogo\']}}"  params="{size:\'60x15\'}"></div> <div class="float text">{{data.currentHouse.details.name | langField }}</div> <div class="clearfix"></div> </div> <div ng-if="!data.currentHouse">  <div class="text">{{"auctions_results_all_houses" | i18n }}</div> </div> </div> <div class="opposite float caret {{dir}}" ></div> <div class="clearfix"></div> </div>   <ul class="uib-dropdown-menu" role="menu">  <li ng-if="data.selectedHouseCode!=\'all\'" ng-click="showHouseAuctions(\'all\')"> <div class="default-align entry"> <div class="text">{{"auctions_results_all_houses" | i18n }}</div> </div> </li>  <li ng-repeat="house in houses" ng-click="showHouseAuctions(house.code)"> <div class="default-align entry"> <div class="float icon" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"  params="{size:\'60x15\'}"></div> <div class="float text">{{house.details.name | langField}}</div> <div class="clearfix"></div> </div>  </li> </ul> </uib-dropdown> <div ng-if="viewPort.mobileMedia" class="mobile-dropdown"> <select ng-model="data.selectedHouseCode" ng-change="onMobileDropDownChange()" bs-text-direction> <option value="all">{{"auctions_results_all_houses" | i18n }}</option> <option ng-repeat="house in houses" value="{{house.code}}"  ng-selected="house.code == data.selectedHouseCode">{{house.details.name | langField | trim:20 }}</option> </select> </div> <div class="short-separator"></div> </div> '), 
-        $templateCache.put("/portal/templates/auctions/results/auctionsResults.html?0.711", '<div ng-controller="AuctionsResultsController" class="auctions-results scene"> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"auction_results_title" | i18n }}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content"> <div  ng-include src="\'auctions/results/houseSelection\' | appTemplate"></div>  <bs-pagination	pages-data="pagesData"	href-pages="true"> </bs-pagination> <div class="clearfix"></div> <bs-content-loader loaded="!displayeAuctionsLoader"></bs-content-loader> <div class="auctions-lists-group" ng-show="!displayeAuctionsLoader">  <bs-auctions-list  auctions="pageAuctions"  view="\'recent\'"> </bs-auctions-list> </div>  <bs-pagination	pages-data="pagesData"	href-pages="true" ng-show="!displayeAuctionsLoader"> </bs-pagination> </div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogItemWide.html?0.711", ' <div >  <bs-lot-image lot="lot" size="220x220" as-bg="true" image-mode="\'fit\'">  </bs-lot-image> <meta itemprop="image" content="{{lot | lotImage:\'220x220\'}}"></meta>  <div ng-if="lot.expireTime"> <bs-lot-expiration lot="lot" ></bs-lot-expiration> </div>  <bs-lot-badge lot="lot" ></bs-lot-badge>     <div class="item-bottom-part">  <div class="above-separator"> <span class="lot-number" itemprop="sku"> {{"lot_number" | i18n:{number:lot.itemIndex} }} </span> <span itemprop="name" ng-bind-html="lot | lotText:60 "></span>  </div>  <div class="short-separator"></div>  <div class="below-separator" bs-text-direction> <bs-lot-price lot="lot" max-width="\'125\'" single-row="true" break-on-row="false"></bs-lot-price>  <div class="orange common-button"> <div class="text"> {{"catalog_view_lot" | i18n }} </div> </div> </div>  </div>  </div>    '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogMain.html?0.711", '<div ng-controller="CatalogListController" > <div class="catalog scene"> <div class="content col-xs-12" > <bs-auction-info ng-if="data.auction" auction="data.auction" ></bs-auction-info> <div class="catalog-actions viewport_{{viewPort.viewPortWidth}}" bs-text-direction ng-class="{\'no-categories\':filterData.categories.length==0}" > <bs-catalog-list-filter ng-if="data.auction && data.items"></bs-catalog-list-filter> <bs-auction-start-alert-button  auction="data.auction" ng-if="data.auction && viewPort.mobileMedia"></bs-auction-start-alert-button> </div>  <div ng-if="pagesData.pageItems.length>0">  <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'upper\'" href-pages="true" ></bs-catalog-list-pagination> <div  bs-scroll-on watched-value="scrollToPagination" offset="-200"></div> <div ng-if="!displayeItemsLoader"  ng-include src="\'auctions/catalogs/list/catalogItems\' | appTemplate"  ></div> <bs-content-loader loaded="!displayeItemsLoader"></bs-content-loader> <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'lower\'" href-pages="true"></bs-catalog-list-pagination>  <bs-house-regisration-promotion ng-show="!displayeItemsLoader" auction="data.auction" class="promotion-bottom"> </bs-house-regisration-promotion>  </div> <bs-content-loader loaded="pagesData.pageItems!=null"></bs-content-loader>  </div>  <div ng-if="isIe8" ie8-warning></div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogItems.html?0.711", '<div class="list" ng-class="{\'mobile-list\':!viewPort.isWideDevice}">  <div class="row">  <div class="item" itemscope itemtype="http://schema.org/Product" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="{\'pc-item\':viewPort.isWideDevice,\'mobile-item\':!viewPort.isWideDevice}" bs-scroll-on="lot.id == scrollTo" offset="-200"  > <a  itemprop="url"  class="link" ng-href="#!/lotPage/source/catalog/auction/{{lot.auctionId}}/lot/{{lot.id}}" > <div  ng-if="viewPort.isWideDevice"     ng-include src="\'auctions/catalogs/list/catalogItemWide\' | appTemplate" class="frame"> </div> <div  ng-if="!viewPort.isWideDevice" ng-include src="\'auctions/catalogs/list/catalogItemNarrow\' | appTemplate"> </div> </a> <bs-lot-favorite-flag lot="lot"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="lot"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogItemNarrow.html?0.711", '<div class="lot-row">  <bs-lot-badge lot="lot"  ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"></bs-lot-badge>  <bs-lot-image lot="lot" size="260x176" as-bg="true" image-mode="\'fit\'" class="lot-pic"></bs-lot-image>  <div class="info" ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"> <div class="item-index"> {{"lot_number" | i18n:{number:lot.itemIndex} }}</div>  <div class="lot-text" ng-bind-html="lot | lotText:100 "></div>   <bs-lot-price lot="lot"  single-row="true" break-on-row="true"></bs-lot-price>    </div>  </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogPagination.html?0.711", ' <div class="catalog-pagination text-center" ng-class="[currentLang, positionInPage, {\'lifted\':data.lifted}]" bs-text-direction  >  <bs-pagination  ng-if="data.availableWidth" pages-data="pagesData"  href-pages="hrefPages" on-current-page-change="onCurrentPageChange()"  available-width="data.availableWidth"  >  </bs-pagination>   </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogFilterPanel.html?0.711", '<div class="filter-panel" >  <div class="float section" > <form name=\'searchForm\' novalidate bs-form  bs-submit="search()" class="search-form"> <bs-form-group field-name="phrase" label="catalog_search_placeholder"> <input  bs-place-holder  name="phrase"  class="form-control"  ng-model="filterData.phrase"  ng-keyup="searchAfterDelay()"  ng-focus="onInputFocus()" /> </bs-form-group> </form> <div class="result" >{{"catalog_results_count" | i18n:{count:pagesData.visibleItems.length} }}</div> <div class="sold-state" ng-if="data.auction.state==\'ENDED\'"> <select  ng-model="filterData.soldState" ng-change="applySoldStateFilter()"  ng-options="(\'catalog_sold_state_\'+ soldState) | i18n for soldState  in [\'all\',\'sold\',\'unsold\']"> </select> </div> </div>  <div class="opposite float section"> <div class="categories" ng-class="{invisible:filterData.categories.length==0}"> <select  ng-model="filterData.category" ng-change="filterByCategory()" ng-options="category.value as category.name for category in filterData.categories"> </select> </div> </div>    <div class="clearfix"></div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/search/searchItems.html?0.711", ' <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row">  <div class="item" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia}" bs-log-click="search-lot-{{lot.auction.house.code}}-{{lot.auction.date | date :\'dd.MM.yy\'}}-{{lot.itemIndex}}" ng-click="gotoLot(lot)">  <div class="link"  bs-scroll-on="lot.id == scrollTo" > <div ng-if="viewPort.pcMedia"     ng-include src="\'auctions/catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'auctions/catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div>    </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/search/searchMain.html?0.711", '<div ng-controller="SearchController" > <div class="catalog search scene"> <div class="content col-xs-12" >   <form name=\'searchForm\' novalidate bs-form  bs-submit="doSearch()" class="float global-search-form" bs-text-direction bs-enter-key-action="doSearch()"> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" debug="true" ng-model="data.token"  /> </bs-form-group> <div class="button noselect" ng-click="doSearch()"> <div class="icon"> </div> </div> <div class="clearfix"></div> </form>  <div class="opposite float home btn-link" ui-sref="app.home">{{"home_back_to" | i18n }}</div>  <div class="clearfix"></div>  <div class="result" ng-class="{invisible:!data.searchedToken}" >  <span ng-if="searching">{{"search_searching" | i18n}}</span> <span ng-if="!searching"> {{ (pagesData.itemsCount ? "search_results" : "search_no_results") | i18n:{count:pagesData.itemsCount, token:data.searchedToken}  }} </span>  </div>  <div class="time-form"> <div class="radio" ng-click="data.searchTime=\'FUTURE\'"> <label> <input type="radio"  ng-model="data.searchTime" value="FUTURE"> {{"search_future" | i18n }} </label> </div> <div clas="clearfix"></div> <div class="radio" ng-click="data.searchTime=\'PAST\'"> <label> <input type="radio"   ng-model="data.searchTime" value="PAST"> {{"search_past" | i18n }} </label> </div> </div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="currentLang==\'ru\' ? \'\' : \'upper\'" on-current-page-change="onPageChange()" ></bs-catalog-list-pagination> <div bs-scroll-on watched-value="scrollToPagination" offset="-200"></div> <div ng-if="loadState==\'loaded\'"> <br>  <div  ng-include src="\'auctions/catalogs/search/searchItems\' | appTemplate"  ></div>  </div>   <div ng-if="loadState==\'loading\'"> <bs-content-loader ></bs-content-loader> </div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="\'lower\'" on-current-page-change="onPageChange()"></bs-catalog-list-pagination>   </div> </div> </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/lotPageMain.html?0.711", '<div ng-controller="LotPageController" > <div class="catalog  scene lotPage">  <div class="content col-xs-12" >   <div ng-if="data.item "> <div ng-include src="\'auctions/catalogs/lotPage/pc/lotPagePc\' | appTemplate" ng-if="viewPort.pcMedia"></div> <div ng-include src="\'auctions/catalogs/lotPage/mobile/lotPageMobile\' | appTemplate" ng-if="viewPort.mobileMedia"></div> </div> <bs-content-loader loaded="data.item!=null"></bs-content-loader> <div class="clearfix"></div>  </div> </div> </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/pc/lotPagePc.html?0.711", '<div  itemscope itemtype="http://schema.org/Product"> <bs-auction-info auction="data.auction" ng-if="data.auction" ></bs-auction-info>   <table> <tr> <td class="info-td"> <div class="lot-number" itemprop="sku"> {{"lot_number" | i18n:{number:data.item.itemIndex} }} </div> <div class="upper-title" dir="{{textDirection}}"> <h2 class="lot-name"  itemprop="name" ng-bind-html="data.lotTitle" > </h2> <div ng-if="showMore" dir="{{textDirection}}" class="btn btn-link more-link" ng-click="scrollToDescription()">  <span bs-text-direction> {{"more" | i18n }}... </span> </div> </div>  </td>   <td class="float actions-td"> <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </td> </tr> <tr>  <td class="info-td">  <bs-lot-page-images lot="data.item"></bs-lot-page-images> </td> <td class="float actions-td"> <bs-lot-bid-form lot="data.item"></bs-lot-bid-form> <bs-lot-share-buttons class="opposite float" lot="data.item" text="data.lotTitle" ></bs-lot-share-buttons> <div class="clearfix"></div>  <div ng-include src="\'auctions/catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>   <div class="clearfix"></div> </td>  </tr>  </table>   <div class="lot-description-section" itemprop="description" ng-if="data.lotDesc" bs-scroll-on watched-value="scrollToDescriptionFlag"> <h4 class="description-text" ng-bind-html="data.lotDesc" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}"></h4> </div>  <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/pc/lotZoomModal.html?0.711", '<div class="zoom-image noselect"> <div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button>  <bs-lot-page-zoom lot="data.item" initial-image-ind="data.imageInd"> </bs-lot-page-zoom> </div>  </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/mobile/lotZoomSubScene.html?0.711", '<div class="lot-sub-scene zoom" ng-style="{height:viewPort.clientHeight-150}" bs-scroll-to-top>  <a class="btn btn-link back" ui-sref="^">{{"lot_back" | i18n : {number:data.item.itemIndex} }}</a> <bs-lot-page-zoom lot="data.item"> </bs-lot-page-zoom>  </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/mobile/lotPageMobile.html?0.711", '<div> <div ng-show="\'app.lotPage\' | isState"> <bs-auction-info auction="data.auction" ng-if="$stateParams.source==\'search\' && data.auction" ></bs-auction-info>  <div class="first-row"> <bs-lot-page-navigation lot="data.item" class="opposite float"></bs-lot-page-navigation> <div class="float flags" ng-class="source" bs-text-direction> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div> <div class="second-row">  <div class="float lot-number"> {{"lot_number" | i18n:{number:data.item.itemIndex} }} </div>  <div class="clearfix"></div> </div> <div class="upper-title"> <div class="lot-name" ng-bind-html="data.lotTitle"  dir="{{textDirection}}"> </div> <div ng-if="showMore" bs-text-direction class="btn btn-link more-link" ng-click="scrollToDescription()"> {{"more" | i18n }}... </div> </div>  <bs-lot-page-images lot="data.item"></bs-lot-page-images>  <bs-lot-share-buttons lot="data.item" text="data.lotTitle" ></bs-lot-share-buttons>  <bs-lot-bid-form lot="data.item" ></bs-lot-bid-form>    <div class="lot-description-section" ng-if="data.lotDesc" bs-scroll-on watched-value="scrollToDescriptionFlag" dir="{{textDirection}}"> <div class="description-text" ng-bind-html="data.lotDesc"></div> </div>  <div ng-include src="\'auctions/catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>  <div class="clearfix"></div> <br><br> <div class="float">  <bs-lot-page-navigation lot="data.item"  ></bs-lot-page-navigation> </div>  <div class="clearfix"></div> </div>   <div ui-view > </div>   </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/confirmation/confirmBid.html?0.711", '<div class="confirm-bid" ng-controller="ConfirmBidController"  ng-init="init()" > <table> <tr> <td class="pic-columm" rowspan="{{viewPort.mobileMedia?1:3}}"> <bs-lot-image lot="lot" size="120x120" image-ind="0"  image-mode="\'fit\'"> </bs-lot-image> </td> <td class="caption"> {{"confirm_bid_lot" | i18n}}: </td> <td class="value"> {{lot.itemIndex}} </td>  </tr>  <tr> <td class="caption"> {{"confirm_bid_desc" | i18n}}: </td> <td class="value" ng-bind-html="lot | lotText:60" colspan="{{viewPort.mobileMedia?2:1}}"> </td> </tr> <tr> <td class="caption"> {{"confirm_bid_price" | i18n}}: </td> <td class="price value"> {{bidPrice | sumInCurrency:lot.auction.catalogInfo.currency}} </td> </tr>  <tr class="send-alert" ng-show="alertEnabled"> <td ng-if="!viewPort.mobileMedia"></td> <td colspan="{{viewPort.mobileMedia?3:2}}" > <table> <tr> <td> <input  type="checkbox" class="float" name="over18" ng-model="sendAlert" required/> <bs-checkbox class="float"  bs-model="sendAlert"></bs-checkbox> </td> <td valign="middle">  {{"confirm_bid_send_alert" | i18n}} </td>  </table>  </td>  </tr> </table>  <div class="clearFix"></div>  <div class="terms-message"> <bs-linkable-text options="{ textKey:\'confirm_bid_terms_message\', textParams:{houseName:(lot.auction.house.details.name | langField)}, onLinkClick:showTerms  }" > </bs-linkable-text> </div>     </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/images/lotPageImages.html?0.711", '<div class="lot-images-section"> <div class="big-image zoom-in-cursor" > <bs-lot-image lot="lot" size="{{mainImagewidth}}x" image-ind="0" ng-click="zoomImage(lot, 0)" ></bs-lot-image> </div>   <div class="thumbs" ng-if="lot.imagesList.length>1"> <div ng-repeat = "imageName in lot.imagesList" class="float thumb zoom-in-cursor" ng-click="zoomImage(lot, $index)" ng-if="!$first"> <bs-lot-image   lot="lot" size="x80" image-ind="$index"> </bs-lot-image> </div> <div class="clearfix"></div> </div>  </div>    '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/images/lotPageZoom.html?0.711", '<div> <div class="lot-page-zoom-image-navigation" ng-if="lot.imagesList.length>1" dir="ltr"> <div class="prev link " ng-click="prevImage()"><div class="text">◀</div></div> <div class="thumbs" bs-width-limit="{lessThen:\'screenWidth - 150\'}"> <div ng-repeat = "imageName in lot.imagesList"  class="thumb"  thumb-ind="$index" ng-click="setZoomImage($index)" ng-class="{selected:selectedImageInd == $index}"> <bs-lot-image   lot="lot" size="x50" image-ind="$index"> </bs-lot-image> </div> </div> <div class="prev link noselect" ng-click="nextImage()"><div class="text">▶</div></div> <div class="clearfix"></div> </div>  <div class="big-image" ng-class="cursorZoomClass"> <bs-lot-image  lot="lot" image-ind="selectedImageInd" watchable="true" enable-magnifier="{{options.enableMagnifier}}"  size="{{options.size}}" move-in-frame="options.moveInFrame"  as-bg="options.asBg"  image-mode="options.imageMode" debug="true"   loaded-image-info="loadedImageInfo"> </bs-lot-image> </div>   </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/increments.html?0.711", '<div class="increments-table">  <table class="table table-striped table-bordered table-hover" dir="{{dir}}"> <tr> <th class="default-align">{{"increment_price" | i18n}}</th> <th class="default-align">{{"increment_step" | i18n}}</th> </tr> <tr ng-repeat="step in options.data.steps"> <td class="default-align">{{step.price | sumInCurrency:options.data.currency}}</th> <td class="default-align">{{step.increment | sumInCurrency:options.data.currency}}</th> </tr> </table>  </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/lotPageInfoLinks.html?0.711", '<div bs-text-direction> <div class="info-link default-align" ng-click="toggleFavorite()"> <span ng-if="!data.item.isFavorite"> <span class="plus">+</span>&nbsp;<span class="btn btn-link">{{"lot_page_add_to_favorites" | i18n }}</span> </span>  <span ng-if="data.item.isFavorite" class="btn btn-link">{{"lot_page_remove_from_favorites" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:favoriteToastMessage,off:!favoriteToastMessage}">{{favoriteToastMessage | i18n}}</span> </div>  <div class="info-link default-align" ng-if="itemAlertsEnabled" ng-click="toggleItemAlert()"> <span ng-if="!data.item.itemAlertOn"> <span class="plus">+</span>&nbsp;<span class="btn btn-link">{{"item_alert_add" | i18n }}</span> </span> <span ng-if="data.item.itemAlertOn" class="btn btn-link">{{"item_alert_remove" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:itemAlertToastMessage,off:!itemAlertToastMessage}">{{itemAlertToastMessage | i18n}}</span> </div>  <div class="btn btn-link info-link default-align" ng-click="openAuctionHouseTerms()" > {{"house_terms" | i18n:{house:(data.auction.house.details.name | langField)} }}</div>  <div class="btn btn-link info-link default-align animation" ng-click="showIncrements()" > {{"house_increments" | i18n }}</div>  <div class="info-link default-align" ng-click="showInquiryForm()"  > <span class="btn btn-link">  {{"lot_page_inquiry" | i18n }} </span>  <span class="fade-in-out fade toast" ng-animate  ng-class="{on:showInquiryToast,off:!showInquiryToast}">{{"lot_page_inquiry_sent" | i18n}}</span> </div> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/inquiry/inquiryForm.html?0.711", '<div class="inquiry-form" ng-controller="InquiryFormController"  ng-init="init()">  <p> <label>{{"inquiry_form_to" | i18n }}:&nbsp;</label>{{"inquiry_form_house" | i18n:{house:options.data.house} }} </p>  <br> <p> <label>{{"inquiry_form_subject" | i18n }}:&nbsp;</label><span ng-bind-html="inquiryData.subject"></span> </p>  <br>  <form name=\'inquiryForm\'  novalidate bs-form  bs-submit="sendInquiry()"> <bs-form-group field-name="content" label="inquiry_form_content"> <label></label> <bs-form-validation-message  ></bs-form-validation-message> <textarea  rows="7"  class="form-control"  required name="content" ng-model="inquiryData.content"> </textarea>  </bs-form-group>  </form>     </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/navigation/lotPageNavLink.html?0.711", '<div class="float">  <div ng-if="name==\'previous\'"> <div class="float arrow {{lang}}" ng-class="{\'point-left\':direction==\'ltr\', \'point-right\':direction==\'rtl\'}"></div> <div class="float text" ng-if="showText">&nbsp; {{"catalog_nav_previous" | i18n  }}</div> </div>  <div ng-if="name==\'next\'"> <div class="float text" ng-if="showText">{{"catalog_nav_next" | i18n  }}&nbsp;</div> <div class="float arrow {{lang}}" ng-class="{\'point-right\':direction==\'ltr\', \'point-left\':direction==\'rtl\'}"></div> </div>    </div>     '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/navigation/lotPageNavigation.html?0.711", '<div class="opposite float lot-page-navigation" bs-text-direction >  <div ng-switch="source"> <div ng-switch-when="catalog"> <a class="float btn " ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_catalog" | i18n  }} </a>  <a  ng-if="previousLotId" class="float btn btn-link" ng-href="#!/lotPage/source/catalog/auction/{{lot.auctionId}}/lot/{{previousLotId}}" > <div> <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  </a> <div ng-if="!previousLotId" class="disabled btn float" > <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  <a ng-if="nextLotId" class="float btn btn-link"  ng-href="#!/lotPage/source/catalog/auction/{{lot.auctionId}}/lot/{{nextLotId}}" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </a>  <div ng-if="!nextLotId" class="disabled btn float" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </div>  <div class="clearfix"></div> </div>  <div ng-switch-when="account">  <div class="float btn btn-link" ui-sref="app.myAccount({houseId:lot.auction.house.id})"> {{"my_account_back_to" | i18n  }} </div>  </div>  <div ng-switch-when="search">  <a class="float btn btn-link" ui-sref="app.search"> {{"search_back_to" | i18n  }} </a> <a class="float btn btn-link"   ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </div>  <div ng-switch-when="favorites">  <a class="float btn " ui-sref="app.favorites"> {{"favorites_back_to" | i18n  }} </a> <a class="float btn "   ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </div>   </div> </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotImage.html?0.711", '<div class="lot-image" ng-class="{\'narrow-height\':narrowHeight}"> <div class="state-info" ng-if="stateVisible" bs-text-direction>{{stateInfo | i18n}}</div> <img ng-if="!enableMagnifier" ng-src="{{loadedImageSrc}}"  ng-show="loadedImageSrc && !stateVisible">  <div  ng-if="enableMagnifier && loadedImageSrc && !stateVisible"  data-ng-magnify  image-src="{{loadedImageSrc}}"  data-glass-width="250" data-glass-height="250" ></div> {{scope.stateVisible}}  </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotExpiration.html?0.711", '<div class="lot-expiration" ng-class="expirationState" > {{text}} </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotPrice.html?0.711", '<div class="lot-price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">  <div class="lot-price-row" ng-if="showStartPrice"> <div class="lot-price-label start-price">{{"lot_start_price" | i18n}}:</div> <div class="lot-price-value" bs-auto-font-size="{grow:false,minSize:7,maxWidth:maxWidth}" ng-bind-html="startPrice"></div> <div class="clearfix" ng-if="breakOnRow"></div> </div> <div class="lot-price-row" ng-if="showNoPrice"> <div class="lot-price-label no-price" itemprop="price">{{"lot_no_price" | i18n}}</div> <div class="clearfix" ng-if="breakOnRow"></div>  </div> <div class="lot-price-row" ng-if="showEstimatedPrice"> <div class="lot-price-label estimated-price"  >{{"lot_estimated_price" | i18n}}:</div> <div class="lot-price-value" dir="ltr" bs-auto-font-size="{grow:false,minSize:7,maxWidth:maxWidth}" max-width="maxWidth" ><div ng-bind-html="estimatedPrice"></div></div> <div class="clearfix" ng-if="breakOnRow"></div> </div> </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/registrationPromotion.html?0.711", '<div class="registration-promotion"> <div ng-if="auction "> <div ng-if="auction.state==\'ENDED\'"> <span class="text" > {{\'promotion_auction_ended\' | i18n}}</span> </div> <div ng-if="auction.state!=\'ENDED\'"> <div ng-if="auction.catalogOnly">  <span class="text" > {{\'promotion_catalog_only\' | i18n:houseParams}}</span> </div>  <div ng-if="!auction.catalogOnly">  <div ng-if="auction.state==\'RUNNING\'" > <div class="float button" ng-click="openAuctionSite()"> <div class="text">{{text(\'promotion_live_auction\')}}</div> </div> <div class="clearfix"></div>  </div>  <div ng-if="auction.state==\'READY\'" ng-switch="userState"> <div ng-switch-when="NOT_LOGGED_IN"> {{text(\'promotion_not_logged_in_auction\')}}&nbsp-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'link_login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'link_register\' | i18n}}</span></span> <span class="clearfix"></span> </span>  </div> <div ng-switch-when="NOT_REGISTERED"> <span class="float text"> {{text(\'promotion_not_registered_to_auction\')}}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'promotion_register_to_house\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-switch-when="PENDING"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="INCOMPLETE_PROFILE"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="APPROVED"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div> </div>  <div ng-if="!auction && house && !house.site.down">  <div ng-switch="userState"> <div ng-switch-when="NOT_LOGGED_IN"> {{\'promotion_not_logged_in_house\' | i18n:{house:(house.details.name | langField)} }}&nbsp-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'link_login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'link_register\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div> <div ng-switch-when="NOT_REGISTERED"> <span class="float text"> {{\'promotion_not_registered_to_house\' | i18n }}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'promotion_register_to_house\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-switch-when="PENDING"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="INCOMPLETE_PROFILE"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="APPROVED"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div>    '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/auctionInfo.html?0.711", '<div class="auction-info center-block" > <div class="float auction-texts"> <h3 class="auction-name" id="auctionInfo" ui-sref="app.catalog({auctionId:auction.id})">  <span ng-if="auction.number"> {{"auction_label_number_public" | i18n:{number:auction.number} }} <span ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span> - </span>  <span> {{auction.name | langField}} </span> </h3> <h2 class="house-name"> <a ng-href="#!/houses/{{auction.house.code}}" class="btn-link" ng-if="auction.house.orderInd">{{ "catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</a> <span ng-if="!auction.house.orderInd">{{ "catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</span>  </h2>   <div class="time-and-location"> <span>{{auction | auctionTime}}</span> <span ng-if="auction.address | langField"> , {{auction.address | langField}} </span>  </div> <div ng-if="auction.state!=\'ENDED\'"> <span class="terms btn-link" ng-click="showHouseTerms()">{{"house_terms_short" | i18n}}</span>  &nbsp;&nbsp;&nbsp;&nbsp; <span ng-if="auction.state!=\'ENDED\' && auction.displayHours[currentLang]" class="display-hours btn-link" ng-click="showDisplayHours()">{{"catalog_display_hours" | i18n}}</span> </div>    </div> <div class="opposite float logo" bs-cloudinary-bg="{{(auction.house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div> <div class="clearfix"></div>  <div class="long-details" ng-if="auction.longDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="\'<BR>\'+(auction.longDetails | langField)"> </div>   <bs-house-regisration-promotion auction="auction" > </bs-house-regisration-promotion> <hr>  <bs-auction-structured-data auction="auction"></bs-auction-structured-data>   </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotBadge.html?0.711", '<div class="lot-badge" ng-class="badgeType" > <div class="text" ng-class="{\'long-text\':longText}" ng-if="visible" ng-bind-html="text | capitalize"  ></div> </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotFavoriteFlag.html?0.711", '<div  class="favorite-flag flag-button"  ng-class="{on:lot.isFavorite,off:!lot.isFavorite,\'just-changed\':justChanged}"  ng-click="toggleFavorite()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()" > <!--  <div class="tooltip-catcher"  ng-if="!justChanged" uib-tooltip="{{(lot.isFavorite ? \'lot_page_remove_from_favorites\' : \'lot_page_add_to_favorites\' ) | i18n}}" tooltip-placement="top" >&nbsp;</div> -->  </div> '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/shareButtons.html?0.711", '  <div class="share-buttons" > <div ng-repeat="button in [\'fb\',\'twitter\',\'google\',\'pinterest\',\'email\']" class="float button" ng-class="button"  ng-click="share(button)" title="{{buttonName(button)}}"></div> <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/catalogs/elements/bidForm.html?0.711", '  <div class="bid-form" bs-text-direction > <div ng-if="scrollToForm" bs-scroll-on="scrollToForm" offset="-200">&nbsp;</div>  <div class="bid-info" ng-if="bidLabel" > <table> <tr> <td class=\'bid-label\'>{{bidLabel.text}}:</td> <td class=\'bid-label-space\'></td> <td class=\'bid-price\'>{{bidLabel.price}}</td> </tr> <tr ng-if="mode==\'existing\'" > <td></td> <td class=\'bid-label-space\'></td> <td> <div class="links"> <div class="float btn-link" ng-click="setEditMode()">{{"dialogs_edit" | i18n}}</div> <div class="float bid-link-space"></div> <bs-async-button button-class="\'left btn-link\'" action-fn="removeBidIfConfirmed()" label="\'dialogs_remove\'" ></bs-async-button> <div class="clearfix"></div> </div> </td> </tr> </table> </div>  <div class="edit-mode" ng-if="mode==\'edit\' || mode==\'new\'"> <label> {{"lot_leave_bid" | i18n }}</label> <form> <input dir="ltr" ng-model="model.bidPrice" class="float form-control" type="number" ng-blur="saveRecentBidInputValue()" bs-focus-on="focusNow"> <div class="float currency">{{lot.auction.catalogInfo.currency}}	</div>  <bs-async-button button-class="\'float orange common-button \'+currentLang" action-fn="tryToPlaceBid()" bs-current-lang label="\'lot_submit_bid\'" ></bs-async-button>  <div class="clearfix"></div> <div ng-if="mode==\'edit\'" class="cancel btn btn-link lowercase" ng-click="cancelEdit()">{{"dialogs_cancel" | i18n}}</div> </form> <div class="clearfix"></div> </div>    <div class="bid-info disabled-mode" ng-if="mode==\'disabled\'"> <label ng-bind-html="getDisabledMessage()"></label> </div>  <div class="bid-info ended-mode" ng-if="mode==\'ended\'"> <label ng-if="!lot.soldLotBid"> {{"lot_not_sold" | i18n }} </label> </div>  <div class="bid-info runnung-mode" ng-if="mode==\'running\'"> <label>{{"auction_running" | i18n }}</label> <div class="center-block common-button live darkBlue" ng-click="openAuctionSite()"> <div class="text"> {{"home_auction_enter" | i18n }} </div> </div> </div>  <bs-lot-price lot="lot"  single-row="false" break-on-row="true"></bs-lot-price>  <div class="past-lot" ng-if="mode==\'ended\'"> <bs-linkable-text options="{ textKey:\'lot_past_info\', textParams:{house:(lot.auction.house.details.name | langField), date:(lot.auction.date | date:\'dd/MM/yyyy\')}, onLinkClick:gotoHousePage  }" > </bs-linkable-text> </div> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/home/homeMain.html?0.711", '<div ng-controller="HomeController"> <div class="home scene"> <div class="upper-part"  ng-class="[screenHeightClass]"> <bs-houses-carousel ></bs-houses-carousel>  <div class="overlay" >  <div class="message" > <div class="logo-icon" bs-check-bidmood></div>  <h1  ng-bind-html="upperMessage"></h1>  <h4 class="features with-links" ng-if="featuresAsLinks" >  <a href="#!/help/search"> {{\'home_upper_feature_search\' | i18n}}</a> <span class="bullet"></span> <a href="#!/help/live">{{\'home_upper_feature_live\' | i18n}}</a> <span class="bullet"></span> <a href="#!/help/bids">{{\'home_upper_feature_bid\' | i18n}}</a> </h4>  <h4 class="features" ng-if="!featuresAsLinks" >  {{\'home_upper_feature_search\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_live\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_bid\' | i18n}} </h4> </div>  <home-ads ng-if="viewPort.pcMedia"></home-ads>  <div class="clearfix"></div>  </div>  </div>  <div class="content" ng-class="[screenHeightClass]">  <bs-content-loader loaded="data.auctions"></bs-content-loader>  <div ng-if="data.auctions" > <form name=\'searchForm\' novalidate bs-form  bs-submit="gotoSearch()" class="global-search-form" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" ng-model="data.searchToken" bs-enter-key-action="gotoSearch()"/> </bs-form-group> <div class="button" ng-click="gotoSearch()"></div> <div class="clearfix"></div> </form>  <div bs-scroll-on="scrollToAuctions" watched-value="scrollToAuctions" offset="auctionScrollOffset"> </div>  <bs-auctions-lists-group  auctions-data="data"  show-region-selection="!bidmoodEnv"  future-house-name-as-link="true"  minimized-view="minimizedView"  ng-class="screenHeightClass"  >  </bs-auctions-lists-group>   <div ng-if="data.auctions.length"> <a g-style="{display:data.auctions.length ? \'block\' : \'none\'}" href="#!/results/all/1"  class="results orange common-button col-lg-4 col-xs-10" bs-check-bidmood> <div class="text"> {{\'home_auctions_results\' | i18n}} </div>  </a> </div>    </div> </div>  </div> </div>   '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionsListsGroup.html?0.711", '<div class="auctions-lists-group">  <div class="title" >  <div class="space hidden-xs" ng-if="data.nextAuctions.length && showRegionSelection"> </div> <h3 class="caption" ng-if="data.nextAuctions.length"> {{\'auctions_list_next\' | i18n}}</h3> <div uib-dropdown class="region-selection btn-group" ng-class="currentLang"  is-open="status.isopen" ng-if="showRegionSelection" > <div type="button" class="default-align selected entry" uib-dropdown-toggle > <div class="float icon {{currentRegion | lowercase}}"></div> <div class="float text">{{("region_"+currentRegion) | i18n }}</div> <div class="opposite float caret {{dir}}" ></div> <div class="clearfix"></div> </div> <ul class="uib-dropdown-menu" role="menu"> <li ng-repeat="region in regions" ng-if="region!=currentRegion"> <a class="default-align entry" ng-href="{{regionLink(region)}}" ng-click="onRegionClick(region)"> <div class="float icon {{region | lowercase}}"></div> <div class="float text">{{("region_"+region) | i18n}}</div> <div class="clearfix"></div> </a>  </li> </ul>  </div> </div>  <div ng-if="nextAuctionsVisible">  <div class="short-separator"></div> <bs-auctions-list auctions="data.nextAuctions" view="\'next\'" ></bs-auctions-list> </div>   <div ng-if="futureAuctionsButtonVisible"> <button bs-check-bidmood class="future orange common-button col-lg-4 col-xs-10" ng-click="showFutureAuctions()"> <div class="text">{{\'auctions_list_show_future\' | i18n}}</div> </button> </div>   <div ng-if="futureAuctionsVisible" bs-scroll-on watched-value="scrollToFutureAuctions" debug-key="future">  <div class="title"> <h3 class="caption">{{\'auctions_list_future\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.futureAuctions" house-name-as-link="futureHouseNameAsLink" view="\'future\'" ></bs-auctions-list> </div>   <div ng-if="recentAuctionsVisible" > <div class="title"> <h3 class="caption">{{(showAllPastAuctions ? \'auctions_list_past\' : \'auctions_list_recent\') | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.recentAuctions" view="\'recent\'"  ></bs-auctions-list> </div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionsList.html?0.711", '<div class="list" ng-class="[screenView,view]">  <div class="row {{screenView}}" bs-text-direction > <div class="item col-md-3 col-xs-12"  ng-repeat="auction in auctions" ng-click="onAuctionClick(auction)" bs-log-click="auction-{{auction.house.code}}-{{ (auction.date | date :\'dd.MM.yy\') }}", ng-animate ng-class="{clickable:isAuctionClickable(auction)}" bs-scroll-on="auction.id == scrollTo" >  <div  ng-if="screenView==\'wide\'"     ng-include src="\'auctions/lists/auctionListItemWide\' | appTemplate" class="frame"> </div> <div  ng-if="screenView==\'narrow\'"     ng-include src="\'auctions/lists/auctionListItemNarrow\' | appTemplate" class="frame"> </div> </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionListItemNarrow.html?0.711", '<div class="frame viewport_{{viewPort.viewPortWidth}} " >  <!--  {{auction.hoursTillAuction}} -->  <auction-badge auction="auction" is-today="auction.date==today"></auction-badge>   <div class="float image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:imageSize} "> </div>  <div class="opposite float texts" >  <h2> {{auction.house.details.name | langField}}  </h2> <div class="number" ng-if="auction.number"> {{"auction_label_number" | i18n:{number:auction.number} }}&nbsp; <span class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span> </div>  <div class="time" > {{auction | auctionTime}}  </div>  <div class="name"> <div ng-bind-html="auction.name | langField"></div> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div>  <button class="float common-button"   ng-class="auctionButtonClass(auction)" ng-if="auction.state!=\'PENDING\'">  <div class="text"> {{auctionButtonText(auction) | i18n}} </div> </button>  <bs-auction-start-alert-button class="opposite float" auction="auction" ></bs-auction-start-alert-button>  <div ng-if="auction.state==\'PENDING\'" class="pending-label"  ng-if="view!=\'future\'" ng-class="{blink:auction.clickedRecently}"> <div class="text"> {{auctionButtonText(auction) | i18n}} </div> </div>   <div class="clearfix"></div>  </div>  <div class="clearfix"></div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionListItemWide.html?0.711", '<div class="frame" >  <!--  {{auction.hoursTillAuction}} -->   <div class="image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:imageSize} "> <auction-badge auction="auction" is-today="auction.date==today"></auction-badge> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button>   <div class="texts"> <h2> <a class="btn-link" ng-href="#!/houses/{{auction.house.code}}" ng-if="isAuctionHouseLink(auction)">{{auction.house.details.name | langField}}</a> <span ng-if="!isAuctionHouseLink(auction)">{{auction.house.details.name | langField}}</span> <span ng-if="auction.number">- {{"auction_label_number" | i18n:{number:auction.number} }}</span> </h2> <div class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </div>  <div class="time" minutes_till_start="{{auction.minutesUntilStart}}"> {{auction | auctionTime}} </div> <div class="short-separator"></div> <div class="name"> <div ng-bind-html="auction.name | langField"></div> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div> <bs-auction-structured-data auction="auction"></bs-auction-structured-data> </div>   <div class="center-block common-button " bs-check-bidmood  ng-class="auctionButtonClass(auction)" ng-if="view!=\'future\'"> <div class="text"> <a ng-if="isLinkbutton(auction)" ng-href="#!/catalog/auction/{{auction.id}}/1">{{auctionButtonText(auction) | i18n}}</a> <span  ng-if="!isLinkbutton(auction)" >{{auctionButtonText(auction) | i18n}}</span> </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionBadge.html?0.711", ' <div class="badge-frame" ng-show="shouldShow" > <div class="text">{{text}}</div> </div>      '), 
-        $templateCache.put("/portal/templates/userDetails/userDetailsMain.html?0.711", '<div ng-controller="UserDetailsController" class="userDetails scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"user_details_title" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container">  <h4>{{"user_details_message" | i18n}}</h4> <br>  <uib-accordion ng-if="currentUser" > <uib-accordion-group class="noselect" ng-repeat="section in sections" is-open="opened[section]"> <uib-accordion-heading> <div> <div class="section-name    col-sm-4  float">{{"user_details_"+section | i18n}}</div> <div class="section-summary col-sm-5 float">{{getSectionSummary(section)}}</div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[section]">{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content col-lg-6 col-md-7 col-sm-8 col-xs-12" ng-class="section"> <div  ng-include src="(\'userDetails/sections/\'+section +\'Section\') | appTemplate" ng-if="opened[section]"> </div> </div> </uib-accordion-group> </uib-accordion> </div>   </div> '), 
-        $templateCache.put("/portal/templates/userDetails/sections/nameSection.html?0.711", '<div class="name-section" >  <form name=\'nameUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'name\')">   <bs-form-group field-name="firstName" label="user_details_first_name"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="firstName" class="form-control" ng-model="data.user.firstName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/>  </bs-form-group>  <bs-form-group field-name="lastName" label="user_details_last_name"> <label  class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="lastName" class="form-control" ng-model="data.user.lastName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/> </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="nameUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'name\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/shippingSection.html?0.711", '<div class="shipping-section" >  <div class="form-group checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="data.userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> <div class="clearfix"></div> </div>   <form name=\'shippingUpdateForm\'  novalidate bs-form  bs-submit="updateShippingAddress()"  > <bs-user-details-address address="data.userDetails.shippingAddress" ng-show="!data.userDetails.shippingAddress.residenceIsShipping"></bs-user-details-address> <div class="buttons-row" > <bs-async-button  button-class="\'float orange common-button\'"  bs-form-controller="shippingUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'shipping\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form>       </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/companySection.html?0.711", '<div class="company-section" >  <form name=\'companyUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'company\')">   <bs-form-group field-name="company" label="user_details_company"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="data.user.company"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="companyUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'company\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/residenceSection.html?0.711", '<div class="residence-section" >  <form name=\'residenceUpdateForm\'  novalidate bs-form  bs-submit="updateResidenceAddress()">  <bs-user-details-address address="data.userDetails.residenceAddress" ></bs-user-details-address>  <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="residenceUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'residence\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div> </form>   </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/phoneSection.html?0.711", '<div class="phone-section" >  <form name=\'phoneUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'phone\')">   <bs-form-group field-name="phone" label="user_details_phone"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" name="phone" class="form-control" ng-model="data.user.phone" required ng-minlength="8" ng-pattern="bsValidationPatterns.phone"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="phoneUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'phone\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/emailSection.html?0.711", "<div> <bs-edit-email></bs-edit-email> </div> "), 
-        $templateCache.put("/portal/templates/userDetails/sections/passwordSection.html?0.711", '<div class="password-section" ng-controller="PasswordUpdateController"> <form name=\'passwordUpdateForm\'  novalidate bs-form  bs-submit="updatePassword()" >  <bs-form-group field-name="existingsPassword" label="user_details_existing_password"> <label class="float"></label> <bs-form-validation-message css-class="float" wrong="user_details_wrong_password"  ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="existingsPassword" class="form-control"  ng-model="data.existingPassword" required bs-validate="{wrong : \'!wrongPassword($value)\' }" bs-validate-watch="\'wrongPasswords\'"/>  </bs-form-group>  <bs-form-group field-name="newPassword" label="user_details_new_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" minlength="error_bad_password" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="newPassword" class="form-control" ng-model="data.newPassword" required ng-minlength="6"/>  </bs-form-group>  <bs-form-group field-name="passwordConfirm" label="user_details_confirm_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" match="error_password_mismatch" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password"  name="passwordConfirm" class="form-control"  ng-model="data.passwordConfirm"  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'data\'"/>  </bs-form-group>  <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="passwordUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="updateDone()">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/reusableElements/editEmail.html?0.711", '<div class="edit-email">   <div ng-show="stage==\'edit\'" > <label>{{"user_details_change_email" | i18n}}:</label> <form novalidate> <div class=form-group field-name="email" label="user_details_email"> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="data.email" ng-click="clearError()" /> </div>  <div class="form-error text-danger"> <div class="error-message blinkable" ng-bind-html="errorMessage | capitalize"></div> </div>  <div class="buttons-row"> <bs-async-button  button-class="\'float orange common-button\'"  action-fn="updateEmail()"  name="\'changeEmail\'" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="cancelEdit()">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form> </div> <div ng-show="stage==\'not_confirmed\'" > <div class="title">{{notConfirmedTitle | i18n}}.</div> <div class="line" ng-bind-html="\'email_not_confirmed_line_1\' | i18n:{email: getEmail()}"></div> <div class="line">{{"email_not_confirmed_line_2" | i18n}}</div>  <div class="links"> <div class="float"> <div class="btn-link" ng-click="sendEmailConfirmationAgain()" ng-class="{waiting:sendingConfirmationAgain}"> {{"email_not_confirmed_send_again" | i18n}} </div> </div>  <div class="opposite float btn-link" ng-click="stage=\'edit\'">{{"email_not_confirmed_change_email" | i18n}}</div>  <div class="clearfix"></div> <div class="float resent-message" ng-show="sentConfirmationAgain"> {{"email_not_confirmed_sent_another" | i18n }} </div> </div>  <div class="sent-message" ng-show="anotherSent"> {{"email_not_confirmed_sent_another" | i18n}}</div>  </div>  </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/reusableElements/address.html?0.711", '<div class="address" >  <div class="row">  <bs-form-group field-name="country" label="user_details_country" css-class="col-xs-12  float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  debug="true" css-class="float" minlength="error_mandatory" pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  debug="true" name="country" class="form-control" ng-model="address.country" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>   <div class="row">  <bs-form-group field-name="city" label="user_details_city" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"  pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  name="city" class="form-control" ng-model="address.city" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="address" label="user_details_address" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"></bs-form-validation-message> <div class="clearfix"></div> <input  name="address" class="form-control" ng-model="address.address" ng-minlength="2" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>    <div class="row">  <bs-form-group field-name="state" label="user_details_state" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="state" class="form-control" ng-model="address.state" ng-pattern="bsValidationPatterns.alpha" /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="zip" label="user_details_zip" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="zip" class="form-control" ng-model="address.zipCode"  /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/account/myAccount/myAccountMain.html?0.711", '<div ng-controller="MyAccountController" class="myAccount scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 xs-12"> <h1>{{titleKey | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <div class="col-lg-10 col-md-11 col-sm-12 xs-12 no-float"> <h4>{{messageKey | i18n}}</h4> <br> <uib-accordion ng-if="currentUser" > <uib-accordion-group  ng-repeat="house in houses" ng-if="(devMode || (!house.hidden && house.site.code!=\'demo\')) && !house.site.down" is-open="data.opened[house.id]">  <uib-accordion-heading > <div ng-class="{\'dev-only\':house.hidden || house.site.code==\'demo\'}"> <div class="float logo" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"  params="{size:\'60x22\'}"></div> <div class="house-name  float">{{house.details.name | langField | trim:20}}</div>  <div class="edit btn-link  opposite float opposite-align" ng-show="!opened[house.id]"> {{(data.opened[house.id] ? "dialogs_close" : viewKey) | i18n}} </div> <div class="clearfix"></div> </div> </uib-accordion-heading>  <div class="house-entry-content col-xs-12" ng-class="section" > <div ng-if="data.housesEntries[house.id]"> <bs-my-account-house-entry	items-type="itemsType" house-info="data.housesEntries[house.id]"></bs-my-account-house-entry> </div>  <div class="error" ng-if="error" ng-bind-html="error"></div> <bs-content-loader loaded="data.housesEntries[house.id] || error"></bs-content-loader> </div> </uib-accordion-group> </uib-accordion> </div>  </div>   </div> '), 
-        $templateCache.put("/portal/templates/account/myAccount/myAccountAuctionsSection.html?0.711", '<div class="auctions-section"> <div ng-if="auctionsInfo.length>0"> <div class="float title"> <div class="text">{{(\'my_account_\'+label) | i18n}}</div> </div> <div class="clearfix"></div> <div class="title-separator"></div> <bs-my-account-auction-bids  ng-repeat="auctionInfo in auctionsInfo"  auction="auctionInfo.auction" lots="auctionInfo[lotsField]" count-label="label+\'_count\'" > </bs-my-account-auction-bids> </div>  </div> '), 
-        $templateCache.put("/portal/templates/account/myAccount/myAccountHouseEntry.html?0.711", '<div>   <div ng-if="houseInfo.approvalState==\'APPROVED\'"> <label ng-if="houseInfo.empty"> {{ "my_account_empty_"+itemsType | i18n}}  </label>  <div ng-if="!houseInfo.empty"> <bs-my-account-auctions-section  auctions-info="houseInfo.auctions.current"  label="\'current\'" ng-if="itemsType==\'absentee\'"  lots-field="\'lotsWithAbsenteeBids\'"> </bs-my-account-auctions-section>  <bs-my-account-auctions-section auctions-info="houseInfo.auctions.sold"  label="\'sold\'" ng-if="itemsType==\'won\'"  lots-field="\'wonLots\'"> </bs-my-account-auctions-section> </div> </div>   <div ng-if="houseInfo.approvalState!=\'APPROVED\'"> <bs-house-approval  house-id="houseInfo.house.id" approval-state="houseInfo.approvalState"></bs-house-approval> </div>     </div> '), 
-        $templateCache.put("/portal/templates/account/myAccount/myAccountAuctionBids.html?0.711", '<div class="auction-bids"> <div class="auctionName">{{auctionName}}</div> <div class="bid-row" ng-repeat="lot in lots" ng-click="gotoLot(lot)" bs-scroll-on="lot.id == scrollTo"> <bs-lot-image lot="lot" size="108x108" as-bg="true" image-mode="\'fit\'" class="lot-pic"></bs-lot-image>  <div class="info"> <div class="item-index"> {{"lot_number" | i18n:{number:lot.itemIndex} }}</div>  <div ng-bind-html="lot | lotText:80 "></div>   <div class="price-label" ng-if="lot.selfSoldLotBid"> <span class="label">{{"lot_self_sold_bid" | i18n}}:</span> <span class="price">{{lot.selfSoldLotBid.price | sumInCurrency:currency}} </span>  </div>   <div class="price-label" ng-if="lot.selfAbsenteeBid && !lot.selfSoldLotBid"> <span class="label">{{"lot_self_absentee_bid" | i18n}}:</span> <span class="price">{{lot.selfAbsenteeBid.price | sumInCurrency:currency}} </span>  </div>    <div class="orange common-button" bs-text-direction ng-if="!lot.soldLotBid && [\'READY\',\'RUNNING\'].indexOf(lot.auction.state!=-1)"> <div class="text">{{"dialogs_edit" | i18n }}</div> </div> <div class="clearfix"></div> </div>  <div class="clearfix"></div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/account/approval/houseApprovalPopup.html?0.711", '<div class="approval-popup" bs-text-direction >  <div  class="modal-header"> <label  class="float modal-title">{{"dialogs_notice_title" | i18n}}</label>  <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body"> <bs-house-approval house-id="houseId" in-popup="true"></bs-house-approval> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/account/approval/houseApprovalScene.html?0.711", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{"dialogs_notice_title" | i18n}}</H3> <div class="short-separator"></div> </div> <bs-house-approval house-id="$stateParams.houseId"></bs-house-approval>  </div> </div>     '), 
-        $templateCache.put("/portal/templates/account/approval/houseApproval.html?0.711", ' <div  class="approval-message">  <p ng-bind-html="firstParagraph"></p> <p ng-bind-html="secondParagraph"></p>  <div ng-if="approvalState==\'NOT_REGISTERED\'">  <div class="user-id-request" ng-if="house.requestUserStateIdForApproval"> <p><div class="caption">	{{"approval_request_user_id_caption" | i18n : {house:(house.details.name | langField) } }}</div></p>  <form name=\'requestUserIdForm\'  novalidate bs-form  > <bs-form-group field-name="userStateId" label="approval_request_user_id_label"> <label></label> <input name="userStateId" class="form-control" ng-model="formData.userStateId" />  <bs-form-validation-message></bs-form-validation-message>  </bs-form-group> </form> </div>  <div class="error-message text-danger" ng-if="formData.error">  <p>{{formData.error}}</p> </div>  <div class="clearfix"></div>  <bs-async-button  class="float" action-fn="requestApproval()"  button-class="\'btn-primary common-button \'+currentLang"  label="\'approval_send_request\'" > </bs-async-button>  <button ng-if="!inPopup" class="opposite float back btn btn-link text-danger" bs-back-button ng-class="currentLang"> {{("dialogs_cancel") | i18n}}</button> <div class="clearfix"></div> </div>   <div  ng-if="inPopup && (approvalState==\'PENDING\' || approvalState==\'INCOMPLETE_PROFILE\'  || formData.error)" > <br><br> <button  class="center-block btn btn-primary"  ng-click="closePopup()">{{"dialogs_close" | i18n}} </button> </div>    </div> '), 
-        $templateCache.put("/portal/templates/account/favorites/favoritesItems.html?0.711", ' <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row"> <div  ng-repeat="lot in pagesData.pageItems" bs-text-direction bs-scroll-on="lot.id == scrollTo"  ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia,clearfix:lot.loadPastLinkFakeItem,item:!lot.loadPastLinkFakeItem}"> <div ng-if="!lot.loadPastLinkFakeItem" bs-log-click="favorite-lot-{{lot.auction.house.code}}-{{lot.auction.date | date :\'dd.MM.yy\'}}-{{lot.itemIndex}}"  ng-click="gotoLot(lot)">   <div class="link"   > <div ng-if="viewPort.pcMedia"      ng-include src="\'auctions/catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'auctions/catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div> <bs-lot-favorite-flag lot="lot"></bs-lot-favorite-flag>  </div> <div ng-if="lot.loadPastLinkFakeItem"> <div class="float pastItems link" ng-class="data.sceneInfo.pastItemState" ng-click="loadPastItems()" > {{"favorites_page_past" | i18n}} </div> <div class="clearFix"></div> </div> </div>   <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/account/favorites/favoritesMain.html?0.711", '<div ng-controller="FavoritesController" > <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 xs-12"> <h1>{{"link_favorites" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>    <div class="catalog favorites scene">  <div class="content col-xs-12" >  <div class="install-app-promotion" ng-if="showInstallAppPromostion"> <div ng-if="viewPort.mobileMedia"> <div class="message" ng-bind-html="\'install_app_favorites_message\' | i18n"></div> <install-app-button ></install-app-button> </div> <div ng-if="viewPort.pcMedia"> <div class="float message" ng-bind-html="\'install_app_favorites_message\' | i18n"></div>  <div  class="float orange common-button center-block" ng-click="showInstallPopup()">  <div class="text">{{"link_install_app" | i18n }}</div> </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div>  <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  <div bs-scroll-on watched-value="scrollToPagination" offset="-200"></div>  <div ng-if="loadState!=\'loading\'" ng-include src="\'account/favorites/favoritesItems\' | appTemplate"  ></div>   <bs-content-loader loaded="loadState!=\'loading\'"></bs-content-loader>   <bs-content-loader ng-if="data.sceneInfo.pastItemState!=\'unloaded\'" loaded="data.sceneInfo.pastItemState==\'loaded\'"></bs-content-loader>   <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  </div>    </div> </div>   '), 
-        $templateCache.put("/portal/templates/houses/housesList.html?0.711", '<div ng-controller="HousesListController" class="houses scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"auction_houses_title" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div> </div> </div> <div class="content container"> <h4 ng-bind-html="\'auction_houses_message\' | i18nWithRegion"></h4> <br> <div class="container-fluid"> <div class="row text-center"> <div  class="col-xs-12 house-item default-align"  bs-text-direction ng-repeat="house in houses" ng-if="(devMode || bidmoodEnv || (!house.hidden && house.site.code!=\'demo\'))  && house.orderInd>0"  > <div class="house-frame"  ui-sref="app.house({houseCode:house.code})">  <div class="frame-top" ng-style="{\'background-color\':(house.details.brandColor || \'#aaa\')}"> <div class="float name"> <h2>{{house.details.name | langField}}</h2> </div>  <div class="opposite float logo" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"> </div> <div class="clearfix"></div>  </div>  <div class="frame-bottom"> <div ng-if="house.details.summary"> {{house.details.summary | langField}} <br><br> </div> <div ng-if="house.details.expertise"> <b>{{"auction_houses_expertise" | i18n}}:</b><br>  {{house.details.expertise | langField}} </div>  <a class="more btn-link" ng-href="#!/houses/{{house.code}}">{{"auction_houses_more" | i18n}}</a> </div>  </div>  </div> </div>  </div>  </div>   </div> '), 
-        $templateCache.put("/portal/templates/houses/housePage.html?0.711", '<div ng-controller="HousePageController" class="house-page scene" > <div ng-if="housePic" class="house-page-image" bs-cloudinary-bg="{{housePic}}"> </div> <div ng-if="!housePic" class="house-page-image-space"> </div> <div class="content container"> <div class="house-info"> <div class="house-info-upper"> <div class="float texts"  style="max-width:{{viewPort.contentWidth-280}}px"> <h2 class="house-name"> {{house.details.name | langField}} </h2> <div ng-bind-html="houseTextParams.link"></div>  <div class="address">{{house.details.address | langField}}</div> </div>   <div class="opposite float logo" bs-cloudinary-bg="{{(house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div>  <div class="clearfix"></div>  </div> <bs-house-regisration-promotion ng-if="(devMode || house.site.code!=\'demo\') && !house.site.down" house="house" > </bs-house-regisration-promotion> <hr>  <div class="house-info-lower"> <div class="text" ng-bind-html="house.details.info | langField"> </div> <div class="contact-info"> <div class="caption">{{\'auction_house_contact\' | i18n}}</div>  <div class="table"> <div class="labels table-cell"> <div class="contact-label" ng-if="houseTextParams.phone">{{\'auction_house_phone\' | i18n}}</div>  <div class="contact-label" ng-if="houseTextParams.email">{{\'auction_house_email\' | i18n}}</div> <div class="contact-label" ng-if="houseTextParams.link">{{\'auction_house_website\' | i18n}}</div> </div> <div class="separator table-cell"></div> <div class="values table-cell"> <div class="contact-value" ng-if="houseTextParams.phone" dir="ltr" ng-bind-html="houseTextParams.phone"></div>  <div class="contact-value" ng-if="houseTextParams.email" dir="ltr" ng-bind-html="houseTextParams.email"></div> <div class="contact-value" ng-if="houseTextParams.link" dir="ltr" ng-bind-html="houseTextParams.link"></div> </div> </div> </div>  <br>  <div class="btn btn-link terms" ng-click="openTerms()" > {{"house_terms" | i18n:{house:(house.details.name | langField)} }}</div> </div>    <bs-house-alerts-promotion house="house" > </bs-house-alerts-promotion> </div>   <bs-auctions-lists-group auctions-data="{auctions:auctions}" show-all-past-auctions="true" show-all-future-auctions="true"  ></bs-auctions-lists-group>  </div> </div> '), 
-        $templateCache.put("/portal/templates/houses/houseAlertsPromotion.html?0.711", '<div class="house-alerts-promotion" ng-if="shouldDisplay">  {{\'alerts_promotion_configure_house\' | i18n:{house:(house.details.name | langField)} }}&nbsp <span class="no-break"> <span><span class="orange common-button" ui-sref="app.alerts.house({houseCode:house.code})"> <span class="text">{{\'alerts_promotion_configure_command\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div>    '), 
-        $templateCache.put("/portal/templates/auth/authScene.html?0.711", '<div  class="auth scene" ng-controller="AuthSceneController" ng-class="{\'logged-in\':currentUser!=null}" >  <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1 >{{titleKey() | i18n}}</H1> <div class="short-separator"></div> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" >  <div  bs-text-direction class="auth-view" ng-class="authDisplayInfo.authScene"  ng-if="!isIe8" ng-include 	src="\'auth/elements/\'+authDisplayInfo.authSubScene | appTemplate"> </div> </div>   </div> '), 
-        $templateCache.put("/portal/templates/auth/authModalPopup.html?0.711", '<div  ng-controller="AuthModalPopupController" bs-text-direction>  <div  class="modal-header">  <label  class="float modal-title">{{ titleKey() | i18n}}</label> <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body">  <div  class="auth-view"  ng-if= "!isIe8" ng-include 	src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/auth/legalApproval/legalApprovalRequired.html?0.711", '<div class="legal-approval-required"> <bs-linkable-text options="{ textKey:\'legal_reapproval_line_1\', onLinkClick:options.showLegalDoc }" > </bs-linkable-text> <br> <p ng-bind-html="\'legal_reapproval_line_2\' | i18n"></p>  </div>  '), 
-        $templateCache.put("/portal/templates/auth/legalApproval/legalTermsRejected.html?0.711", '<div> <p ng-bind-html="\'legal_reapproval_rejected\' | i18n"></p>  <br><br> <div class="text-danger"	ng-bind-html="\'legal_reapproval_support\' | i18n:{email:BidspiritInfo.emailLink}"> </div>   </div>  '), 
-        $templateCache.put("/portal/templates/auth/authNavBarPopup.html?0.711", '<div> <div class="close btn-link" ng-click="hidePopup()">x</div>  <div  class="auth-view"   ng-if= "!isIe8"" ng-include 	src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div>   </div> '), 
-        $templateCache.put("/portal/templates/auth/authUpperNavigation.html?0.711", '<div class="auth-navigation-section" ng-controller="AuthUpperNavigationController"> <div ng-if="!currentUser"> <div> <div ng-repeat="link in [\'login\',\'register\']"  class="btn-link"   ng-click="togglePopupView(link)"  ng-class="[currentLang,link]"> <div class="text"> {{"link_"+link | i18n }} </div>  <div class="up-arrow" ng-show="authDisplayInfo.popupScene==link"></div>  </div> </div> </div> <div ng-if="currentUser" class="logged-in-links" > <div class="float hazard btn-link"  ng-if="currentUser.registrationStage!=\'COMPLETE\'" ng-click="togglePopupView(\'warning\')"> <div class="icon" ng-class="{on:authDisplayInfo.popupScene==\'warning\'}"></div> <div class="up-arrow" ng-show="authDisplayInfo.popupScene==\'warning\'"></div>  </div>  <div class="float"> <div class="link" ng-click="toggleAuthMenu()"> <div class="float text"> {{\'link_hello\' | i18n:{name:currentUser.firstName} }} </div> <div class="float arrow"> <div class="down"></div> <div class="up" ng-show="authDisplayInfo.menuVisible"></div> <div class="up" ng-show="nudgePopupVisible"></div> </div> <div class="clearfix"></div> </div> <div class="auth-menu" ng-show="authDisplayInfo.menuVisible" ng-click="authDisplayInfo.menuVisible=false" ng-mouseleave="authDisplayInfo.menuVisible=false" bs-text-direction> <div class="up-arrow"></div> <div class="close btn-link" >x</div>  <div ng-include src="\'elements/navigation/pcUserMenu\' | appTemplate" ></div> </div> <bs-nudge-navbar-popup></bs-nudge-navbar-popup> </div>  <div class="clearfix"></div> </div>  <div class="auth-navbar-popup" ng-class="[authDisplayInfo.popupScene, currentLang]"  ng-include src="\'auth/authNavBarPopup\' | appTemplate"  ng-if="authDisplayInfo.popupScene!=null">  </div> </div>  '), 
-        $templateCache.put("/portal/templates/auth/elements/recoverPassword.html?0.711", '<div class="recover-password sub-scene" ng-controller="RecoverPasswordController"> <div class="title"> {{\'recover_password_title\' | i18n}}</div> <div class="separator"></div>  <div ng-if="stage==1"> <br> <div class="message"> {{\'recover_password_message\' | i18n}}:</div> <br> <form name=\'recoverForm\'  novalidate bs-form  bs-submit="sendPassword()" >  <bs-form-group field-name="email" label="user_details_email"> <input type="email" name="email" class="form-control" ng-model="info.email" required ng-change="data.emailUnknown=false" bs-validate="{unknown : \'!data.emailUnknown\' }"  bs-validate-watch="\'data.emailUnknown\'" /> <bs-form-validation-message hidden="true" unknown="error_email_not_exists"> </bs-form-validation-message>  </bs-form-group>  <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error>{{bsFormFirstErrorMessage()}}</div> </div>  <div class="orange common-button opposite float" ng-click="recoverForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>  <div class="cancel btn-link opposite float" ng-click="setAuthSubScene(\'login\')">{{\'dialogs_cancel\' | i18n}}</div>  <div class="clearfix"></div>   </form>  </div>  <br><br>  <div ng-if="stage==2"> <div class="message"> {{\'recover_password_success\' | i18n :{email:info.email} }}</div>  <div class="orange finish common-button opposite float"  ng-click="setAuthSubScene(\'login\')" > <div class="text">{{"dialogs_end" | i18n }}</div> </div>  <div class="clearfix"></div>  </div>  </div> '), 
-        $templateCache.put("/portal/templates/auth/elements/warning.html?0.711", '<div  class="warning sub-scene" >  <bs-edit-email ng-if="currentUser.registrationStage==\'UNCONFIRMED_EMAIL\'"></bs-edit-email>    <div class="incompleteProfile" ng-if="currentUser.registrationStage==\'INCOMPLETE_PROFILE\'"> <div class="message">{{"incomplete_details_message" | i18n}}</div>  <div class="orange common-button" ui-sref="app.auth({authScene:\'postRegistrationDetails\'})"  > <div class="text">{{"incomplete_details_update" | i18n }}</div> </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/auth/elements/postRegistrationDetails.html?0.711", '<div ng-controller="PostRegistrationDetailsController"> <div ng-show="!formSubmitted" class="before-submit" ng-if="userDataLoaded">  <div class="register-success" ng-if="currentUser.justConfirmed">{{"register_success" | i18n}}</div>  <div class="message">{{"post_registration_message" | i18n}}</div> <div class="clearfix"></div> <form name=\'completeRegistrationForm\'  novalidate bs-form  bs-submit="save()" > <div class="form-half-page"> <h4 class="default-align">{{"user_details_personal_details" | i18n}}</h4>  <div class="row">  <bs-form-group field-name="phone" label="user_details_phone" css-class="col-xs-12 float" debug="true"> <label class="float"></label> <span class="float star">*</span> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div>  <input  name="phone" class="form-control" dir="ltr" ng-model="userDetails.phone"  required  ng-pattern="bsValidationPatterns.phone" ng-minlength="8"/>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="company" label="user_details_company" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="userDetails.company" />  </bs-form-group>  </div>  <h4>{{"user_details_residence" | i18n}}</h4> <div ng-if="true"> <!--  crazy, but without this line validation stops to work... couldn\'t figure out why --> <ng-form bs-form name="residence"> <bs-user-details-address address="userDetails.residenceAddress" ></bs-user-details-address> </ng-form>  </div>  </div>  <div class="clearfix"></div>  <bs-form-group field-name="residenceIsShipping" css-class="col-xs-12 float checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> </bs-form-group>  <div class="form-half-page">  <div ng-if="!userDetails.shippingAddress.residenceIsShipping" > <h4>{{"user_details_shipping" | i18n}}</h4> <ng-form bs-form name="shipping"> <bs-user-details-address  address="userDetails.shippingAddress"></bs-user-details-address> </ng-form>  </div> </div>  <div class="clearfix"></div>  <div class="form-error"> <div class="form-input error-message text-danger" bs-blink-on-form-error ng-show="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> </div>   <div class="orange common-button float" ng-click="completeRegistrationForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>   </form> </div>  <div class="clearfix"></div>  <div ng-show="formSubmitted" class="post-submit"> <div class="row"> <div class="title">{{"post_registration_details_success" | i18n }}</div> </div> <div class="row"> <div class="message col-xs-9">{{"post_registration_details_success_message" | i18n }}</div> </div>  <div class="row"> <div class="orange common-button  float" ui-sref="app.home" > <div class="text">{{"dialogs_end" | i18n }}</div> </div>  </div>  </div>  <br><br> </div>  '), 
-        $templateCache.put("/portal/templates/auth/elements/register.html?0.711", ' <div class="register sub-scene" ng-controller="RegisterController">  <div class="message" bs-scroll-on watched-value="scrollToFisrtLine" debug-key="register"> {{"register_message_line_1"  | i18n }} <br> {{"register_message_line_2"  | i18n }} <br>  </div>  <form name=\'registerForm\'  novalidate bs-form  bs-submit="register()" >  <bs-form-group field-name="firstName" label="user_details_first_name" css-class="float"> <label></label> <input name="firstName" class="form-control" ng-model="registrationInfo.firstName"  required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" />  <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="lastName" label="user_details_last_name" css-class="float"> <label></label> <input name="lastName" class="form-control" ng-model="registrationInfo.lastName" required  ng-pattern="bsValidationPatterns.alpha" ng-minlength="2"/> <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="email" label="user_details_email"> <label></label> <input dir="ltr" class="email form-control"  type="email" name="email"  ng-model="registrationInfo.email"  required  bs-validate="{exists : \'!emailExists($value)\' }" bs-validate-watch="\'existingEmails\'" /> <bs-form-validation-message hidden="true" exists="error_email_exists" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="password" label="user_details_password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="password" class="form-control" ng-model="registrationInfo.password" required ng-minlength="6"/> <bs-form-validation-message  minlength="error_bad_password" hidden="true" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="passwordConfirm" label="user_details_confirm_password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="passwordConfirm" class="form-control"  ng-model="registrationInfo.passwordConfirm" required  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'registrationInfo\'"/> <div class="clearfix"></div>  <bs-form-validation-message hidden="true" match="error_password_mismatch" ></bs-form-validation-message> </bs-form-group>   <bs-form-group field-name="over18" css-class="checkbox-row"> <input  type="checkbox" class="float" name="over18" ng-model="registrationInfo.over18" required/> <bs-checkbox class="float"  bs-model="registrationInfo.over18"></bs-checkbox> <label class="float">{{\'register_over18\' | i18n}}</label> <div class="clearfix"></div> <bs-form-validation-message hidden="true" required="error_over18"></bs-form-validation-message> </bs-form-group>  <div class="clearfix"></div>   <bs-form-group field-name="terms" css-class="checkbox-row"> <input  type="checkbox" name="terms" ng-model="registrationInfo.terms" required/> <bs-checkbox class="float"  bs-model="registrationInfo.terms"></bs-checkbox> <label class="terms float">{{\'register_terms_accept\' | i18n}}<span ng-click="showTerms()" class="currentLang link">{{\'register_terms_label\' | i18n}}</span></label> <bs-form-validation-message hidden="true" required="error_accept_terms"></bs-form-validation-message> <div class="clearfix"></div>  </bs-form-group>    <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error >{{bsFormFirstErrorMessage()}}</div>  <div class="login link" ng-show="displayLoginLink()" ng-click="setAuthScene(\'login\')" >{{\'register_login_with_mail\' | i18n}}</div>  <div class="clearfix"></div> </div>    <bs-async-button button-class="\'opposite float orange common-button\'"  bs-form-controller="registerForm"  label="\'dialogs_send\'" ></bs-async-button>   <div class="clearfix"></div>  </form> </div>  '), 
-        $templateCache.put("/portal/templates/auth/elements/login.html?0.711", '<div class="login sub-scene" ng-controller="PortalLoginController"> <div class="message" ng-if="authDisplayInfo.args.message">{{ authDisplayInfo.args.message | i18n}}</div> <form name=\'loginForm\'  novalidate bs-form  bs-submit="login()" >  <bs-form-group field-name="email" label="user_details_email"> <label></label> <input dir="ltr" type="email" name="email" class="form-control" debug="true" ng-model="loginInfo.email" required  ng-change="hideLoginError()"/>  <bs-form-validation-message hidden="true"  ></bs-form-validation-message>  </bs-form-group>  <bs-form-group field-name="password" label="user_details_password" class="password"> <label></label> <div dir="ltr"> <input bs-focus-on="focusOnPassword" type="{{passwordVisible ? \'text\' : \'password\'}}" name="password" autocorrect="off" autocapitalize="none" class="form-control" ng-model="loginInfo.password" required ng-change="hideLoginError()"/> </div> <bs-form-validation-message hidden="true" ></bs-form-validation-message> <div class="showPassword" ng-click="togglePasswordVisible()"></div>  </bs-form-group>   <div class="form-error text-danger"> <div class="form-input error-message  bs-blink-on-form-error" ng-if="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> <div class="login error-message" ng-if="loginErrorVisible">{{"error_login" | i18n }}. <span class="help link" ng-click="toggleHelpVisible()"> {{"dialogs_help" | i18n }} <span class="help-triangle" ng-show="loginHelpVisible"></span>  </span> </div> </div>  <div class="login-error-help" ng-show="loginHelpVisible"> <div class="close btn-link" ng-click="loginHelpVisible=false">x</div> <div class="text" ng-bind-html="(\'login_error_help_line_1\' | i18n)+ \'<br>\'+ (\'login_error_help_line_2\' | i18n:{email:BidspiritInfo.emailLink,phone:BidspiritInfo.phoneLink})"> </div>  </div>  <bs-form-group field-name="remember" css-class="checkbox-row"> <input type="checkbox" class="float" name="remember" ng-model="loginInfo.remember"/> <bs-checkbox class="float"  bs-model="loginInfo.remember"></bs-checkbox> <label class="float" ng-click="loginInfo.remember=!loginInfo.remember">{{\'login_remember_me\' | i18n}}</label> <div class="clearfix"></div>  </bs-form-group>     <div class="forgot-password btn-link" ng-click="setAuthSubScene(\'recoverPassword\')">{{"login_forgot_password" | i18n }}</div>  <div class="orange common-button opposite" ng-click="loginForm.submit()" > <div class="text">{{"login_enter" | i18n | capitalize}}</div> </div>  <div class="goto-register btn-link" ng-click="setAuthScene(\'register\')">{{"login_goto_register" | i18n }}</div>    </form> </div> '), 
-        $templateCache.put("/portal/templates/elements/carousel/housesCarousel.html?0.711", '<div class="houses-carousel-container"> <div  ng-if="!animationOn" class="houses-carousel" ng-style="{backgroundImage:\'url(\'+bgPics[currentPicInd]+\')\'}">  </div>  <div ng-if="animationOn" class="houses-carousel"> <div ng-include dir="{{dir}}" src="\'elements/carousel/slider\' | appTemplate"></div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/elements/carousel/slider.html?0.711", '<wallop-slider data-images="bgPics" data-animation="scale" data-current-item-index="_ind" data-next-item-index="currentPicInd"> </wallop-slider> '), 
-        $templateCache.put("/portal/templates/elements/contentLoader.html?0.711", '<div class="content-loader" ng-show="!loaded"> <img  class="center-block" ng-src="{{\'system/pagePreLoader.gif\' | commonImage}}"> </div> '), 
-        $templateCache.put("/portal/templates/elements/popups/popupAsScene.html?0.711", '<div class="info-popup scene popup-scene-{{options.code}}" dir="{{dir}}" ng-controller="PopupController" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-10 col-xs-12"> <button class="upper btn btn-primary" ng-if="options.backText" bs-back-button >{{options.backText | i18n}}</button>  <div class="clearfix"></div> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col-xs-11" > <H3>{{options.title}}</H3> <div class="short-separator"></div> </div> <div ng-include src="\'elements/popups/popupBody\' | appTemplate" ></div>   <ul class="list-inline"> <li  ng-repeat="button in options.buttons"> <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}" bs-back-button  >{{(button.text) | i18n}} </button> <button ng-if="button.action" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>  </div> </div> '), 
-        $templateCache.put("/portal/templates/elements/popups/popupBody.html?0.711", '<div dir="{{dir}}"> <iframe ng-if="options.contentUrl" width="100%" height="500px" name="about" ng-src="{{options.contentUrl}}" frameborder=0 ALLOWTRANSPARENCY="true"></iframe> <div    ng-if=\'options.contentHtml\'    class="info-popup-content" ng-bind-html="options.contentHtml"></div> <div    ng-if=\'options.contentInclude\' class="info-popup-content"  ng-include src="options.contentInclude | appTemplate"></div>  </div> '), 
-        $templateCache.put("/portal/templates/elements/popups/popupModal.html?0.711", '<div dir="{{dir}}" ng-keyup="onKeyup()" class="popup-modal-{{options.code}}">  <div  class="modal-header"> <label  class="float modal-title" ng-if="options.titleKey">{{options.titleKey | i18n}}</label>  <label  class="float modal-title" ng-if="!options.titleKey">{{options.title}}</label> <button type="button" class="opposite float close" ng-if="!options.unclosable" ng-click="$close()">&times;</button> <div class="clearfix"></div>  </div>  <div class="modal-body"> <div ng-include src="\'elements/popups/popupBody\' | appTemplate" ></div> </div>  <div class="modal-footer"> <ul class="list-inline"> <li  ng-repeat="button in options.buttons">  <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}"  ng-click="$close()">{{(button.text) | i18n}} </button> <button ng-if="button.action" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>   </div> </div> '), 
-        $templateCache.put("/portal/templates/elements/navigation/upperNavigationSearch.html?0.711", ' <form name=\'searchForm\' novalidate bs-form  bs-submit="gotoSearch()"  ng-click="gotoSearchIfMobile()" class="global-search-form"  bs-text-direction ng-show="state.current.url!=\'search\'"> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" ng-model="data.searchToken" bs-enter-key-action="gotoSearch()"/> </bs-form-group> <div class="button noselect" ng-click="gotoSearch()"> </div> <div class="clearfix"></div> </form>     '), 
-        $templateCache.put("/portal/templates/elements/navigation/mobileLangSelection.html?0.711", '<div class="lang-selection"  ng-if="data.langs.length>1"> <div class="selected entry" slide-toggle="#langsMenu{{langMenuAtBottom}}" ng-click="onLanguageClick()" > {{currentLang | langName:"english"}} <span class="caret {{dir}}" ></span> </div> <ul id="langsMenu{{langMenuAtBottom}}" class="slideable" duration="0.25s"> <li class="sub needsclick entry" ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)">{{lang | langName}}</li> </ul> </div> '), 
-        $templateCache.put("/portal/templates/elements/navigation/upperNavigation.html?0.711", '<div class="upper-navigation"  ng-class="{ \'has-warning\':ie8WarningVisible, \'logged-in\':currentUser!=null, \'no-fixed\':mobileMenuOn, \'mobile\':isMobileApp || viewPort.clientWidth<1200, \'pc\':!isMobileApp &&  viewPort.clientWidth>=1200 }"  ng-controller="UpperNavigationController"  dir="{{dir}}" > <div ie8-warning></div>  <div class="mobile-only" ng-if="data.showContainer"> <div class="icon-button {{button}}" ng-repeat="button in data.mobileButtons"  ng-click="handleMobileButtonClick(button)"  bs-touched-class="\'touched\'"></div> <div ng-include src="\'elements/navigation/mobileMenu\' | appTemplate"></div> <div class="clearfix"></div> </div>   <div class="pc-only"  > <div class="container" ng-if="data.showContainer">  <div class="float clickable logo" ui-sref="app.home" bs-check-bidmood></div>  <div class="links"> <div class="opposite float lang-selection btn-group" uib-dropdown is-open="status.isopen" ng-if="data.langs.length>1"> <div type="button" uib-dropdown-toggle class="selected entry" > {{currentLang | langName:"english"}} <span class="opposite float caret {{dir}}" ></span> </div> <ul class="uib-dropdown-menu" role="menu" > <li class="entry" ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)">{{lang | langName}}</li> </ul> </div>  <span class="info-links opposite float" > <a class="btn-link opposite float entry" ng-class="currentLang" ng-href="#!/{{link}}" ng-repeat="link in data.infoLinks">{{(\'link_\'+link) | i18n}}</a> </span>  <div ng-include src="\'elements/navigation/upperNavigationSearch\' | appTemplate" class="opposite float" ></div>    <div class="float auth" ng-include src="\'auth/authUpperNavigation\' | appTemplate" >  </div>  </div>   </div>  </div>  <div class="mobile-only hello-bar" ng-if="currentUser && data.showContainer"> <div class="text">{{\'link_hello\' | i18n:{name:currentUser.firstName} }} </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/elements/navigation/installAppButton.html?0.711", ' <a class="install-app-button"  ng-show="platform" target="linkTarget"  ng-href="{{href}}" ng-click="logAppPageLink(platform)"  ng-class="platform">  </a>   '), 
-        $templateCache.put("/portal/templates/elements/navigation/reload.html?0.711", '<div class="refresh scene" ng-controller="ReloadController">  </div> '), 
-        $templateCache.put("/portal/templates/elements/navigation/pcUserMenu.html?0.711", ' <a class="btn-link" ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.myAccount({itemsType:\'absentee\'})" >{{\'link_absentee\' | i18n}}</a> <a class="btn-link" ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.myAccount({itemsType:\'won\'})" >{{\'link_won\' | i18n}}</a> <a class="btn-link" ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.favorites">{{\'link_favorites\' | i18n}}</a> <a class="btn-link" ui-sref="app.alerts">{{\'link_alerts\' | i18n}}</a> <a class="btn-link" ui-sref="app.userDetails">{{\'link_update_details\' | i18n}}</a> <a class="btn-link" ng-click="logout()">{{\'link_logout\' | i18n}}</a> '), 
-        $templateCache.put("/portal/templates/elements/navigation/mobileMenu.html?0.711", '<div ng-controller="MobileMenuController" > <div> <div  class="menu icon-button needsclick" ng-click="toggleMenu()" ng-class="{touched:menuTouched}"></div> <div class="clearfix"></div> <div class="arrow" ng-show="mobileMenuOn" ></div> <div class="clearfix"></div> </div> <div id="linksMenu" class="mobile-menu" ng-if="mobileMenuOn" > <div class="bg">    <div ng-if="!langMenuAtBottom" ng-include src="\'elements/navigation/mobileLangSelection\' | appTemplate"></div>  <a class="orange entry needsclick"  ng-if="currentUser && currentUser.registrationStage!=\'COMPLETE\'" ng-click="nextRegistrationStep()" ng-class="currentLang" >{{(\'link_complete_registration\') | i18n}}</a>  <a class="needsclick entry" ng-if="!mobileApp && currentUser && (!currentUser.userDevices || currentUser.userDevices.length==0)" ng-class="[currentLang,{orange:currentUser.registrationStage==\'COMPLETE\'}]" ng-click="installApp()" ng-click="installApp()"  >{{(\'link_install_app\') | i18n}}</a>   <a class="needsclick entry"  ng-if="!currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.auth\',{authScene:authLink})" ng-repeat="authLink in [\'login\',\'register\']">{{(\'link_\'+authLink) | i18n}}</a>  <a class="needsclick orange entry" ng-if="!mobileApp && !currentUser " ng-class="currentLang" ng-click="installApp()"  >{{(\'link_install_app\') | i18n}}</a>   <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.myAccount\',{itemsType:\'absentee\'})" >{{\'link_absentee\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.myAccount\',{itemsType:\'won\'})" >{{\'link_won\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.favorites\')">{{\'link_favorites\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.alerts\')">{{\'link_alerts\' | i18n}}</a>  <a class="needsclick entry"   ng-class="currentLang" ng-click="gotoScene(\'app.results\',{house:\'all\',page:1})" ">{{\'home_auctions_results\' | i18n}}</a>   <a class="needsclick entry"   ng-class="currentLang" ng-click="gotoScene(\'app.\'+link)" ng-repeat="link in data.infoLinks">{{(\'link_\'+link) | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.userDetails\')">{{\'link_update_details\' | i18n}}</a>  <a class="needsclick entry" ng-if="currentUser " ng-class="currentLang" ng-click="logout()" ng-href="#!/home" >{{(\'link_logout\') | i18n}}</a>  <div ng-if="langMenuAtBottom" ng-include src="\'elements/navigation/mobileLangSelection\' | appTemplate"></div> </div>   <div class="bottom-space"></div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/elements/pageFooter.html?0.711", ' <div class="page-footer" ng-if="showFooter" > <div class="container col-md-7 col-xs-12 center-block"> <div class="arrow"></div> <div class="row">  <div class="info-part col-xs-6"> <div class="logo" bs-check-bidmood></div> <div class="text-line" ng-bind-html="\'home_footer_info_email\' | i18n:{email:BidspiritInfo.emailLink}"></div> <div class="text-line" ng-bind-html="\'home_footer_info_phone\' | i18n:{phone:BidspiritInfo.phoneLink}"></div> </div> <div class="float vertical-separator" ng-class="{invisible:shouldHideContactUs()}"></div> <div class="contact-us-part info-part col-xs-5" > <div class="pc-message hidden-xs hidden-sm" ng-class="{invisible:shouldHideContactUs()}"> <div class="message"> {{"home_footer_contact_text" | i18n }} </div> <div class="orange common-button center-block" bs-check-bidmood ui-sref="app.contact"> <div class="text">{{"home_footer_contact_button" | i18n }}</div> </div> </div>  <div class="mobile-links hidden-md hidden-lg"> <a class="btn-link" ng-href="#!/contact">{{"link_contact" | i18n}}</a> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"link_terms" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"link_privacy" | i18n}}</a> <a class="btn-link" ng-href="#!/about">{{"link_about" | i18n}}</a> <a class="btn-link" ng-href="#!/product">{{"link_product" | i18n}}</a>  <a class="btn-link" ng-click="showAllFutureAuctions()">{{"all_future_auctions" | i18n}}</a> </div> </div>  <div class="clearfix"></div> </div>   <div class="horizontal-separator"></div>  <div class="second-line"> <div class="sell float col-xs-6" > <div class="float text">{{"home_footer_sell" | i18n }}&nbsp;</div>  <a class="float btn-link" ng-href="#!/houses">{{"home_footer_houses" | i18n}}</a> <div class="clearfix"></div> </div>  <div class="float col-xs-6 social" > <div class="text">{{"home_footer_follow" | i18n }}</div> <div class="icons"> <a class="button twitter" target="{{linkTarget}}" href="https://www.twitter.com/{{twitterPage}}"></a> <a class="button fb" target="{{linkTarget}}" href="https://www.facebook.com/{{fbPage}}"></a> </div> </div> <div class="clearfix"></div> </div>   <div> <div class="horizontal-separator"></div> <div class="hidden-xs hidden-sm">  <div class="bottom-links"> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"link_terms" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"link_privacy" | i18n}}</a> <a class="btn-link" ng-href="#!/about">{{"link_about" | i18n}}</a> <a class="btn-link" ng-href="#!/product">{{"link_product" | i18n}}</a>  <a class="btn-link" ng-click="showAllFutureAuctions()">{{"all_future_auctions" | i18n}}</a> </div> <div class="horizontal-separator"></div> </div>  <div class="rights-line">	{{"home_footer_rights" | i18n }}	</div>  </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div> ');
+        $templateCache.put("/common/templates/forms/asyncButton.html?0.739", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
+        $templateCache.put("/common/templates/forms/formGroup.html?0.739", '<div class="form-group {{cssClass}}"> <div> <div ng-transclude></div> </div>  </div> '), 
+        $templateCache.put("/common/templates/dialogs/scopeAlert.html?0.739", "<div style=\"display:{{alert.message?'block':'none'}}\"> <uib-alert  type=\"{{alert.type || 'info'}}\" close=\"hideScopeAlert()\"> {{alert.message | i18n}} </uib-alert> </div> "), 
+        $templateCache.put("/common/templates/dialogs/alert.html?0.739", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{((dialogData.title || "dialogs_notice_title") | i18n) | capitalize}}</div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.ok || "dialogs_ok") | i18n}}</button> </div> </div>  '), 
+        $templateCache.put("/common/templates/dialogs/image.html?0.739", '<div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button> <h4 class="modal-title">{{dialogData.imageName}}</h4> </div>  <div class="modal-body"><img ng-src="{{dialogData.imagePath | cloudinary}}" class="img-responsive"> </ </div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.close || "dialogs_close") | i18n}}</button> </div> '), 
+        $templateCache.put("/common/templates/dialogs/confirm.html?0.739", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{(dialogData.title || "dialogs_confirm_title") | i18n}}</div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-danger" ng-click="ok()">{{(dialogData.ok || "dialogs_ok") | i18n}}</button> <button class="btn btn-warning" ng-click="close()">{{(dialogData.cancel || "dialogs_cancel") | i18n}}</button> </div> </div>  '), 
+        $templateCache.put("/common/templates/elements/pagination.html?0.739", '<div class="bs-pagination" dir="ltr">  <a class="link" ng-repeat="link in links" ng-href="{{baseHref && link.page && !link.isCurrent ? baseHref+link.page : \'\'}}"  ng-click="onLinkClick(link)" ng-bind-html="link.html" ng-class="{ current:link.isCurrent, disabled:!link.page, enabled:link.page && !link.isCurrent, needsclick:link.isPrev || link.isNext,  prev:link.isPrev,  next:link.isNext}"> </a>   </div>   '), 
+        $templateCache.put("/portal/templates/info/allFutureAuctions.html?0.739", '<div class="all-future-auctions"> <table class="table table-striped default-align" bs-text-direction> <tr> <th>{{"future_auction_house" | i18n}}</th> <th>{{"future_auction_time" | i18n}}</th> <th>{{"future_auction_name" | i18n}}</th> </tr> <tr ng-repeat="auction in options.data.auctions"> <td>{{auction.house.details.name | langField}}</td> <td>{{auction| auctionTime}}</td> <td>{{auction.name | langField}}</td> </tr>  </table> </div>  '), 
+        $templateCache.put("/portal/templates/info/contact.html?0.739", '<div  class="contact scene" ng-controller="ContactController" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1>{{\'link_contact\' | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{\'contact_message_line_1\' | i18n}}</h4> <h4 class="message-line">{{\'contact_message_line_2\' | i18n}}</h4>  <bs-linkable-text class="sell-message" options="{ textKey:\'contact_message_sell\',  onLinkClick:gotoAuctionHouses }" > </bs-linkable-text> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" > <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="$state.current.name!=\'app.contact.thanks\'"> <div class="row"> <bs-form-group field-name="name" label="user_details_name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="user_details_email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="user_details_phone" css-class="col-md-5  col-xs-11 float"> <label></label> <input dir="ltr"   name="phone" class="form-control" ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="user_details_country" css-class="col-md-5 col-xs-11 float"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>   </div> <div class="row">  <bs-form-group field-name="message" label="contact_message_body" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="sendDebugInfo() || contactForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>   </div> </form> <div class="thanks .container animate-show" ng-show="$state.current.name==\'app.contact.thanks\'"> {{"contact_thanks" | i18n }} </div> </div>  <div class="direct-contact"> <div class="text" ng-bind-html=\'"contact_direct" | i18n:{phone:BidspiritInfo.phoneLink, email:BidspiritInfo.emailLink}\'>  </div> </div> </div> '), 
+        $templateCache.put("/portal/templates/info/product/productMain.html?0.739", '<div ng-controller="ProductController" bs-scroll-to-top> <div class="product scene"> <div class="upper-part">  <div class="dark overlay"> </div> </div>  <div class="main center-block "> <h1 class="center-block col-md-5 col-xs-12" ng-bind-html="mainFeature.title | langField"></h1>  <div class="short-separator"></div> <div class="image center-block  col-md-7 col-xs-12" ng-if="mainFeature.resources!=null" bs-cloudinary-bg="{{mainFeature.resources[\'productsPagePic\']}}"  >  </div> <div class="info center-block  col-md-9 col-lg-7 col-xs-12" ng-bind-html="mainFeature.info | langField">  </div> <div class="orange contact-us common-button center-block center-block"  ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div> </div>  <div class="features"> <h3 class="section-title">{{\'product_features\' | i18n}}</h3> <div class="short-separator"></div> <div ng-include src="\'info/product/productFeatures\' | appTemplate"></div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div>  <div class="contact"> <div class="container col-lg-4 col-md-5 col-sm-6 col xs-10 center-block"> <h3 class="caption">{{\'product_contact_caption\' | i18n}}</h3> <div class="short-separator"></div> <div class="message-line">{{\'product_contact\' | i18n}}</div> <div class="orange contact-us common-button center-block" ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div> </div>  </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/info/product/productFeatures.html?0.739", '<div class="list container-fluid"> <div class="row"> <div class="item col-md-3 col-xs-10"  ng-repeat="feature in features" ng-if  = "feature.code!=\'main\'"> <div class="frame" ng-class="[feature.code,currentLang]"> <div class="image"  bs-cloudinary-bg="{{feature.resources[\'productsPagePic\']}}"  params=" {imageMode:\'fill\',size:\'360x226\'} ">  </div>  <div class="texts"> <h2 class="caption"> {{feature.title | langField}} </h2>   <div class="short-separator"></div> <div class="info" ng-bind-html="feature.info | langField"> </div>  </div> <div ng-if="feature.code==\'bidder\'"> <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> </div>  <div ng-if="feature.code==\'virtualAuctioneer\' && !isMobile">  <div class="orange  common-button center-block" ng-click="showDemo(\'virtualAuctioneer\')" >  <div class="text"> {{\'product_demo_virtual_auctioneer\' | i18n}}  </div> </div> </div>  </div>  </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/info/helpScreen.html?0.739", '<div class="help-screen scene" ng-controller="HelpScreensController" bs-scroll-to-top> <div class="content container">  <div class="float texts"> <h2 class="caption"> {{helpScreen.title | langField}} </h2> <div class="info" ng-bind-html="helpScreen.info | langField">  </div>  <div ng-switch="helpScreen.code"> <div ng-switch-when="live">  <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> <div class="clearfix"></div> </div> <div ng-switch-when="bids"> <div class="orange common-button center-block" ng-click="showRegistration()" ng-if="!currentUser">  <div class="text"> {{\'help_register\' | i18n}}  </div> </div>  </div> <div ng-switch-when="search"> <form name=\'searchForm\' novalidate bs-form  bs-submit="gotoSearch()" class="global-search-form center-block" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" ng-model="data.searchToken" bs-enter-key-action="gotoSearch()"/> </bs-form-group> <div class="button" ng-click="gotoSearch()"></div> <div class="clearfix"></div> </form> </div> </div> </div>   <div class="opposite float screenshot" bs-cloudinary-bg="{{sceenshot}}"></div> <div class="clearfix"></div> <div class="btn home btn-link center-block" ui-sref="app.home"> {{"home_back_to" | i18n }} </div> </div>   </div> '), 
+        $templateCache.put("/portal/templates/info/about.html?0.739", '<div  class="about scene" bs-scroll-to-top ng-controller="AboutController"> <div class="wide upper-part" >  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <H1>{{\'about_upper_caption\' | i18n}}</H1> <div class="short-separator"></div> <h2 class="text">{{\'about_upper_text\' | i18n}}</h2> </div> </div> </div> <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div class="portal-info"> <div class="line">{{\'about_portal_info_line_1\' | i18n}}</div> <div class="line">{{\'about_portal_info_line_2\' | i18n}}</div> </div>  <div class="short-separator"></div>  <div class="company-info"> <div class="line">{{\'about_company_info\' | i18n}}</div> </div> </div> <div class="contact"> <div class="container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div class="caption">{{\'about_contact_caption\' | i18n}}</div> <div class="short-separator"></div> <div class="message-line">{{\'contact_message_line_1\' | i18n}}</div> <div class="message-line">{{\'contact_message_line_2\' | i18n}}</div> <div class="orange common-button center-block" ui-sref="app.contact"> <div class="text">{{"link_contact" | i18n }}</div> </div> </div>  </div> <div ng-if="versionInfo" class="version-info" dir="ltr">{{versionInfo}}</div> </div> '), 
+        $templateCache.put("/portal/templates/info/upgradeRequired.html?0.739", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{"dialogs_notice_title" | i18n}}</div>  </div>  <div class="modal-body" ng-bind-html="\'upgrade_required_message\' | i18n"></div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-primary" ng-click="redirectToUpgrade()">{{"upgrade_required_upgrade_now" | i18n}}</button> </div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/manage/userAlertsMain.html?0.739", '<div ng-controller="UserAlertsController" class="userAlerts scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"user_alerts_title" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container">  <uib-accordion ng-if="currentUser" class="col-lg-8 col-md-9 col-sm-10 col-xs-12 center-block">  <uib-accordion-group is-open="opened[\'catalogs\']" class="catalogs"> <ng-include src="\'alerts/manage/newCatalogsSection\' | appTemplate"></ng-include>  </uib-accordion-group>  <uib-accordion-group is-open="opened[\'auctionsStart\']" class="auctions-start"  bs-text-direction> <ng-include src="\'alerts/manage/auctionsStartSection\' | appTemplate"></ng-include> </uib-accordion-group>  <uib-accordion-group is-open="opened[\'itemAlerts\']" class="item-alerts"  bs-text-direction ng-if="enableAlerts"> <ng-include src="\'alerts/manage/itemAlertsSection\' | appTemplate"></ng-include> </uib-accordion-group>   </uib-accordion>   </div>   </div> '), 
+        $templateCache.put("/portal/templates/alerts/manage/itemAlertsSection.html?0.739", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_item_alerts_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'itemAlerts\']" >{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-alerts" ng-if="itemsWithAlerts.length==0">{{"user_alerts_item_alerts_none" | i18n}}</div> <div class="item-alert-entry" ng-repeat="item in itemsWithAlerts"> <bs-lot-image lot="item" size="100x100" as-bg="true" image-mode="\'fit\'" class="float lot-pic"></bs-lot-image>  <div class="float info" ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"> <div class="item-index"> {{"lot_number" | i18n:{number:item.itemIndex} }}</div>  <div class="lot-text" ng-bind-html="item | lotText:100 "></div>   <bs-lot-price lot="item"  single-row="true" break-on-row="true"></bs-lot-price>  </div>  <bs-lot-alert-flag  lot="item"></bs-lot-alert-flag>  <bs-lot-badge lot="item" ></bs-lot-badge>  <div class="newLine"></div> </div> </div> '), 
+        $templateCache.put("/portal/templates/alerts/manage/auctionsStartSection.html?0.739", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_auctions_start_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'auctionsStart\']" >{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-auctions" ng-if="auctions.length==0">{{"auction_start_alert_no_auctions" | i18n}}</div> <div class="auction-entry" ng-repeat="auction in auctions"> <div class="float image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:\'100x100\'} "> </div> <div class="float texts"> <div class="name"> {{auction.house.details.name | langField}} - {{"auction_label_number" | i18n:{number:auction.number} }}&nbsp; <span class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span>  </div>  <div class="time" > {{auction | auctionTime}}  </div> <div class="description"> <div ng-bind-html="auction.name | langField"></div> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button> <div class="newLine"></div> </div> </div> '), 
+        $templateCache.put("/portal/templates/alerts/manage/newCatalogsSection.html?0.739", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-sm-8  float">{{"user_alerts_new_catalogs_title" | i18n}}</div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[\'catalogs\']">{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div ng-if="!saved"> <h4>{{"user_alerts_new_catalogs_message" | i18n}}</h4> <div class="alerts-choice-form" > <div class="form-group" ng-click="setChoice(\'ALL_HOUSES_FOR_REGION_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="ALL_HOUSES_FOR_REGION_ALERTS"/> <label ><span></span>{{"user_alerts_all_houses" | i18nWithRegion }}</label>  </div> <div ng-show="false" class="form-group" ng-click="setChoice(\'SOME_HOUSES_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="SOME_HOUSES_ALERTS"/>  <label><span></span>{{"user_alerts_some_houses" | i18n }}</label>  <div class="housesList" ng-show="housesListVisible"> <div class="caption">{{"user_alerts_choose_houses" | i18n }} </div>  <div class="float house" ng-repeat="house in houses" check-on-click="true" ng-if="devMode || (house.site.code && house.site.code!=\'demo\')" > <input type="checkbox" bs-checklist-model="data.housesToAlert" checklist-value="house.code" > {{house.details.name | langField}} </div> <div class="clearfix"></div>  </div> </div> <div class="form-group" ng-click="setChoice(\'NO_HOUSES_ALERTS\')"> <input type="radio"  ng-model="data.housesAlertChoice" value="NO_HOUSES_ALERTS"/> <label><span></span>{{"user_alerts_no_houses" | i18n }}</label>  </div> <div class="clearfix"></div> </div> <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"   action-fn="save()" label="\'dialogs_save\'" > </bs-async-button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <div ng-click="closeAll()" class="cancel btn btn-link">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </div>  <div ng-if="saved"> <h4>{{"user_alerts_saved" | i18n}}</h4> <br><br> <div ng-click="closeAll()" class="btn btn-link btn-lg">{{"dialogs_close" | i18n}}</div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/alerts/popups/itemAlertPopup.html?0.739", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"alert_notice_title" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-bind-html="itemAlertMessage"></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="$close()">{{"dialogs_close" | i18n}}</button> </div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/popups/installAppPopup.html?0.739", '<div class="install-app-popup"> <div class="alert-icon"></div> <div class="message-title default-align" ng-bind-html="options.messageTitle|i18n"></div> <div class="message default-align" ng-bind-html="options.message | i18n"></div> <br> <div ng-if="!options.mobileDevice"> <div class="col-xs-4 search-app">{{"app_install_search_app" | i18n }}</div> <div class="col-xs-4 install-app-qr-code"></div> <dic class="col-xs-4"></dic> <div class="clearfix"></div> </div> <div class="app-links"> <install-app-button ng-repeat="platform in options.platforms" platform="platform"></install-app-button> </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/popups/confirmFirstAlertPopup.html?0.739", '<div bs-text-direction > <div class="modal-header"> <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body" > <div class="alert-icon"></div>  <div class="message" ng-bind-html="messageKey | i18n"></div> </div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-link text-warning" ng-click="$close()">{{"dialogs_cancel" | i18n}}</button>  <button class="btn btn-primary" ng-click="onConfirm()">{{"first_auction_alert_confirm" | i18n}}</button> </div>    </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/popups/auctionStartPopup.html?0.739", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"alert_notice_title" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="dismiss()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-bind-html="message | i18n:{house:(auction.house.details.name | langField),url:auction.house.website} "></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="dismiss()">{{"dialogs_close" | i18n}}</button> </div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/common/alertFlag.html?0.739", '<div  ng-show="visible" class="alert-flag flag-button "  ng-class="{on:isFlagOn,off:!isFlagOn,\'just-changed\':justChanged, fixed:notEditable}" ng-click="toggleAlert()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()"  >  <!--  <div class="tooltip-catcher" ng-if="!justChanged && showTooltip" uib-tooltip="{{(isFlagOn ? onTitle : offTitle ) | i18n}}" tooltip-placement="right" >&nbsp;</div> -->  <div  class="fade-in-out fade toast"  ng-animate ng-class="{on:showToast,off:!showToast}" >{{toastMessage | i18n}}</div>   </div> '), 
+        $templateCache.put("/portal/templates/portalMain.html?0.739", '   <div ng-include src="\'elements/navigation/upperNavigation\' | appTemplate"></div>   <div  ng-show="!mobileMenuOn" class="page-body" ui-view dir="{{dir}}" ng-show="dataState==\'loaded\'" style="min-height:{{viewPort.innerHeight-300+\'px\'}}"></div>  <bs-content-loader loaded="dataState==\'loaded\'"></bs-content-loader>   <bs-page-footer dir="{{dir}}" ng-show="!mobileMenuOn"></bs-page-footer> '), 
+        $templateCache.put("/portal/templates/ads/homeFeaturedItems.html?0.739", '<div class="featured-items subframe"> <div class="featured-item" ng-repeat="itemAd in itemAds" ng-hide="itemAd.hidden" ng-click="gotoLot()"> <div class="pic" ng-style="{\'background-image\':\'url(\'+itemAd.ad.imageUrl+\')\'}"></div> <div class="text"> <div class="house">{{itemAd.ad.house.details.name | langField }}</div> <div class="caption">{{itemAd.ad.caption | langField }}</div> </div> </div> </div> '), 
+        $templateCache.put("/portal/templates/ads/homeHouseAd.html?0.739", '<div class="house-promotion subframe"  ng-click="onClick()" ng-show="houseAd">  <img class="float pic" ng-src="{{houseAd.imageUrl}}">  <div class="float info"> <div class="title">{{houseAd.title | langField }}</div> <div class="text"> {{houseAd.text  | langField }}</div> </div>  <div class="clearfix"></div>  </div> '), 
+        $templateCache.put("/portal/templates/ads/homeAds.html?0.739", '<div class="home-promotions"> <div class="inner"> <home-house-ad class="float" ng-if="adsInfoLoaded"></home-house-ad> <home-mobile-promotion class="opposite float"></home-mobile-promotion> <div class="clearfix"></div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/ads/homeMobilePromotion.html?0.739", '<div class="home-mobile-promotion frame" ng-click="showInstallPopup()">  <div class="float install-app-qr-code"></div>  <div class="float texts"> <div class="title"> {{\'home_mobile_app_title\'|i18n}} </div>  <div class="text"> {{\'home_mobile_app_text\'|i18n}} </div> </div>  <div class="clearfix"></div>  </div> '), 
+        $templateCache.put("/portal/templates/nudges/modal/housesAlertsModal.html?0.739", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>    <div class="action orange common-button"  ng-click="options.showRegisterForm()"> <div class="text">{{\'link_register\' | i18n}}</div></div>  '), 
+        $templateCache.put("/portal/templates/nudges/modal/nudgeModalPopup.html?0.739", '<div class="nudge-modal-popup" ng-class="nudgeType" bs-text-direction> <div class="content" ng-include src="(\'nudges/modal/\'+options.data.nudgeType+\'Modal\') | appTemplate" ng-class="nudgeType"> </div>  </div> '), 
+        $templateCache.put("/portal/templates/nudges/navbar/nudgeNavbarPopup.html?0.739", '<div class="nudge-navbar-popup" ng-show="isVisible" ng-class="nudgeType" ng-click="onClick()" bs-text-direction> <div class="close button">x</div> <div class="content" ng-if="isVisible" ng-include src="(\'nudges/navbar/\'+nudgeType+\'NavBar\') | appTemplate" ng-class="nudgeType">  </div>   </div> '), 
+        $templateCache.put("/portal/templates/nudges/navbar/housesAlertsNavBar.html?0.739", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>   <div class="action orange common-button"  ui-sref="app.alerts"> <div class="text">{{\'alerts_promotion_configure_command\' | i18n}}</div></div>  '), 
+        $templateCache.put("/portal/templates/nudges/scenes/installApp.html?0.739", '<div class="install-app-nudge scene" ng-controller="InstallAppNudgeController" bs-scroll-to-top> <div class="content container"> <div class="logo-icon"></div>  <div class="message default-align" ng-bind-html="\'app_install_nudge_message\' | i18n"></div> <br>  <div class="orange common-button center-block" ng-click="gotoStorePage()"> <div class="text">{{"app_install_nudge_download" | i18n }}</div> </div>  <div class="no-install" ng-click="continueOnBrowser()"> {{"app_install_nudge_continue" | i18n }} </div> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/auctions/results/houseSelection.html?0.739", '<div class="house-selection" > <div class="space hidden-sm"> </div> <h3 class="caption"> {{\'auctions_results_select_house\' | i18n}}</h3> <uib-dropdown  class="btn-group"  is-open="housesListOpen" ng-if="viewPort.pcMedia">  <div uib-dropdown-toggle type="button" class="default-align selected entry" > <div class="float"> <div ng-if="data.currentHouse"> <div class="float icon"  bs-cloudinary-bg="{{data.currentHouse.resources[\'mainPageLogo\']}}"  params="{size:\'60x15\'}"></div> <div class="float text">{{data.currentHouse.details.name | langField }}</div> <div class="clearfix"></div> </div> <div ng-if="!data.currentHouse">  <div class="text">{{"auctions_results_all_houses" | i18n }}</div> </div> </div> <div class="opposite float caret {{dir}}" ></div> <div class="clearfix"></div> </div>   <ul class="uib-dropdown-menu" role="menu">  <li ng-if="data.selectedHouseCode!=\'all\'" ng-click="showHouseAuctions(\'all\')"> <div class="default-align entry"> <div class="text">{{"auctions_results_all_houses" | i18n }}</div> </div> </li>  <li ng-repeat="house in houses" ng-click="showHouseAuctions(house.code)"> <div class="default-align entry"> <div class="float icon" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"  params="{size:\'60x15\'}"></div> <div class="float text">{{house.details.name | langField}}</div> <div class="clearfix"></div> </div>  </li> </ul> </uib-dropdown> <div ng-if="viewPort.mobileMedia" class="mobile-dropdown"> <select ng-model="data.selectedHouseCode" ng-change="onMobileDropDownChange()" bs-text-direction> <option value="all">{{"auctions_results_all_houses" | i18n }}</option> <option ng-repeat="house in houses" value="{{house.code}}"  ng-selected="house.code == data.selectedHouseCode">{{house.details.name | langField | trim:20 }}</option> </select> </div> <div class="short-separator"></div> </div> '), 
+        $templateCache.put("/portal/templates/auctions/results/auctionsResults.html?0.739", '<div ng-controller="AuctionsResultsController" class="auctions-results scene"> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"auction_results_title" | i18n }}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content"> <div  ng-include src="\'auctions/results/houseSelection\' | appTemplate"></div>  <bs-pagination	pages-data="pagesData"	href-pages="true"> </bs-pagination> <div class="clearfix"></div> <bs-content-loader loaded="!displayeAuctionsLoader"></bs-content-loader> <div class="auctions-lists-group" ng-show="!displayeAuctionsLoader">  <bs-auctions-list  auctions="pageAuctions"  view="\'recent\'"> </bs-auctions-list> </div>  <bs-pagination	pages-data="pagesData"	href-pages="true" ng-show="!displayeAuctionsLoader"> </bs-pagination> </div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogItemWide.html?0.739", ' <div >  <bs-lot-image lot="lot" size="220x220" as-bg="true" image-mode="\'fit\'">  </bs-lot-image> <meta itemprop="image" content="{{lot | lotImage:\'220x220\'}}"></meta>   <bs-lot-badge lot="lot" ></bs-lot-badge>   <div class="item-bottom-part">  <div class="above-separator"> <span class="lot-number" itemprop="sku"> {{"lot_number" | i18n:{number:lot.itemIndex} }} </span> <span itemprop="name" ng-bind-html="lot | lotText:60 "></span>  </div>  <div class="short-separator"></div>  <div class="below-separator" bs-text-direction>  <div ng-if="lot.soldLotBid || !lot.leadingBid"> <bs-lot-price lot="lot" max-width="\'125\'" single-row="true" break-on-row="false"></bs-lot-price>  <div class="orange common-button"> <div class="text"> {{"catalog_view_lot" | i18n }} </div> </div> </div> <leading-bid ng-if="lot.leadingBid" lot="lot"></leading-bid> </div>  </div>  </div>    '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogMain.html?0.739", '<div ng-controller="CatalogListController" > <div class="catalog scene"> <div class="content col-xs-12" > <bs-auction-info ng-if="data.auction" auction="data.auction" ></bs-auction-info> <div class="catalog-actions viewport_{{viewPort.viewPortWidth}}" bs-text-direction ng-class="{\'no-categories\':filterData.categories.length==0}" > <bs-catalog-list-filter ng-if="data.auction && data.items"></bs-catalog-list-filter> <bs-auction-start-alert-button  auction="data.auction" ng-if="data.auction && viewPort.mobileMedia"></bs-auction-start-alert-button> </div>  <div ng-if="pagesData.pageItems.length>0">  <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'upper\'" href-pages="true" ></bs-catalog-list-pagination> <div  bs-scroll-on watched-value="scrollToPagination" offset="-200"></div> <div ng-if="!displayeItemsLoader"  ng-include src="\'auctions/catalogs/list/catalogItems\' | appTemplate"  ></div> <bs-content-loader loaded="!displayeItemsLoader"></bs-content-loader> <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'lower\'" href-pages="true"></bs-catalog-list-pagination>  <bs-house-regisration-promotion ng-show="!displayeItemsLoader" auction="data.auction" class="promotion-bottom"> </bs-house-regisration-promotion>  </div> <bs-content-loader loaded="pagesData.pageItems!=null"></bs-content-loader>  </div>  <div ng-if="isIe8" ie8-warning></div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogItems.html?0.739", '<div class="list" ng-class="{\'mobile-list\':!viewPort.isWideDevice,\'has-leading-bids\':auction.showLeadingBids}">  <div class="row"> <div class="item" itemscope itemtype="http://schema.org/Product" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="{\'pc-item\':viewPort.isWideDevice,\'mobile-item\':!viewPort.isWideDevice}" bs-scroll-on="lot.id == scrollTo" offset="-200"  > <a  itemprop="url"  class="item-link" ng-href="#!/lotPage/source/catalog/auction/{{lot.auctionId}}/lot/{{lot.id}}" > <div  ng-if="viewPort.isWideDevice"     ng-include src="\'auctions/catalogs/list/catalogItemWide\' | appTemplate" class="frame"> </div> <div  ng-if="!viewPort.isWideDevice" ng-include src="\'auctions/catalogs/list/catalogItemNarrow\' | appTemplate"> </div> </a> <bs-lot-favorite-flag lot="lot"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="lot"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogItemNarrow.html?0.739", '<div class="lot-row">  <bs-lot-badge lot="lot"  ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"></bs-lot-badge>  <bs-lot-image lot="lot" size="260x176" as-bg="true" image-mode="\'fit\'" class="lot-pic"></bs-lot-image>  <div class="info" ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"> <div class="item-index"> {{"lot_number" | i18n:{number:lot.itemIndex} }}</div>  <div class="lot-text" ng-bind-html="lot | lotText:100 "></div>   <bs-lot-price ng-if="!(lot |shouldShowLeadingBid)" lot="lot"  single-row="true" break-on-row="true"></bs-lot-price>  </div>  <leading-bid ng-if="lot | shouldShowLeadingBid" lot="lot" ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}">></leading-bid>  </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogPagination.html?0.739", ' <div class="catalog-pagination text-center" ng-class="[currentLang, positionInPage, {\'lifted\':data.lifted}]" bs-text-direction  >  <bs-pagination  ng-if="data.availableWidth" pages-data="pagesData"  href-pages="hrefPages" on-current-page-change="onCurrentPageChange()"  available-width="data.availableWidth"  >  </bs-pagination>   </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/list/catalogFilterPanel.html?0.739", '<div class="filter-panel" >  <div class="float section" > <form name=\'searchForm\' novalidate bs-form  bs-submit="search()" class="search-form"> <bs-form-group field-name="phrase" label="catalog_search_placeholder"> <input  bs-place-holder  name="phrase"  class="form-control"  ng-model="filterData.phrase"  ng-keyup="searchAfterDelay()"  ng-focus="onInputFocus()" /> </bs-form-group> </form> <div class="result" >{{resultMessage}} <span class="clear-link" ng-if="filterData.phrase" ng-click="clearSearch()">{{"catalog_search_clear" | i18n}}</span></div> <div class="sold-state" ng-if="data.auction.state==\'ENDED\'"> <select  ng-model="filterData.soldState" ng-change="applySoldStateFilter()"  ng-options="(\'catalog_sold_state_\'+ soldState) | i18n for soldState  in [\'all\',\'sold\',\'unsold\']"> </select> </div> </div>  <div class="opposite float section"> <div class="categories" ng-class="{invisible:filterData.categories.length==0}"> <select  ng-model="filterData.category" ng-change="filterByCategory()" ng-options="category.value as category.name for category in filterData.categories"> </select> </div> </div>    <div class="clearfix"></div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/search/searchItems.html?0.739", ' <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row">  <div class="item" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia}" bs-log-click="search-lot-{{lot.auction.house.code}}-{{lot.auction.date | date :\'dd.MM.yy\'}}-{{lot.itemIndex}}" ng-click="gotoLot(lot)">  <div class="item-link"  bs-scroll-on="lot.id == scrollTo" > <div ng-if="viewPort.pcMedia"     ng-include src="\'auctions/catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'auctions/catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div>    </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/search/searchMain.html?0.739", '<div ng-controller="SearchController" > <div class="catalog search scene"> <div class="content col-xs-12" >   <form name=\'searchForm\' novalidate bs-form  bs-submit="doSearch()" class="float global-search-form" bs-text-direction bs-enter-key-action="doSearch()"> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" debug="true" ng-model="data.token"  /> </bs-form-group> <div class="button noselect" ng-click="doSearch()"> <div class="icon"> </div> </div> <div class="clearfix"></div> </form>  <div class="opposite float home btn-link" ui-sref="app.home">{{"home_back_to" | i18n }}</div>  <div class="clearfix"></div>  <div class="result" ng-class="{invisible:!data.searchedToken}" >  <span ng-if="searching">{{"search_searching" | i18n}}</span> <span ng-if="!searching"> {{ (pagesData.itemsCount ? "search_results" : "search_no_results") | i18n:{count:pagesData.itemsCount, token:data.searchedToken}  }} </span>  </div>  <div class="time-form"> <div class="radio" ng-click="data.searchTime=\'FUTURE\'"> <label> <input type="radio"  ng-model="data.searchTime" value="FUTURE"> {{"search_future" | i18n }} </label> </div> <div clas="clearfix"></div> <div class="radio" ng-click="data.searchTime=\'PAST\'"> <label> <input type="radio"   ng-model="data.searchTime" value="PAST"> {{"search_past" | i18n }} </label> </div> </div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="currentLang==\'ru\' ? \'\' : \'upper\'" on-current-page-change="onPageChange()" ></bs-catalog-list-pagination> <div bs-scroll-on watched-value="scrollToPagination" offset="-200"></div> <div ng-if="loadState==\'loaded\'"> <br>  <div  ng-include src="\'auctions/catalogs/search/searchItems\' | appTemplate"  ></div>  </div>   <div ng-if="loadState==\'loading\'"> <bs-content-loader ></bs-content-loader> </div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="\'lower\'" on-current-page-change="onPageChange()"></bs-catalog-list-pagination>   </div> </div> </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/lotPageMain.html?0.739", '<div ng-controller="LotPageController" > <div class="catalog  scene lotPage">  <div class="content col-xs-12" >   <div ng-if="data.item "> <div ng-include src="\'auctions/catalogs/lotPage/pc/lotPagePc\' | appTemplate" ng-if="viewPort.pcMedia"></div> <div ng-include src="\'auctions/catalogs/lotPage/mobile/lotPageMobile\' | appTemplate" ng-if="viewPort.mobileMedia"></div> </div> <bs-content-loader loaded="data.item!=null"></bs-content-loader> <div class="clearfix"></div>  </div> </div> </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/pc/lotPagePc.html?0.739", '<div  itemscope itemtype="http://schema.org/Product"> <bs-auction-info auction="data.auction" ng-if="data.auction" ></bs-auction-info>   <table> <tr> <td class="info-td"> <div class="lot-number" itemprop="sku"> {{"lot_number" | i18n:{number:data.item.itemIndex} }} </div> <div class="upper-title" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}"> <h2 class="lot-name"  itemprop="name" ng-bind-html="data.shortTitle" > </h2> <div ng-if="showMore" dir="{{textDirection}}" class="btn btn-link more-link" ng-click="scrollToDescription()">  <span bs-text-direction> {{"more" | i18n }}... </span> </div> </div>  </td>   <td class="float actions-td"> <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </td> </tr> <tr>  <td class="info-td">  <bs-lot-page-images lot="data.item"></bs-lot-page-images> </td> <td class="float actions-td"> <bs-lot-bid-form lot="data.item"></bs-lot-bid-form> <bs-lot-share-buttons class="opposite float" lot="data.item" text="data.shortTitle" ></bs-lot-share-buttons> <div class="clearfix"></div>  <div ng-include src="\'auctions/catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>   <div class="clearfix"></div> </td>  </tr>  </table>   <div class="lot-description-section" itemprop="description" ng-if="data.lotDesc" bs-scroll-on watched-value="scrollToDescriptionFlag"> <h4 class="description-text" ng-bind-html="data.lotDesc" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}"></h4> </div>  <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/pc/lotZoomModal.html?0.739", '<div class="zoom-image noselect"> <div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button>  <bs-lot-page-zoom lot="data.item" initial-image-ind="data.imageInd"> </bs-lot-page-zoom> </div>  </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/mobile/lotZoomSubScene.html?0.739", '<div class="lot-sub-scene zoom" ng-style="{height:viewPort.clientHeight-150}" bs-scroll-to-top>  <a class="btn btn-link back" ui-sref="^">{{"lot_back" | i18n : {number:data.item.itemIndex} }}</a> <bs-lot-page-zoom lot="data.item"> </bs-lot-page-zoom>  </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/mobile/lotPageMobile.html?0.739", '<div> <div ng-show="\'app.lotPage\' | isState"> <bs-auction-info auction="data.auction" ng-if="$stateParams.source==\'search\' && data.auction" ></bs-auction-info>  <div class="first-row"> <bs-lot-page-navigation lot="data.item" class="opposite float"></bs-lot-page-navigation> <div class="float flags" ng-class="source" bs-text-direction> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div> <div class="second-row">  <div class="float lot-number"> {{"lot_number" | i18n:{number:data.item.itemIndex} }} </div>  <div class="clearfix"></div> </div> <div class="upper-title" dir="{{textDirection}}"> <h2 class="lot-name" ng-bind-html="data.showFullText ? data.fullTitle : data.shortTitle" > </h2> <div ng-if="showMore && !data.showFullText" class="btn btn-link more-link" ng-click="showFullText()"> {{"more" | i18n }}... </div> </div>  <div class="lot-description-section" ng-show="data.showFullText" dir="{{textDirection}}"> <div class="description-text" ng-bind-html="data.lotDesc"></div> </div>  <bs-lot-page-images lot="data.item"></bs-lot-page-images>  <bs-lot-share-buttons lot="data.item" text="data.shortTitle" ></bs-lot-share-buttons>  <bs-lot-bid-form lot="data.item" ></bs-lot-bid-form>      <div ng-include src="\'auctions/catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>  <div class="clearfix"></div> <br><br> <div class="opposite float">  <bs-lot-page-navigation lot="data.item"  ></bs-lot-page-navigation> </div>  <div class="clearfix"></div> </div>   <div ui-view > </div>   </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/confirmation/confirmBid.html?0.739", '<div class="confirm-bid" ng-controller="ConfirmBidController"  ng-init="init()" > <table> <tr> <td class="pic-columm" rowspan="{{viewPort.mobileMedia?1:3}}"> <bs-lot-image lot="lot" size="120x120" image-ind="0"  image-mode="\'fit\'"> </bs-lot-image> </td> <td class="caption"> {{"confirm_bid_lot" | i18n}}: </td> <td class="value"> {{lot.itemIndex}} </td>  </tr>  <tr> <td class="caption"> {{"confirm_bid_desc" | i18n}}: </td> <td class="value" ng-bind-html="lot | lotText:60" colspan="{{viewPort.mobileMedia?2:1}}"> </td> </tr> <tr> <td class="caption"> {{"confirm_bid_price" | i18n}}: </td> <td class="price value"> {{bidPrice | sumInCurrency:lot.auction.catalogInfo.currency}} </td> </tr>  <tr class="send-alert" ng-show="alertEnabled"> <td ng-if="!viewPort.mobileMedia"></td> <td colspan="{{viewPort.mobileMedia?3:2}}" > <table> <tr> <td> <input  type="checkbox" class="float" name="over18" ng-model="sendAlert" required/> <bs-checkbox class="float"  bs-model="sendAlert"></bs-checkbox> </td> <td valign="middle">  {{"confirm_bid_send_alert" | i18n}} </td>  </table>  </td>  </tr> </table>  <div class="clearFix"></div>  <div class="terms-message"> <bs-linkable-text options="{ textKey:\'confirm_bid_terms_message\', textParams:{houseName:(lot.auction.house.details.name | langField)}, onLinkClick:showTerms  }" > </bs-linkable-text> </div>     </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/images/lotPageImages.html?0.739", '<div class="lot-images-section"> <div class="big-image zoom-in-cursor" > <bs-lot-image lot="lot" size="{{mainImagewidth}}x" image-ind="0" ng-click="zoomImage(lot, 0)" ></bs-lot-image> </div>   <div class="thumbs" ng-if="lot.imagesList.length>1"> <div ng-repeat = "imageName in lot.imagesList" class="float thumb zoom-in-cursor" ng-click="zoomImage(lot, $index)" ng-if="!$first"> <bs-lot-image   lot="lot" size="x80" image-ind="$index"> </bs-lot-image> </div> <div class="clearfix"></div> </div>  </div>    '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/images/lotPageZoom.html?0.739", '<div> <div class="lot-page-zoom-image-navigation" ng-if="lot.imagesList.length>1" dir="ltr"> <div class="prev link " ng-click="prevImage()"><div class="text">◀</div></div> <div class="thumbs" bs-width-limit="{lessThen:\'screenWidth - 150\'}"> <div ng-repeat = "imageName in lot.imagesList"  class="thumb"  thumb-ind="$index" ng-click="setZoomImage($index)" ng-class="{selected:selectedImageInd == $index}"> <bs-lot-image   lot="lot" size="x50" image-ind="$index"> </bs-lot-image> </div> </div> <div class="prev link noselect" ng-click="nextImage()"><div class="text">▶</div></div> <div class="clearfix"></div> </div>  <div class="big-image" ng-class="cursorZoomClass"> <bs-lot-image  lot="lot" image-ind="selectedImageInd" watchable="true" enable-magnifier="{{options.enableMagnifier}}"  size="{{options.size}}" move-in-frame="options.moveInFrame"  as-bg="options.asBg"  image-mode="options.imageMode" debug="true"   loaded-image-info="loadedImageInfo"> </bs-lot-image> </div>   </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/increments.html?0.739", '<div class="increments-table">  <table class="table table-striped table-bordered table-hover" dir="{{dir}}"> <tr> <th class="default-align">{{"increment_price" | i18n}}</th> <th class="default-align">{{"increment_step" | i18n}}</th> </tr> <tr ng-repeat="step in options.data.steps"> <td class="default-align">{{step.price | sumInCurrency:options.data.currency}}</th> <td class="default-align">{{step.increment | sumInCurrency:options.data.currency}}</th> </tr> </table>  </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/lotPageInfoLinks.html?0.739", '<div bs-text-direction> <div class="info-link default-align" ng-click="toggleFavorite()"> <span ng-if="!data.item.isFavorite"> <span class="plus">+</span>&nbsp;<span class="btn btn-link">{{"lot_page_add_to_favorites" | i18n }}</span> </span>  <span ng-if="data.item.isFavorite" class="btn btn-link">{{"lot_page_remove_from_favorites" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:favoriteToastMessage,off:!favoriteToastMessage}">{{favoriteToastMessage | i18n}}</span> </div>  <div class="info-link default-align" ng-if="itemAlertsEnabled" ng-click="toggleItemAlert()"> <span ng-if="!data.item.itemAlertOn"> <span class="plus">+</span>&nbsp;<span class="btn btn-link">{{"item_alert_add" | i18n }}</span> </span> <span ng-if="data.item.itemAlertOn" class="btn btn-link">{{"item_alert_remove" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:itemAlertToastMessage,off:!itemAlertToastMessage}">{{itemAlertToastMessage | i18n}}</span> </div>  <div class="btn btn-link info-link default-align" ng-click="openAuctionHouseTerms()" > {{"house_terms" | i18n:{house:(data.auction.house.details.name | langField)} }}</div>  <div class="btn btn-link info-link default-align animation" ng-click="showIncrements()" > {{"house_increments" | i18n }}</div>  <div class="info-link default-align" ng-click="showInquiryForm()"  > <span class="btn btn-link">  {{"lot_page_inquiry" | i18n }} </span>  <span class="fade-in-out fade toast" ng-animate  ng-class="{on:showInquiryToast,off:!showInquiryToast}">{{"lot_page_inquiry_sent" | i18n}}</span> </div> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/inquiry/inquiryForm.html?0.739", '<div class="inquiry-form" ng-controller="InquiryFormController"  ng-init="init()">  <p> <label>{{"inquiry_form_to" | i18n }}:&nbsp;</label>{{"inquiry_form_house" | i18n:{house:options.data.house} }} </p>  <br> <p> <label>{{"inquiry_form_subject" | i18n }}:&nbsp;</label><span ng-bind-html="inquiryData.subject"></span> </p>  <br>  <form name=\'inquiryForm\'  novalidate bs-form  bs-submit="sendInquiry()"> <bs-form-group field-name="content" label="inquiry_form_content"> <label></label> <bs-form-validation-message  ></bs-form-validation-message> <textarea  rows="7"  class="form-control"  required name="content" ng-model="inquiryData.content"> </textarea>  </bs-form-group>  </form>     </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/navigation/lotPageNavLink.html?0.739", '<div class="float">  <div ng-if="name==\'previous\'"> <div class="float arrow {{lang}}" ng-class="{\'point-left\':direction==\'ltr\', \'point-right\':direction==\'rtl\'}"></div> <div class="float text" ng-if="showText">&nbsp; {{"catalog_nav_previous" | i18n  }}</div> </div>  <div ng-if="name==\'next\'"> <div class="float text" ng-if="showText">{{"catalog_nav_next" | i18n  }}&nbsp;</div> <div class="float arrow {{lang}}" ng-class="{\'point-right\':direction==\'ltr\', \'point-left\':direction==\'rtl\'}"></div> </div>    </div>     '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/lotPage/common/navigation/lotPageNavigation.html?0.739", '<div class="opposite float lot-page-navigation" bs-text-direction >  <div ng-switch="source">  <span ng-switch-when="catalog"> <a class="float btn " ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_catalog" | i18n  }} </a> <a  ng-if="previousLotId" class="float btn btn-link" ng-href="#!/lotPage/source/catalog/auction/{{lot.auctionId}}/lot/{{previousLotId}}" > <div> <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  </a> <div ng-if="!previousLotId" class="disabled btn float" > <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  <a ng-if="nextLotId" class="float btn btn-link"  ng-href="#!/lotPage/source/catalog/auction/{{lot.auctionId}}/lot/{{nextLotId}}" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </a>  <div ng-if="!nextLotId" class="disabled btn float" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </div>  <div class="clearfix"></div> </span>  <span ng-switch-when="absentee">  <div class="float btn btn-link" ng-click="backToList()"> {{"my_account_back_to_absentee" | i18n  }} </div>  <a class="float btn "   ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>  <span ng-switch-when="won">  <div class="float btn btn-link" ng-click="backToList()"> {{"my_account_back_to_won" | i18n  }} </div>  <a class="float btn "   ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>     <span ng-switch-when="search">  <a class="float btn btn-link" ng-click="backToList()"> {{"search_back_to" | i18n  }} </a> <a class="float btn btn-link"   ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>  <span ng-switch-when="favorites">  <a class="float btn" ng-click="backToList()"> {{"favorites_back_to" | i18n  }} </a> <a class="float btn "   ng-href="#!/catalog/auction/{{lot.auctionId}}/"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>   </div> </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/leadingBid.html?0.739", '<div class="leading-bid" ng-class="info.leadingBidType"> <div class="message">{{info.message |i18n:{price:info.messagePrice}  }}</div> <div class="highlighted-area"> <div class="lead-type">{{info.label | i18n}}:</div> <div class="price"> {{info.displayPrice}}</div> <div class="dummy-link"> {{"catalog_view_lot" | i18n }} </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotImage.html?0.739", '<div class="lot-image" ng-class="{\'narrow-height\':narrowHeight}"> <div class="state-info" ng-if="stateVisible" bs-text-direction>{{stateInfo | i18n}}</div> <img ng-if="!enableMagnifier" ng-src="{{loadedImageSrc}}"  ng-show="loadedImageSrc && !stateVisible">  <div  ng-if="enableMagnifier && loadedImageSrc && !stateVisible"  data-ng-magnify  image-src="{{loadedImageSrc}}"  data-glass-width="250" data-glass-height="250" ></div> {{scope.stateVisible}}  </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotExpiration.html?0.739", '<div class="lot-expiration" ng-class="expirationState" > {{text}} </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/leadingBidMessage.html?0.739", '<div class="leading-bid-message" ng-show="message" >{{message |i18n:{price:price}  }}</div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotPrice.html?0.739", '<div class="lot-price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">  <div class="lot-price-row" ng-if="showStartPrice"> <div class="lot-price-label start-price">{{"lot_start_price" | i18n}}:</div> <div class="lot-price-value" bs-auto-font-size="{grow:false,minSize:7,maxWidth:maxWidth}" ng-bind-html="startPrice"></div> <div class="clearfix" ng-if="breakOnRow"></div> </div> <div class="lot-price-row" ng-if="showNoPrice"> <div class="lot-price-label no-price" itemprop="price">{{"lot_no_price" | i18n}}</div> <div class="clearfix" ng-if="breakOnRow"></div>  </div> <div class="lot-price-row" ng-if="showEstimatedPrice"> <div class="lot-price-label estimated-price"  >{{"lot_estimated_price" | i18n}}:</div> <div class="lot-price-value" dir="ltr" bs-auto-font-size="{grow:false,minSize:7,maxWidth:maxWidth}" max-width="maxWidth" ><div ng-bind-html="estimatedPrice"></div></div> <div class="clearfix" ng-if="breakOnRow"></div> </div> </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/registrationPromotion.html?0.739", '<div class="registration-promotion"> <div ng-if="auction "> <div ng-if="auction.state==\'ENDED\'"> <span class="text" > {{\'promotion_auction_ended\' | i18n}}</span> </div> <div ng-if="auction.state!=\'ENDED\'"> <div ng-if="auction.catalogOnly">  <span class="text" > {{\'promotion_catalog_only\' | i18n:houseParams}}</span> </div>  <div ng-if="!auction.catalogOnly">  <div ng-if="auction.state==\'RUNNING\'" > <div class="float button" ng-click="openAuctionSite()"> <div class="text">{{text(\'promotion_live_auction\')}}</div> </div> <div class="clearfix"></div>  </div>  <div ng-if="auction.state==\'READY\'" ng-switch="userState"> <div ng-switch-when="NOT_LOGGED_IN"> {{text(\'promotion_not_logged_in_auction\')}}&nbsp-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'link_login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'link_register\' | i18n}}</span></span> <span class="clearfix"></span> </span>  </div> <div ng-switch-when="NOT_REGISTERED"> <span class="float text"> {{text(\'promotion_not_registered_to_auction\')}}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'promotion_register_to_house\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-switch-when="PENDING"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="INCOMPLETE_PROFILE"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="APPROVED"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div> </div>  <div ng-if="!auction && house && !house.site.down">  <div ng-switch="userState"> <div ng-switch-when="NOT_LOGGED_IN"> {{\'promotion_not_logged_in_house\' | i18n:{house:(house.details.name | langField)} }}&nbsp-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'link_login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'link_register\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div> <div ng-switch-when="NOT_REGISTERED"> <span class="float text"> {{\'promotion_not_registered_to_house\' | i18n }}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'promotion_register_to_house\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-switch-when="PENDING"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="INCOMPLETE_PROFILE"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="APPROVED"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div>    '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/auctionInfo.html?0.739", '<div class="auction-info center-block" > <div class="float auction-texts"> <h3 class="auction-name" id="auctionInfo" ui-sref="app.catalog({auctionId:auction.id})">  <span ng-if="auction.number"> {{"auction_label_number_public" | i18n:{number:auction.number} }} <span ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span> - </span>  <span> {{auction.name | langField}} </span> </h3> <h2 class="house-name"> <a ng-href="#!/houses/{{auction.house.code}}" class="btn-link" ng-if="auction.house.orderInd">{{ "catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</a> <span ng-if="!auction.house.orderInd">{{ "catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</span>  </h2>   <div class="time-and-location"> <span>{{auction | auctionTime}}</span> <span ng-if="auction.address | langField"> , {{auction.address | langField}} </span>  </div> <div ng-if="auction.state!=\'ENDED\'"> <span class="terms btn-link" ng-click="showHouseTerms()">{{"house_terms_short" | i18n}}</span>  &nbsp;&nbsp;&nbsp;&nbsp; <span ng-if="auction.state!=\'ENDED\' && auction.displayHours[currentLang]" class="display-hours btn-link" ng-click="showDisplayHours()">{{"catalog_display_hours" | i18n}}</span> </div>    </div> <div class="opposite float logo" bs-cloudinary-bg="{{(auction.house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div> <div class="clearfix"></div>  <div class="long-details" ng-if="auction.longDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="\'<BR>\'+(auction.longDetails | langField)"> </div>   <bs-house-regisration-promotion auction="auction" > </bs-house-regisration-promotion> <hr>  <bs-auction-structured-data auction="auction"></bs-auction-structured-data>   </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotBadge.html?0.739", '<div class="lot-badge" ng-class="badgeType" > <div class="text" ng-class="{\'long-text\':longText}" ng-if="visible" ng-bind-html="text | capitalize"  ></div> </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/lotFavoriteFlag.html?0.739", '<div  class="favorite-flag flag-button"  ng-class="{on:lot.isFavorite,off:!lot.isFavorite,\'just-changed\':justChanged}"  ng-click="toggleFavorite()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()" > <!--  <div class="tooltip-catcher"  ng-if="!justChanged" uib-tooltip="{{(lot.isFavorite ? \'lot_page_remove_from_favorites\' : \'lot_page_add_to_favorites\' ) | i18n}}" tooltip-placement="top" >&nbsp;</div> -->  </div> '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/shareButtons.html?0.739", '  <div class="share-buttons" > <div ng-repeat="button in [\'fb\',\'twitter\',\'google\',\'pinterest\',\'email\']" class="float button" ng-class="button"  ng-click="share(button)" title="{{buttonName(button)}}"></div> <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/catalogs/elements/bidForm.html?0.739", '  <div class="bid-form" bs-text-direction > <div ng-if="scrollToForm" bs-scroll-on="scrollToForm" offset="-200" class="scroll-anchor">&nbsp;</div>  <div class="bid-info" ng-if="bidLabel" ng-class="bidInfoClass" >  <div class="highlight-area"> <span class=\'bid-label\'>{{bidLabel.text}}:&nbsp;{{bidLabel.price}}</span> <div class="leading-bid-message"  ng-show="leadingBidMessage" >{{leadingBidMessage}}</div> </div> </div>  <table> <tr ng-if="mode==\'existing\'" > <td></td> <td class=\'bid-label-space\'></td> <td> <div class="links"> <div class="float btn-link" ng-click="setEditMode({focus:true})">{{"dialogs_edit" | i18n}}</div> <div class="float bid-link-space"></div> <bs-async-button button-class="\'left btn-link\'" action-fn="removeBidIfConfirmed()" label="\'dialogs_remove\'" ></bs-async-button> <div class="clearfix"></div> </div> </td> </tr> </table>  <div class="edit-mode" ng-if="mode==\'edit\' || mode==\'new\'"> <label> {{lot.auction.showLeadingBids ? "lot_max_bid" : "lot_leave_bid" | i18n }}:</label> <form>  <div class="float input-bg"> <input  dir="ltr" ng-model="model.bidPrice" class="form-control" ng-class="{transparent:showMinPrice}" type="number" ng-blur="onInputBlur()"  ng-focus="onInputFocus()"  > <div   ng-show="showMinPrice" class="min-price"  ng-click="onMinPriceClick()" > {{minPrice}}<br>{{"lot_min_price_or_more" | i18n}} </div> </div>  <div class="float currency">{{lot.auction.catalogInfo.currency}}</div>  <bs-async-button button-class="\'float orange common-button \'+currentLang" action-fn="tryToPlaceBid()" bs-current-lang label="\'lot_submit_bid\'" ></bs-async-button>  <div class="clearfix"></div> <div ng-if="mode==\'edit\' && !lot.auction.showLeadingBids" class="cancel btn btn-link lowercase" ng-click="cancelEdit()">{{"dialogs_cancel" | i18n}}</div> </form> <div class="clearfix"></div> </div>    <div class="bid-info disabled-mode" ng-if="mode==\'disabled\'"> <label ng-bind-html="getDisabledMessage()"></label> </div>  <div class="bid-info ended-mode" ng-if="mode==\'ended\'"> <label ng-if="!lot.soldLotBid"> {{"lot_not_sold" | i18n }} </label> </div>  <div class="bid-info running-mode" ng-if="mode==\'running\'"> <label>{{"auction_running" | i18n }}</label> <div class="center-block common-button live darkBlue" ng-click="openAuctionSite()"> <div class="text"> {{"home_auction_enter" | i18n }} </div> </div> </div>  <bs-lot-price lot="lot"  single-row="false" break-on-row="true"></bs-lot-price>  <div class="leading-bid-info" ng-if="leadingBidLine" ng-class="leadingBidType"> <div class="leading-bid-line">{{leadingBidLine}}</div> <div class="high-bidder-message">{{leadingBidMessage}}</div> </div>   <div class="past-lot" ng-if="mode==\'ended\'"> <bs-linkable-text options="{ textKey:\'lot_past_info\', textParams:{house:(lot.auction.house.details.name | langField), date:(lot.auction.date | date:\'dd/MM/yyyy\')}, onLinkClick:gotoHousePage  }" > </bs-linkable-text> </div> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/home/homeMain.html?0.739", '<div ng-controller="HomeController"> <div class="home scene"> <div class="upper-part"  ng-class="[screenHeightClass]"> <bs-houses-carousel ></bs-houses-carousel>  <div class="overlay" >  <div class="message" > <div class="logo-icon" bs-check-bidmood></div>  <h1  ng-bind-html="upperMessage"></h1>  <h4 class="features with-links" ng-if="featuresAsLinks" >  <a href="#!/help/search"> {{\'home_upper_feature_search\' | i18n}}</a> <span class="bullet"></span> <a href="#!/help/live">{{\'home_upper_feature_live\' | i18n}}</a> <span class="bullet"></span> <a href="#!/help/bids">{{\'home_upper_feature_bid\' | i18n}}</a> </h4>  <h4 class="features" ng-if="!featuresAsLinks" >  {{\'home_upper_feature_search\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_live\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_bid\' | i18n}} </h4> </div>  <home-ads ng-if="viewPort.pcMedia"></home-ads>  <div class="clearfix"></div>  </div>  </div>  <div class="content" ng-class="[screenHeightClass]">  <bs-content-loader loaded="data.auctions"></bs-content-loader>  <div ng-if="data.auctions" >  <form name=\'searchForm\' novalidate bs-form  bs-submit="gotoSearch()" class="global-search-form" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" ng-model="data.searchToken" bs-enter-key-action="gotoSearch()"/> </bs-form-group> <div class="button" ng-click="gotoSearch()"></div> <div class="clearfix"></div> </form>  <div bs-scroll-on="scrollToAuctions" watched-value="scrollToAuctions" offset="auctionScrollOffset"> </div>  <home-house-ad  ng-if="viewPort.mobileMedia"></home-house-ad>  <bs-auctions-lists-group  auctions-data="data"  show-region-selection="!bidmoodEnv"  future-house-name-as-link="true"  minimized-view="minimizedView"  ng-class="screenHeightClass"  >  </bs-auctions-lists-group>   <div ng-if="data.auctions.length"> <a g-style="{display:data.auctions.length ? \'block\' : \'none\'}" href="#!/results/all/1"  class="results orange common-button col-lg-4 col-xs-10" bs-check-bidmood> <div class="text"> {{\'home_auctions_results\' | i18n}} </div>  </a> </div>   </div> </div>  </div> </div>   '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionsListsGroup.html?0.739", '<div class="auctions-lists-group">  <div class="title" >  <div class="space hidden-xs" ng-if="data.nextAuctions.length && showRegionSelection"> </div> <h3 class="caption" ng-if="data.nextAuctions.length"> {{\'auctions_list_next\' | i18n}}</h3> <div uib-dropdown class="region-selection btn-group" ng-class="currentLang"  is-open="status.isopen" ng-if="showRegionSelection" > <div type="button" class="default-align selected entry" uib-dropdown-toggle > <div class="float icon {{currentRegion | lowercase}}"></div> <div class="float text">{{("region_"+currentRegion) | i18n }}</div> <div class="opposite float caret {{dir}}" ></div> <div class="clearfix"></div> </div> <ul class="uib-dropdown-menu" role="menu"> <li ng-repeat="region in regions" ng-if="region!=currentRegion"> <a class="default-align entry" ng-href="{{regionLink(region)}}" ng-click="onRegionClick(region)"> <div class="float icon {{region | lowercase}}"></div> <div class="float text">{{("region_"+region) | i18n}}</div> <div class="clearfix"></div> </a>  </li> </ul>  </div> </div>  <div ng-if="nextAuctionsVisible">  <div class="short-separator"></div> <bs-auctions-list auctions="data.nextAuctions" view="\'next\'" ></bs-auctions-list> </div>   <div ng-if="futureAuctionsButtonVisible"> <button bs-check-bidmood class="future orange common-button col-lg-4 col-xs-10" ng-click="showFutureAuctions()"> <div class="text">{{\'auctions_list_show_future\' | i18n}}</div> </button> </div>   <div ng-if="futureAuctionsVisible" bs-scroll-on watched-value="scrollToFutureAuctions" debug-key="future">  <div class="title"> <h3 class="caption">{{\'auctions_list_future\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.futureAuctions" house-name-as-link="futureHouseNameAsLink" view="\'future\'" ></bs-auctions-list> </div>   <div ng-if="recentAuctionsVisible" > <div class="title"> <h3 class="caption">{{(showAllPastAuctions ? \'auctions_list_past\' : \'auctions_list_recent\') | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.recentAuctions" view="\'recent\'"  ></bs-auctions-list> </div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionsList.html?0.739", '<div class="list" ng-class="[screenView,view]">  <div class="row {{screenView}}" bs-text-direction > <div class="item col-md-3 col-xs-12"  ng-repeat="auction in auctions" ng-click="onAuctionClick(auction)" bs-log-click="auction-{{auction.house.code}}-{{ (auction.date | date :\'dd.MM.yy\') }}", ng-animate ng-class="{clickable:isAuctionClickable(auction)}" bs-scroll-on="auction.id == scrollTo" >  <div  ng-if="screenView==\'wide\'"     ng-include src="\'auctions/lists/auctionListItemWide\' | appTemplate" class="frame"> </div> <div  ng-if="screenView==\'narrow\'"     ng-include src="\'auctions/lists/auctionListItemNarrow\' | appTemplate" class="frame"> </div> </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionListItemNarrow.html?0.739", '<div class="frame viewport_{{viewPort.viewPortWidth}} " >  <!--  {{auction.hoursTillAuction}} -->  <auction-badge auction="auction" is-today="auction.date==today"></auction-badge>   <div class="float image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:imageSize} "> </div>  <div class="opposite float texts" >  <h2> {{auction.house.details.name | langField}}  </h2> <div class="number" ng-if="auction.number"> {{"auction_label_number" | i18n:{number:auction.number} }}&nbsp; <span class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span> </div>  <div class="time" > {{auction | auctionTime}}  </div>  <div class="name"> <div ng-bind-html="auction.name | langField"></div> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div>  <button class="float common-button"   ng-class="auctionButtonClass(auction)" ng-if="auction.state!=\'PENDING\'">  <div class="text"> {{auctionButtonText(auction) | i18n}} </div> </button>  <bs-auction-start-alert-button class="opposite float" auction="auction" ></bs-auction-start-alert-button>  <div ng-if="auction.state==\'PENDING\'" class="pending-label"  ng-if="view!=\'future\'" ng-class="{blink:auction.clickedRecently}"> <div class="text"> {{auctionButtonText(auction) | i18n}} </div> </div>   <div class="clearfix"></div>  </div>  <div class="clearfix"></div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionListItemWide.html?0.739", '<div class="frame" >  <!--  {{auction.hoursTillAuction}} -->   <div class="image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:imageSize} "> <auction-badge auction="auction" is-today="auction.date==today"></auction-badge> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button>   <div class="texts"> <h2> <a class="btn-link" ng-href="#!/houses/{{auction.house.code}}" ng-if="isAuctionHouseLink(auction)">{{auction.house.details.name | langField}}</a> <span ng-if="!isAuctionHouseLink(auction)">{{auction.house.details.name | langField}}</span> <span ng-if="auction.number">- {{"auction_label_number" | i18n:{number:auction.number} }}</span> </h2> <div class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </div>  <div class="time" minutes_till_start="{{auction.minutesUntilStart}}"> {{auction | auctionTime}} </div> <div class="short-separator"></div> <div class="name"> <div ng-bind-html="auction.name | langField"></div> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div> <bs-auction-structured-data auction="auction"></bs-auction-structured-data> </div>   <div class="center-block common-button " bs-check-bidmood  ng-class="auctionButtonClass(auction)" ng-if="view!=\'future\'"> <div class="text"> <a ng-if="isLinkbutton(auction)" ng-href="#!/catalog/auction/{{auction.id}}/1">{{auctionButtonText(auction) | i18n}}</a> <span  ng-if="!isLinkbutton(auction)" >{{auctionButtonText(auction) | i18n}}</span> </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionBadge.html?0.739", ' <div class="badge-frame" ng-show="shouldShow" > <div class="text">{{text}}</div> </div>      '), 
+        $templateCache.put("/portal/templates/userDetails/userDetailsMain.html?0.739", '<div ng-controller="UserDetailsController" class="userDetails scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"user_details_title" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container">  <h4>{{"user_details_message" | i18n}}</h4> <br>  <uib-accordion ng-if="currentUser" > <uib-accordion-group class="noselect" ng-repeat="section in sections" is-open="opened[section]"> <uib-accordion-heading> <div> <div class="section-name    col-sm-4  float">{{"user_details_"+section | i18n}}</div> <div class="section-summary col-sm-5 float">{{getSectionSummary(section)}}</div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[section]">{{"dialogs_edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content col-lg-6 col-md-7 col-sm-8 col-xs-12" ng-class="section"> <div  ng-include src="(\'userDetails/sections/\'+section +\'Section\') | appTemplate" ng-if="opened[section]"> </div> </div> </uib-accordion-group> </uib-accordion> </div>   </div> '), 
+        $templateCache.put("/portal/templates/userDetails/sections/nameSection.html?0.739", '<div class="name-section" >  <form name=\'nameUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'name\')">   <bs-form-group field-name="firstName" label="user_details_first_name"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="firstName" class="form-control" ng-model="data.user.firstName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/>  </bs-form-group>  <bs-form-group field-name="lastName" label="user_details_last_name"> <label  class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="lastName" class="form-control" ng-model="data.user.lastName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/> </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="nameUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'name\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/shippingSection.html?0.739", '<div class="shipping-section" >  <div class="form-group checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="data.userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> <div class="clearfix"></div> </div>   <form name=\'shippingUpdateForm\'  novalidate bs-form  bs-submit="updateShippingAddress()"  > <bs-user-details-address address="data.userDetails.shippingAddress" ng-show="!data.userDetails.shippingAddress.residenceIsShipping"></bs-user-details-address> <div class="buttons-row" > <bs-async-button  button-class="\'float orange common-button\'"  bs-form-controller="shippingUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'shipping\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form>       </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/companySection.html?0.739", '<div class="company-section" >  <form name=\'companyUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'company\')">   <bs-form-group field-name="company" label="user_details_company"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="data.user.company"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="companyUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'company\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/residenceSection.html?0.739", '<div class="residence-section" >  <form name=\'residenceUpdateForm\'  novalidate bs-form  bs-submit="updateResidenceAddress()">  <bs-user-details-address address="data.userDetails.residenceAddress" ></bs-user-details-address>  <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="residenceUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'residence\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div> </form>   </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/phoneSection.html?0.739", '<div class="phone-section" >  <form name=\'phoneUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'phone\')">   <bs-form-group field-name="phone" label="user_details_phone"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" name="phone" class="form-control" ng-model="data.user.phone" required ng-minlength="8" ng-pattern="bsValidationPatterns.phone"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="phoneUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'phone\')">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/emailSection.html?0.739", "<div> <bs-edit-email></bs-edit-email> </div> "), 
+        $templateCache.put("/portal/templates/userDetails/sections/passwordSection.html?0.739", '<div class="password-section" ng-controller="PasswordUpdateController"> <form name=\'passwordUpdateForm\'  novalidate bs-form  bs-submit="updatePassword()" >  <bs-form-group field-name="existingsPassword" label="user_details_existing_password"> <label class="float"></label> <bs-form-validation-message css-class="float" wrong="user_details_wrong_password"  ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="existingsPassword" class="form-control"  ng-model="data.existingPassword" required bs-validate="{wrong : \'!wrongPassword($value)\' }" bs-validate-watch="\'wrongPasswords\'"/>  </bs-form-group>  <bs-form-group field-name="newPassword" label="user_details_new_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" minlength="error_bad_password" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="newPassword" class="form-control" ng-model="data.newPassword" required ng-minlength="6"/>  </bs-form-group>  <bs-form-group field-name="passwordConfirm" label="user_details_confirm_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" match="error_password_mismatch" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password"  name="passwordConfirm" class="form-control"  ng-model="data.passwordConfirm"  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'data\'"/>  </bs-form-group>  <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="passwordUpdateForm" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="updateDone()">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/reusableElements/editEmail.html?0.739", '<div class="edit-email">   <div ng-show="stage==\'edit\'" > <label>{{"user_details_change_email" | i18n}}:</label> <form novalidate> <div class=form-group field-name="email" label="user_details_email"> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="data.email" ng-click="clearError()" /> </div>  <div class="form-error text-danger"> <div class="error-message blinkable" ng-bind-html="errorMessage | capitalize"></div> </div>  <div class="buttons-row"> <bs-async-button  button-class="\'float orange common-button\'"  action-fn="updateEmail()"  name="\'changeEmail\'" label="\'dialogs_save\'" > </bs-async-button> <div class="float btn-link" ng-click="cancelEdit()">{{"dialogs_cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form> </div> <div ng-show="stage==\'not_confirmed\'" > <div class="title">{{notConfirmedTitle | i18n}}.</div> <div class="line" ng-bind-html="\'email_not_confirmed_line_1\' | i18n:{email: getEmail()}"></div> <div class="line">{{"email_not_confirmed_line_2" | i18n}}</div>  <div class="links"> <div class="float"> <div class="btn-link" ng-click="sendEmailConfirmationAgain()" ng-class="{waiting:sendingConfirmationAgain}"> {{"email_not_confirmed_send_again" | i18n}} </div> </div>  <div class="opposite float btn-link" ng-click="stage=\'edit\'">{{"email_not_confirmed_change_email" | i18n}}</div>  <div class="clearfix"></div> <div class="float resent-message" ng-show="sentConfirmationAgain"> {{"email_not_confirmed_sent_another" | i18n }} </div> </div>  <div class="sent-message" ng-show="anotherSent"> {{"email_not_confirmed_sent_another" | i18n}}</div>  </div>  </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/reusableElements/address.html?0.739", '<div class="address" >  <div class="row">  <bs-form-group field-name="country" label="user_details_country" css-class="col-xs-12  float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  debug="true" css-class="float" minlength="error_mandatory" pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  debug="true" name="country" class="form-control" ng-model="address.country" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>   <div class="row">  <bs-form-group field-name="city" label="user_details_city" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"  pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  name="city" class="form-control" ng-model="address.city" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="address" label="user_details_address" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"></bs-form-validation-message> <div class="clearfix"></div> <input  name="address" class="form-control" ng-model="address.address" ng-minlength="2" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>    <div class="row">  <bs-form-group field-name="state" label="user_details_state" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="state" class="form-control" ng-model="address.state" ng-pattern="bsValidationPatterns.alpha" /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="zip" label="user_details_zip" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="zip" class="form-control" ng-model="address.zipCode"  /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/account/myAccount/myAccountMain.html?0.739", '<div ng-controller="MyAccountController" class="myAccount scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 xs-12"> <h1>{{titleKey | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <div class="col-lg-10 col-md-11 col-sm-12 xs-12 no-float"> <h4>{{messageKey | i18n}}</h4> <br> <uib-accordion ng-if="currentUser" > <uib-accordion-group  ng-repeat="house in houses" ng-if="(devMode || (!house.hidden && house.site.code!=\'demo\')) && !house.site.down" is-open="data.opened[house.id]">  <uib-accordion-heading > <div ng-class="{\'dev-only\':house.hidden || house.site.code==\'demo\'}"> <div class="float logo" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"  params="{size:\'60x22\'}"></div> <div class="house-name  float">{{house.details.name | langField | trim:20}}</div>  <div class="edit btn-link  opposite float opposite-align" ng-show="!opened[house.id]"> {{(data.opened[house.id] ? "dialogs_close" : viewKey) | i18n}} </div> <div class="clearfix"></div> </div> </uib-accordion-heading>  <div class="house-entry-content col-xs-12" ng-class="section" > <div ng-if="data.housesEntries[house.id]"> <bs-my-account-house-entry	items-type="itemsType" house-info="data.housesEntries[house.id]"></bs-my-account-house-entry> </div>  <div class="error" ng-if="error" ng-bind-html="error"></div> <bs-content-loader loaded="data.housesEntries[house.id] || error"></bs-content-loader> </div> </uib-accordion-group> </uib-accordion> </div>  </div>   </div> '), 
+        $templateCache.put("/portal/templates/account/myAccount/myAccountAuctionsSection.html?0.739", '<div class="auctions-section"> <div ng-if="auctionsInfo.length>0"> <div class="float title"> <div class="text">{{(\'my_account_\'+label) | i18n}}</div> </div> <div class="clearfix"></div> <div class="title-separator"></div> <bs-my-account-auction-bids  ng-repeat="auctionInfo in auctionsInfo"  auction="auctionInfo.auction" lots="auctionInfo[lotsField]" count-label="label+\'_count\'" > </bs-my-account-auction-bids> </div>  </div> '), 
+        $templateCache.put("/portal/templates/account/myAccount/myAccountHouseEntry.html?0.739", '<div>   <div ng-if="houseInfo.approvalState==\'APPROVED\'"> <label ng-if="houseInfo.empty"> {{ "my_account_empty_"+itemsType | i18n}}  </label>  <div ng-if="!houseInfo.empty"> <bs-my-account-auctions-section  auctions-info="houseInfo.auctions.current"  label="\'current\'" ng-if="itemsType==\'absentee\'"  lots-field="\'lotsWithAbsenteeBids\'"> </bs-my-account-auctions-section>  <bs-my-account-auctions-section auctions-info="houseInfo.auctions.sold"  label="\'sold\'" ng-if="itemsType==\'won\'"  lots-field="\'wonLots\'"> </bs-my-account-auctions-section> </div> </div>   <div ng-if="houseInfo.approvalState!=\'APPROVED\'"> <bs-house-approval  house-id="houseInfo.house.id" approval-state="houseInfo.approvalState"></bs-house-approval> </div>     </div> '), 
+        $templateCache.put("/portal/templates/account/myAccount/myAccountAuctionBids.html?0.739", '<div class="auction-bids"> <div class="auctionName">{{auctionName}}</div> <div class="bid-row" ng-repeat="lot in lots" ng-click="gotoLot(lot)" bs-scroll-on="lot.id == scrollTo"> <bs-lot-image lot="lot" size="108x108" as-bg="true" image-mode="\'fit\'" class="lot-pic"></bs-lot-image>  <div class="info"> <div class="item-index"> {{"lot_number" | i18n:{number:lot.itemIndex} }}</div>  <div ng-bind-html="lot | lotText:80 "></div>   <div class="price-label" ng-if="lot.selfSoldLotBid"> <span class="label">{{"lot_self_sold_bid" | i18n}}:</span> <span class="price">{{lot.selfSoldLotBid.price | sumInCurrency:currency}} </span>  </div>   <div class="price-label" ng-if="lot.selfAbsenteeBid && !lot.selfSoldLotBid"> <span class="label">{{"lot_self_absentee_bid" | i18n}}:</span> <span class="price">{{lot.selfAbsenteeBid.price | sumInCurrency:currency}} </span>  </div>    <div class="orange common-button" bs-text-direction ng-if="!lot.soldLotBid && [\'READY\',\'RUNNING\'].indexOf(lot.auction.state!=-1)"> <div class="text">{{"dialogs_edit" | i18n }}</div> </div> <div class="clearfix"></div> </div>  <div class="clearfix"></div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/account/approval/houseApprovalPopup.html?0.739", '<div class="approval-popup" bs-text-direction >  <div  class="modal-header"> <label  class="float modal-title">{{"dialogs_notice_title" | i18n}}</label>  <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body"> <bs-house-approval house-id="houseId" in-popup="true"></bs-house-approval> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/account/approval/houseApprovalScene.html?0.739", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{"dialogs_notice_title" | i18n}}</H3> <div class="short-separator"></div> </div> <bs-house-approval house-id="$stateParams.houseId"></bs-house-approval>  </div> </div>     '), 
+        $templateCache.put("/portal/templates/account/approval/houseApproval.html?0.739", ' <div  class="approval-message">  <p ng-bind-html="firstParagraph"></p> <p ng-bind-html="secondParagraph"></p>  <div ng-if="approvalState==\'NOT_REGISTERED\'">  <div class="user-id-request" ng-if="house.requestUserStateIdForApproval"> <p><div class="caption">	{{"approval_request_user_id_caption" | i18n : {house:(house.details.name | langField) } }}</div></p>  <form name=\'requestUserIdForm\'  novalidate bs-form  > <bs-form-group field-name="userStateId" label="approval_request_user_id_label"> <label></label> <input name="userStateId" class="form-control" ng-model="formData.userStateId" />  <bs-form-validation-message></bs-form-validation-message>  </bs-form-group> </form> </div>  <div class="error-message text-danger" ng-if="formData.error">  <p>{{formData.error}}</p> </div>  <div class="clearfix"></div>  <bs-async-button  class="float" action-fn="requestApproval()"  button-class="\'btn-primary common-button \'+currentLang"  label="\'approval_send_request\'" > </bs-async-button>  <button ng-if="!inPopup" class="opposite float back btn btn-link text-danger" bs-back-button ng-class="currentLang"> {{("dialogs_cancel") | i18n}}</button> <div class="clearfix"></div> </div>   <div  ng-if="inPopup && (approvalState==\'PENDING\' || approvalState==\'INCOMPLETE_PROFILE\'  || formData.error)" > <br><br> <button  class="center-block btn btn-primary"  ng-click="closePopup()">{{"dialogs_close" | i18n}} </button> </div>    </div> '), 
+        $templateCache.put("/portal/templates/account/favorites/favoritesItems.html?0.739", ' <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row"> <div  ng-repeat="lot in pagesData.pageItems" bs-text-direction bs-scroll-on="lot.id == scrollTo"  ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia,clearfix:lot.loadPastLinkFakeItem,item:!lot.loadPastLinkFakeItem}"> <div ng-if="!lot.loadPastLinkFakeItem" bs-log-click="favorite-lot-{{lot.auction.house.code}}-{{lot.auction.date | date :\'dd.MM.yy\'}}-{{lot.itemIndex}}"  ng-click="gotoLot(lot)">   <div class="item-link"   > <div ng-if="viewPort.pcMedia"      ng-include src="\'auctions/catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'auctions/catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div> <bs-lot-favorite-flag lot="lot"></bs-lot-favorite-flag>  </div> <div ng-if="lot.loadPastLinkFakeItem"> <div class="float pastItems link" ng-class="data.sceneInfo.pastItemState" ng-click="loadPastItems()" > {{"favorites_page_past" | i18n}} </div> <div class="clearFix"></div> </div> </div>   <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/account/favorites/favoritesMain.html?0.739", '<div ng-controller="FavoritesController" > <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 xs-12"> <h1>{{"link_favorites" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>    <div class="catalog favorites scene">  <div class="content col-xs-12" >  <div class="install-app-promotion" ng-if="showInstallAppPromostion"> <div ng-if="viewPort.mobileMedia"> <div class="message" ng-bind-html="\'install_app_favorites_message\' | i18n"></div> <install-app-button ></install-app-button> </div> <div ng-if="viewPort.pcMedia"> <div class="float message" ng-bind-html="\'install_app_favorites_message\' | i18n"></div>  <div  class="float orange common-button center-block" ng-click="showInstallPopup()">  <div class="text">{{"link_install_app" | i18n }}</div> </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div>  <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  <div bs-scroll-on watched-value="scrollToPagination" offset="-200"></div>  <div ng-if="loadState!=\'loading\'" ng-include src="\'account/favorites/favoritesItems\' | appTemplate"  ></div>   <bs-content-loader loaded="loadState!=\'loading\'"></bs-content-loader>   <bs-content-loader ng-if="data.sceneInfo.pastItemState!=\'unloaded\'" loaded="data.sceneInfo.pastItemState==\'loaded\'"></bs-content-loader>   <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  </div>    </div> </div>   '), 
+        $templateCache.put("/portal/templates/houses/housesList.html?0.739", '<div ng-controller="HousesListController" class="houses scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"auction_houses_title" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div> </div> </div> <div class="content container"> <h4 ng-bind-html="\'auction_houses_message\' | i18nWithRegion"></h4> <br> <div class="container-fluid"> <div class="row text-center"> <div  class="col-xs-12 house-item default-align"  bs-text-direction ng-repeat="house in houses" ng-if="(devMode || bidmoodEnv || (!house.hidden && house.site.code!=\'demo\'))  && house.orderInd>0"  > <div class="house-frame"  ui-sref="app.house({houseCode:house.code})">  <div class="frame-top" ng-style="{\'background-color\':(house.details.brandColor || \'#aaa\')}"> <div class="float name"> <h2>{{house.details.name | langField}}</h2> </div>  <div class="opposite float logo" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"> </div> <div class="clearfix"></div>  </div>  <div class="frame-bottom"> <div ng-if="house.details.summary"> {{house.details.summary | langField}} <br><br> </div> <div ng-if="house.details.expertise"> <b>{{"auction_houses_expertise" | i18n}}:</b><br>  {{house.details.expertise | langField}} </div>  <a class="more btn-link" ng-href="#!/houses/{{house.code}}">{{"auction_houses_more" | i18n}}</a> </div>  </div>  </div> </div>  </div>  </div>   </div> '), 
+        $templateCache.put("/portal/templates/houses/housePage.html?0.739", '<div ng-controller="HousePageController" class="house-page scene" > <div ng-if="housePic" class="house-page-image" bs-cloudinary-bg="{{housePic}}"> </div> <div ng-if="!housePic" class="house-page-image-space"> </div> <div class="content container"> <div class="house-info"> <div class="house-info-upper"> <div class="float texts"  style="max-width:{{viewPort.contentWidth-280}}px"> <h2 class="house-name"> {{house.details.name | langField}} </h2> <div ng-bind-html="houseTextParams.link"></div>  <div class="address">{{house.details.address | langField}}</div> </div>   <div class="opposite float logo" bs-cloudinary-bg="{{(house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div>  <div class="clearfix"></div>  </div> <bs-house-regisration-promotion ng-if="(devMode || house.site.code!=\'demo\') && !house.site.down" house="house" > </bs-house-regisration-promotion> <hr>  <div class="house-info-lower"> <div class="text" ng-bind-html="house.details.info | langField"> </div> <div class="contact-info"> <div class="caption">{{\'auction_house_contact\' | i18n}}</div>  <div class="table"> <div class="labels table-cell"> <div class="contact-label" ng-if="houseTextParams.phone">{{\'auction_house_phone\' | i18n}}</div>  <div class="contact-label" ng-if="houseTextParams.email">{{\'auction_house_email\' | i18n}}</div> <div class="contact-label" ng-if="houseTextParams.link">{{\'auction_house_website\' | i18n}}</div> </div> <div class="separator table-cell"></div> <div class="values table-cell"> <div class="contact-value" ng-if="houseTextParams.phone" dir="ltr" ng-bind-html="houseTextParams.phone"></div>  <div class="contact-value" ng-if="houseTextParams.email" dir="ltr" ng-bind-html="houseTextParams.email"></div> <div class="contact-value" ng-if="houseTextParams.link" dir="ltr" ng-bind-html="houseTextParams.link"></div> </div> </div> </div>  <br>  <div class="btn btn-link terms" ng-click="openTerms()" > {{"house_terms" | i18n:{house:(house.details.name | langField)} }}</div> </div>    <bs-house-alerts-promotion house="house" > </bs-house-alerts-promotion> </div>   <bs-auctions-lists-group auctions-data="{auctions:auctions}" show-all-past-auctions="true" show-all-future-auctions="true"  ></bs-auctions-lists-group>  </div> </div> '), 
+        $templateCache.put("/portal/templates/houses/houseAlertsPromotion.html?0.739", '<div class="house-alerts-promotion" ng-if="shouldDisplay">  {{\'alerts_promotion_configure_house\' | i18n:{house:(house.details.name | langField)} }}&nbsp <span class="no-break"> <span><span class="orange common-button" ui-sref="app.alerts.house({houseCode:house.code})"> <span class="text">{{\'alerts_promotion_configure_command\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div>    '), 
+        $templateCache.put("/portal/templates/auth/authScene.html?0.739", '<div  class="auth scene" ng-controller="AuthSceneController" ng-class="{\'logged-in\':currentUser!=null}" >  <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1 >{{titleKey() | i18n}}</H1> <div class="short-separator"></div> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" >  <div  bs-text-direction class="auth-view" ng-class="authDisplayInfo.authScene"  ng-if="!isIe8" ng-include 	src="\'auth/elements/\'+authDisplayInfo.authSubScene | appTemplate"> </div> </div>   </div> '), 
+        $templateCache.put("/portal/templates/auth/authModalPopup.html?0.739", '<div  ng-controller="AuthModalPopupController" bs-text-direction>  <div  class="modal-header">  <label  class="float modal-title">{{ titleKey() | i18n}}</label> <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body">  <div  class="auth-view"  ng-if= "!isIe8" ng-include 	src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/auth/legalApproval/legalApprovalRequired.html?0.739", '<div class="legal-approval-required"> <bs-linkable-text options="{ textKey:\'legal_reapproval_line_1\', onLinkClick:options.showLegalDoc }" > </bs-linkable-text> <br> <p ng-bind-html="\'legal_reapproval_line_2\' | i18n"></p>  </div>  '), 
+        $templateCache.put("/portal/templates/auth/legalApproval/legalTermsRejected.html?0.739", '<div> <p ng-bind-html="\'legal_reapproval_rejected\' | i18n"></p>  <br><br> <div class="text-danger"	ng-bind-html="\'legal_reapproval_support\' | i18n:{email:BidspiritInfo.emailLink}"> </div>   </div>  '), 
+        $templateCache.put("/portal/templates/auth/authNavBarPopup.html?0.739", '<div> <div class="close btn-link" ng-click="hidePopup()">x</div>  <div  class="auth-view"   ng-if= "!isIe8"" ng-include 	src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div>   </div> '), 
+        $templateCache.put("/portal/templates/auth/authUpperNavigation.html?0.739", '<div class="auth-navigation-section" ng-controller="AuthUpperNavigationController"> <div ng-if="!currentUser"> <div> <div ng-repeat="link in [\'login\',\'register\']"  class="btn-link"   ng-click="togglePopupView(link)"  ng-class="[currentLang,link]"> <div class="text"> {{"link_"+link | i18n }} </div>  <div class="up-arrow" ng-show="authDisplayInfo.popupScene==link"></div>  </div> </div> </div> <div ng-if="currentUser" class="logged-in-links" > <div class="float hazard btn-link"  ng-if="currentUser.registrationStage!=\'COMPLETE\'" ng-click="togglePopupView(\'warning\')"> <div class="icon" ng-class="{on:authDisplayInfo.popupScene==\'warning\'}"></div> <div class="up-arrow" ng-show="authDisplayInfo.popupScene==\'warning\'"></div>  </div>  <div class="float"> <div class="link" ng-click="toggleAuthMenu()"> <div class="float text"> {{\'link_hello\' | i18n:{name:currentUser.firstName} }} </div> <div class="float arrow"> <div class="down"></div> <div class="up" ng-show="authDisplayInfo.menuVisible"></div> <div class="up" ng-show="nudgePopupVisible"></div> </div> <div class="clearfix"></div> </div> <div class="auth-menu" ng-show="authDisplayInfo.menuVisible" ng-click="authDisplayInfo.menuVisible=false" ng-mouseleave="authDisplayInfo.menuVisible=false" bs-text-direction> <div class="up-arrow"></div> <div class="close btn-link" >x</div>  <div ng-include src="\'elements/navigation/pcUserMenu\' | appTemplate" ></div> </div> <bs-nudge-navbar-popup></bs-nudge-navbar-popup> </div>  <div class="clearfix"></div> </div>  <div class="auth-navbar-popup" ng-class="[authDisplayInfo.popupScene, currentLang]"  ng-include src="\'auth/authNavBarPopup\' | appTemplate"  ng-if="authDisplayInfo.popupScene!=null">  </div> </div>  '), 
+        $templateCache.put("/portal/templates/auth/elements/recoverPassword.html?0.739", '<div class="recover-password sub-scene" ng-controller="RecoverPasswordController"> <div class="title"> {{\'recover_password_title\' | i18n}}</div> <div class="separator"></div>  <div ng-if="stage==1"> <br> <div class="message"> {{\'recover_password_message\' | i18n}}:</div> <br> <form name=\'recoverForm\'  novalidate bs-form  bs-submit="sendPassword()" >  <bs-form-group field-name="email" label="user_details_email"> <input type="email" name="email" class="form-control" ng-model="info.email" required ng-change="data.emailUnknown=false" bs-validate="{unknown : \'!data.emailUnknown\' }"  bs-validate-watch="\'data.emailUnknown\'" /> <bs-form-validation-message hidden="true" unknown="error_email_not_exists"> </bs-form-validation-message>  </bs-form-group>  <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error>{{bsFormFirstErrorMessage()}}</div> </div>  <div class="orange common-button opposite float" ng-click="recoverForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>  <div class="cancel btn-link opposite float" ng-click="setAuthSubScene(\'login\')">{{\'dialogs_cancel\' | i18n}}</div>  <div class="clearfix"></div>   </form>  </div>  <br><br>  <div ng-if="stage==2"> <div class="message"> {{\'recover_password_success\' | i18n :{email:info.email} }}</div>  <div class="orange finish common-button opposite float"  ng-click="setAuthSubScene(\'login\')" > <div class="text">{{"dialogs_end" | i18n }}</div> </div>  <div class="clearfix"></div>  </div>  </div> '), 
+        $templateCache.put("/portal/templates/auth/elements/warning.html?0.739", '<div  class="warning sub-scene" >  <bs-edit-email ng-if="currentUser.registrationStage==\'UNCONFIRMED_EMAIL\'"></bs-edit-email>    <div class="incompleteProfile" ng-if="currentUser.registrationStage==\'INCOMPLETE_PROFILE\'"> <div class="message">{{"incomplete_details_message" | i18n}}</div>  <div class="orange common-button" ui-sref="app.auth({authScene:\'postRegistrationDetails\'})"  > <div class="text">{{"incomplete_details_update" | i18n }}</div> </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/auth/elements/postRegistrationDetails.html?0.739", '<div ng-controller="PostRegistrationDetailsController"> <div ng-show="!formSubmitted" class="before-submit" ng-if="userDataLoaded">  <div class="register-success" ng-if="currentUser.justConfirmed">{{"register_success" | i18n}}</div>  <div class="message">{{"post_registration_message" | i18n}}</div> <div class="clearfix"></div> <form name=\'completeRegistrationForm\'  novalidate bs-form  bs-submit="save()" > <div class="form-half-page"> <h4 class="default-align">{{"user_details_personal_details" | i18n}}</h4>  <div class="row">  <bs-form-group field-name="phone" label="user_details_phone" css-class="col-xs-12 float" debug="true"> <label class="float"></label> <span class="float star">*</span> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div>  <input  name="phone" class="form-control" dir="ltr" ng-model="userDetails.phone"  required  ng-pattern="bsValidationPatterns.phone" ng-minlength="8"/>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="company" label="user_details_company" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="userDetails.company" />  </bs-form-group>  </div>  <h4>{{"user_details_residence" | i18n}}</h4> <div ng-if="true"> <!--  crazy, but without this line validation stops to work... couldn\'t figure out why --> <ng-form bs-form name="residence"> <bs-user-details-address address="userDetails.residenceAddress" ></bs-user-details-address> </ng-form>  </div>  </div>  <div class="clearfix"></div>  <bs-form-group field-name="residenceIsShipping" css-class="col-xs-12 float checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> </bs-form-group>  <div class="form-half-page">  <div ng-if="!userDetails.shippingAddress.residenceIsShipping" > <h4>{{"user_details_shipping" | i18n}}</h4> <ng-form bs-form name="shipping"> <bs-user-details-address  address="userDetails.shippingAddress"></bs-user-details-address> </ng-form>  </div> </div>  <div class="clearfix"></div>  <div class="form-error"> <div class="form-input error-message text-danger" bs-blink-on-form-error ng-show="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> </div>   <div class="orange common-button float" ng-click="completeRegistrationForm.submit()" > <div class="text">{{"dialogs_send" | i18n }}</div> </div>   </form> </div>  <div class="clearfix"></div>  <div ng-show="formSubmitted" class="post-submit"> <div class="row"> <div class="title">{{"post_registration_details_success" | i18n }}</div> </div> <div class="row"> <div class="message col-xs-9">{{"post_registration_details_success_message" | i18n }}</div> </div>  <div class="row"> <div class="orange common-button  float" ui-sref="app.home" > <div class="text">{{"dialogs_end" | i18n }}</div> </div>  </div>  </div>  <br><br> </div>  '), 
+        $templateCache.put("/portal/templates/auth/elements/register.html?0.739", ' <div class="register sub-scene" ng-controller="RegisterController">  <div class="message" bs-scroll-on watched-value="scrollToFisrtLine" debug-key="register"> {{"register_message_line_1"  | i18n }} <br> {{"register_message_line_2"  | i18n }} <br>  </div>  <form name=\'registerForm\'  novalidate bs-form  bs-submit="register()" >  <bs-form-group field-name="firstName" label="user_details_first_name" css-class="float"> <label></label> <input name="firstName" class="form-control" ng-model="registrationInfo.firstName"  required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" />  <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="lastName" label="user_details_last_name" css-class="float"> <label></label> <input name="lastName" class="form-control" ng-model="registrationInfo.lastName" required  ng-pattern="bsValidationPatterns.alpha" ng-minlength="2"/> <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="email" label="user_details_email"> <label></label> <input dir="ltr" class="email form-control"  type="email" name="email"  ng-model="registrationInfo.email"  required  bs-validate="{exists : \'!emailExists($value)\' }" bs-validate-watch="\'existingEmails\'" /> <bs-form-validation-message hidden="true" exists="error_email_exists" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="password" label="user_details_password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="password" class="form-control" ng-model="registrationInfo.password" required ng-minlength="6"/> <bs-form-validation-message  minlength="error_bad_password" hidden="true" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="passwordConfirm" label="user_details_confirm_password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="passwordConfirm" class="form-control"  ng-model="registrationInfo.passwordConfirm" required  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'registrationInfo\'"/> <div class="clearfix"></div>  <bs-form-validation-message hidden="true" match="error_password_mismatch" ></bs-form-validation-message> </bs-form-group>   <bs-form-group field-name="over18" css-class="checkbox-row"> <input  type="checkbox" class="float" name="over18" ng-model="registrationInfo.over18" required/> <bs-checkbox class="float"  bs-model="registrationInfo.over18"></bs-checkbox> <label class="float">{{\'register_over18\' | i18n}}</label> <div class="clearfix"></div> <bs-form-validation-message hidden="true" required="error_over18"></bs-form-validation-message> </bs-form-group>  <div class="clearfix"></div>   <bs-form-group field-name="terms" css-class="checkbox-row"> <input  type="checkbox" name="terms" ng-model="registrationInfo.terms" required/> <bs-checkbox class="float"  bs-model="registrationInfo.terms"></bs-checkbox> <label class="terms float">{{\'register_terms_accept\' | i18n}}<span ng-click="showTerms()" class="currentLang link">{{\'register_terms_label\' | i18n}}</span></label> <bs-form-validation-message hidden="true" required="error_accept_terms"></bs-form-validation-message> <div class="clearfix"></div>  </bs-form-group>    <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error >{{bsFormFirstErrorMessage()}}</div>  <div class="login link" ng-show="displayLoginLink()" ng-click="setAuthScene(\'login\')" >{{\'register_login_with_mail\' | i18n}}</div>  <div class="clearfix"></div> </div>    <bs-async-button button-class="\'opposite float orange common-button\'"  bs-form-controller="registerForm"  label="\'dialogs_send\'" ></bs-async-button>   <div class="clearfix"></div>  </form> </div>  '), 
+        $templateCache.put("/portal/templates/auth/elements/login.html?0.739", '<div class="login sub-scene" ng-controller="PortalLoginController"> <div class="message" ng-if="authDisplayInfo.args.message">{{ authDisplayInfo.args.message | i18n}}</div> <form name=\'loginForm\'  novalidate bs-form  bs-submit="login()" >  <bs-form-group field-name="email" label="user_details_email"> <label></label> <input dir="ltr" type="email" name="email" class="form-control" debug="true" ng-model="loginInfo.email" required  ng-change="hideLoginError()"/>  <bs-form-validation-message hidden="true"  ></bs-form-validation-message>  </bs-form-group>  <bs-form-group field-name="password" label="user_details_password" class="password"> <label></label> <div dir="ltr"> <input bs-focus-on="focusOnPassword" type="{{passwordVisible ? \'text\' : \'password\'}}" name="password" autocorrect="off" autocapitalize="none" class="form-control" ng-model="loginInfo.password" required ng-change="hideLoginError()"/> </div> <bs-form-validation-message hidden="true" ></bs-form-validation-message> <div class="showPassword" ng-click="togglePasswordVisible()"></div>  </bs-form-group>   <div class="form-error text-danger"> <div class="form-input error-message  bs-blink-on-form-error" ng-if="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> <div class="login error-message" ng-if="loginErrorVisible">{{"error_login" | i18n }}. <span class="help link" ng-click="toggleHelpVisible()"> {{"dialogs_help" | i18n }} <span class="help-triangle" ng-show="loginHelpVisible"></span>  </span> </div> </div>  <div class="login-error-help" ng-show="loginHelpVisible"> <div class="close btn-link" ng-click="loginHelpVisible=false">x</div> <div class="text" ng-bind-html="(\'login_error_help_line_1\' | i18n)+ \'<br>\'+ (\'login_error_help_line_2\' | i18n:{email:BidspiritInfo.emailLink,phone:BidspiritInfo.phoneLink})"> </div>  </div>  <bs-form-group field-name="remember" css-class="checkbox-row"> <input type="checkbox" class="float" name="remember" ng-model="loginInfo.remember"/> <bs-checkbox class="float"  bs-model="loginInfo.remember"></bs-checkbox> <label class="float" ng-click="loginInfo.remember=!loginInfo.remember">{{\'login_remember_me\' | i18n}}</label> <div class="clearfix"></div>  </bs-form-group>     <div class="forgot-password btn-link" ng-click="setAuthSubScene(\'recoverPassword\')">{{"login_forgot_password" | i18n }}</div>  <div class="orange common-button opposite" ng-click="loginForm.submit()" > <div class="text">{{"login_enter" | i18n | capitalize}}</div> </div>  <div class="goto-register btn-link" ng-click="setAuthScene(\'register\')">{{"login_goto_register" | i18n }}</div>    </form> </div> '), 
+        $templateCache.put("/portal/templates/elements/carousel/housesCarousel.html?0.739", '<div class="houses-carousel-container"> <div  ng-if="!animationOn" class="houses-carousel" ng-style="{backgroundImage:\'url(\'+bgPics[currentPicInd]+\')\'}">  </div>  <div ng-if="animationOn" class="houses-carousel"> <div ng-include dir="{{dir}}" src="\'elements/carousel/slider\' | appTemplate"></div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/elements/carousel/slider.html?0.739", '<wallop-slider data-images="bgPics" data-animation="scale" data-current-item-index="_ind" data-next-item-index="currentPicInd"> </wallop-slider> '), 
+        $templateCache.put("/portal/templates/elements/contentLoader.html?0.739", '<div class="content-loader" ng-show="!loaded"> <img  class="center-block" ng-src="{{\'system/pagePreLoader.gif\' | commonImage}}"> </div> '), 
+        $templateCache.put("/portal/templates/elements/popups/popupAsScene.html?0.739", '<div class="info-popup scene popup-scene-{{options.code}}" dir="{{dir}}" ng-controller="PopupController" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-10 col-xs-12"> <button class="upper btn btn-primary" ng-if="options.backText" bs-back-button >{{options.backText | i18n}}</button>  <div class="clearfix"></div> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col-xs-11" > <H3>{{options.title}}</H3> <div class="short-separator"></div> </div> <div ng-include src="\'elements/popups/popupBody\' | appTemplate" ></div>   <ul class="list-inline"> <li  ng-repeat="button in options.buttons"> <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}" bs-back-button  >{{(button.text) | i18n}} </button> <button ng-if="button.action" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>  </div> </div> '), 
+        $templateCache.put("/portal/templates/elements/popups/popupBody.html?0.739", '<div dir="{{dir}}"> <iframe ng-if="options.contentUrl" width="100%" height="500px" name="about" ng-src="{{options.contentUrl}}" frameborder=0 ALLOWTRANSPARENCY="true"></iframe> <div    ng-if=\'options.contentHtml\'    class="info-popup-content" ng-bind-html="options.contentHtml"></div> <div    ng-if=\'options.contentInclude\' class="info-popup-content"  ng-include src="options.contentInclude | appTemplate"></div>  </div> '), 
+        $templateCache.put("/portal/templates/elements/popups/popupModal.html?0.739", '<div dir="{{dir}}" ng-keyup="onKeyup()" class="popup-modal-{{options.code}}">  <div  class="modal-header"> <label  class="float modal-title" ng-if="options.titleKey">{{options.titleKey | i18n}}</label>  <label  class="float modal-title" ng-if="!options.titleKey">{{options.title}}</label> <button type="button" class="opposite float close" ng-if="!options.unclosable" ng-click="$close()">&times;</button> <div class="clearfix"></div>  </div>  <div class="modal-body"> <div ng-include src="\'elements/popups/popupBody\' | appTemplate" ></div> </div>  <div class="modal-footer"> <ul class="list-inline"> <li  ng-repeat="button in options.buttons">  <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}"  ng-click="$close()">{{(button.text) | i18n}} </button> <button ng-if="button.action" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>   </div> </div> '), 
+        $templateCache.put("/portal/templates/elements/navigation/upperNavigationSearch.html?0.739", ' <form name=\'searchForm\' novalidate bs-form  bs-submit="gotoSearch()"  ng-click="gotoSearchIfMobile()" class="global-search-form"  bs-text-direction ng-show="state.current.url!=\'search\'"> <bs-form-group field-name="phrase" label="catalog_search_all" > <input bs-place-holder name="phrase" class="form-control" ng-model="data.searchToken" bs-enter-key-action="gotoSearch()"/> </bs-form-group> <div class="button noselect" ng-click="gotoSearch()"> </div> <div class="clearfix"></div> </form>     '), 
+        $templateCache.put("/portal/templates/elements/navigation/mobileLangSelection.html?0.739", '<div class="lang-selection"  ng-if="data.langs.length>1"> <div class="selected entry" slide-toggle="#langsMenu{{langMenuAtBottom}}" ng-click="onLanguageClick()" > {{currentLang | langName:"english"}} <span class="caret {{dir}}" ></span> </div> <ul id="langsMenu{{langMenuAtBottom}}" class="slideable" duration="0.25s"> <li class="sub needsclick entry" ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)">{{lang | langName}}</li> </ul> </div> '), 
+        $templateCache.put("/portal/templates/elements/navigation/upperNavigation.html?0.739", '<div class="upper-navigation"  ng-class="{ \'has-warning\':ie8WarningVisible, \'logged-in\':currentUser!=null, \'no-fixed\':mobileMenuOn, \'mobile\':isMobileApp || viewPort.clientWidth<1200, \'pc\':!isMobileApp &&  viewPort.clientWidth>=1200 }"  ng-controller="UpperNavigationController"  dir="{{dir}}" > <div ie8-warning></div>  <div class="mobile-only" ng-if="data.showContainer"> <div class="icon-button {{button}}" ng-repeat="button in data.mobileButtons"  ng-click="handleMobileButtonClick(button)"  bs-touched-class="\'touched\'"></div> <div ng-include src="\'elements/navigation/mobileMenu\' | appTemplate"></div> <div class="clearfix"></div> </div>   <div class="pc-only"  > <div class="container" ng-if="data.showContainer">  <div class="float clickable logo" ui-sref="app.home" bs-check-bidmood></div>  <div class="links"> <div class="opposite float lang-selection btn-group" uib-dropdown is-open="status.isopen" ng-if="data.langs.length>1"> <div type="button" uib-dropdown-toggle class="selected entry" > {{currentLang | langName:"english"}} <span class="opposite float caret {{dir}}" ></span> </div> <ul class="uib-dropdown-menu" role="menu" > <li class="entry" ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)">{{lang | langName}}</li> </ul> </div>  <span class="info-links opposite float" > <a class="btn-link opposite float entry" ng-class="currentLang" ng-href="#!/{{link}}" ng-repeat="link in data.infoLinks">{{(\'link_\'+link) | i18n}}</a> </span>  <div ng-include src="\'elements/navigation/upperNavigationSearch\' | appTemplate" class="opposite float" ></div>    <div class="float auth" ng-include src="\'auth/authUpperNavigation\' | appTemplate" >  </div>  </div>   </div>  </div>  <div class="mobile-only hello-bar" ng-if="currentUser && data.showContainer"> <div class="text">{{\'link_hello\' | i18n:{name:currentUser.firstName} }} </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/elements/navigation/installAppButton.html?0.739", ' <a class="install-app-button"  ng-show="platform" target="linkTarget"  ng-href="{{href}}" ng-click="logAppPageLink(platform)"  ng-class="platform">  </a>   '), 
+        $templateCache.put("/portal/templates/elements/navigation/reload.html?0.739", '<div class="refresh scene" ng-controller="ReloadController">  </div> '), 
+        $templateCache.put("/portal/templates/elements/navigation/pcUserMenu.html?0.739", ' <a class="btn-link" ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.myAccount({itemsType:\'absentee\'})" >{{\'link_absentee\' | i18n}}</a> <a class="btn-link" ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.myAccount({itemsType:\'won\'})" >{{\'link_won\' | i18n}}</a> <a class="btn-link" ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.favorites">{{\'link_favorites\' | i18n}}</a> <a class="btn-link" ui-sref="app.alerts">{{\'link_alerts\' | i18n}}</a> <a class="btn-link" ui-sref="app.userDetails">{{\'link_update_details\' | i18n}}</a> <a class="btn-link" ng-click="logout()">{{\'link_logout\' | i18n}}</a> '), 
+        $templateCache.put("/portal/templates/elements/navigation/mobileMenu.html?0.739", '<div ng-controller="MobileMenuController" > <div> <div  class="menu icon-button needsclick" ng-click="toggleMenu()" ng-class="{touched:menuTouched}"></div> <div class="clearfix"></div> <div class="arrow" ng-show="mobileMenuOn" ></div> <div class="clearfix"></div> </div> <div id="linksMenu" class="mobile-menu" ng-if="mobileMenuOn" > <div class="bg">    <div ng-if="!langMenuAtBottom" ng-include src="\'elements/navigation/mobileLangSelection\' | appTemplate"></div>  <a class="orange entry needsclick"  ng-if="currentUser && currentUser.registrationStage!=\'COMPLETE\'" ng-click="nextRegistrationStep()" ng-class="currentLang" >{{(\'link_complete_registration\') | i18n}}</a>  <a class="needsclick entry" ng-if="!mobileApp && currentUser && (!currentUser.userDevices || currentUser.userDevices.length==0)" ng-class="[currentLang,{orange:currentUser.registrationStage==\'COMPLETE\'}]" ng-click="installApp()" ng-click="installApp()"  >{{(\'link_install_app\') | i18n}}</a>   <a class="needsclick entry"  ng-if="!currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.auth\',{authScene:authLink})" ng-repeat="authLink in [\'login\',\'register\']">{{(\'link_\'+authLink) | i18n}}</a>  <a class="needsclick orange entry" ng-if="!mobileApp && !currentUser " ng-class="currentLang" ng-click="installApp()"  >{{(\'link_install_app\') | i18n}}</a>   <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.myAccount\',{itemsType:\'absentee\'})" >{{\'link_absentee\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.myAccount\',{itemsType:\'won\'})" >{{\'link_won\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.favorites\')">{{\'link_favorites\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.alerts\')">{{\'link_alerts\' | i18n}}</a>  <a class="needsclick entry"   ng-class="currentLang" ng-click="gotoScene(\'app.results\',{house:\'all\',page:1})" ">{{\'home_auctions_results\' | i18n}}</a>   <a class="needsclick entry"   ng-class="currentLang" ng-click="gotoScene(\'app.\'+link)" ng-repeat="link in data.infoLinks">{{(\'link_\'+link) | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.userDetails\')">{{\'link_update_details\' | i18n}}</a>  <a class="needsclick entry" ng-if="currentUser " ng-class="currentLang" ng-click="logout()" ng-href="#!/home" >{{(\'link_logout\') | i18n}}</a>  <div ng-if="langMenuAtBottom" ng-include src="\'elements/navigation/mobileLangSelection\' | appTemplate"></div> </div>   <div class="bottom-space"></div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/elements/pageFooter.html?0.739", ' <div class="page-footer" ng-if="showFooter" > <div class="container col-md-7 col-xs-12 center-block"> <div class="arrow"></div> <div class="row">  <div class="info-part col-xs-6"> <div class="logo" bs-check-bidmood></div> <div class="text-line" ng-bind-html="\'home_footer_info_email\' | i18n:{email:BidspiritInfo.emailLink}"></div> <div class="text-line" ng-bind-html="\'home_footer_info_phone\' | i18n:{phone:BidspiritInfo.phoneLink}"></div> </div> <div class="float vertical-separator" ng-class="{invisible:shouldHideContactUs()}"></div> <div class="contact-us-part info-part col-xs-5" > <div class="pc-message hidden-xs hidden-sm" ng-class="{invisible:shouldHideContactUs()}"> <div class="message"> {{"home_footer_contact_text" | i18n }} </div> <div class="orange common-button center-block" bs-check-bidmood ui-sref="app.contact"> <div class="text">{{"home_footer_contact_button" | i18n }}</div> </div> </div>  <div class="mobile-links hidden-md hidden-lg"> <a class="btn-link" ng-href="#!/contact">{{"link_contact" | i18n}}</a> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"link_terms" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"link_privacy" | i18n}}</a> <a class="btn-link" ng-href="#!/about">{{"link_about" | i18n}}</a> <a class="btn-link" ng-href="#!/product">{{"link_product" | i18n}}</a>  <a class="btn-link" ng-click="showAllFutureAuctions()">{{"all_future_auctions" | i18n}}</a> </div> </div>  <div class="clearfix"></div> </div>   <div class="horizontal-separator"></div>  <div class="second-line"> <div class="sell float col-xs-6" > <div class="float text">{{"home_footer_sell" | i18n }}&nbsp;</div>  <a class="float btn-link" ng-href="#!/houses">{{"home_footer_houses" | i18n}}</a> <div class="clearfix"></div> </div>  <div class="float col-xs-6 social" > <div class="text">{{"home_footer_follow" | i18n }}</div> <div class="icons"> <a class="button twitter" target="{{linkTarget}}" href="https://www.twitter.com/{{twitterPage}}"></a> <a class="button fb" target="{{linkTarget}}" href="https://www.facebook.com/{{fbPage}}"></a> </div> </div> <div class="clearfix"></div> </div>   <div> <div class="horizontal-separator"></div> <div class="hidden-xs hidden-sm">  <div class="bottom-links"> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"link_terms" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"link_privacy" | i18n}}</a> <a class="btn-link" ng-href="#!/about">{{"link_about" | i18n}}</a> <a class="btn-link" ng-href="#!/product">{{"link_product" | i18n}}</a>  <a class="btn-link" ng-click="showAllFutureAuctions()">{{"all_future_auctions" | i18n}}</a> </div> <div class="horizontal-separator"></div> </div>  <div class="rights-line">	{{"home_footer_rights" | i18n }}	</div>  </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div> ');
     });
 }), define("domReady", [], function() {
     function runCallbacks(callbacks) {
