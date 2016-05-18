@@ -37,6 +37,8 @@
     <feature name="http://api.phonegap.com/1.0/network" />    
     <feature name="http://api.phonegap.com/1.0/device" />
     <feature name="http://api.phonegap.com/1.0/notification"/>  
+    
+    
                
     <icon src="icon.png" />
     
@@ -57,15 +59,17 @@
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
     
-    
-
-    
+    <preference name="KeyboardDisplayRequiresUserAction" value="false"/>
+       
     <gap:splash src="splash.png"/>
     
     
 	<preference name="SplashScreen" value="splash" />
 	<preference name="SplashScreenDelay" value="10000" />
 	<preference name="SplashMaintainAspectRatio" value="true" />
+	
+	
+	
 	
 	
 	<gap:config-file platform="android" parent="/manifest/application">
