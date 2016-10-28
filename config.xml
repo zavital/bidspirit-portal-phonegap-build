@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="144"
-    id="com.bidspirit.prod"
+<widget version="145"
+    id="com.bidspirit.qa"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
     xmlns:gap="http://phonegap.com/ns/1.0"
     >
  
-    <name>Bidspirit</name>
+    <name>(QA)Bidspirit</name>
     <description>
         The Bidspirit portal is your gate to the auction houses’ arena  trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more
     </description>
