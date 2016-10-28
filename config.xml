@@ -1,15 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="14393" versionCode="14393"
+<widget version="161" versionCode="14392"
     id="com.bidspirit.prod"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
     xmlns:gap="http://phonegap.com/ns/1.0"
     >
     
-    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	    package="com.bidspirit.prod"
-	    android:versionCode=""
-	    android:versionName="1" >
  
     <name>Bidspirit</name>
     <description>
