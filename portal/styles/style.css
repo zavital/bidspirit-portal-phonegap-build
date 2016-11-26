@@ -9935,150 +9935,6 @@ footer {
       min-width: 80px;
       color: #b95717; }
 
-.myAccount.scene .upper-part {
-  height: 185px; }
-.myAccount.scene .content {
-  min-height: 650px;
-  float: none;
-  margin-top: 185px;
-  background: white;
-  padding-top: 30px;
-  padding-bottom: 70px; }
-  .myAccount.scene .content .btn-link.edit {
-    padding: 0 5px; }
-  .myAccount.scene .content uib-accordion .panel-heading .logo {
-    height: 30px;
-    width: 80px;
-    background: center center no-repeat;
-    background-size: contain; }
-  .myAccount.scene .content uib-accordion .panel-heading .house-name {
-    text-indent: 20px;
-    padding-top: 5px; }
-  .myAccount.scene .content uib-accordion .content-loader {
-    min-height: 0;
-    padding: 30px 0; }
-  .myAccount.scene .content uib-accordion .house-entry-content {
-    min-height: 130px; }
-    .myAccount.scene .content uib-accordion .house-entry-content .auctions-section {
-      padding-bottom: 20px; }
-      .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .title {
-        background: #444444;
-        min-width: 130px;
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px; }
-        .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .title .text {
-          color: white;
-          font-size: 14px;
-          padding: 3px 10px;
-          width: 100%;
-          text-align: center; }
-      .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .auctionName {
-        margin: 11px 0;
-        color: #444;
-        font-weight: bold;
-        font-size: 16px; }
-      .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .title-separator {
-        height: 3px;
-        background: #444444; }
-      .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row {
-        margin-top: 10px;
-        width: 100%;
-        min-height: 120px;
-        background: #f5f5f5;
-        white-space: nowrap;
-        position: relative;
-        cursor: pointer; }
-        .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .lot-pic {
-          width: 108px;
-          height: 108px;
-          margin: 5px;
-          box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.3);
-          display: inline-block;
-          white-space: normal;
-          background: center center no-repeat;
-          background-size: contain; }
-          .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .lot-pic .state-info {
-            width: 100px; }
-        .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .info {
-          padding: 10px;
-          display: inline-block;
-          white-space: normal;
-          max-width: 800px;
-          color: #333;
-          vertical-align: top;
-          font-size: 16px; }
-          .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .info .item-index {
-            color: #b44b07;
-            font-size: 17px;
-            font-weight: bold;
-            padding-bottom: 4px;
-            display: block; }
-          .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .info .lot-artist {
-            font-weight: bold;
-            display: block; }
-          .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .info .price-label {
-            margin-top: 17px;
-            display: block; }
-            .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .info .price-label .label {
-              margin: 0;
-              padding: 0;
-              color: #333;
-              font-weight: normal; }
-            .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .info .price-label .price {
-              color: #2a6496;
-              margin: 0 5px; }
-        .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row:hover {
-          background: gainsboro; }
-        .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .common-button {
-          position: absolute;
-          right: 10px;
-          bottom: 10px;
-          height: 32px; }
-          .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .common-button[dir=rtl] {
-            right: auto;
-            left: 10px; }
-          .myAccount.scene .content uib-accordion .house-entry-content .auctions-section .bid-row .common-button .text {
-            padding: 2px 30px;
-            font-size: 18px; }
-    .myAccount.scene .content uib-accordion .house-entry-content .approval-message, .myAccount.scene .content uib-accordion .house-entry-content .error {
-      font-size: 16px;
-      line-height: 30px; }
-      .myAccount.scene .content uib-accordion .house-entry-content .approval-message button, .myAccount.scene .content uib-accordion .house-entry-content .error button {
-        margin-top: 20px; }
-        .myAccount.scene .content uib-accordion .house-entry-content .approval-message button.back, .myAccount.scene .content uib-accordion .house-entry-content .error button.back {
-          display: none; }
-  @media (max-width: 1199px) {
-    .myAccount.scene .content uib-accordion {
-      width: 100%; }
-      .myAccount.scene .content uib-accordion .panel {
-        margin: 10px 0 20px; }
-        .myAccount.scene .content uib-accordion .panel .panel-heading {
-          padding: 10px 15px;
-          font-size: 25px; }
-          .myAccount.scene .content uib-accordion .panel .panel-heading .logo {
-            width: 80px; }
-          .myAccount.scene .content uib-accordion .panel .panel-heading .house-name {
-            text-indent: 20px;
-            font-size: 25px;
-            padding-top: 2px; }
-          .myAccount.scene .content uib-accordion .panel .panel-heading .btn-link {
-            font-size: 24px;
-            padding-top: 1px; }
-          .myAccount.scene .content uib-accordion .panel .panel-heading .panel-title {
-            font-size: 24px; }
-        .myAccount.scene .content uib-accordion .panel .house-entry-content {
-          font-size: 25px; }
-          .myAccount.scene .content uib-accordion .panel .house-entry-content .auctions-section .bid-row .info {
-            max-width: 270px; }
-          .myAccount.scene .content uib-accordion .panel .house-entry-content .auctions-section .bid-row .state-info {
-            font-size: 18px;
-            line-height: 22px; }
-          .myAccount.scene .content uib-accordion .panel .house-entry-content input {
-            font-size: 25px;
-            height: 55px; }
-        .myAccount.scene .content uib-accordion .panel .approval-message, .myAccount.scene .content uib-accordion .panel .error {
-          font-size: 20px; } }
-
 .catalog.scene.accountActions .upper-part {
   height: 185px; }
 .catalog.scene.accountActions .content {
@@ -11267,24 +11123,24 @@ a.install-app-button {
         .catalog.scene .content .list .row .item.pc-item[dir=rtl] .flag-button.alert-flag {
           right: auto;
           left: 39px; }
-  .catalog.scene .content .list.has-leading-bids .row .item.pc-item {
+  .catalog.scene .content .list .row .item.pc-item {
     height: 395px; }
-    .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link {
+    .catalog.scene .content .list .row .item.pc-item .item-link {
       height: 355px; }
-      .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .lot-badge.sold {
+      .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.sold {
         background: #18428e; }
-      .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .lot-badge.self-absentee {
+      .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.self-absentee {
         display: none; }
-      .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part {
+      .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part {
         height: 127px; }
-        .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid {
+        .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee {
           width: 100%;
           height: 70px;
           position: absolute;
           bottom: 0px;
           left: 0px;
           top: auto; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .message {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .message, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .message {
             position: absolute;
             top: 0px;
             left: 0px;
@@ -11293,7 +11149,7 @@ a.install-app-button {
             line-height: 15px;
             height: 32px;
             padding: 0 5px; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .highlighted-area {
             background: #18428e;
             width: 100%;
             height: 38px;
@@ -11302,34 +11158,34 @@ a.install-app-button {
             bottom: 0px;
             left: 0px;
             top: auto; }
-            .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .lead-type {
+            .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .lead-type, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .highlighted-area .lead-type {
               font-size: 15px;
               padding: 1px 5px;
               font-weight: bold;
               line-height: 17px;
               height: 17px;
               display: block; }
-            .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .price {
+            .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .price, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .highlighted-area .price {
               padding: 0 5px;
               font-size: 15px; }
-            .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .dummy-link {
+            .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .dummy-link, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .highlighted-area .dummy-link {
               font-size: 13px;
               position: absolute;
               bottom: 3;
               right: 5; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.self .highlighted-area {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.self .highlighted-area, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.self .highlighted-area {
             background: #009900; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.self .message {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.self .message, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.self .message {
             color: green; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.outbidded .highlighted-area {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.outbidded .highlighted-area, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.outbidded .highlighted-area {
             background: #f62239; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.outbidded .message {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.outbidded .message, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.outbidded .message {
             color: red; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.sold .highlighted-area {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.sold .highlighted-area, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.sold .highlighted-area {
             display: none; }
-          .catalog.scene .content .list.has-leading-bids .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.past.under-reserved .highlighted-area {
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.past.under-reserved .highlighted-area, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.past.under-reserved .highlighted-area {
             display: none; }
-    .catalog.scene .content .list.has-leading-bids .row .item.pc-item[dir=rtl] .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .dummy-link {
+    .catalog.scene .content .list .row .item.pc-item[dir=rtl] .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .dummy-link {
       right: auto;
       left: 5; }
 
@@ -11490,17 +11346,17 @@ a.install-app-button {
       .catalog.scene .content .list.mobile-list .row .item[dir=rtl] .alert-flag {
         left: 39px;
         right: auto; }
-  .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item {
+  .catalog.scene .content .list.mobile-list .row .item.mobile-item {
     height: 270px; }
-    .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .lot-badge.sold {
+    .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-badge.sold {
       background: #18428e; }
-    .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .lot-badge.self-absentee {
+    .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-badge.self-absentee {
       display: none; }
-    .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid {
+    .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid {
       position: absolute;
       bottom: 0;
       right: 0; }
-      .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid .message {
+      .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid .message {
         line-height: 17px;
         white-space: normal;
         font-size: 17px;
@@ -11510,7 +11366,7 @@ a.install-app-button {
         top: auto;
         width: 100%;
         padding: 0 5px; }
-      .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area {
+      .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area {
         background: #18428e;
         width: 100%;
         color: white;
@@ -11519,28 +11375,28 @@ a.install-app-button {
         position: absolute;
         right: 0;
         bottom: 0; }
-        .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .lead-type {
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .lead-type {
           padding: 0 5px;
           font-weight: bold;
           height: 20px; }
-        .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .price {
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .price {
           padding: 0 5px;
           font-size: 18px;
           height: 20px;
           margin: 5px 0 5px; }
-        .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .dummy-link {
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .dummy-link {
           display: none; }
-      .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid.self .highlighted-area {
+      .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid.self .highlighted-area {
         background: #009900; }
-      .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid.self .message {
+      .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid.self .message {
         color: green; }
-      .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid.outbidded .highlighted-area {
+      .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid.outbidded .highlighted-area {
         background: #f62239; }
-      .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid.outbidded .message {
+      .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid.outbidded .message {
         color: red; }
-      .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item .item-link .lot-row .leading-bid.sold .highlighted-area {
+      .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid.sold .highlighted-area {
         display: none; }
-    .catalog.scene .content .list.mobile-list.has-leading-bids .row .item.mobile-item[dir=rtl] .item-link .lot-row .leading-bid {
+    .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .leading-bid {
       right: auto;
       left: 0; }
 
@@ -11933,12 +11789,12 @@ a.install-app-button {
       color: #333; }
     .catalog.lotPage.scene .content .bid-form .bid-info .bid-label {
       font-size: 16px; }
-    .catalog.lotPage.scene .content .bid-form .bid-info .leading-bid-message {
+    .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message {
       font-size: 13px;
       margin-top: 3px; }
-      .catalog.lotPage.scene .content .bid-form .bid-info .leading-bid-message:before {
+      .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message:before {
         content: "("; }
-      .catalog.lotPage.scene .content .bid-form .bid-info .leading-bid-message:after {
+      .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message:after {
         content: ")"; }
   .catalog.lotPage.scene .content .bid-form .links {
     margin: 0px 10px 20px; }
@@ -12135,7 +11991,7 @@ a.install-app-button {
       font-size: 20px; }
     .catalog.lotPage.scene .content .bid-form .bid-info .bid-label, .catalog.lotPage.scene .content .bid-form .bid-info .bid-price {
       font-size: 23px; }
-    .catalog.lotPage.scene .content .bid-form .bid-info .leading-bid-message {
+    .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message {
       font-size: 20px; }
     .catalog.lotPage.scene .content .bid-form .links .btn-link {
       font-size: 22px;
