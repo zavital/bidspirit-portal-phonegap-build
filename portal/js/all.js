@@ -28343,15 +28343,15 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 }), define("portal/js/modules/navigation/index", [ "./navigationModule", "./upperNavigationController", "./mobileMenuController", "./auctionsMenuController", "./reloadController", "./appSiteWinodwsService", "./portalNavigationService", "./installAppButtonDirective", "./auctionStateListenerService", "./helpMenuController", "./upperNavigationMenuDirective" ], function() {}), 
 define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/index", "./auth/index", "./userDetails/index", "./alerts/index", "./info/index", "./catalogs/index", "./auctions/index", "./houses/index", "./shops/index", "./account/index", "./nudges/index", "./ads/index", "./components/index", "./navigation/index" ], function(ng) {
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.catalogs", "app.auctions", "app.houses", "app.shops", "app.account", "app.nudges", "app.ads", "app.components", "app.navigation" ]);
-}), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
+}), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload",  "commonModules", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
     function initAnalytics(AnalyticsProvider) {
         GlobalConfig.isMobileApp ? document.addEventListener("deviceready", function() {
             window.analytics.startTrackerWithId("UA-56607963-2");
         }, !1) : -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
     }
-    return angular.module("app", [ "ngAnimate", "lr.upload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
-        $locationProvider.hashPrefix("!"), initAnalytics(AnalyticsProvider);
+    return angular.module("app", [ "ngAnimate", "lr.upload",  "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
+        $locationProvider.hashPrefix("!"), alert("has.");
     }).run(function($templateCache) {
         $templateCache.put("/common/templates/forms/asyncButton.html?1.1065.5", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
         $templateCache.put("/common/templates/forms/formGroup.html?1.1065.5", '<div class="form-group {{cssClass}}"> <div> <div ng-transclude></div> </div>  </div> '), 
@@ -28712,6 +28712,6 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 }(), window.location.hash && -1 != window.location.hash.indexOf("%21") && (window.location.hash = window.location.hash.replace("%21", "!")), 
 define([ "require", "angular", "app", "commonModules", "domReady", "fastClick" ], function(require, ng) {
     require([ "domReady!", "fastClick" ], function(document, fastClick) {
-        window.BIDSPIRIT_SNAPSHOT || (ng.bootstrap(document, [ "app" ]), fastClick.attach(document.body));
+        window.BIDSPIRIT_SNAPSHOT || (ng.bootstrap(document, [ "app" ]),alert("fast"),  fastClick.attach(document.body));
     });
 });
