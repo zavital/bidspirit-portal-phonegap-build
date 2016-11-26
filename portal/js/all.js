@@ -17670,10 +17670,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                     });
                 });
             }
-            
             var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
-            loadDefaultTexts();
-            return deferred.promise;
             return BidspiritLoader.readFile(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
                 null != loadedTexts ? (addToDebug("loaded local texts for " + textsVersion + " in lang " + lang + ". data length:" + loadedTexts.length), 
                 loadedTexts.length > 1e4 ? (GlobalConfig.loadedTextsVersion = textsVersion, deferred.resolve({
@@ -18249,6 +18246,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
 }), define("portal/js/modules/main/portalMainController", [ "./portalMainModule" ], function(module) {
     module.controller("MainController", [ "$scope", "$rootScope", "$state", "$timeout", "ArraysService", "I18nService", "CssLoaderService", "PathsService", "DomUtilsService", "LocalStorageService", "OsInfoService", "SessionsService", "LogService", "SettingsService", "ViewPortService", "DialogsService", "AuctionStateListenerService", "CometService", "MobilePushService", "PortalNavigationService", "HeartBeatService", "PortalStates", "PortalInfoService", "PortalTextsService", "LegalApprovalService", "AdsService", "UserAlertsService", function($scope, $rootScope, $state, $timeout, ArraysService, I18nService, CssLoaderService, PathsService, DomUtilsService, LocalStorageService, OsInfoService, SessionsService, LogService, SettingsService, ViewPortService, DialogsService, AuctionStateListenerService, CometService, MobilePushService, PortalNavigationService, HeartBeatService, PortalStates, PortalInfoService, PortalTextsService, LegalApprovalService, AdsService, UserAlertsService) {
         function onInit() {
+alert("on init");
             "loaded" != $rootScope.loadState && ($rootScope.loadState = "loaded", $rootScope.isMobile = OsInfoService.isMobile(), 
             PortalStates.init(), PortalTextsService.init(), onLangUpdate(), $scope.dataState = "loaded", 
             initLog(), initRegions(), $rootScope.searchAgentRequest || (AuctionStateListenerService.init(), 
@@ -18310,6 +18308,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             ("1" == PathsService.getQueryParam("judaica") || -1 != window.location.host.indexOf("judaica")) && ($rootScope.judaicaOnly = !0);
         }
         function init() {
+alert("init");
             initConfig(), checkFirstVisit(), ViewPortService.bindViewPortSizeToWindowWidth(), 
             $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss($rootScope.serverFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
             PortalInfoService.init(getInitialRegion()).success(function() {
@@ -28711,7 +28710,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     }) : "undefined" != typeof module && module.exports ? (module.exports = FastClick.attach, 
     module.exports.FastClick = FastClick) : window.FastClick = FastClick;
 }(), window.location.hash && -1 != window.location.hash.indexOf("%21") && (window.location.hash = window.location.hash.replace("%21", "!")), 
-define('portal/js/all', [ "require", "angular", "app", "commonModules", "domReady", "fastClick" ], function(require, ng) {
+define([ "require", "angular", "app", "commonModules", "domReady", "fastClick" ], function(require, ng) {
     require([ "domReady!", "fastClick" ], function(document, fastClick) {
         window.BIDSPIRIT_SNAPSHOT || (ng.bootstrap(document, [ "app" ]), fastClick.attach(document.body));
     });
