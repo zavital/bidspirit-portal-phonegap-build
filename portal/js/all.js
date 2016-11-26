@@ -17511,7 +17511,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
         };
     });
 }), define("common/js/modules/log/analyticsService", [ "./logModule" ], function(module) {
-    module.factory("AnalyticsService", function($http, PathsService, Analytics, LogService, LocalStorageService, SessionInfo) {
+    module.factory("AnalyticsService", function($http, PathsService, LogService, LocalStorageService, SessionInfo) {
         function trackEvent(category, action, label, options) {
             if (new Date().getTime() - GlobalConfig.pageLoadTime > TRACKED_EVENTS_DELAY) {
                 var key = category + "_" + action + "_" + label;
@@ -17528,7 +17528,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
                     }
                     if (GlobalConfig.isMobileApp && window.analytics) window.analytics.trackEvent(category, action, label); else {
                         if (mIsBidspiritEmployee) return;
-                        Analytics.trackEvent(category, action, label);
+                       // Analytics.trackEvent(category, action, label);
                     }
                 } catch (e) {
                     LogService.logError("failed to log event in analyicts " + key + "," + JSON.stringify(options), e);
@@ -17561,7 +17561,7 @@ define("common/js/modules/log/logModule", [ "angular" ], function(ng) {
             clearTimeout(mPageTrackDelay), mPageTrackDelay = setTimeout(function() {
                 if (GlobalConfig.isMobileApp && window.analytics) window.analytics.trackView(page); else {
                     if (mIsBidspiritEmployee) return;
-                    Analytics.trackPage(page);
+                   // Analytics.trackPage(page);
                 }
             }, 1e3);
         }
@@ -28350,8 +28350,8 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
         }, !1) : -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
     }
-    return angular.module("app", [ "ngAnimate", "lr.upload",  "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider, AnalyticsProvider) {
-        $locationProvider.hashPrefix("!"), alert("has.");
+    return angular.module("app", [ "ngAnimate", "lr.upload",  "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap" ]).config(function($locationProvider) {
+        $locationProvider.hashPrefix("!"), alert("ana");
     }).run(function($templateCache) {
         $templateCache.put("/common/templates/forms/asyncButton.html?1.1065.5", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
         $templateCache.put("/common/templates/forms/formGroup.html?1.1065.5", '<div class="form-group {{cssClass}}"> <div> <div ng-transclude></div> </div>  </div> '), 
