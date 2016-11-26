@@ -2326,8 +2326,7 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
-					 try {					
-						 alert("re dev red");
+					 try {
 						 initFilesBase(function(){
 							 readFile("app/data",function(data){
 								 addDebugInfo("got data "+data);
