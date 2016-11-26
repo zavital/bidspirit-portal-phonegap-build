@@ -2305,6 +2305,7 @@ window.BidspiritLoader = {
 			if (mErrorInfo){
 				displayDebugIfDev();			
 			}
+			addDebugInfo("default load from url - "+mUrl);
 			mNode.src = mUrl;
 		}},
 		
