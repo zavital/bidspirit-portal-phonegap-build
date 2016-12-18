@@ -10837,9 +10837,11 @@ a.install-app-button {
           .catalog.scene .content .catalog-actions .filter-panel .search-form input {
             width: 100%; }
           .catalog.scene .content .catalog-actions .filter-panel .result {
-            font-size: 20px; }
+            font-size: 20px;
+            max-width: 300px; }
             .catalog.scene .content .catalog-actions .filter-panel .result .clear-link {
-              font-size: 18px; }
+              font-size: 18px;
+              white-space: nowrap; }
           .catalog.scene .content .catalog-actions .filter-panel .opposite.section {
             float: none; }
             .catalog.scene .content .catalog-actions .filter-panel .opposite.section .lots-per-page {
