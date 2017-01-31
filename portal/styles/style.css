@@ -8016,12 +8016,19 @@ footer {
       font-size: 25px; }
     .catalog.scene.search .house-selection {
       font-size: 25px;
-      text-align: center;
       height: 70px;
-      float: right; }
+      text-align: center;
+      width: 100%;
+      margin-top: 30px; }
+      .catalog.scene.search .house-selection .houses-dropdown {
+        width: 100%; }
+        .catalog.scene.search .house-selection .houses-dropdown select {
+          width: 400px; }
     .catalog.scene.search .sort-order {
       font-size: 25px;
-      float: left; }
+      margin: 0 40px;
+      float: none;
+      clear: both; }
       .catalog.scene.search .sort-order select {
         display: inline-block;
         width: auto; } }
