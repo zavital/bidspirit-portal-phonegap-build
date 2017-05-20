@@ -19000,11 +19000,11 @@ define("portal/js/modules/auth/portalAuthModule", [ "angular" ], function(ng) {
                 houseId: houseId
             }).success(function(response) {
                 var state = response.val;
-                mCurrentHouseApprovalState && mCurrentHouseApprovalState.houseId == houseId && setCurrentHouseApprovalState(houseId, state), 
+                mCurrentHouseApprovalState && mCurrentHouseApprovalState.houseId == houseId && setCurrentHouseAccountState(houseId, state), 
                 deferred.resolve(state);
             }), deferred.promise;
         }
-        function setCurrentHouseApprovalState(houseId, state) {
+        function setCurrentHouseAccountState(houseId, state) {
             mCurrentHouseApprovalState = {
                 houseId: houseId,
                 state: state,
@@ -19055,7 +19055,7 @@ define("portal/js/modules/auth/portalAuthModule", [ "angular" ], function(ng) {
             showAuthModalOrScene: showAuthModalOrScene,
             showAuthModalPopup: showAuthModalPopup,
             closeAuthModalPopup: closeAuthModalPopup,
-            setCurrentHouseApprovalState: setCurrentHouseApprovalState,
+            setCurrentHouseAccountState: setCurrentHouseAccountState,
             loadAccountStateForHouse: loadAccountStateForHouse,
             getHouseApprovalState: getHouseApprovalState,
             isWaitingForApprovalInHouse: isWaitingForApprovalInHouse,
@@ -20180,7 +20180,7 @@ define("portal/js/modules/catalogs/catalogsModule", [ "angular" ], function(ng) 
                     info.publicInfo) if (AccountService.addBidsInfoToItems(auction, info.publicInfo.purchases, "purchase"), 
                     setLeadingBids(auction, info.publicInfo.leadingBids), auction.absenteeBidsEnabled = info.publicInfo.absenteeBidsEnabled, 
                     info.userInfo) {
-                        if (mCachedCatalogAccountInfo.userIdInApp = info.userInfo.userIdInApp, PortalAuthService.setCurrentHouseApprovalState(auction.houseId, info.userInfo.approvalState), 
+                        if (mCachedCatalogAccountInfo.userIdInApp = info.userInfo.userIdInApp, PortalAuthService.setCurrentHouseAccountState(auction.houseId, info.userInfo.approvalState), 
                         info.userInfo.userIdInApp) {
                             var selfPurchases = ArraysService.getFilteredList(info.publicInfo.purchases, "userIdInApp", !0, mCachedCatalogAccountInfo.userIdInApp);
                             AccountService.addBidsInfoToItems(auction, selfPurchases, "selfPurchase"), AccountService.addBidsInfoToItems(auction, info.userInfo.absenteeBids, "selfAbsenteeBid");
@@ -21924,8 +21924,8 @@ define("portal/js/modules/auctions/lotPageElements/lotPageElementsModule", [ "an
                 function handleError(errorResponse) {
                     var house = scope.lot.house;
                     "LOT_CLOSED_FOR_BIDDING" == errorResponse.errorKey ? $rootScope.showGeneralError("bid_error_closed_for_bidding") : "AUCTION_CLOSED_FOR_BIDDING" == errorResponse.errorKey ? ($rootScope.showGeneralError("bid_error_closed_for_bidding"), 
-                    scope.lot.auction.absenteeBidsEnabled = !1, init()) : "USER_NOT_FOUND" == errorResponse.errorKey ? (PortalAuthService.setCurrentHouseApprovalState(house.id, "NOT_REGISTERED"), 
-                    AccountService.showApprovalPopup(house)) : "USER_NOT_APPROVED" == errorResponse.errorKey ? (PortalAuthService.setCurrentHouseApprovalState(house.id, errorResponse.approvalState), 
+                    scope.lot.auction.absenteeBidsEnabled = !1, init()) : "USER_NOT_FOUND" == errorResponse.errorKey ? (PortalAuthService.setCurrentHouseAccountState(house.id, "NOT_REGISTERED"), 
+                    AccountService.showApprovalPopup(house)) : "USER_NOT_APPROVED" == errorResponse.errorKey ? (PortalAuthService.setCurrentHouseAccountState(house.id, errorResponse.approvalState), 
                     AccountService.showApprovalPopup(house)) : PopupsService.showHouseConnectivityErrorPopup(house);
                 }
                 function focusOnInput() {
@@ -22061,7 +22061,7 @@ define("portal/js/modules/auctions/lotPageElements/lotPageElementsModule", [ "an
         function handleError(errorResponse) {
             var house = $scope.lot.house;
             "ALREADY_SOLD" == errorResponse.errorKey ? $rootScope.showGeneralError("bid_error_already_sold") : "OUT_OF_AUCTION" == errorResponse.errorKey ? $rootScope.showGeneralError("direct_sale_not_available") : "LOT_CLOSED_FOR_BIDDING" == errorResponse.errorKey ? $rootScope.showGeneralError("bid_error_closed_for_bidding") : "LIMIT_EXCEEDED" == errorResponse.errorKey ? $rootScope.showGeneralError("bid_limit_reached") : "AUCTION_CLOSED_FOR_BIDDING" == errorResponse.errorKey ? ($rootScope.showGeneralError("bid_error_closed_for_bidding"), 
-            scope.lot.auction.absenteeBidsEnabled = !1) : "USER_NOT_APPROVED" == errorResponse.errorKey ? (PortalAuthService.setCurrentHouseApprovalState(house.id, errorResponse.approvalState), 
+            scope.lot.auction.absenteeBidsEnabled = !1) : "USER_NOT_APPROVED" == errorResponse.errorKey ? (PortalAuthService.setCurrentHouseAccountState(house.id, errorResponse.approvalState), 
             AccountService.showApprovalPopup(house, !0)) : $rootScope.showGeneralError();
         }
         $scope.init = function() {
@@ -22077,7 +22077,7 @@ define("portal/js/modules/auctions/lotPageElements/lotPageElementsModule", [ "an
             $scope.initialized = !0, $scope.postSaleMode = PortalInfoService.isAuctionInPostSaleMode($scope.lot.auction);
         }, $scope.submitBid = function() {
             return AccountService.placeAbsenteeBid($scope.house.id, $scope.lot, $scope.bidPrice).success(function(response) {
-                response.errorKey ? handleError(response) : (PortalAuthService.setCurrentHouseApprovalState($scope.house.id, "APPROVED"), 
+                response.errorKey ? handleError(response) : (PortalAuthService.setCurrentHouseAccountState($scope.house.id, "APPROVED"), 
                 $scope.postSaleMode ? AnalyticsService.trackEvent("catalogAction", "directPurchaseInHouse", "direct purchase in house " + $scope.house.code) : AnalyticsService.trackEvent("catalogAction", "bidInHouse", "absentee bid in house " + $scope.house.code), 
                 $scope.sendAlert != $scope.lot.itemAlertOn && UserAlertsService.setItemAlertAfterDelay($scope.lot, $scope.sendAlert, 300), 
                 $scope.options.isModal ? $scope.$close() : $window.history.back());
@@ -22392,7 +22392,7 @@ define("portal/js/modules/account/accountModule", [ "angular" ], function(ng) {
                 houseId: house.id,
                 userStateId: userStateId
             }).success(function(response) {
-                PortalAuthService.setCurrentHouseApprovalState(house.id, response.approvalState), 
+                PortalAuthService.setCurrentHouseAccountState(house.id, response.approvalState), 
                 AnalyticsService.trackEvent("houseAction", "requestApprovalFromHouse", "request approval from house " + house.code);
             });
         }
