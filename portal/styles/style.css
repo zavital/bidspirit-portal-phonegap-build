@@ -469,7 +469,7 @@ bs-page-footer {
     .upper-navigation .logo.cars {
       background-position: center center;
       background-repeat: no-repeat;
-      background-image: url(data:image/png;base64,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); }
+      background-image: url(../images/cars/logo.png); }
   .upper-navigation.pc .mobile-only {
     display: none; }
   .upper-navigation.mobile .pc-only {
@@ -540,6 +540,10 @@ bs-page-footer {
         left: 480px; }
       .upper-navigation .pc-only > .container .global-search-form.en {
         left: 450px; }
+      .upper-navigation .pc-only > .container .global-search-form.es {
+        left: 463px; }
+        .upper-navigation .pc-only > .container .global-search-form.es input {
+          font-size: 14px; }
     .upper-navigation .pc-only > .container.has-warning {
       height: 80px; }
       .upper-navigation .pc-only > .container.has-warning .container {
@@ -758,12 +762,45 @@ bs-page-footer {
     left: 200px; }
   .upper-navigation .pc-only .bs-dropdown-menu.he .bs-dropdown-body {
     right: 25%; }
-  .upper-navigation .pc-only .bs-dropdown-menu.en.help, .upper-navigation .pc-only .bs-dropdown-menu.ru.help {
+  .upper-navigation .pc-only .bs-dropdown-menu.en.help, .upper-navigation .pc-only .bs-dropdown-menu.ru.help, .upper-navigation .pc-only .bs-dropdown-menu.es.help, .upper-navigation .pc-only .bs-dropdown-menu.el.help {
     right: 120px; }
-  .upper-navigation .pc-only .bs-dropdown-menu.en.auctions, .upper-navigation .pc-only .bs-dropdown-menu.ru.auctions {
+  .upper-navigation .pc-only .bs-dropdown-menu.en.auctions, .upper-navigation .pc-only .bs-dropdown-menu.ru.auctions, .upper-navigation .pc-only .bs-dropdown-menu.es.auctions, .upper-navigation .pc-only .bs-dropdown-menu.el.auctions {
     right: 230px; }
-  .upper-navigation .pc-only .bs-dropdown-menu.en .bs-dropdown-body, .upper-navigation .pc-only .bs-dropdown-menu.ru .bs-dropdown-body {
+  .upper-navigation .pc-only .bs-dropdown-menu.en .bs-dropdown-body, .upper-navigation .pc-only .bs-dropdown-menu.ru .bs-dropdown-body, .upper-navigation .pc-only .bs-dropdown-menu.es .bs-dropdown-body, .upper-navigation .pc-only .bs-dropdown-menu.el .bs-dropdown-body {
     left: 25%; }
+
+.mailing-list-promotion {
+  padding-top: 10px;
+  font-size: 16px;
+  color: #115787;
+  line-height: 47px; }
+  .mailing-list-promotion .button {
+    cursor: pointer;
+    border-radius: 4px;
+    background: #004b7e;
+    padding: 5px 8px;
+    line-height: 22px;
+    margin: 7px;
+    display: inline-block; }
+    .mailing-list-promotion .button .text {
+      color: white; }
+    .mailing-list-promotion .button:hover {
+      background: #003c65;
+      text-decoration: none; }
+    .mailing-list-promotion .button:active {
+      background: #002d4b; }
+    .mailing-list-promotion .button.waiting {
+      cursor: progress;
+      background: gray !important; }
+  @media (max-width: 1199px) {
+    .mailing-list-promotion {
+      font-size: 25px; }
+      .mailing-list-promotion .button {
+        padding: 7px 13px 10px; } }
+  .mailing-list-promotion.promotion-bottom {
+    margin: 0 auto;
+    padding: 20px 0 50px;
+    text-align: center; }
 
 /*!
  * Bootstrap v3.3.7 (http://getbootstrap.com)
@@ -7504,6 +7541,8 @@ html {
     margin-left: 11px; }
   .modal .modal-huge.modal-dialog .modal-title {
     text-transform: capitalize; }
+.modal .modal-full.modal-dialog {
+  width: 100%; }
 @media (max-width: 1199px) {
   .modal {
     position: fixed;
@@ -7569,6 +7608,9 @@ p {
 
 .table.table-hover tr:hover td {
   background: #eeeeff; }
+
+.table .btn.btn-link:first-letter {
+  text-transform: none; }
 
 .blink {
   animation: blinker 0.7s step-start 0s infinite;
@@ -7829,7 +7871,9 @@ footer {
         width: 60px; }
       .home.scene .global-search-form input {
         height: 60px;
-        font-size: 25px; } }
+        font-size: 25px; }
+      .home.scene .global-search-form.es input {
+        font-size: 24px; } }
 @media (max-width: 1199px) {
   .home.scene .house-promotion {
     padding: 11px 30px 8px;
@@ -7846,14 +7890,24 @@ footer {
       white-space: nowrap;
       font-size: 20px;
       padding: 4px 0;
-      font-weight: bold; } }
+      font-weight: bold; }
+    .home.scene .house-promotion.second {
+      display: none; }
+  .home.scene .content.in-iframe {
+    padding-top: 0;
+    margin-top: 100px; }
+    .home.scene .content.in-iframe .global-search-form {
+      display: none !important; } }
 .home.scene .content {
   margin: 583px auto 0; }
   @media (min-width: 1200px) {
     .home.scene .content {
       padding-top: 30px; }
       .home.scene .content.narrow-screen {
-        margin-top: 390px; } }
+        margin-top: 390px; }
+      .home.scene .content.in-iframe {
+        padding-top: 0;
+        margin-top: 80px; } }
   .home.scene .content .home-middle-banner {
     cursor: pointer;
     padding-bottom: 40px; }
@@ -7873,9 +7927,14 @@ footer {
       font-size: 26px; }
     @media (max-width: 1199px) {
       .home.scene .content .results.common-button, .home.scene .content .future.common-button {
-        margin-top: 50px; } }
+        margin-top: 50px; }
+        .home.scene .content .results.common-button .text, .home.scene .content .future.common-button .text {
+          font-size: 24px; } }
   .home.scene .content a.results.common-button .text {
     padding-top: 10px; }
+  .home.scene .content a.results.es .text {
+    padding-top: 14px;
+    font-size: 21px; }
   .home.scene .content .future-auctions.btn-link {
     color: #333;
     font-size: 20px;
@@ -7928,7 +7987,7 @@ footer {
       font-size: 25px; } }
 
 .catalog.scene.search .global-search-form {
-  width: 235px;
+  width: 300px;
   height: 50px; }
   .catalog.scene.search .global-search-form input.form-control {
     height: 50px;
@@ -8269,6 +8328,9 @@ footer {
             color: white !important; }
             .auctions-lists-group .list .row.wide .auction-entry .frame .common-button .text span:hover, .auctions-lists-group .list .row.wide .auction-entry .frame .common-button .text a:hover {
               text-decoration: none !important; }
+          .auctions-lists-group .list .row.wide .auction-entry .frame .common-button.live.es .text {
+            font-size: 16px;
+            padding-top: 9px; }
           .auctions-lists-group .list .row.wide .auction-entry .frame .common-button.disabled .text {
             font-size: 14px;
             padding-top: 8px; }
@@ -8346,6 +8408,9 @@ footer {
               font-size: 21px;
               padding-bottom: 0px;
               padding-top: 1px; }
+            .auctions-lists-group .list .row.narrow .auction-entry .frame .texts .common-button.live.es .text {
+              font-size: 19px;
+              padding-top: 2px; }
           .auctions-lists-group .list .row.narrow .auction-entry .frame .texts .pending-label {
             margin-bottom: 10px;
             color: #777; }
@@ -8444,7 +8509,9 @@ footer {
       display: inline;
       margin: 10px; }
     .auctions-results.scene .content .house-selection .houses-dropdown {
-      display: inline-block; }
+      display: inline-block;
+      position: relative;
+      top: -3px; }
       .auctions-results.scene .content .house-selection .houses-dropdown uib-dropdown .entry {
         min-width: 300px; }
         .auctions-results.scene .content .house-selection .houses-dropdown uib-dropdown .entry .icon {
@@ -8454,9 +8521,15 @@ footer {
           padding-bottom: 4px;
           line-height: 32px;
           width: 180px; }
+          .auctions-results.scene .content .house-selection .houses-dropdown uib-dropdown .entry .text.all {
+            font-size: 18px;
+            width: 240px; }
       .auctions-results.scene .content .house-selection .houses-dropdown uib-dropdown li .entry .text {
         font-size: 16px;
         width: 200px; }
+        .auctions-results.scene .content .house-selection .houses-dropdown uib-dropdown li .entry .text.all {
+          font-size: 15px;
+          width: 240px; }
     @media (max-width: 1199px) {
       .auctions-results.scene .content .house-selection {
         background: #f5f5f5;
@@ -8493,9 +8566,6 @@ footer {
 .catalog.scene .content .auction-info {
   font-size: 19px;
   padding: 0 15px 15px; }
-  @media (max-width: 1199px) {
-    .catalog.scene .content .auction-info {
-      padding-top: 50px; } }
   .catalog.scene .content .auction-info .auction-texts {
     diaply: block; }
     .catalog.scene .content .auction-info .auction-texts .auction-name {
@@ -8516,7 +8586,7 @@ footer {
         font-size: 19px; }
     .catalog.scene .content .auction-info .auction-texts .time-and-location {
       margin-bottom: 12px; }
-    .catalog.scene .content .auction-info .auction-texts .display-hours.btn-link, .catalog.scene .content .auction-info .auction-texts .terms.btn-link {
+    .catalog.scene .content .auction-info .auction-texts .btn-link, .catalog.scene .content .auction-info .auction-texts .btn-link {
       color: #b44b07;
       font-size: 18px; }
   .catalog.scene .content .auction-info .logo {
@@ -8526,6 +8596,15 @@ footer {
     cursor: pointer; }
   .catalog.scene .content .auction-info .long-details {
     margin-bottom: 2px; }
+  @media (max-width: 1199px) {
+    .catalog.scene .content .auction-info {
+      padding-top: 50px; }
+      .catalog.scene .content .auction-info .auction-texts .links {
+        width: 450px; }
+      .catalog.scene .content .auction-info .auction-texts .btn-link {
+        white-space: nowrap;
+        height: 50px;
+        line-height: 34px; } }
 
 .about.scene .upper-part .message .text {
   color: white;
@@ -8837,7 +8916,7 @@ footer {
       .help-screen.scene .content .texts .common-button .text {
         font-size: 15px; }
     .help-screen.scene .content .texts .global-search-form {
-      width: 235px;
+      width: 300px;
       height: 50px;
       margin-top: 30px; }
       .help-screen.scene .content .texts .global-search-form input.form-control {
@@ -9509,6 +9588,11 @@ footer {
   height: 350px; }
   .auth-navbar-popup.login.ru .login.sub-scene {
     height: 334px; }
+.auth-navbar-popup.login.es .goto-register.btn-link {
+  font-size: 12px; }
+.auth-navbar-popup.login.es .login.sub-scene form .common-button .text {
+  font-size: 17px;
+  padding-top: 5px; }
 
 .auth-navbar-popup.warning {
   width: 300px;
@@ -9555,6 +9639,9 @@ footer {
     color: #b95717;
     font-size: 15px;
     margin: 4px 20px; }
+  .auth-navbar-popup.warning .warning.sub-scene .edit-email.ru .links .btn-link, .auth-navbar-popup.warning .warning.sub-scene .edit-email.es .links .btn-link, .auth-modal-popup .modal-dialog .warning.sub-scene .edit-email.ru .links .btn-link, .auth-modal-popup .modal-dialog .warning.sub-scene .edit-email.es .links .btn-link {
+    float: left;
+    width: 270px; }
   .auth-navbar-popup.warning .warning.sub-scene .incompleteProfile .message, .auth-modal-popup .modal-dialog .warning.sub-scene .incompleteProfile .message {
     margin-bottom: 5px; }
   .auth-navbar-popup.warning .warning.sub-scene .incompleteProfile .common-button, .auth-modal-popup .modal-dialog .warning.sub-scene .incompleteProfile .common-button {
@@ -9627,6 +9714,9 @@ footer {
     color: #b95717;
     font-size: 15px;
     margin: 4px 20px; }
+  .auth-navbar-popup.warning .warning.sub-scene .edit-email.ru .links .btn-link, .auth-navbar-popup.warning .warning.sub-scene .edit-email.es .links .btn-link, .auth-modal-popup .modal-dialog .warning.sub-scene .edit-email.ru .links .btn-link, .auth-modal-popup .modal-dialog .warning.sub-scene .edit-email.es .links .btn-link {
+    float: left;
+    width: 270px; }
   .auth-navbar-popup.warning .warning.sub-scene .incompleteProfile .message, .auth-modal-popup .modal-dialog .warning.sub-scene .incompleteProfile .message {
     margin-bottom: 5px; }
   .auth-navbar-popup.warning .warning.sub-scene .incompleteProfile .common-button, .auth-modal-popup .modal-dialog .warning.sub-scene .incompleteProfile .common-button {
@@ -9809,6 +9899,11 @@ footer {
   height: 350px; }
   .auth-navbar-popup.login.ru .login.sub-scene {
     height: 334px; }
+.auth-navbar-popup.login.es .goto-register.btn-link {
+  font-size: 12px; }
+.auth-navbar-popup.login.es .login.sub-scene form .common-button .text {
+  font-size: 17px;
+  padding-top: 5px; }
 
 @media (min-width: 1200px) {
   .auth.scene .content .auth-view.postRegistrationDetails .before-submit .register-success {
@@ -10078,20 +10173,29 @@ footer {
   padding-top: 30px;
   padding-bottom: 70px; }
   .houses.scene .content h4 {
-    margin: 20px auto;
+    margin: 20px auto 0;
     max-width: 900px;
     text-align: center;
     font-style: normal; }
+  .houses.scene .content .search-box {
+    display: block;
+    width: 250px;
+    margin: 0px auto 30px; }
+    @media (max-width: 1199px) {
+      .houses.scene .content .search-box {
+        font-size: 25px;
+        height: 50px;
+        padding-top: 3px;
+        width: 300px; } }
   .houses.scene .content .house-item {
-    height: 325px;
+    height: 124px;
     width: 550px;
     margin: 0 5px;
     display: inline-block;
     float: none;
     vertical-align: top; }
     .houses.scene .content .house-item .house-frame {
-      height: 285px;
-      background: #eee;
+      height: 80px;
       border: 1px solid #ebebeb;
       cursor: pointer; }
       .houses.scene .content .house-item .house-frame .frame-top {
@@ -10106,7 +10210,7 @@ footer {
           display: table;
           height: 100%; }
           .houses.scene .content .house-item .house-frame .frame-top .name h2 {
-            font-size: 25px;
+            font-size: 23px;
             margin: 0;
             display: table-cell;
             vertical-align: middle;
@@ -10118,32 +10222,19 @@ footer {
           background-size: contain; }
       .houses.scene .content .house-item .house-frame:hover {
         background: #ddd; }
-      .houses.scene .content .house-item .house-frame .frame-bottom {
-        color: #333;
-        padding: 14px;
-        font-size: 16px;
-        height: 202px;
-        position: relative; }
-        .houses.scene .content .house-item .house-frame .frame-bottom .more.btn-link {
-          position: absolute;
-          bottom: 7px;
-          right: 17px; }
     .houses.scene .content .house-item[dir=rtl] .house-frame .frame-bottom .more.btn-link {
       right: auto;
       left: 17px; }
     @media (max-width: 1199px) {
       .houses.scene .content .house-item {
         width: 450px;
-        height: 400px; }
+        height: 124px; }
         .houses.scene .content .house-item .house-frame {
-          height: 370px; }
+          height: 80px; }
           .houses.scene .content .house-item .house-frame .frame-top .name {
             width: 210px; }
             .houses.scene .content .house-item .house-frame .frame-top .name h2 {
-              font-size: 22px; }
-          .houses.scene .content .house-item .house-frame .frame-bottom {
-            font-size: 18px;
-            height: 280px; } }
+              font-size: 21px; } }
 
 .house-page.scene .house-page-image {
   width: 100%;
@@ -10286,6 +10377,11 @@ footer {
     .userDetails.scene .content uib-accordion .section-content .edit-email .links {
       width: 300px;
       margin-top: 30px; }
+    .userDetails.scene .content uib-accordion .section-content .edit-email.ru .links {
+      margin-top: 15px; }
+      .userDetails.scene .content uib-accordion .section-content .edit-email.ru .links .btn-link {
+        float: left;
+        line-height: 30px; }
     .userDetails.scene .content uib-accordion .section-content .common-button .text {
       font-size: 16px; }
     .userDetails.scene .content uib-accordion .section-content.residence, .userDetails.scene .content uib-accordion .section-content.shipping {
@@ -10819,76 +10915,83 @@ a.install-app-button {
   margin: 80px auto 0;
   min-height: 600px;
   padding: 2px 10px 18px;
-  float: none;
-  max-width: 1024px; }
-  .catalog.scene .content .catalog-actions {
-    position: relative; }
-    .catalog.scene .content .catalog-actions .filter-panel {
-      max-width: 990px;
-      margin: 0px auto 20px;
-      padding-top: 20px; }
-      .catalog.scene .content .catalog-actions .filter-panel .sort-label {
-        color: #333;
-        font-weight: normal;
-        font-size: 16px; }
-      .catalog.scene .content .catalog-actions .filter-panel .search-form input {
-        width: 180px; }
-      .catalog.scene .content .catalog-actions .filter-panel .result {
-        color: #333;
-        font-size: 15px; }
-        .catalog.scene .content .catalog-actions .filter-panel .result .clear-link {
-          font-size: 14px;
-          text-decoration: underline;
-          cursor: pointer; }
-      .catalog.scene .content .catalog-actions .filter-panel .sold-state {
-        width: 100%;
-        font-size: 16px;
-        margin-top: 20px; }
-        .catalog.scene .content .catalog-actions .filter-panel .sold-state select {
-          width: 100%; }
-      .catalog.scene .content .catalog-actions .filter-panel .opposite.section {
-        width: 210px;
-        font-size: 15px; }
-        .catalog.scene .content .catalog-actions .filter-panel .opposite.section .categories {
+  float: none; }
+  @media (min-width: 1200px) {
+    .catalog.scene .content {
+      max-width: 1300px; } }
+  .catalog.scene .content .catalog-navigation-panel {
+    margin: 0 auto; }
+    @media (min-width: 1200px) {
+      .catalog.scene .content .catalog-navigation-panel {
+        width: 1170px; } }
+    .catalog.scene .content .catalog-navigation-panel .catalog-actions {
+      position: relative; }
+      .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel {
+        max-width: 990px;
+        margin: 0px auto 20px;
+        padding-top: 20px; }
+        .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .sort-label {
+          color: #333;
+          font-weight: normal;
+          font-size: 16px; }
+        .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .search-form input {
+          width: 180px; }
+        .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .result {
+          color: #333;
+          font-size: 15px; }
+          .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .result .clear-link {
+            font-size: 14px;
+            text-decoration: underline;
+            cursor: pointer; }
+        .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .sold-state {
           width: 100%;
-          margin-bottom: 20px; }
-          .catalog.scene .content .catalog-actions .filter-panel .opposite.section .categories select {
+          font-size: 16px;
+          margin-top: 20px; }
+          .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .sold-state select {
             width: 100%; }
-        .catalog.scene .content .catalog-actions .filter-panel .opposite.section .lots-per-page {
-          width: 100%; }
-      @media (max-width: 1199px) {
-        .catalog.scene .content .catalog-actions .filter-panel {
-          padding: 20px 6px; }
-          .catalog.scene .content .catalog-actions .filter-panel .section {
-            float: none;
-            width: 472px; }
-          .catalog.scene .content .catalog-actions .filter-panel .search-form input {
+        .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section {
+          width: 210px;
+          font-size: 15px; }
+          .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section .categories {
+            width: 100%;
+            margin-bottom: 20px; }
+            .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section .categories select {
+              width: 100%; }
+          .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section .lots-per-page {
             width: 100%; }
-          .catalog.scene .content .catalog-actions .filter-panel .result {
-            font-size: 20px;
-            max-width: 380px; }
-            .catalog.scene .content .catalog-actions .filter-panel .result .clear-link {
-              font-size: 18px;
-              white-space: nowrap; }
-          .catalog.scene .content .catalog-actions .filter-panel .opposite.section {
-            float: none; }
-            .catalog.scene .content .catalog-actions .filter-panel .opposite.section .lots-per-page {
-              display: none; }
-            .catalog.scene .content .catalog-actions .filter-panel .opposite.section .categories {
-              width: 472px;
-              margin-top: 30px; }
-              .catalog.scene .content .catalog-actions .filter-panel .opposite.section .categories.invisible {
+        @media (max-width: 1199px) {
+          .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel {
+            padding: 20px 6px; }
+            .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .section {
+              float: none;
+              width: 472px; }
+            .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .search-form input {
+              width: 100%; }
+            .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .result {
+              font-size: 20px;
+              max-width: 380px; }
+              .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .result .clear-link {
+                font-size: 18px;
+                white-space: nowrap; }
+            .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section {
+              float: none; }
+              .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section .lots-per-page {
                 display: none; }
-          .catalog.scene .content .catalog-actions .filter-panel .sort-label {
-            font-size: 20px;
-            margin-top: 10px;
-            display: block; }
-          .catalog.scene .content .catalog-actions .filter-panel input, .catalog.scene .content .catalog-actions .filter-panel select {
-            height: 60px;
-            font-size: 25px;
-            width: 235px; } }
+              .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section .categories {
+                width: 472px;
+                margin-top: 30px; }
+                .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .opposite.section .categories.invisible {
+                  display: none; }
+            .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel .sort-label {
+              font-size: 20px;
+              margin-top: 10px;
+              display: block; }
+            .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel input, .catalog.scene .content .catalog-navigation-panel .catalog-actions .filter-panel select {
+              height: 60px;
+              font-size: 25px;
+              width: 235px; } }
     @media (max-width: 1199px) {
-      .catalog.scene .content .catalog-actions .alert-flag {
+      .catalog.scene .content .catalog-navigation-panel .alert-flag {
         position: absolute;
         bottom: 22px;
         right: 2px;
@@ -10897,7 +11000,7 @@ a.install-app-button {
         background-size: 32px 32px !important;
         border: 1px solid #bbb;
         background-color: #eee; }
-        .catalog.scene .content .catalog-actions .alert-flag .toast {
+        .catalog.scene .content .catalog-navigation-panel .alert-flag .toast {
           background: #444;
           border-radius: 5px;
           color: white;
@@ -10907,26 +11010,26 @@ a.install-app-button {
           right: 5px;
           top: 62px;
           white-space: nowrap; }
-      .catalog.scene .content .catalog-actions.viewport_900 .alert-flag {
+      .catalog.scene .content .catalog-navigation-panel.viewport_900 .alert-flag {
         bottom: 174px; }
-      .catalog.scene .content .catalog-actions.no-categories {
+      .catalog.scene .content .catalog-navigation-panel.no-categories {
         min-height: 154px; }
-        .catalog.scene .content .catalog-actions.no-categories .alert-flag {
+        .catalog.scene .content .catalog-navigation-panel.no-categories .alert-flag {
           top: 97px; } }
-    .catalog.scene .content .catalog-actions[dir=rtl] .alert-flag {
+    .catalog.scene .content .catalog-navigation-panel[dir=rtl] .alert-flag {
       right: auto;
       left: 2px; }
-      .catalog.scene .content .catalog-actions[dir=rtl] .alert-flag .toast {
+      .catalog.scene .content .catalog-navigation-panel[dir=rtl] .alert-flag .toast {
         right: auto;
         left: 5px; }
   .catalog.scene .content .catalog-pagination.upper.lifted {
     position: relative;
     top: -90px;
-    left: 242px;
+    left: 314px;
     height: 0px; }
   .catalog.scene .content .catalog-pagination.upper[dir=rtl] {
     left: auto;
-    right: 242px; }
+    right: 314px; }
   .catalog.scene .content .catalog-pagination.lower {
     margin-top: 30px;
     margin-bottom: 30px; }
@@ -10955,11 +11058,11 @@ a.install-app-button {
       float: none;
       text-align: initial;
       margin: 0 18px;
-      width: 220px; }
+      width: 280px; }
       .catalog.scene .content .list .row .item.pc-item .item-link {
         display: block;
         height: 340px;
-        width: 220px;
+        width: 100%;
         cursor: pointer;
         text-decoration: none !important; }
         .catalog.scene .content .list .row .item.pc-item .item-link .frame {
@@ -11103,6 +11206,9 @@ a.install-app-button {
                 .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .common-button .text {
                   font-size: 13px;
                   padding: 7px 0; }
+                .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .common-button.es .text {
+                  font-size: 11px;
+                  padding-top: 8px; }
               .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator[dir=rtl] .common-button {
                 right: auto;
                 left: 0; }
@@ -11360,6 +11466,8 @@ a.install-app-button {
         right: 2px; }
         .catalog.scene .content .list.mobile-list .row .item .favorite-flag.off {
           opacity: 0; }
+      .catalog.scene .content .list.mobile-list .row .item .past-lot-absentee {
+        visibility: hidden; }
       .catalog.scene .content .list.mobile-list .row .item .alert-flag {
         position: absolute;
         background-color: transparent;
@@ -11431,13 +11539,39 @@ a.install-app-button {
       left: 0; }
 
 .catalog.lotPage.scene .content {
-  max-width: 1040px;
+  max-width: 1170px;
   padding-bottom: 50px; }
   .catalog.lotPage.scene .content .info-td {
-    width: 600px;
+    width: 710px;
     vertical-align: top; }
   .catalog.lotPage.scene .content .actions-td {
-    width: 420px; }
+    width: 420px;
+    padding-left: 20px; }
+  .catalog.lotPage.scene .content .car-info-section {
+    margin: 0px 10px; }
+    .catalog.lotPage.scene .content .car-info-section table {
+      border-spacing: 0;
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 14px; }
+      .catalog.lotPage.scene .content .car-info-section table th {
+        background: #eee;
+        width: 150px; }
+      .catalog.lotPage.scene .content .car-info-section table td, .catalog.lotPage.scene .content .car-info-section table th {
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        padding: 7px; }
+    .catalog.lotPage.scene .content .car-info-section .documents-title {
+      font-weight: bold;
+      margin: 20px 5px; }
+    .catalog.lotPage.scene .content .car-info-section .description-text {
+      margin-top: 0;
+      line-height: 25px;
+      font-size: 16px; }
+    .catalog.lotPage.scene .content .car-info-section .lot-badge {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 4px; }
   .catalog.lotPage.scene .content .info-link {
     display: block;
     color: #b95717;
@@ -11679,6 +11813,14 @@ a.install-app-button {
         padding-top: 10px; }
       .catalog.lotPage.scene .content .lot-number {
         font-size: 25px; }
+      .catalog.lotPage.scene .content .car-info-section {
+        margin-top: 20px; }
+        .catalog.lotPage.scene .content .car-info-section table {
+          font-size: 21px; }
+        .catalog.lotPage.scene .content .car-info-section .documents-title {
+          font-size: 21px; }
+        .catalog.lotPage.scene .content .car-info-section a.btn-link {
+          font-size: 21px; }
       .catalog.lotPage.scene .content .extrainfo-overseas .icon {
         width: 25px;
         height: 25px; }
@@ -11703,16 +11845,18 @@ a.install-app-button {
           position: static;
           font-size: 25px;
           padding: 0 10px 15px; }
+      .catalog.lotPage.scene .content .lot-badge {
+        font-size: 23px; }
       .catalog.lotPage.scene .content .info-link {
         font-size: 22px;
         margin-top: 15px;
         white-space: normal;
         padding: 6px 0;
         position: relative; }
-        .catalog.lotPage.scene .content .info-link .plus {
-          font-size: 21px !important; }
         .catalog.lotPage.scene .content .info-link .btn {
-          font-size: 22px !important; }
+          font-size: 22px !important;
+          display: inline;
+          white-space: normal; }
         .catalog.lotPage.scene .content .info-link .toast {
           margin: 0;
           position: absolute;
@@ -11913,6 +12057,8 @@ a.install-app-button {
           font-size: 15px; }
         .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.ru .text {
           font-size: 13px; }
+        .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.es .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.es .text {
+          font-size: 13px; }
       .catalog.lotPage.scene .content .bid-form .edit-mode form .cancel.btn-link, .catalog.lotPage.scene .content .bid-form .direct-bid form .cancel.btn-link {
         color: #333;
         position: absolute;
@@ -12018,6 +12164,8 @@ a.install-app-button {
       .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.ru .text {
         font-size: 24px; }
       .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.ru .text {
+        font-size: 21px; }
+      .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.es .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.es .text {
         font-size: 21px; }
     .catalog.lotPage.scene .content .bid-form .edit-mode form .cancel.btn-link, .catalog.lotPage.scene .content .bid-form .direct-bid form .cancel.btn-link {
       bottom: 0px;
@@ -12140,3 +12288,12 @@ a.install-app-button {
   text-decoration: underline; }
 .info-popup.scene.popup-scene-confirmBid .leading-bid-warning, .info-popup.scene.popup-scene-confirmPurchase .leading-bid-warning {
   padding-top: 5px; }
+
+.support.scene h1 {
+  font-size: 34px; }
+.support.scene .content {
+  min-height: 650px;
+  margin-top: 185px;
+  background: white;
+  padding-top: 30px;
+  padding-bottom: 70px; }
