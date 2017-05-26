@@ -10779,9 +10779,9 @@ a.install-app-button {
 
 .catalog.scene .content .shop-info {
   font-size: 19px;
-  padding: 0 15px 15px; }
+  padding-bottom: 15px; }
   .catalog.scene .content .shop-info .shop-texts {
-    diaply: block; }
+    display: block; }
     .catalog.scene .content .shop-info .shop-texts .shop-name {
       cursor: pointer;
       margin-top: 0;
@@ -10790,13 +10790,20 @@ a.install-app-button {
       font-weight: bold;
       font-family: arial;
       font-style: normal;
-      max-width: 800px;
-      margin-bottom: 30px; }
+      max-width: 800px; }
+    .catalog.scene .content .shop-info .shop-texts .location {
+      font-size: 18px;
+      color: #b44b07;
+      font-weight: bold;
+      margin: 20px 0; }
   .catalog.scene .content .shop-info .logo {
     width: 188px;
     height: 74px;
     background: center center no-repeat;
     cursor: pointer; }
+  .catalog.scene .content .shop-info .btn-link, .catalog.scene .content .shop-info .btn-link {
+    color: #b44b07;
+    font-size: 18px; }
   .catalog.scene .content .shop-info .shop-description {
     margin-bottom: 12px; }
   @media (max-width: 1199px) {
@@ -11321,6 +11328,17 @@ a.install-app-button {
             display: none; }
           .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.past.under-reserved .highlighted-area, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.past.under-reserved .highlighted-area {
             display: none; }
+        .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .not-published {
+          width: 100%;
+          height: 70px;
+          color: red;
+          position: absolute;
+          bottom: 0px;
+          left: 0px;
+          top: auto;
+          font-size: 13px;
+          line-height: 15px;
+          padding: 0 5px; }
     .catalog.scene .content .list .row .item.pc-item[dir=rtl] .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .dummy-link {
       right: auto;
       left: 5; }
@@ -11813,6 +11831,8 @@ a.install-app-button {
         padding-top: 10px; }
       .catalog.lotPage.scene .content .lot-number {
         font-size: 25px; }
+      .catalog.lotPage.scene .content .lot-number-in-shop {
+        font-size: 18px; }
       .catalog.lotPage.scene .content .car-info-section {
         margin-top: 20px; }
         .catalog.lotPage.scene .content .car-info-section table {
@@ -12220,7 +12240,7 @@ a.install-app-button {
         font-size: 13px; }
     .catalog.lotPage.scene .content .shop-purchase-form .form .scroll-anchor {
       position: absolute; }
-    .catalog.lotPage.scene .content .shop-purchase-form .form .commission-text {
+    .catalog.lotPage.scene .content .shop-purchase-form .form .commission-text, .catalog.lotPage.scene .content .shop-purchase-form .form .not-published {
       margin-top: 10px;
       font-size: 15px; }
   .catalog.lotPage.scene .content .shop-purchase-form .sold-info {
@@ -12237,23 +12257,28 @@ a.install-app-button {
   .catalog.lotPage.scene .content .shop-purchase-form .sold-lot-message {
     padding: 5px 7px; }
 @media (max-width: 1199px) {
-  .catalog.lotPage.scene .content .common-button {
-    width: 170px;
-    height: 60px;
-    margin: 0 10px; }
-    .catalog.lotPage.scene .content .common-button .text {
-      padding-top: 3px;
-      font-size: 25px; }
-    .catalog.lotPage.scene .content .common-button.he .text {
-      font-size: 28px; }
-    .catalog.lotPage.scene .content .common-button.ru .text {
-      font-size: 24px; }
-    .catalog.lotPage.scene .content .common-button.buy-now.ru .text {
-      font-size: 21px; } }
+  .catalog.lotPage.scene .content {
+    font-size: 20px; }
+    .catalog.lotPage.scene .content .shop-purchase-form {
+      width: 100%;
+      margin-top: 20px; }
+      .catalog.lotPage.scene .content .shop-purchase-form .form {
+        font-size: 20px; }
+        .catalog.lotPage.scene .content .shop-purchase-form .form .price {
+          font-size: 21px;
+          padding-top: 10px; }
+        .catalog.lotPage.scene .content .shop-purchase-form .form .common-button {
+          width: 180px;
+          height: 60px;
+          margin: 0 10px; }
+          .catalog.lotPage.scene .content .shop-purchase-form .form .common-button .text {
+            padding-top: 3px;
+            font-size: 25px !important; }
+        .catalog.lotPage.scene .content .shop-purchase-form .form .commission-text {
+          font-size: 20px; } }
 
 .confirm-bid, .confirm-shop-purchase {
-  font-size: 16px;
-  text-align: initial; }
+  font-size: 16px; }
   .confirm-bid .pic-columm, .confirm-shop-purchase .pic-columm {
     width: 150px;
     padding: 10px; }
