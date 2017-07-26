@@ -8588,7 +8588,7 @@ footer {
     .catalog.scene.search .house-selection, .catalog.scene.search .tags-selection {
       font-size: 25px;
       height: 70px;
-      width: 100%;
+      width: 400px;
       margin: 0 40px; }
       .catalog.scene.search .house-selection .houses-dropdown, .catalog.scene.search .tags-selection .houses-dropdown {
         width: 100%; }
@@ -8730,8 +8730,11 @@ footer {
     margin-bottom: 20px; }
     .contact.scene .content .images .attachment {
       text-align: center;
-      width: 60px;
-      height: 60px; }
+      height: 60px;
+      margin: 0 5px; }
+      .contact.scene .content .images .attachment img {
+        height: 60px;
+        width: auto; }
       .contact.scene .content .images .attachment .btn-link {
         color: #333; }
       .contact.scene .content .images .attachment.pending img {
@@ -12479,3 +12482,16 @@ a.install-app-button {
     .support-edit-action-popup .attachments .attachment .btn-upload {
       margin: 18px 5px;
       color: #333; }
+.support-edit-action-popup .houses-dropdown {
+  display: inline-block;
+  position: relative;
+  top: -3px;
+  margin: 0 3px; }
+  .support-edit-action-popup .houses-dropdown select {
+    font-size: 17px;
+    background: white;
+    padding: 2px;
+    border-radius: 2px; }
+.support-edit-action-popup textarea {
+  resize: vertical;
+  min-height: 200px; }
