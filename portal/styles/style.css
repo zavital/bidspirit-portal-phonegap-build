@@ -583,6 +583,10 @@ bs-page-footer {
     height: 92px;
     width: 100%;
     padding: 0; }
+    .upper-navigation.mobile .mobile-only .logo {
+      position: absolute;
+      top: 12px;
+      left: 20px; }
     .upper-navigation.mobile .mobile-only .menu-button {
       width: 80px;
       height: 63px;
@@ -638,6 +642,8 @@ bs-page-footer {
       z-index: 3;
       display: block;
       top: -4px;
+      min-height: 1000px;
+      background: #02172f;
       float: none;
       width: 100%;
       padding: 0;
@@ -722,6 +728,21 @@ bs-page-footer {
         font-size: 22px;
         line-height: 25px;
         vertical-align: top; }
+
+.choose-portal.scene {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #02172f; }
+  .choose-portal.scene .upper-space {
+    margin-top: 200px; }
+  .choose-portal.scene .common-button {
+    margin: 0 auto 120px;
+    width: 400px;
+    height: 100px; }
+    .choose-portal.scene .common-button .text {
+      padding-top: 27px;
+      font-size: 30px; }
 
 .mailing-list-promotion {
   padding-top: 10px;
@@ -7556,6 +7577,12 @@ html {
 [dir=rtl] .radio label, [dir=rtl] .checkbox label {
   padding-left: 0;
   padding-right: 20px; }
+[dir=rtl] .radio-inline, [dir=rtl] .checkbox-inline {
+  padding-left: 0;
+  padding-right: 20px; }
+[dir=rtl] .radio-inline + .radio-inline, [dir=rtl] .checkbox-inline + .checkbox-inline {
+  margin-left: 0px;
+  margin-right: 10px; }
 [dir=rtl] .navbar-header {
   float: right; }
 [dir=rtl] .navbar-right {
@@ -8760,7 +8787,9 @@ footer {
     font-size: 20px; }
 @media (max-width: 1199px) {
   .contact.scene .upper-part .message h1 {
-    margin-top: 85px; }
+    margin-top: 0px; }
+    .contact.scene .upper-part .message h1.for-sale {
+      margin-top: 5px; }
   .contact.scene .upper-part .message .sell-message {
     font-size: 21px;
     padding-top: 14px;
@@ -10824,6 +10853,8 @@ a.install-app-button {
     .shops.scene .upper-part .message h4 {
       font-size: 21px; }
 .shops.scene .content {
+  wisth: 1300px;
+  margin: 0 auto;
   margin-top: 10px;
   float: none;
   background: white;
@@ -10888,38 +10919,37 @@ a.install-app-button {
         padding-top: 20px; } }
 
 .row.wide .shop-entry {
-  height: 580px;
+  width: 236px;
+  height: 390px;
   padding-bottom: 20px;
   display: inline-block;
   float: none;
   text-align: left;
   margin-right: -4px;
-  margin: 0 54px 0 27px;
-  width: 360px; }
+  margin: 0 54px 0 27px; }
   .row.wide .shop-entry .frame {
     float: left;
-    height: 525px;
-    width: 360px;
+    width: 236px;
+    height: 333px;
     background: #f5f5f5;
     overflow-y: hidden; }
     .row.wide .shop-entry .frame .image {
       width: 100%;
-      height: 226px;
       position: relative;
       border: 1px solid #eee;
-      background: center center no-repeat; }
-      .row.wide .shop-entry .frame .image.contain {
-        background-size: contain; }
+      background: center center no-repeat;
+      height: 150px;
+      background-size: contain; }
     .row.wide .shop-entry .frame .texts {
       color: #333;
       text-align: center;
-      height: 231px;
+      height: 124px;
       overflow: hidden; }
       .row.wide .shop-entry .frame .texts h2 {
-        padding-top: 14px;
+        padding-top: 5px;
+        font-size: 19px;
         margin: 0;
         text-shadow: none;
-        font-size: 24px;
         padding-bottom: 4px;
         font-weight: normal; }
         .row.wide .shop-entry .frame .texts h2:first-letter {
@@ -10928,45 +10958,25 @@ a.install-app-button {
           color: #333; }
       .row.wide .shop-entry .frame .texts .text {
         padding: 10px 0;
-        font-size: 18px; }
+        font-size: 16px; }
         .row.wide .shop-entry .frame .texts .text:first-letter {
           text-transform: capitalize; }
+      .row.wide .shop-entry .frame .texts .name {
+        padding: 6px 0;
+        font-size: 13px; }
     .row.wide .shop-entry .frame .common-button {
-      width: 250px;
+      width: 165px;
+      height: 30px;
       margin-top: 10px; }
       .row.wide .shop-entry .frame .common-button .text span, .row.wide .shop-entry .frame .common-button .text a {
         vertical-align: top;
-        color: white !important; }
+        color: white !important;
+        font-size: 13px;
+        padding: 5px 0; }
         .row.wide .shop-entry .frame .common-button .text span:hover, .row.wide .shop-entry .frame .common-button .text a:hover {
           text-decoration: none !important; }
   .row.wide .shop-entry:hover .frame {
     background: #e5e5e5; }
-  @media (min-width: 1200px) {
-    .row.wide .shop-entry.small {
-      width: 236px;
-      height: 390px; }
-      .row.wide .shop-entry.small .frame {
-        width: 236px;
-        height: 333px; }
-        .row.wide .shop-entry.small .frame .image {
-          height: 150px;
-          background-size: contain; }
-        .row.wide .shop-entry.small .frame .common-button {
-          width: 165px;
-          height: 30px; }
-          .row.wide .shop-entry.small .frame .common-button .text {
-            font-size: 13px;
-            padding: 5px 0; }
-        .row.wide .shop-entry.small .frame .texts {
-          height: 124px; }
-          .row.wide .shop-entry.small .frame .texts h2 {
-            padding-top: 5px;
-            font-size: 16px; }
-          .row.wide .shop-entry.small .frame .texts .part {
-            font-size: 13px; }
-          .row.wide .shop-entry.small .frame .texts .time, .row.wide .shop-entry.small .frame .texts .name {
-            padding: 6px 0;
-            font-size: 13px; } }
 
 @media (max-width: 1199px) {
   .row.narrow .shop-entry {
@@ -12438,7 +12448,11 @@ a.install-app-button {
   min-height: 650px;
   background: white;
   padding-top: 30px;
+  width: 1300px;
+  margin: 0 auto;
   padding-bottom: 70px; }
+  .support.scene .content .cases-type-selection {
+    margin: 7px 70px; }
   .support.scene .content .attachments {
     position: relative; }
     .support.scene .content .attachments .attachment {
@@ -12452,6 +12466,8 @@ a.install-app-button {
       word-break: break-all;
       padding: 10px 3px;
       display: inline-block; }
+    .support.scene .content .attachments pre.description {
+      max-width: 450px; }
     .support.scene .content .attachments .preview {
       width: 500px;
       height: 500px;
