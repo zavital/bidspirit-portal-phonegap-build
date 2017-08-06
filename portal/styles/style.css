@@ -12466,8 +12466,6 @@ a.install-app-button {
       word-break: break-all;
       padding: 10px 3px;
       display: inline-block; }
-    .support.scene .content .attachments pre.description {
-      max-width: 450px; }
     .support.scene .content .attachments .preview {
       width: 500px;
       height: 500px;
@@ -12481,6 +12479,8 @@ a.install-app-button {
         right: -500px;
         left: auto;
         background-position: left top; }
+  .support.scene .content pre.description {
+    max-width: 650px; }
 
 .support-edit-action-popup .attachments {
   margin-bottom: 20px; }
