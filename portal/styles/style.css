@@ -735,7 +735,7 @@ bs-page-footer {
   height: 100%;
   background: #02172f; }
   .choose-portal.scene .upper-space {
-    margin-top: 200px; }
+    margin-top: 275px; }
   .choose-portal.scene .common-button {
     margin: 0 auto 120px;
     width: 400px;
@@ -12481,6 +12481,28 @@ a.install-app-button {
         background-position: left top; }
   .support.scene .content pre.description {
     max-width: 650px; }
+  @media (max-width: 1199px) {
+    .support.scene .content {
+      width: 100%; }
+      .support.scene .content .radio-inline {
+        display: block;
+        margin: 10px 0 !important;
+        font-size: 20px; }
+      .support.scene .content label, .support.scene .content .btn {
+        font-size: 20px; }
+      .support.scene .content table {
+        width: 100%;
+        font-size: 20px;
+        table-layout: fixed; }
+        .support.scene .content table td {
+          word-break: break-word; }
+      .support.scene .content textarea, .support.scene .content input {
+        font-size: 25px !important; }
+      .support.scene .content .btn-toolbar .float {
+        display: block;
+        float: none;
+        margin: 40px auto;
+        width: 250px; } }
 
 .support-edit-action-popup .attachments {
   margin-bottom: 20px; }
@@ -12511,3 +12533,8 @@ a.install-app-button {
 .support-edit-action-popup textarea {
   resize: vertical;
   min-height: 200px; }
+@media (max-width: 1199px) {
+  .support-edit-action-popup textarea, .support-edit-action-popup input, .support-edit-action-popup select {
+    font-size: 25px !important; }
+  .support-edit-action-popup .modal-body {
+    max-height: 800px !important; } }
