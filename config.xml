@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="238" versionCode="15464"
+<widget version="234" versionCode="15460"
     id="com.bidspirit.qa"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
@@ -18,8 +18,6 @@
     <content src="index.html" />
     
     <access origin="*" />
-    
-   
     
     <plugin name="cordova-plugin-console" spec="~1.0.4" />  
     <plugin name="cordova-plugin-file" spec="~4.3.0" />
@@ -63,7 +61,7 @@
 	<icon src="icons/ios/ios_120x120.png" gap:platform="ios" width="120" height="120" />
 	<icon src="icons/ios/ios_152x152.png" gap:platform="ios" width="152" height="152" />
         
-  <preference name='phonegap-version' value="cli-7.0.1" />
+  <preference name='phonegap-version' value='cli-6.5.0' />
   <preference name="EnableViewportScale" value="true" />
   <preference name="StatusBarOverlaysWebView" value="false" />
   <preference name="StatusBarBackgroundColor" value="#000000" />
