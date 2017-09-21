@@ -17,6 +17,8 @@
 
     <content src="index.html" />
     
+    <allow-navigation href="*" />
+    
     <access origin="*" />
     
     <plugin name="cordova-plugin-console" spec="~1.0.4" />  
@@ -121,7 +123,7 @@
 	<preference name="AutoHideSplashScreen" value="false" />
 	<preference name="DisallowOverscroll" value="true" />
 	
-
+	
 	 
      
 </widget>
