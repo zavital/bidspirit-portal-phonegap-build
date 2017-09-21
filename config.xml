@@ -97,10 +97,10 @@
 	
 	
 	<platform name="android"> 
-		<splash src="res/screen/android/splash.png" density="land-hdpi"/>
-		<splash src="res/screen/android/splash.png" density="land-ldpi"/>
-		<splash src="res/screen/android/splash.png" density="land-mdpi"/>
-		<splash src="res/screen/android/splash.png" density="land-xhdpi"/> 
+		<splash src="splashes/android/hdpi_480x800.png" density="land-hdpi"/>
+		<splash src="splashes/android/ldpi_200x320.png" density="land-ldpi"/>
+		<splash src="splashes/android/mdpi_320x480.png" density="land-mdpi"/>
+		<splash src="splashes/android/xhdpi_720x1280.png" density="land-xhdpi"/> 
 	</platform>
 	
 	
