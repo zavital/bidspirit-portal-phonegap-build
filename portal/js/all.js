@@ -18947,6 +18947,8 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function hideSplash() {
             setTimeout(function() {
                 navigator.splashscreen && (navigator.splashscreen.hide(), StatusBar.overlaysWebView(!1));
+		navigator.splashscreen.show();
+
             }, 1e3);
         }
         function handleDebugSending() {
