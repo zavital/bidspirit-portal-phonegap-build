@@ -67,7 +67,7 @@
   
   <preference name="KeyboardDisplayRequiresUserAction" value="false"/>
      
-	<splash src="splash.png"/>
+	
         
 	
 	
@@ -88,14 +88,9 @@
     </gap:config-file>
 	
 	
+	<splash src="splash.png"/>
 	
 	
-	<platform name="android"> 
-		<splash src="splashes/android/hdpi_480x800.png" density="port-hdpi"/>
-		<splash src="splashes/android/ldpi_200x320.png" density="port-ldpi"/>
-		<splash src="splashes/android/mdpi_320x480.png" density="port-mdpi"/>
-		<splash src="splashes/android/xhdpi_720x1280.png" density="port-xhdpi"/> 
-	</platform>
 	
 	<splash src="splashes/android/ldpi_200x320.png" platform="android" qualifier="ldpi" />
 	<splash src="splashes/android/mdpi_320x480.png" platform="android" qualifier="mdpi" />
@@ -122,7 +117,7 @@
 	<preference name="AutoHideSplashScreen" value="false" />
 	<preference name="DisallowOverscroll" value="true" />
 	
-	<preference name="SplashScreen" value="splash" />
+	
 	<preference name="SplashScreenDelay" value="10000" />
 	<preference name="SplashMaintainAspectRatio" value="true" />
 	<preference name="SplashShowOnlyFirstTime" value="false" />
