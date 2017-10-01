@@ -65,7 +65,7 @@
         
   <preference name='phonegap-version' value='cli-7.0.1' />
   <preference name="EnableViewportScale" value="true" />
-  <preference name="StatusBarOverlaysWebView" value="false" />
+  <preference name="StatusBarOverlaysWebView" value="true" />
   <preference name="StatusBarBackgroundColor" value="#000000" />
   
   <preference name="KeyboardDisplayRequiresUserAction" value="false"/>
@@ -107,16 +107,16 @@
 	
 	
 	<platform name="ios"> 
-		<splash src="splashes/ios/iphone_3_320x480.png" gap:platform="ios" width="320" height="480" />
-		<splash src="splashes/ios/iphone_4_640x960.png" gap:platform="ios" width="640" height="960" />
-		<splash src="splashes/ios/iphone_5_640x1136.png" gap:platform="ios" width="640" height="1136" />
-		<splash src="splashes/ios/iphone_6_750x1334.png" gap:platform="ios" width="750" height="1334" />
-		<splash src="splashes/ios/iphone_6_portrait_1242x2208.png" gap:platform="ios" width="1242" height="2208" />
-		<splash src="splashes/ios/iphone_6_landscape_2208x1242.png" gap:platform="ios" width="2208" height="1242" />
-		<splash src="splashes/ios/ipad_768x1024.png" gap:platform="ios" width="768" height="1024" />
-		<splash src="splashes/ios/ipad_landscape_1024x768.png" gap:platform="ios" width="1024" height="768" />
-		<splash src="splashes/ios/ipad_retina_1536x2048.png" gap:platform="ios" width="1536" height="2048" />
-		<splash src="splashes/ios/ipad_retina_landscape_2048x1536.png" gap:platform="ios" width="2048" height="1536" />
+		<splash src="splashes/ios/iphone_3_320x480.png"  width="320" height="480" />
+		<splash src="splashes/ios/iphone_4_640x960.png"  width="640" height="960" />
+		<splash src="splashes/ios/iphone_5_640x1136.png"  width="640" height="1136" />
+		<splash src="splashes/ios/iphone_6_750x1334.png"  width="750" height="1334" />
+		<splash src="splashes/ios/iphone_6_portrait_1242x2208.png"  width="1242" height="2208" />
+		<splash src="splashes/ios/iphone_6_landscape_2208x1242.png"  width="2208" height="1242" />
+		<splash src="splashes/ios/ipad_768x1024.png"  width="768" height="1024" />
+		<splash src="splashes/ios/ipad_landscape_1024x768.png"  width="1024" height="768" />
+		<splash src="splashes/ios/ipad_retina_1536x2048.png"  width="1536" height="2048" />
+		<splash src="splashes/ios/ipad_retina_landscape_2048x1536.png"  width="2048" height="1536" />
     </platform>
     
 	<preference name="orientation" value="portrait" />
