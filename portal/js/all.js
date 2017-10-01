@@ -18944,11 +18944,17 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             AdsService.init(), GlobalConfig.isMobileApp && (MobilePushService.init(), hideSplash()), 
             handleDebugSending(), $rootScope.debug("MainController initialization done"));
         }
-        function hideSplash() {
-            setTimeout(function() {
-                navigator.splashscreen && navigator.splashscreen.hide();
-            }, 1e3);
-        }
+
+
+function hideSplash(){
+	    		setTimeout(function(){
+	            	if (navigator.splashscreen){
+	            		navigator.splashscreen.hide();
+	            		alert("hiding status");
+	            		StatusBar.overlaysWebView(false);
+	            	}
+	            },1000);
+	    	}
         function handleDebugSending() {
             PathsService.getQueryParam("sendDebug") && (LogService.logEvent("debug from " + PathsService.getQueryParam("sendDebug")), 
             PortalInfoService.sendDebugInfo("d1", "pageLoad"));
