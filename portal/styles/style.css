@@ -11702,6 +11702,9 @@ footer {
 
 .auth-modal-popup.with-credit-card .modal-dialog {
   width: 620px; }
+  .auth-modal-popup.with-credit-card .modal-dialog .modal-body {
+    min-height: 144px;
+    font-size: 16px; }
 
 .info-popup.scene .approval-message {
   font-size: 25px;
