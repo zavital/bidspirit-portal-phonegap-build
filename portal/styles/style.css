@@ -170,7 +170,8 @@ bs-page-footer {
         font-style: italic;
         color: white; }
         bs-page-footer .page-footer .container .text-line a {
-          color: white; }
+          color: white;
+          white-space: nowrap; }
       bs-page-footer .page-footer .container .contact-us-part {
         padding: 15px 12px; }
         bs-page-footer .page-footer .container .contact-us-part .message {
@@ -258,7 +259,8 @@ bs-page-footer {
         bs-page-footer .page-footer .container .bottom-links .btn-link {
           color: white;
           margin: 0 15px;
-          font-size: 13px; }
+          font-size: 13px;
+          white-space: nowrap; }
       bs-page-footer .page-footer .container .rights-line {
         text-align: center;
         font-size: 15px;
@@ -13628,7 +13630,7 @@ a.install-app-button {
           font-size: 21px; }
         .catalog.lotPage.scene .content .car-info-section .documents-title {
           font-size: 21px; }
-        .catalog.lotPage.scene .content .car-info-section a.btn-link {
+        .catalog.lotPage.scene .content .car-info-section a.btn-link, .catalog.lotPage.scene .content .car-info-section label {
           font-size: 21px; }
       .catalog.lotPage.scene .content .extrainfo-overseas .icon {
         width: 25px;
