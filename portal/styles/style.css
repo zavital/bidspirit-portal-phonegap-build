@@ -13080,11 +13080,12 @@ a.install-app-button {
             .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .price, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .highlighted-area .price {
               padding: 0 5px;
               font-size: 15px; }
-            .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .dummy-link, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .highlighted-area .dummy-link {
+            .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .lot-link, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee .highlighted-area .lot-link {
               font-size: 13px;
               position: absolute;
-              bottom: 3;
-              right: 5; }
+              color: white;
+              bottom: 3px;
+              right: 5px; }
           .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.self .highlighted-area, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.self .highlighted-area {
             background: #009900; }
           .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .leading-bid.self .message, .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .past-lot-absentee.self .message {
@@ -13108,9 +13109,9 @@ a.install-app-button {
           font-size: 13px;
           line-height: 15px;
           padding: 0 5px; }
-    .catalog.scene .content .list .row .item.pc-item[dir=rtl] .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .dummy-link {
+    .catalog.scene .content .list .row .item.pc-item[dir=rtl] .frame .item-bottom-part .below-separator .leading-bid .highlighted-area .lot-link {
       right: auto;
-      left: 5; }
+      left: 5px; }
 
 .catalog.scene .content .list.mobile-list {
   padding-top: 20px; }
@@ -13309,7 +13310,7 @@ a.install-app-button {
           font-size: 18px;
           height: 20px;
           margin: 5px 0 5px; }
-        .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .dummy-link {
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid .highlighted-area .lot-link {
           display: none; }
       .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .leading-bid.self .highlighted-area {
         background: #009900; }
