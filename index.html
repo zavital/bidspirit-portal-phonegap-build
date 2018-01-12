@@ -33,7 +33,7 @@
 					appName:"portal"
 				}
 				
-				GlobalConfig.bidmoodEnv= ENV_NAME=="bidmood" ? true : false;
+				
 				
 				GlobalConfig.jsCacheVersion = "";
 				GlobalConfig.cssCacheVersion = "";
@@ -41,7 +41,12 @@
 				
 				GlobalConfig.devMode = false;
 				
-				GlobalConfig.devMode = GlobalConfig.bidmoodEnv;
+				
+				if (ENV_NAME=="bidmood"){
+					GlobalConfig.bidmoodEnv=  true;
+					GlobalConfig.devMode = true;
+					GlobalConfig.envName="bidmood";
+				}
 				
 				//debugMode = GlobalConfig.bidmoodEnv;
 				
