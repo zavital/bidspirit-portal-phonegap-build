@@ -22,7 +22,7 @@
     <access origin="*" />
     
     <plugin name="cordova-plugin-console"  />  
-    <plugin name="cordova-plugin-file"  />
+    <plugin name="cordova-plugin-file"  spec="5.0.0" />
     <plugin name="cordova-plugin-device"  />
     <plugin name="cordova-plugin-statusbar"  />
     <plugin name="cordova-plugin-whitelist"  />
