@@ -2223,11 +2223,6 @@ window.BidspiritLoader = {
 		}},
 
 		getBaseDirEntry:function(onSuccess,onFail){with (BidspiritLoader){
-			if (cordova.file){
-				alert("file");
-			} else {
-				alert("no file");
-			}
 			window.resolveLocalFileSystemURL(cordova.file.dataDirectory,onSuccess, onFail);
 		}},
 		
