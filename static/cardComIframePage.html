@@ -1,0 +1,14 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+function load(){
+	document.getElementById("cardComIframe").setAttribute("src", decodeURIComponent(window.location.href.split("?")[1]));
+}
+</script>
+</head>
+<body onLoad="load()">
+<iframe id="cardComIframe" _ngcontent-c5="" allowfullscreen="" frameborder="0" height="1000" id="cardcomGenerateTokenIframe" mozallowfullscreen="" scrolling="no" style="border:0; overflow-y: hidden;  overflow-x: hidden;" webkitallowfullscreen="" width="320" src=""></iframe>
+
+</body>
+</html>
