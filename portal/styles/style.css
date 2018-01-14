@@ -10146,20 +10146,33 @@ footer {
   font-size: 16px; }
   .set-auction-credit-card .sentence {
     margin-top: 5px; }
-  .set-auction-credit-card .form-inline {
+  .set-auction-credit-card .terms-row {
     margin-top: 7px; }
-    .set-auction-credit-card .form-inline input {
+    .set-auction-credit-card .terms-row input[type=checkbox] {
       position: relative;
-      top: 2px; }
+      margin: 5px 4px 0 0; }
+    .set-auction-credit-card .terms-row .bs-checkbox {
+      display: none; }
   @media (max-width: 1199px) {
     .set-auction-credit-card {
       font-size: 22px; }
       .set-auction-credit-card input[type=checkbox] {
         width: 20px;
-        height: 20px; }
+        height: 20px;
+        display: none; }
       .set-auction-credit-card input[type=radio] {
         width: 17px;
-        height: 23px; } }
+        height: 23px; }
+      .set-auction-credit-card .terms-row .bs-checkbox {
+        display: block;
+        margin: 0 4px 0 0; }
+      .set-auction-credit-card .terms-row bs-linkable-text {
+        max-width: 400px; } }
+  .set-auction-credit-card[dir=rtl] .terms-row input[type=checkbox] {
+    position: relative;
+    margin: 5px 0 0 4px; }
+  .set-auction-credit-card[dir=rtl] .terms-row .bs-checkbox {
+    margin: 0  0 0 4px; }
 
 .global-search-form {
   position: relative; }
