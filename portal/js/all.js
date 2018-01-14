@@ -20672,13 +20672,19 @@ define("portal/js/modules/userDetails/userDetailsModule", [ "angular" ], functio
                 }
                 function loadCreditCardIframe() {
                     scope.data.iframeUrl = null, scope.data.iframeLoaded = !1, UserDetailsService.getCreditCardFormIframeUrl(scope.auctionId).then(function(response) {
-                        if ($rootScope.viewPort.mobileMedia ? (scope.data.iframeWidth = 460, scope.data.iframeHeight = 1100) : (scope.data.iframeWidth = 600, 
+                        if ($rootScope.viewPort.mobileMedia ? (scope.data.iframeWidth = 500, scope.data.iframeHeight = 1100) : (scope.data.iframeWidth = 600, 
                         scope.data.iframeHeight = 420), scope.newWindow) {
                             var pathBase = "";
                             pathBase = !GlobalConfig.isMobileApp || GlobalConfig.mobileAppVersion > 273 ? "../" : PathsService.getServerBase();
                             var url = pathBase + "static/cardComIframePage.html?" + encodeURIComponent(response.data.val);
+alert(window.location.href);
                             window.open(url,"_self");
-                        } else scope.data.iframeUrl = response.data.val, waitForIframeToLoad();
+                        } else {
+				//scope.data.iframeUrl = response.data.val;
+scope.data.iframeUrl =  "https://bidspirit-system-static.s3.amazonaws.com/tests/cardcom/cardComTest.html?"+new Date().getTime();
+
+ waitForIframeToLoad();
+}
                     });
                 }
                 scope.data = {};
