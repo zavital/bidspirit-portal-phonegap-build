@@ -14963,7 +14963,10 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
     });
 }), define("common/js/modules/domUtils/viewPortService", [ "./domUtilsModule" ], function(module) {
     module.factory("ViewPortService", function($rootScope, $timeout, DomUtilsService, OsInfoService) {
+var first = true;
         function onResize() {
+if (!first) return;
+first = false;
             if (!DomUtilsService.isTextInputFocused()) {
                 $timeout.cancel(mResizeTriggerTimer);
                 {
@@ -20672,7 +20675,7 @@ define("portal/js/modules/userDetails/userDetailsModule", [ "angular" ], functio
                 }
                 function loadCreditCardIframe() {
                     scope.data.iframeUrl = null, scope.data.iframeLoaded = !1, UserDetailsService.getCreditCardFormIframeUrl(scope.auctionId).then(function(response) {
-                        if ($rootScope.viewPort.mobileMedia ? (scope.data.iframeWidth = 500, scope.data.iframeHeight = 1100) : (scope.data.iframeWidth = 600, 
+                        if ($rootScope.viewPort.mobileMedia ? (scope.data.iframeWidth = 460, scope.data.iframeHeight = 1100) : (scope.data.iframeWidth = 600, 
                         scope.data.iframeHeight = 420), scope.newWindow) {
                             var pathBase = "";
                             pathBase = !GlobalConfig.isMobileApp || GlobalConfig.mobileAppVersion > 273 ? "../" : PathsService.getServerBase();
