@@ -20675,7 +20675,7 @@ define("portal/js/modules/userDetails/userDetailsModule", [ "angular" ], functio
                         if ($rootScope.viewPort.mobileMedia ? (scope.data.iframeWidth = 320, scope.data.iframeHeight = 1100) : (scope.data.iframeWidth = 600, 
                         scope.data.iframeHeight = 420), scope.newWindow) {
                             var pathBase = "";
-                            pathBase = !GlobalConfig.isMobileApp || GlobalConfig.mobileAppVersion > 273 ? "../" : PathsService.getServerBase();
+                            pathBase = !GlobalConfig.isMobileApp || GlobalConfig.mobileAppVersion > 2713 ? "../" : PathsService.getServerBase();
                             var url = pathBase + "static/cardComIframePage.html?" + encodeURIComponent(response.data.val);
                             window.location = url;
                         } else scope.data.iframeUrl = response.data.val, waitForIframeToLoad();
