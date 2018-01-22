@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="285" versionCode="15511"
-    id="com.bidmood"spirit.qa"
+<widget version="286" versionCode="15512"
+    id="com.bidmood"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
     xmlns:gap="http://phonegap.com/ns/1.0"
