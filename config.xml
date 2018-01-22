@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="288" versionCode="15514"
+<widget version="289" versionCode="15515"
     id="com.bidmood"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
@@ -7,7 +7,7 @@
     >
     
  
-    <name>(QA)Bidspirit</name>
+    <name>Bidmood</name>
     <description>
         The Bidspirit portal is your gate to the auction houses’ arena  trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more
     </description>
