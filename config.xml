@@ -121,13 +121,15 @@
     <preference name="SplashMaintainAspectRatio" value="true" />
 	<preference name="SplashShowOnlyFirstTime" value="false" />
 	
-	
+	<preference name="AndroidLaunchMode" value="singleInstance" />
     
 	<preference name="orientation" value="portrait" />
 	<preference name="AutoHideSplashScreen" value="false" />
 	<preference name="DisallowOverscroll" value="true" />
 	
-	
+	<universal-links>
+	    <host name="bidmood.com" scheme="https" event="bidspirit_universal_link">	    </host>
+	</universal-links>
 	
 	
 	
