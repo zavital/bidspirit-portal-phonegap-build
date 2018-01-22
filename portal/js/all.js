@@ -19152,7 +19152,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }, GlobalConfig.isMobileApp && !OsInfoService.isMobileAppDebug() ? document.addEventListener("deviceready", init, !1) : init();
 if (GlobalConfig.bidmoodEnv){
 		    		try {
-		    			universalLinks.subscribe(null, function (eventData) {
+		    			universalLinks.subscribe("bidspirit_universal_link", function (eventData) {
 		    	 
 		    			  alert('Did launch application from the link: ' + eventData.url);
 		    			});
