@@ -351,13 +351,35 @@ bs-page-footer {
       background: gray !important; }
   .registration-promotion .btn-link {
     white-space: nowrap; }
+  .registration-promotion .auction-participation-info .timeLeft {
+    display: none; }
+  .registration-promotion .auction-participation-info .button-container {
+    display: inline-block; }
+    .registration-promotion .auction-participation-info .button-container .common-button {
+      height: 40px;
+      margin: 0 10px;
+      line-height: 22px; }
+      .registration-promotion .auction-participation-info .button-container .common-button .text {
+        padding: 8px 25px;
+        font-size: 17px; }
+  .registration-promotion .auction-participation-info .text-danger {
+    color: #db403e; }
   @media (max-width: 1199px) {
     .registration-promotion {
       font-size: 25px; }
       .registration-promotion .button {
         padding: 7px 13px 10px; }
       .registration-promotion .show-popup.btn {
-        font-size: 20px; } }
+        font-size: 20px; }
+      .registration-promotion .auction-participation-info .button-container .common-button {
+        height: 60px;
+        margin: 0 10px;
+        line-height: 34px; }
+        .registration-promotion .auction-participation-info .button-container .common-button .text {
+          padding: 10px 25px;
+          font-size: 25px; }
+      .registration-promotion .auction-participation-info .text-danger {
+        color: #db403e; } }
   .registration-promotion.promotion-bottom {
     margin: 0 auto;
     padding: 20px 0 50px;
@@ -10092,19 +10114,6 @@ footer {
     cursor: pointer; }
   .catalog.scene .content .auction-info .long-details {
     margin-bottom: 2px; }
-  .catalog.scene .content .auction-info .auction-participation-info .timeLeft {
-    display: none; }
-  .catalog.scene .content .auction-info .auction-participation-info .button-container {
-    display: inline-block; }
-    .catalog.scene .content .auction-info .auction-participation-info .button-container .common-button {
-      height: 40px;
-      margin: 0 10px;
-      line-height: 22px; }
-      .catalog.scene .content .auction-info .auction-participation-info .button-container .common-button .text {
-        padding: 8px 25px;
-        font-size: 17px; }
-  .catalog.scene .content .auction-info .auction-participation-info .text-danger {
-    color: #db403e; }
   @media (max-width: 1199px) {
     .catalog.scene .content .auction-info {
       padding-top: 50px; }
@@ -10113,16 +10122,7 @@ footer {
       .catalog.scene .content .auction-info .auction-texts .btn-link {
         white-space: nowrap;
         height: 50px;
-        line-height: 34px; }
-      .catalog.scene .content .auction-info .auction-participation-info .button-container .common-button {
-        height: 60px;
-        margin: 0 10px;
-        line-height: 34px; }
-        .catalog.scene .content .auction-info .auction-participation-info .button-container .common-button .text {
-          padding: 10px 25px;
-          font-size: 25px; }
-      .catalog.scene .content .auction-info .auction-participation-info .text-danger {
-        color: #db403e; } }
+        line-height: 34px; } }
 
 .participation-instructions {
   padding: 10px; }
