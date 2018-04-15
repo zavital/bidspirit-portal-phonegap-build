@@ -19135,6 +19135,7 @@ alert("visi");
             initConfig(), checkFirstVisit(), ViewPortService.bindViewPortSizeToWindowWidth(), 
             $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss($rootScope.serverFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
             PortalInfoService.init(getInitialRegion()).success(function() {
+alert("poin");
                 I18nService.init(PathsService.getPortalTextsUrl).then(checkAllResourcesLoaded);
             }).error(function(error) {
                 error && "BLOCKED" == error.errorType && window.document.write("<h3>You have been blocked.</h3> For support, please contact us at info@bidspirit.com");
