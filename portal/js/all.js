@@ -19104,6 +19104,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             $rootScope.currentLang = I18nService.getCurrentLang(), $rootScope.dir = DomUtilsService.getDirection($rootScope.currentLang);
         }
         function checkFirstVisit() {
+alert("visi");
             var lastVisit = LocalStorageService.load("lastVisit");
             $scope.firstVisit = lastVisit ? !1 : !0, LocalStorageService.store("lastVisit", new Date().getTime());
         }
