@@ -16,12 +16,16 @@
 				var debugMode = false;
 		
 				var ENV_NAME =  'qa';
+				
+				var serverName = ENV_NAME=='qa' ? 'qa.bidspirit.com' : 'bidspirit.com'; 
+				
+				var cdnSubDomain = ENV_NAME=='qa' ? 'bidspirit-portal-qa' : 'bidspirit-portal';
 				 
 				var GlobalConfig={
-					apiBase : "https://"+ENV_NAME+".com/services/",
+					apiBase : "https://"+serverName+"/services/",
 					serverFilesBase : "./",
 					staticFilesBase : "https://bidspirit-portal-static.global.ssl.fastly.net/",
-					cachedApiBase : "https://"+ENV_NAME+"-portal.global.ssl.fastly.net/services/",					
+					cachedApiBase : "https://"+cdnSubDomain+"-portal.global.ssl.fastly.net/services/",					
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
@@ -42,13 +46,13 @@
 				GlobalConfig.devMode = false;
 				
 				
-				if (ENV_NAME=="bidmood"){
+				if (ENV_NAME=="qa"){
 					GlobalConfig.bidmoodEnv=  true;
 					GlobalConfig.devMode = true;
-					GlobalConfig.envName="bidmood";
+					GlobalConfig.envName="qa";
 				}
 				
-				//debugMode = GlobalConfig.bidmoodEnv;
+				debugMode = GlobalConfig.envName=="qa";
 				
 		        var require = {
 		       		baseUrl: "./",	
