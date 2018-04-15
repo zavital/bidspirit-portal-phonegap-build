@@ -25,7 +25,7 @@
 					apiBase : "https://"+serverName+"/services/",
 					serverFilesBase : "./",
 					staticFilesBase : "https://bidspirit-portal-static.global.ssl.fastly.net/",
-					cachedApiBase : "https://"+cdnSubDomain+"-portal.global.ssl.fastly.net/services/",					
+					cachedApiBase : "https://"+cdnSubDomain+".global.ssl.fastly.net/services/",					
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
@@ -52,7 +52,7 @@
 					GlobalConfig.envName="qa";
 				}
 				
-				debugMode = GlobalConfig.envName=="qa";
+				//debugMode = GlobalConfig.envName=="qa";
 				
 		        var require = {
 		       		baseUrl: "./",	
@@ -73,7 +73,7 @@
 			opacity:0.8;
 			right:80px;
 			overflow:auto;
-			top:30;
+			top:30px;
 			display:none;
 		}
 		.pgdebug.hide-button{			
