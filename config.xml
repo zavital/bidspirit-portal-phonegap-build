@@ -28,6 +28,8 @@
     <plugin name="cordova-plugin-whitelist"  />
     <plugin name="cordova-plugin-splashscreen"  />
     <plugin name="cordova-plugin-inappbrowser"  />
+    
+    <plugin name="cordova-plugin-background-mode" source="npm" />
 
     <plugin name="cordova-plugin-appavailability"/>
     
@@ -72,7 +74,9 @@
   <preference name="StatusBarBackgroundColor" value="#000000" />
   
   <preference name="KeyboardDisplayRequiresUserAction" value="false"/>
-     
+  
+  
+  
 	
         
 	
