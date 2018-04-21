@@ -29,8 +29,6 @@
     <plugin name="cordova-plugin-splashscreen"  />
     <plugin name="cordova-plugin-inappbrowser"  />
     
-    <plugin name="cordova-plugin-background-mode" source="npm" />
-
     <plugin name="cordova-plugin-appavailability"/>
     
     <plugin name="cordova-plugin-google-analytics"  spec="~1.0.0" />
@@ -54,7 +52,15 @@
                
     <icon src="icon.png" />
     
-    <icon src="icon-android.png" gap:platform="android" />
+    `<icon src="icon-android.png" gap:platform="android" />
+    
+    <icon src="icon-android.png" platform="android" qualifier="ldpi" />
+	<icon src="icon-android.png" platform="android" qualifier="mdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="hdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="xhdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="xxhdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="xxxhdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="fr-xxhdpi" />
     
   <icon src="icons/ios/ios_40x40.png" gap:platform="ios" width="40" height="40" />
 	<icon src="icons/ios/ios_50x50.png" gap:platform="ios" width="50" height="50" />
@@ -75,10 +81,7 @@
   
   <preference name="KeyboardDisplayRequiresUserAction" value="false"/>
   
-  
-  
-	
-        
+      
 	
 	
 	
