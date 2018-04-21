@@ -19,7 +19,7 @@
     
     <allow-navigation href="*" />
     
-    
+     <access origin="*" />
     
     <plugin name="cordova-plugin-console"  />  
     <plugin name="cordova-plugin-file"  />
