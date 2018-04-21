@@ -129,15 +129,6 @@
 	<preference name="AutoHideSplashScreen" value="false" />
 	<preference name="DisallowOverscroll" value="true" />
 	
-	<universal-links>
-		<ios-team-id value="6DTE7S85RT" />
-	    <host name="qa.bidspirit.com" scheme="https" event="bidspirit_universal_link">
-	    	 <path url="/portal/" />
-	    </host>
-	</universal-links>
-	
-	
-	
 	
 	
 	
