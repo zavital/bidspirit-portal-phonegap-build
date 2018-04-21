@@ -20,34 +20,7 @@
     <allow-navigation href="*" />
     
     <access origin="*" />
-    
-    <plugin name="cordova-plugin-console"  />  
-    <plugin name="cordova-plugin-file"  />
-    <plugin name="cordova-plugin-device"  />
-    <plugin name="cordova-plugin-statusbar"  />
-    <plugin name="cordova-plugin-whitelist"  />
-    <plugin name="cordova-plugin-splashscreen"  />
-    <plugin name="cordova-plugin-inappbrowser"  />
-    
-    <plugin name="cordova-plugin-background-mode" source="npm" />
-
-    <plugin name="cordova-plugin-appavailability"/>
-    
-    <plugin name="cordova-plugin-google-analytics"  spec="~1.0.0" />
   
-  
-    <plugin name="phonegap-plugin-push"  />
-    
-    <plugin name="https://github.com/mikaoelitiana/cordova-ios-plugin-no-export-compliance.git" />
-    
-    <plugin name="cordova-plugin-dialogs"  />
-    <gap:platform name="android" />
-    <gap:platform name="ios" /> 
-    
-    <preference name="permissions" value="none"/>    
-    <feature name="http://api.phonegap.com/1.0/network" />    
-    <feature name="http://api.phonegap.com/1.0/device" />
-    
     
                
     <icon src="icon.png" />
