@@ -18,8 +18,7 @@
     <content src="index.html" />
     
     
-    <access origin="*" />
-  
+   
     
                
     <icon src="icon.png" />
@@ -52,53 +51,6 @@
 	
 	
 	
-	
-	
-	<gap:config-file platform="android" parent="/manifest/application">
-    	<activity android:launchMode="singleTop" />
-	</gap:config-file>
-	
-	 <gap:config-file platform="ios" parent="LSApplicationQueriesSchemes" mode="replace">
-		<array>
-			<string>puffin</string>
-			<string>puffinFree</string>
-		</array>
-    </gap:config-file>
-	
-	
-	<splash src="splash.png"/>
-	
-	
-	
-	<splash src="splashes/android/ldpi_200x320.png" platform="android" qualifier="ldpi" />
-	<splash src="splashes/android/mdpi_320x480.png" platform="android" qualifier="mdpi" />
-	<splash src="splashes/android/hdpi_480x800.png" platform="android" qualifier="hdpi" />
-	<splash src="splashes/android/xhdpi_720x1280.png" platform="android" qualifier="xhdpi" />
-	
-	
-	
-	
-	<platform name="ios"> 
-		<splash src="splashes/ios/iphone_3_320x480.png"  width="320" height="480" />
-		<splash src="splashes/ios/iphone_4_640x960.png"  width="640" height="960" />
-		<splash src="splashes/ios/iphone_5_640x1136.png"  width="640" height="1136" />
-		<splash src="splashes/ios/iphone_6_750x1334.png"  width="750" height="1334" />
-		<splash src="splashes/ios/iphone_6_portrait_1242x2208.png"  width="1242" height="2208" />
-		<splash src="splashes/ios/iphone_6_landscape_2208x1242.png"  width="2208" height="1242" />
-		<splash src="splashes/ios/ipad_768x1024.png"  width="768" height="1024" />
-		<splash src="splashes/ios/ipad_landscape_1024x768.png"  width="1024" height="768" />
-		<splash src="splashes/ios/ipad_retina_1536x2048.png"  width="1536" height="2048" />
-		<splash src="splashes/ios/ipad_retina_landscape_2048x1536.png"  width="2048" height="1536" />
-    </platform>
-    
-    <preference name="SplashMaintainAspectRatio" value="true" />
-	<preference name="SplashShowOnlyFirstTime" value="false" />
-	
-	<preference name="AndroidLaunchMode" value="singleInstance" />
-    
-	<preference name="orientation" value="portrait" />
-	<preference name="AutoHideSplashScreen" value="false" />
-	<preference name="DisallowOverscroll" value="true" />
 	
 	
 	
