@@ -10106,6 +10106,8 @@ footer {
     cursor: pointer; }
   .catalog.scene .content .auction-info .long-details {
     margin-bottom: 2px; }
+  .catalog.scene .content .auction-info .lot-view-only {
+    color: red; }
   @media (max-width: 1199px) {
     .catalog.scene .content .auction-info {
       padding-top: 50px; }
@@ -10149,6 +10151,9 @@ footer {
       margin: 5px 4px 0 0; }
     .set-auction-credit-card .terms-row .bs-checkbox {
       display: none; }
+  .set-auction-credit-card .diners-not-supported {
+    font-weight: bold;
+    font-size: 14px; }
   @media (max-width: 1199px) {
     .set-auction-credit-card {
       font-size: 22px; }
@@ -10170,7 +10175,9 @@ footer {
         display: block;
         margin: 0 4px 0 0; }
       .set-auction-credit-card .terms-row bs-linkable-text {
-        max-width: 400px; } }
+        max-width: 400px; }
+      .set-auction-credit-card .diners-not-supported {
+        font-size: 22px; } }
   .set-auction-credit-card[dir=rtl] .terms-row input[type=checkbox] {
     position: relative;
     margin: 5px 0 0 4px; }
@@ -12822,6 +12829,11 @@ a.install-app-button {
                 .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .common-button.es .text {
                   font-size: 11px;
                   padding-top: 8px; }
+              .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator .lot-view-only {
+                color: red;
+                padding: 17px 10px;
+                font-size: 14px;
+                font-weight: bold; }
               .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part .below-separator[dir=rtl] .common-button {
                 right: auto;
                 left: 0; }
@@ -13036,6 +13048,14 @@ a.install-app-button {
                 .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .info .lot-price-row .lot-price-value {
                   font-weight: bold;
                   display: inline; }
+            .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-view-only {
+              color: red;
+              position: absolute;
+              right: 0;
+              bottom: 10px;
+              padding: 5px;
+              font-size: 20px;
+              font-weight: bold; }
             .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-badge {
               color: white;
               position: absolute;
@@ -13083,6 +13103,9 @@ a.install-app-button {
           .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .info .lot-text {
             padding-left: 10px;
             padding-right: 0px; }
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .lot-view-only {
+          left: 0;
+          right: auto; }
         .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .lot-price-row {
           text-align: right; }
       .catalog.scene .content .list.mobile-list .row .item .favorite-flag {
@@ -13642,6 +13665,10 @@ a.install-app-button {
     .catalog.lotPage.scene .content .bid-form .bid-request-info .status {
       color: red;
       font-weight: bold; }
+  .catalog.lotPage.scene .content .bid-form .lot-view-only {
+    color: red;
+    padding: 10px;
+    font-size: 16px; }
   .catalog.lotPage.scene .content .bid-form .auction-participation-info {
     padding: 10px; }
     .catalog.lotPage.scene .content .bid-form .auction-participation-info .button-container {
@@ -14030,6 +14057,10 @@ a.install-app-button {
     content: '▲'; }
   .support.scene .content .sort-field.desc:after {
     content: '▼'; }
+  .support.scene .content .bs-pagination {
+    margin-top: 14px;
+    text-align: center;
+    margin-bottom: 20px; }
   .support.scene .content .attachments {
     position: relative; }
     .support.scene .content .attachments .attachment {
