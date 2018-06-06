@@ -140,9 +140,11 @@
 	    </host>
 	</universal-links>
 	
+	<plugin name="cordova-plugin-fcm" />
 	
 	
-	
+	<resource-file src="google-services.json" target="google-services.json" />
+ 	<resource-file src="GoogleService-Info.plist" target="Resources/GoogleService-Info.plist" />
 	
 	
 	

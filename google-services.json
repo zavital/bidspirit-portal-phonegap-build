@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "134828532141",
+    "firebase_url": "https://bidspirit-qa.firebaseio.com",
+    "project_id": "bidspirit-qa"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:134828532141:android:a87cbc6f1cb2e1bc",
+        "android_client_info": {
+          "package_name": "com.bidspirit.qa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "134828532141-k95inrhmh023f47lp3qchhc5s8mdbsgo.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "134828532141-kjjevf43ih7amb3hadhg8qi1lflqnqjk.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "134828532141-voqss4ovi3njfe1jvvc69tv2bh4q3i0b.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "134828532141-voqss4ovi3njfe1jvvc69tv2bh4q3i0b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChbiqGvQsvStMCSnAL6eNpEEjMHxY7kYM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-56607963-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
