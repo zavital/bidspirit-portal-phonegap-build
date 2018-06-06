@@ -24757,24 +24757,44 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
     });
 }), define("portal/js/modules/nudges/mobilePushService", [ "./nudgesModule" ], function(module) {
     module.factory("MobilePushService", function($rootScope, $uibModal, ArraysService, SettingsService, LogService, LocalStorageService, ApiService, PathsService, AnalyticsService, PopupsService, PortalInfoService, AppSiteWinodwsService) {
-        function init() {
-            if (window.device) if (GlobalConfig.qaEnv) {
-                alert(window.FCMPlugin), alert(FCMPlugin);
-                try {
-                    FCMPlugin.onTokenRefresh(function(token) {
-                        alert(token);
-                    }), alert(1), FCMPlugin.getToken(function(token) {
-                        alert(token);
-                    }), alert(2), FCMPlugin.subscribeToTopic("bidspiritNotifications"), alert(3), FCMPlugin.onNotification(function(data) {
-                        alert(data.wasTapped ? "tapped: " + JSON.stringify(data) : "not tapped:" + JSON.stringify(data));
-                    }), alert(4);
-                } catch (e) {
-                    alert("error init fcm:" + e);
-                }
-            } else mDeviceId = device.uuid, mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown", 
-            $rootScope.$on("auth.newSessionUser", onSessionUserChanged), $rootScope.debug("mobile push init with id " + mDeviceId + ", platform: " + mPlatform), 
-            addDeviceToCurrentUser();
-        }
+	if (GlobalConfig.qaEnv){
+				alert("fcm:"+window.FCMPlugin);
+				alert(FCMPlugin);
+				try {
+					FCMPlugin.onTokenRefresh(function(token){
+					    alert( token );
+					});
+					alert(1);
+					FCMPlugin.getToken(function(token){
+					    alert(token);
+					});
+					alert(2);
+					FCMPlugin.subscribeToTopic('bidspiritNotifications');
+					alert(3);
+					FCMPlugin.onNotification(function(data){
+					    if(data.wasTapped){
+					      //Notification was received on device tray and tapped by the user.
+					      alert("tapped: " + JSON.stringify(data) );
+					    }else{
+					      //Notification was received in foreground. Maybe the user needs to be notified.
+					      alert("not tapped:"+ JSON.stringify(data) );
+					    }
+					});
+					alert(4);
+				} catch (e){
+					alert("error init fcm:"+e);
+				}
+			} else {
+				mDeviceId = device.uuid;
+				mPlatform = device.platform ? device.platform.toLowerCase() : "Unknown";
+				$rootScope.$on("auth.newSessionUser", onSessionUserChanged);
+				$rootScope.debug("mobile push init with id "+mDeviceId+", platform: "+mPlatform);
+				
+				addDeviceToCurrentUser();
+			}
+			
+		}
+
         function registerForPushNotification() {
             mDeviceId && (mPushPlugin && ($rootScope.debug("Unregistering...:"), mPushPlugin.unregister()), 
             $rootScope.debug("Registering...:"), mPushPlugin = PushNotification.init({
