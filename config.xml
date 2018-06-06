@@ -31,8 +31,6 @@
     
     <plugin name="cordova-plugin-appavailability"/>
     
-    <plugin name="cordova-plugin-google-analytics"   />
-  
     <plugin name="cordova-universal-links-plugin" />
   
     <plugin name="phonegap-plugin-push"  source="npm" />
