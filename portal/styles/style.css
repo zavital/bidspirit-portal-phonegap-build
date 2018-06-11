@@ -10151,6 +10151,10 @@ footer {
       margin: 5px 4px 0 0; }
     .set-auction-credit-card .terms-row .bs-checkbox {
       display: none; }
+  .set-auction-credit-card ol, .set-auction-credit-card ul {
+    display: block !important;
+    margin: 0 30px;
+    text-indent: -22px; }
   .set-auction-credit-card .diners-not-supported {
     font-weight: bold;
     font-size: 14px; }
@@ -10580,7 +10584,8 @@ footer {
             width: 150px;
             margin-top: 10px; }
             .product.scene .features .list .row .item .frame .common-button .text {
-              font-size: 15px; }
+              font-size: 14px;
+              padding-top: 8px; }
             .product.scene .features .list .row .item .frame .common-button.pull-left {
               margin-left: 15px; }
             .product.scene .features .list .row .item .frame .common-button.pull-right {
@@ -13091,6 +13096,13 @@ a.install-app-button {
                 left: 10px; }
               .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .common-button .text {
                 padding: 0px 30px; }
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item.with-house-badge .item-link .lot-row .lot-badge {
+          bottom: auto;
+          top: 6px; }
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item.with-house-badge .item-link .lot-row .info {
+          top: 57px; }
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item.with-house-badge .favorite-flag, .catalog.scene .content .list.mobile-list .row .item.mobile-item.with-house-badge .alert-flag {
+          top: 44px; }
         .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .lot-pic {
           left: auto;
           right: 0; }
@@ -13477,7 +13489,7 @@ a.install-app-button {
             background-size: 33px 33px !important; }
       .catalog.lotPage.scene .content .second-row {
         padding-top: 10px; }
-      .catalog.lotPage.scene .content .lot-number {
+      .catalog.lotPage.scene .content .lot-number, .catalog.lotPage.scene .content .lot-index-in-auction {
         font-size: 25px; }
       .catalog.lotPage.scene .content .video-link {
         font-size: 25px; }
