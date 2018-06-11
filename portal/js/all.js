@@ -15010,7 +15010,7 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                 scale = Math.max(.5, scale);
                 var viewPortWidthContent = "width=" + width;
                 mViewPortWidth && mViewPortInfo.orientation == getOrientation() || (viewPortWidthContent += ", initial-scale=" + scale + ", maximum-scale=" + scale), 
-                GlobalConfig.isMobileApp && (viewPortWidthContent += ", user-scalable=no"), mViewPortElement.setAttribute("content", viewPortWidthContent), 
+                GlobalConfig.isMobileApp && (viewPortWidthContent += ", user-scalable=no, viewport-fit=cover"), mViewPortElement.setAttribute("content", viewPortWidthContent), 
                 viewportChanged = !0;
             } else width != mViewPortWidth && (mViewPortElement.setAttribute("content", "width=" + width), 
             viewportChanged = !0);
