@@ -458,6 +458,10 @@ bs-page-footer {
       background-position: center center;
       background-repeat: no-repeat;
       background-image: url(../images/cars/logo-il.png); }
+    .upper-navigation .logo.real-estate.IL {
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-image: url(../images/realestate/logo-il.png); }
     .upper-navigation .logo.cars.RU {
       background-position: center center;
       background-repeat: no-repeat;
@@ -9207,6 +9211,18 @@ p {
 .table .btn.btn-link:first-letter {
   text-transform: none; }
 
+.table.table-striped tr.danger:nth-of-type(odd) td {
+  background-color: #f2dede; }
+
+.table.table-striped tr.success:nth-of-type(odd) td {
+  background-color: #f2dede; }
+
+.table.table-striped tr.success:nth-of-type(odd) td {
+  background-color: #dff0d8 !important; }
+
+.table.table-striped tr.info:nth-of-type(odd) td {
+  background-color: #d9edf7 !important; }
+
 .blink {
   animation: blinker 0.7s step-start 0s infinite;
   -webkit-animation: blinker 0.7s step-start 0s infinite;
@@ -9428,6 +9444,10 @@ footer {
             font-weight: bold; }
           .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance .info .text {
             font-size: 15px; }
+        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance.home-header-first {
+          min-width: 400px; }
+        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance.home-header-second {
+          float: right; }
         .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance.home-header-second {
           float: right; }
         .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance[dir=rtl] {
@@ -10155,7 +10175,7 @@ footer {
     display: block !important;
     margin: 0 30px;
     text-indent: -22px; }
-  .set-auction-credit-card .diners-not-supported {
+  .set-auction-credit-card .footer-notes {
     font-weight: bold;
     font-size: 14px; }
   @media (max-width: 1199px) {
@@ -10180,7 +10200,7 @@ footer {
         margin: 0 4px 0 0; }
       .set-auction-credit-card .terms-row bs-linkable-text {
         max-width: 400px; }
-      .set-auction-credit-card .diners-not-supported {
+      .set-auction-credit-card .footer-notes {
         font-size: 22px; } }
   .set-auction-credit-card[dir=rtl] .terms-row input[type=checkbox] {
     position: relative;
@@ -12763,6 +12783,35 @@ a.install-app-button {
               max-width: 100%;
               max-height: 100%;
               margin: 0 auto; }
+          .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-view-only-overlay {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 220px; }
+            .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-view-only-overlay .upper-text {
+              text-align: center;
+              position: absolute;
+              top: 0px;
+              left: 0px;
+              width: 100%;
+              height: 28px;
+              font-size: 17px;
+              border: 1px solid #ccc;
+              background: #f5f5f5;
+              color: red; }
+            .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-view-only-overlay .lower-text {
+              text-align: center;
+              width: 100%;
+              height: 20px;
+              font-size: 13px;
+              color: red;
+              border: 1px solid #ccc;
+              background: #f5f5f5;
+              position: absolute;
+              bottom: 0px;
+              left: 0px;
+              top: auto; }
           .catalog.scene .content .list .row .item.pc-item .item-link .frame .item-bottom-part {
             position: absolute;
             bottom: 0px;
@@ -13209,28 +13258,32 @@ a.install-app-button {
   .catalog.lotPage.scene .content .actions-td {
     width: 420px;
     padding-left: 20px; }
-  .catalog.lotPage.scene .content .car-info-section {
+  .catalog.lotPage.scene .content .car-info-section, .catalog.lotPage.scene .content .real-estate-info-section {
     margin: 0px 10px; }
-    .catalog.lotPage.scene .content .car-info-section table {
+    .catalog.lotPage.scene .content .car-info-section table, .catalog.lotPage.scene .content .real-estate-info-section table {
       border-spacing: 0;
       border-collapse: collapse;
       width: 100%;
       font-size: 14px; }
-      .catalog.lotPage.scene .content .car-info-section table th {
+      .catalog.lotPage.scene .content .car-info-section table th, .catalog.lotPage.scene .content .real-estate-info-section table th {
         background: #eee;
         width: 150px; }
-      .catalog.lotPage.scene .content .car-info-section table td, .catalog.lotPage.scene .content .car-info-section table th {
+      .catalog.lotPage.scene .content .car-info-section table td, .catalog.lotPage.scene .content .car-info-section table th, .catalog.lotPage.scene .content .real-estate-info-section table td, .catalog.lotPage.scene .content .real-estate-info-section table th {
         border-top: 1px solid #ddd;
         border-bottom: 1px solid #ddd;
         padding: 7px; }
-    .catalog.lotPage.scene .content .car-info-section .documents-title {
+      .catalog.lotPage.scene .content .car-info-section table .recommend-view-car, .catalog.lotPage.scene .content .real-estate-info-section table .recommend-view-car {
+        color: #db403e;
+        font-weight: bold;
+        margin-top: 5px; }
+    .catalog.lotPage.scene .content .car-info-section .documents-title, .catalog.lotPage.scene .content .real-estate-info-section .documents-title {
       font-weight: bold;
       margin: 20px 5px; }
-    .catalog.lotPage.scene .content .car-info-section .description-text {
+    .catalog.lotPage.scene .content .car-info-section .description-text, .catalog.lotPage.scene .content .real-estate-info-section .description-text {
       margin-top: 0;
       line-height: 25px;
       font-size: 16px; }
-    .catalog.lotPage.scene .content .car-info-section .lot-badge {
+    .catalog.lotPage.scene .content .car-info-section .lot-badge, .catalog.lotPage.scene .content .real-estate-info-section .lot-badge {
       font-size: 16px;
       font-weight: bold;
       margin-bottom: 4px; }
@@ -13499,13 +13552,13 @@ a.install-app-button {
         margin-top: 20px; }
         .catalog.lotPage.scene .content .lot-tags a, .catalog.lotPage.scene .content .lot-tags .label, .catalog.lotPage.scene .content .lot-tags .btn {
           font-size: 20px; }
-      .catalog.lotPage.scene .content .car-info-section {
+      .catalog.lotPage.scene .content .car-info-section, .catalog.lotPage.scene .content .real-estate-info-section {
         margin-top: 20px; }
-        .catalog.lotPage.scene .content .car-info-section table {
+        .catalog.lotPage.scene .content .car-info-section table, .catalog.lotPage.scene .content .real-estate-info-section table {
           font-size: 21px; }
-        .catalog.lotPage.scene .content .car-info-section .documents-title {
+        .catalog.lotPage.scene .content .car-info-section .documents-title, .catalog.lotPage.scene .content .real-estate-info-section .documents-title {
           font-size: 21px; }
-        .catalog.lotPage.scene .content .car-info-section a.btn-link, .catalog.lotPage.scene .content .car-info-section label {
+        .catalog.lotPage.scene .content .car-info-section a.btn-link, .catalog.lotPage.scene .content .car-info-section label, .catalog.lotPage.scene .content .real-estate-info-section a.btn-link, .catalog.lotPage.scene .content .real-estate-info-section label {
           font-size: 21px; }
       .catalog.lotPage.scene .content .extrainfo-overseas .icon {
         width: 25px;
@@ -13672,6 +13725,8 @@ a.install-app-button {
     .catalog.lotPage.scene .content .bid-form .links .bid-link-space {
       width: 20px;
       height: 1px; }
+  .catalog.lotPage.scene .content .bid-form .time-left-label {
+    margin: 10px; }
   .catalog.lotPage.scene .content .bid-form .bid-request-info {
     padding: 0 10px 10px; }
     .catalog.lotPage.scene .content .bid-form .bid-request-info .status {
@@ -13757,8 +13812,10 @@ a.install-app-button {
           font-size: 16px; }
         .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.he .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.he .text {
           font-size: 18px; }
-        .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.ru .text {
-          font-size: 15px; }
+        .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.ru, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.ru {
+          width: 140px; }
+          .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.ru .text {
+            font-size: 15px; }
         .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.ru .text {
           font-size: 13px; }
         .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.es .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.es .text {
@@ -13773,6 +13830,9 @@ a.install-app-button {
         font-size: 13px;
         font-weight: bold;
         color: red; }
+  .catalog.lotPage.scene .content .bid-form .bids-disabled-on-holyday {
+    color: #db403e;
+    margin-bottom: 20px; }
   .catalog.lotPage.scene .content .bid-form .lot-price-row {
     padding: 0 10px;
     margin-bottom: 7px; }
@@ -13862,8 +13922,10 @@ a.install-app-button {
         font-size: 25px; }
       .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.he .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.he .text {
         font-size: 28px; }
-      .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.ru .text {
-        font-size: 24px; }
+      .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.ru, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.ru {
+        width: 195px; }
+        .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.ru .text {
+          font-size: 24px; }
       .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.ru .text {
         font-size: 21px; }
       .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.es .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.es .text {
