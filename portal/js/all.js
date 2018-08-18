@@ -21525,7 +21525,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 function loadDefaultTexts(){
 				addToDebug("Loading default texts from "+appDefaultPath);
 				
-				BidspiritLoader.readFile(appDefaultPath),function(loadedTexts){
+				BidspiritLoader.readFile(appDefaultPath, function(loadedTexts){
 					if (loadedTexts!=null){
 						addToDebug("loaded default texts from "+appDefaultPath+" data length:"+loadedTexts.length);
 						deferred.resolve({data:loadedTexts});
