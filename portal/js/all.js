@@ -21527,7 +21527,7 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
 				alert(window.location.href+", "+window.location.pathname+"  -> "+appDefaultPath);	
 				$http({url:appDefaultPath, cache:true}).then(function(response){
 					var texts = response.data;
-					addToDebug("loaded. firstLine "+texts[0]);
+					alert("loaded. firstLine "+texts[0]);
 					deferred.resolve({data:texts});
 				},function(error){
 alert("error:"+error.message+", "+error.code);
@@ -21537,7 +21537,7 @@ alert("error:"+error.message+", "+error.code);
 
 
 
-            var appDefaultPath = "../portal/texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
+            var appDefaultPath = "../texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
             return BidspiritLoader.readFile(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
                 null != loadedTexts ? (addToDebug("loaded local texts for " + textsVersion + " in lang " + lang + ". data length:" + loadedTexts.length), 
                 loadedTexts.length > 1e4 ? (GlobalConfig.loadedTextsVersion = textsVersion, deferred.resolve({
