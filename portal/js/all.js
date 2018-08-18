@@ -21522,12 +21522,12 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         }
         function getTextsLoadPromise(lang) {
             function loadDefaultTexts() {
-                addToDebug("Loading default texts from " + appDefaultPath), $http({
+                alert("Loading default texts from " + appDefaultPath), $http({
                     url: appDefaultPath,
                     cache: !0
                 }).then(function(response) {
                     var texts = response.data;
-                    addToDebug("loaded. firstLine " + texts[0]), deferred.resolve({
+                    alert("loaded. firstLine " + texts[0]), deferred.resolve({
                         data: texts
                     });
                 });
