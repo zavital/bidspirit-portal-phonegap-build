@@ -34837,7 +34837,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
         base.href = GlobalConfig.devEnv ? "/portal/ui/" : "/ui/", document.head.prepend(base), 
         $urlMatcherFactoryProvider.strictMode(!1), $urlMatcherFactoryProvider.type("raw", {
             raw: !0
-        }), $locationProvider.html5Mode(!0), initAnalytics(AnalyticsProvider);
+        }), /*$locationProvider.html5Mode(!0),*/ initAnalytics(AnalyticsProvider);
     }).run(function($templateCache) {
         $templateCache.put("/common/templates/forms/asyncButton.html?1.1944", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
         $templateCache.put("/common/templates/forms/monthPicker.html?1.1944", '<div class="col-md-3 form-group"> <label>{{(label || \'reports_select_month\') | i18n}}</label>  <p class="input-group"> <input type="text"  name="date" placeholder="{{\'reports_select_month\' | i18n}}" class="form-control" ng-model="selectedDate" uib-datepicker-popup="MM/yyyy" is-open="monthPopupVisible" ng-click="monthPopupVisible = true" datepicker-options="{minMode: \'month\'}" datepicker-mode="\'month\'" close-text="{{\'command_close\' | i18n}}"  > </p> <div class="newLine"></div> </div>    '), 
