@@ -21522,21 +21522,15 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
         }
         function getTextsLoadPromise(lang) {
 
-function loadDefaultTexts(){
+		function loadDefaultTexts(){
 				addToDebug("Loading default texts from "+appDefaultPath);
 				
-				BidspiritLoader.readFile(appDefaultPath, function(loadedTexts){
-					if (loadedTexts!=null){
-						addToDebug("loaded default texts from "+appDefaultPath+" data length:"+loadedTexts.length);
-						deferred.resolve({data:loadedTexts});
-					} else {
-						displayFailure("default local texts not found. giving up");
-					}
-				},function(){
-					displayFailure("failed to read default local texts. giving up");
-				});	
-			}
-			
+				$http({url:appDefaultPath, cache:true}).then(function(response){
+					var texts = response.data;
+					addToDebug("loaded. firstLine "+texts[0]);
+					deferred.resolve({data:texts});
+				});
+			}	
 
 
 
