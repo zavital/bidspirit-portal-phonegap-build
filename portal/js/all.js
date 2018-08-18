@@ -21532,7 +21532,7 @@ alert("loaded");
                         data: texts
                     });
                 },function(error){
-alert("error:"+error);
+alert("error:"+JSON.stringify(error));
 });
             }
             var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
