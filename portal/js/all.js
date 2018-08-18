@@ -34476,6 +34476,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
         }
 	function  gotoPortalScene(contentType){
 			LocalStorageService.store("catalogContentType", contentType);
+alert("going to "+contentType);
 			LocalStorageService.store("portalChoiceNeeded", false);
 			if (GlobalConfig.isMobileApp){
 				if ($rootScope.contentType==contentType){
