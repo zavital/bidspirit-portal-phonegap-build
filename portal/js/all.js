@@ -21521,20 +21521,25 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
             return "localTexts/" + lang + "." + version + ".properties";
         }
         function getTextsLoadPromise(lang) {
-            function loadDefaultTexts() {
-                alert("Loading default texts from " + appDefaultPath), $http({
-                    url: appDefaultPath,
-                    cache: !0
-                }).then(function(response) {
-alert("loaded");
-                    var texts = response.data;
-                    alert("loaded. firstLine " + texts[0]), deferred.resolve({
-                        data: texts
-                    });
-                },function(error){
-alert("error:"+JSON.stringify(error));
-});
-            }
+
+function loadDefaultTexts(){
+				addToDebug("Loading default texts from "+appDefaultPath);
+				
+				BidspiritLoader.readFile(appDefaultPath),function(loadedTexts){
+					if (loadedTexts!=null){
+						addToDebug("loaded default texts from "+appDefaultPath+" data length:"+loadedTexts.length);
+						deferred.resolve({data:loadedTexts});
+					} else {
+						displayFailure("default local texts not found. giving up");
+					}
+				},function(){
+					displayFailure("failed to read default local texts. giving up");
+				});	
+			}
+			
+
+
+
             var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
             return BidspiritLoader.readFile(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
                 null != loadedTexts ? (addToDebug("loaded local texts for " + textsVersion + " in lang " + lang + ". data length:" + loadedTexts.length), 
