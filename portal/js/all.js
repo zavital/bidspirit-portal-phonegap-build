@@ -34845,7 +34845,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     }
     return angular.module("app", [ "ngAnimate", "lr.upload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap", "textAngular" ]).config(function($locationProvider, $urlMatcherFactoryProvider, AnalyticsProvider) {
         var base = document.createElement("base");
-        base.href = GlobalConfig.devEnv ? "/portal/ui/" : "/ui/", document.head.prepend(base), 
+        base.href = GlobalConfig.devEnv ? "/portal/ui/" : "./ui/", document.head.prepend(base), 
         $urlMatcherFactoryProvider.strictMode(!1), $urlMatcherFactoryProvider.type("raw", {
             raw: !0
         }), $locationProvider.html5Mode(!0), initAnalytics(AnalyticsProvider);
