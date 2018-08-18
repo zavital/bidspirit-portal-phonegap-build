@@ -21537,7 +21537,7 @@ alert("error:"+error.message+", "+error.code);
 
 
 
-            var appDefaultPath = "../texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
+            var appDefaultPath = "./texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
             return BidspiritLoader.readFile(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
                 null != loadedTexts ? (addToDebug("loaded local texts for " + textsVersion + " in lang " + lang + ". data length:" + loadedTexts.length), 
                 loadedTexts.length > 1e4 ? (GlobalConfig.loadedTextsVersion = textsVersion, deferred.resolve({
