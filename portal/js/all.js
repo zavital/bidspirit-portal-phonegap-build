@@ -21526,11 +21526,14 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
                     url: appDefaultPath,
                     cache: !0
                 }).then(function(response) {
+alert("loaded");
                     var texts = response.data;
                     alert("loaded. firstLine " + texts[0]), deferred.resolve({
                         data: texts
                     });
-                });
+                },function(error){
+alert("error:"+error);
+});
             }
             var appDefaultPath = "texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
             return BidspiritLoader.readFile(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
