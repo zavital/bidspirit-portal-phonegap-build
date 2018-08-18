@@ -21522,17 +21522,16 @@ define("common/js/modules/mobileApp/mobileAppModule", [ "angular" ], function(ng
             return "localTexts/" + lang + "." + version + ".properties";
         }
         function getTextsLoadPromise(lang) {
-            function loadDefaultTexts() {
-                addToDebug("Loading default texts from " + appDefaultPath), $http({
-                    url: appDefaultPath,
-                    cache: !0
-                }).then(function(response) {
-                    var texts = response.data;
-                    addToDebug("loaded. firstLine " + texts[0]), deferred.resolve({
-                        data: texts
-                    });
-                });
-            }
+function loadDefaultTexts(){
+				addToDebug("Loading default texts from "+appDefaultPath);
+				$http({url:appDefaultPath, cache:true}).then(function(response){
+					var texts = response.data;
+					addToDebug("loaded. firstLine "+texts[0]);
+					deferred.resolve({data:texts});
+				},function(error){
+					displayFailure("failed to load degailt texts "+JSON.stringify(error)+". giving up");
+				});
+			}
             var appDefaultPath = "../portal/texts/texts." + lang + ".properties", textsVersion = SettingsService.getAll().cacheVersions.TEXTS, deferred = $q.defer();
             return BidspiritLoader.readFile(getLocalTextFileName(lang, textsVersion), function(loadedTexts) {
                 null != loadedTexts ? (addToDebug("loaded local texts for " + textsVersion + " in lang " + lang + ". data length:" + loadedTexts.length), 
@@ -23346,12 +23345,17 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function init() {
             PathsService.validateHttps() && (defineStates(), loadInitialState(), saveAcquisitionInfo());
         }
-        function loadInitialState() {
-            var initailState = $urlService.match({
-                path: PathsService.getCurrentUiHref()
-            });
-            initailState ? $state.go(initailState.rule.state, initailState.match) : $state.go("app.home");
-        }
+function loadInitialState(){
+			var initailState  = $urlService.match({ path: PathsService.getCurrentUiHref()});
+			alert(PathsService.getCurrentUiHref() +"->"+initailState);
+
+			if (initailState ){
+				$state.go(initailState.rule.state, initailState.match);
+			} else {
+				$state.go("app.home");
+			}
+							
+		}
         function saveAcquisitionInfo() {
             var initialReferer = LocalStorageService.load("initialReferer");
             if (!initialReferer) {
@@ -34821,6 +34825,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
             var base = document.createElement("base");
             base.href = GlobalConfig.devEnv ? "/portal/ui/" : "/ui/", document.head.prepend(base), 
             $locationProvider.html5Mode(!0);
+	    alert("html5");
         }
         initAnalytics(AnalyticsProvider);
     }).run(function($templateCache) {
