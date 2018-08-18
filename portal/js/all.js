@@ -22004,6 +22004,9 @@ define("common/js/modules/catalogUtils/catalogUtilsModule", [ "angular" ], funct
 }), define("common/js/modules/catalogUtils/index", [ "./catalogUtilsModule", "./bidRulesService", "./catalogUtilsService" ], function() {}), 
 define("commonModules", [ "angular", "ngdir/angular-ui-router", "ngdir/angular-ng-cookies", "common/js/modules/strings/index", "common/js/modules/utils/index", "common/js/modules/domUtils/index", "common/js/modules/api/index", "common/js/modules/system/index", "common/js/modules/paths/index", "common/js/modules/i18n/index", "common/js/modules/dialogs/index", "common/js/modules/asyncButton/index", "common/js/modules/bsForm/index", "common/js/modules/validate/index", "common/js/modules/animations/index", "common/js/modules/cloudinary/index", "common/js/modules/socialPlugins/index", "common/js/modules/log/index", "common/js/modules/mobileApp/index", "common/js/modules/catalogUtils/index" ], function(ng) {
     return ng.module("commonModules", [ "ui.router", "ngCookies", "commonModules.strings", "commonModules.utils", "commonModules.api", "commonModules.system", "commonModules.paths", "commonModules.cloudinary", "commonModules.socialPlugins", "commonModules.dialogs", "commonModules.asyncButton", "commonModules.bsForm", "commonModules.i18n", "commonModules.validate", "commonModules.log", "commonModules.animations", "commonModules.domUtils", "commonModules.mobileApp", "commonModules.catalogUtils" ]).config(function($stateProvider, $sceDelegateProvider, $httpProvider, $sceProvider) {
+if (GlobalConfig.isMobileApp){
+			 GlobalConfig.serverFilesBase = "../";
+		 }
         angular.module("commonModules").$stateProvider = $stateProvider, angular.module("ui.bootstrap.tooltip").value("$tooltipSuppressWarning", !0), 
         $sceDelegateProvider.resourceUrlWhitelist([ "self", GlobalConfig.serverFilesBase + "**", GlobalConfig.jsFilesBase + "**" ]), 
         $httpProvider.interceptors.push("ApiInterceptor"), $sceProvider.enabled(!1);
@@ -22014,9 +22017,6 @@ define("commonModules", [ "angular", "ngdir/angular-ui-router", "ngdir/angular-n
 $rootScope.$state = $state;
 		 $rootScope.$stateParams = $stateParams;
 		 
-		 if (GlobalConfig.isMobileApp){
-			 GlobalConfig.serverFilesBase = "../";
-		 }
 		 
 		 $rootScope.serverFilesBase = GlobalConfig.serverFilesBase;
     });
@@ -34845,7 +34845,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     }
     return angular.module("app", [ "ngAnimate", "lr.upload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap", "textAngular" ]).config(function($locationProvider, $urlMatcherFactoryProvider, AnalyticsProvider) {
         var base = document.createElement("base");
-        base.href = GlobalConfig.devEnv ? "/portal/ui/" : "./ui/", document.head.prepend(base), 
+        base.href = GlobalConfig.devEnv ? "/portal/ui/" : "/ui/", document.head.prepend(base), 
         $urlMatcherFactoryProvider.strictMode(!1), $urlMatcherFactoryProvider.type("raw", {
             raw: !0
         }), $locationProvider.html5Mode(!0), initAnalytics(AnalyticsProvider);
