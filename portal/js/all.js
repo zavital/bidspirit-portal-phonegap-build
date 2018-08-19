@@ -34367,9 +34367,22 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             $rootScope.firstTimeVisit && shouldChoosePortal() && ($rootScope.initialStateOverridden = !0, 
             $state.go("app.choosePortal"));
         }
-        function shouldChoosePortal() {
-            return "true" == LocalStorageService.load("portalChoiceNeeded") ? !0 : "false" == LocalStorageService.load("portalChoiceNeeded") ? !1 : "CARS" == $rootScope.contentType ? !1 : "IL" != $rootScope.currentRegion ? !1 : $rootScope.firstTimeVisit && GlobalConfig.isMobileApp ? !0 : !1;
-        }
+
+function shouldChoosePortal(){
+alert("alert: "+LocalStorageService.load("portalChoiceNeeded"));
+			if (LocalStorageService.load("portalChoiceNeeded")=="true"){
+				return true;
+			}
+			if (LocalStorageService.load("portalChoiceNeeded")=="false"){
+				return false;
+			}
+			if ($rootScope.currentRegion!="IL") return false;
+			if ($rootScope.firstTimeVisit && GlobalConfig.isMobileApp){
+				return true;
+			}
+			
+			return false;
+		}
         function openWindow(url, options) {
             GlobalConfig.isMobileApp ? (0 == !url.indexOf("http") && (url = "https:" + url), 
             window.open(url, "_system")) : OsInfoService.isMobile() ? window.location = url : window.open(url, "_blank", options);
@@ -34475,10 +34488,22 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             var scenes = getAllPortalScenes();
             return ArraysService.remove(scenes, $rootScope.contentType), scenes;
         }
-        function gotoPortalScene(contentType) {
-            LocalStorageService.store("catalogContentType", contentType), LocalStorageService.store("portalChoiceNeeded", !1), 
-            GlobalConfig.isMobileApp ? ($state.go("app.home"), $rootScope.contentType != contentType && window.location.reload()) : window.location.href = PathsService.getPortalUrl(contentType, $rootScope.currentRegion);
-        }
+
+function  gotoPortalScene(contentType){
+			LocalStorageService.store("catalogContentType", contentType);
+			LocalStorageService.store("portalChoiceNeeded", false);
+alert("Stored "+LocalStorageService.load("portalChoiceNeeded"));
+			if (GlobalConfig.isMobileApp){
+				$state.go("app.home");
+				if ($rootScope.contentType!=contentType){
+						window.location.reload();
+				}
+			} else {
+	   			window.location.href = PathsService.getPortalUrl(contentType, $rootScope.currentRegion);
+			}
+   			
+		}
+
         function gotoRegion(region) {
             GlobalConfig.isMobileApp || -1 == window.location.href.indexOf("bidspirit") ? (LocalStorageService.store("region", region), 
             window.location.reload()) : window.location.href = PathsService.getPortalUrl($rootScope.contentType, region);
