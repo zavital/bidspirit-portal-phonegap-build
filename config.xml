@@ -84,6 +84,8 @@
       
 	
 	
+
+  <preference name="android-manifest/application/@android:allowBackup" value="false" />
 	
 	
 	
