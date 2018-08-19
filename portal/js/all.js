@@ -34501,7 +34501,7 @@ alert("Stored "+LocalStorageService.load("portalChoiceNeeded"));
 			if (GlobalConfig.isMobileApp){
 				$state.go("app.home");
 				if ($rootScope.contentType!=contentType){
-						window.location.reload();
+						setTimeot(function(){window.location.reload();},500);
 				}
 			} else {
 	   			window.location.href = PathsService.getPortalUrl(contentType, $rootScope.currentRegion);
