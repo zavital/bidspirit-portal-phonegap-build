@@ -22838,21 +22838,36 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function clearCachedPortalInfo() {
             LocalStorageService.clearByPrefix("portalInfo_");
         }
-        function loadLastStoredPortalInfo(region) {
-            var lastStoredInfo = LocalStorageService.load("portalInfo_" + $rootScope.contentType + "_" + (region || "ALL"));
-            if (!lastStoredInfo) return $rootScope.firstTimeVisit = !0, null;
-            $rootScope.firstTimeVisit = !1;
-            try {
-                var portalInfo = JSON.parse(lastStoredInfo), settings = portalInfo.sessionInfo.settings;
-                if (settings.appVersion != GlobalConfig.appVersion) return clearCachedPortalInfo(), 
-                null;
-                if (portalInfo.sessionInfo.sessionId == SessionInfo.sessionId) return settings.serverTime = null, 
-                mLoadedRegion = region, handleLoadedPortalInfo(portalInfo, !1), SessionsService.setSessionInfo(mInfo.sessionInfo), 
-                CachedApiService.cachedPromiseWrap(mInfo);
-            } catch (e) {
-                LogService.logError("Failed to load cached portal info", e);
-            }
-        }
+
+
+function loadLastStoredPortalInfo(region){
+			var lastStoredInfo = LocalStorageService.load("portalInfo_"+$rootScope.contentType+"_"+(region || "ALL"));
+			if (lastStoredInfo){
+				$rootScope.firstTimeVisit = false;
+alert("not");
+				try {
+					var portalInfo  = JSON.parse(lastStoredInfo);
+					var settings = portalInfo.sessionInfo.settings;
+					if (settings.appVersion != GlobalConfig.appVersion){
+						clearCachedPortalInfo();
+						return null;
+					} else if (portalInfo.sessionInfo.sessionId==SessionInfo.sessionId){
+						settings.serverTime = null;//server time is no longer relevant when loaded from cache...
+						mLoadedRegion = region;
+						handleLoadedPortalInfo(portalInfo, false);
+						SessionsService.setSessionInfo(mInfo.sessionInfo);
+						return CachedApiService.cachedPromiseWrap(mInfo);
+					}
+				} catch (e){
+					LogService.logError("Failed to load cached portal info", e);
+				}	
+			} else {
+				$rootScope.firstTimeVisit = true;
+alert("forst");
+				return null;
+			}				
+		}
+
         function init(region) {
             if (-1 == [ "IL", "RU", "RO", "SA", "ALL" ].indexOf(region) && (region = null), 
             SessionsService.loadPreviousSessionId(), mInfo = {}, $rootScope.searchAgentRequest) return loadForRegion(region, !0).success(function(portalInfo) {
