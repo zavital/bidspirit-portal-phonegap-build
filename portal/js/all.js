@@ -34499,9 +34499,11 @@ function  gotoPortalScene(contentType){
 			LocalStorageService.store("portalChoiceNeeded", false);
 alert("Stored "+LocalStorageService.load("portalChoiceNeeded"));
 			if (GlobalConfig.isMobileApp){
-				$state.go("app.home");
 				if ($rootScope.contentType!=contentType){
-						setTimeot(function(){window.location.reload();},500);
+		alert("reloading");				setTimeot(function(){
+window.location.reload();
+},500);
+$state.go("app.home");
 				}
 			} else {
 	   			window.location.href = PathsService.getPortalUrl(contentType, $rootScope.currentRegion);
