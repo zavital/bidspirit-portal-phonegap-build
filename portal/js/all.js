@@ -34363,17 +34363,22 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
                 $location.search(params);
             }
         }
-        function checkIfShouldChoosePortal() {
-            $rootScope.firstTimeVisit && shouldChoosePortal() && ($rootScope.initialStateOverridden = !0, 
-            $state.go("app.choosePortal"));
-        }
 
+		function checkIfShouldChoosePortal(){
+    		if ($rootScope.firstTimeVisit ){
+    			if (shouldChoosePortal()){
+alert("yes");
+    				$rootScope.initialStateOverridden = true;
+    				$state.go("app.choosePortal");
+    			}
+    		}
+    	}
 function shouldChoosePortal(){
-alert("alert: "+LocalStorageService.load("portalChoiceNeeded"));
-			if (LocalStorageService.load("portalChoiceNeeded")=="true"){
+alert("alert: equals:"+(LocalStorageService.load("portalChoiceNeeded")=="false"));
+			if (LocalStorageService.load("portalChoiceNeeded")+""=="true"){
 				return true;
 			}
-			if (LocalStorageService.load("portalChoiceNeeded")=="false"){
+			if (LocalStorageService.load("portalChoiceNeeded")+""=="false"){
 				return false;
 			}
 			if ($rootScope.currentRegion!="IL") return false;
@@ -34825,7 +34830,9 @@ alert("Stored "+LocalStorageService.load("portalChoiceNeeded"));
     } ]);
 }), define("portal/js/modules/navigation/choosePortalController", [ "./navigationModule" ], function(module) {
     module.controller("ChoosePortalController", [ "$scope", "$rootScope", "$state", "PortalNavigationService", "PathsService", "LocalStorageService", function($scope, $rootScope, $state, PortalNavigationService, PathsService, LocalStorageService) {
-        LocalStorageService.store("portalChoiceNeeded", !0), $scope.gotoPortalScene = function(contentType) {
+        LocalStorageService.store("portalChoiceNeeded", !0);
+
+ $scope.gotoPortalScene = function(contentType) {
             PortalNavigationService.gotoPortalScene(contentType);
         };
     } ]);
