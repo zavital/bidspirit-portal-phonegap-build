@@ -34367,9 +34367,25 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             $rootScope.firstTimeVisit && shouldChoosePortal() && ($rootScope.initialStateOverridden = !0, 
             $state.go("app.choosePortal"));
         }
-        function shouldChoosePortal() {
-            return "true" == LocalStorageService.load("portalChoiceNeeded") ? !0 : "false" == LocalStorageService.load("portalChoiceNeeded") ? !1 : "CARS" == $rootScope.contentType ? !1 : -1 == PathsService.getCurrentUiHref().indexOf("/ui/home/") ? !1 : "IL" != $rootScope.currentRegion ? !1 : $rootScope.firstTimeVisit && GlobalConfig.isMobileApp ? !0 : !1;
-        }
+
+	function shouldChoosePortal(){
+alert(LocalStorageService.load("portalChoiceNeeded")+", "+$rootScope.contentType+", "+PathsService.getCurrentUiHref()+", "+$rootScope.currentRegion+", "+$rootScope.firstTimeVisit);
+			if (LocalStorageService.load("portalChoiceNeeded")=="true"){
+				return true;
+			}
+			
+			if (LocalStorageService.load("portalChoiceNeeded")=="false"){
+				return false;
+			}
+			if ($rootScope.contentType=="CARS" ) return false;
+			if (PathsService.getCurrentUiHref().indexOf("home")==-1) return false;
+			if ($rootScope.currentRegion!="IL") return false;
+			if ($rootScope.firstTimeVisit && GlobalConfig.isMobileApp){
+				return true;
+			}
+			
+			return false;
+		}
         function openWindow(url, options) {
             GlobalConfig.isMobileApp ? (0 == !url.indexOf("http") && (url = "https:" + url), 
             window.open(url, "_system")) : OsInfoService.isMobile() ? window.location = url : window.open(url, "_blank", options);
