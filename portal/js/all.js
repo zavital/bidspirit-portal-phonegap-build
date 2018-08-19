@@ -34484,7 +34484,7 @@ function  gotoPortalScene(contentType){
 			if (GlobalConfig.isMobileApp){
 alert("going...");
 				$state.go("app.home");
-				if (!$rootScope.contentType==contentType){
+				if ($rootScope.contentType!=contentType){
 	alert("reloaidng");
 						window.location.reload();
 				}
