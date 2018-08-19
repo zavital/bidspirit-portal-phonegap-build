@@ -34364,10 +34364,12 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             }
         }
         function checkIfShouldChoosePortal() {
+	alert("fir:"+$rootScope.firstTimeVisit);
             $rootScope.firstTimeVisit && shouldChoosePortal() && ($rootScope.initialStateOverridden = !0, 
             $state.go("app.choosePortal"));
         }
         function shouldChoosePortal() {
+	     alert(LocalStorageService.load("portalChoiceNeeded"));
             return "true" == LocalStorageService.load("portalChoiceNeeded") ? !0 : "false" == LocalStorageService.load("portalChoiceNeeded") ? !1 : "IL" != $rootScope.currentRegion ? !1 : $rootScope.firstTimeVisit && GlobalConfig.isMobileApp ? !0 : !1;
         }
         function openWindow(url, options) {
