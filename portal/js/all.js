@@ -34500,7 +34500,8 @@ function  gotoPortalScene(contentType){
 alert("Stored "+LocalStorageService.load("portalChoiceNeeded"));
 			if (GlobalConfig.isMobileApp){
 				if ($rootScope.contentType!=contentType){
-		alert("reloading");				setTimeot(function(){
+						setTimeout(function(){
+alert("reload");
 window.location.reload();
 },500);
 $state.go("app.home");
