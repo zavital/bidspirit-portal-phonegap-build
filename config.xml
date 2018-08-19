@@ -75,7 +75,7 @@
 	<icon src="icons/ios/ios_120x120.png" gap:platform="ios" width="120" height="120" />
 	<icon src="icons/ios/ios_152x152.png" gap:platform="ios" width="152" height="152" />
         
-  <preference name='phonegap-version' value='cli-7.1.0' />
+  <preference name='phonegap-version' value='cli-8.0.0' />
   <preference name="EnableViewportScale" value="true" />
   <preference name="StatusBarBackgroundColor" value="#000000" />
   
