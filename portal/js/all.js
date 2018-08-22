@@ -27,6 +27,21 @@
          * @returns Returns `true` if `ref` matches the current `State` instance.
          */
 
+/*
+@license textAngular
+Author : Austin Anderson
+License : 2013 MIT
+Version 1.5.16
+
+See README.md or https://github.com/fraywing/textAngular/wiki for requirements and use.
+*/
+
+/**
+ * @license AngularJS v1.3.10
+ * (c) 2010-2014 Google, Inc. http://angularjs.org
+ * License: MIT
+ */
+
 /**
  * @license AngularJS v1.4.7
  * (c) 2010-2015 Google, Inc. http://angularjs.org
@@ -62,6 +77,31 @@
 	 */
 
 /**
+ * Rangy, a cross-browser JavaScript range and selection library
+ * https://github.com/timdown/rangy
+ *
+ * Copyright 2015, Tim Down
+ * Licensed under the MIT license.
+ * Version: 1.3.1-dev
+ * Build date: 20 May 2015
+ */
+
+/**
+ * Selection save and restore module for Rangy.
+ * Saves and restores user selections using marker invisible elements in the DOM.
+ *
+ * Part of Rangy, a cross-browser JavaScript range and selection library
+ * https://github.com/timdown/rangy
+ *
+ * Depends on Rangy core.
+ *
+ * Copyright 2015, Tim Down
+ * Licensed under the MIT license.
+ * Version: 1.3.1-dev
+ * Build date: 20 May 2015
+ */
+
+/**
  * @license RequireJS domReady 2.0.1 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/requirejs/domReady for details
@@ -74,6 +114,32 @@
      * @copyright The Financial Times Limited [All Rights Reserved]
      * @license MIT License (see LICENSE.txt)
      */
+
+function stripHtmlToText(html) {
+    var tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    var res = tmp.textContent || tmp.innerText || "";
+    return res.replace("​", ""), res = res.trim();
+}
+
+function getDomFromHtml(html) {
+    var tmp = document.createElement("DIV");
+    return tmp.innerHTML = html, tmp;
+}
+
+function validElementString(string) {
+    try {
+        return 0 !== angular.element(string).length;
+    } catch (any) {
+        return !1;
+    }
+}
+
+function registerTextAngularTool(name, toolDefinition) {
+    if (!name || "" === name || taTools.hasOwnProperty(name)) throw "textAngular Error: A unique name is required for a Tool Definition";
+    if (toolDefinition.display && ("" === toolDefinition.display || !validElementString(toolDefinition.display)) || !toolDefinition.display && !toolDefinition.buttontext && !toolDefinition.iconclass) throw 'textAngular Error: Tool Definition for "' + name + '" does not have a valid display/iconclass/buttontext value';
+    taTools[name] = toolDefinition;
+}
 
 function getServiceForDebug(serviceName) {
     return eval(serviceName + "= angular.element(document.body).injector().get(serviceName)");
@@ -17409,7 +17475,2331 @@ angular.module("lr.upload.directives", []), angular.module("lr.upload.directives
             }
         };
     } ];
-}), define("ngdir/angular-google-analytics", [ "angular" ], function() {}), function(window, angular, undefined) {
+}), define("ngdir/angular-google-analytics", [ "angular" ], function() {});
+
+var textAngularVersion = "v1.5.16", _browserDetect = {
+    ie: function() {
+        for (var undef, v = 3, div = document.createElement("div"), all = div.getElementsByTagName("i"); div.innerHTML = "<!--[if gt IE " + ++v + "]><i></i><![endif]-->", 
+        all[0]; ) ;
+        return v > 4 ? v : undef;
+    }(),
+    webkit: /AppleWebKit\/([\d.]+)/i.test(navigator.userAgent),
+    isFirefox: navigator.userAgent.toLowerCase().indexOf("firefox") > -1
+}, performance = performance || {};
+
+performance.now = function() {
+    return performance.now || performance.mozNow || performance.msNow || performance.oNow || performance.webkitNow || function() {
+        return new Date().getTime();
+    };
+}();
+
+var BLOCKELEMENTS = /^(address|article|aside|audio|blockquote|canvas|center|dd|div|dl|fieldset|figcaption|figure|footer|form|h1|h2|h3|h4|h5|h6|header|hgroup|hr|noscript|ol|output|p|pre|section|table|tfoot|ul|video)$/i, LISTELEMENTS = /^(ul|li|ol)$/i, VALIDELEMENTS = /^(#text|span|address|article|aside|audio|blockquote|canvas|center|dd|div|dl|fieldset|figcaption|figure|footer|form|h1|h2|h3|h4|h5|h6|header|hgroup|hr|noscript|ol|output|p|pre|section|table|tfoot|ul|video|li)$/i;
+
+String.prototype.trim || (String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, "");
+});
+
+var sheet, addCSSRule, removeCSSRule, _addCSSRule, _removeCSSRule, _getRuleIndex;
+
+if (_browserDetect.ie > 8 || void 0 === _browserDetect.ie) {
+    for (var _sheets = document.styleSheets, i = 0; i < _sheets.length; i++) if ((0 === _sheets[i].media.length || _sheets[i].media.mediaText.match(/(all|screen)/gi)) && _sheets[i].href && _sheets[i].href.match(/textangular\.(min\.|)css/gi)) {
+        sheet = _sheets[i];
+        break;
+    }
+    sheet || (sheet = function() {
+        var style = document.createElement("style");
+        return _browserDetect.webkit && style.appendChild(document.createTextNode("")), 
+        document.getElementsByTagName("head")[0].appendChild(style), style.sheet;
+    }()), addCSSRule = function(selector, rules) {
+        return _addCSSRule(sheet, selector, rules);
+    }, _addCSSRule = function(_sheet, selector, rules) {
+        var insertIndex, insertedRule;
+        return _sheet.cssRules ? insertIndex = Math.max(_sheet.cssRules.length - 1, 0) : _sheet.rules && (insertIndex = Math.max(_sheet.rules.length - 1, 0)), 
+        _sheet.insertRule ? _sheet.insertRule(selector + "{" + rules + "}", insertIndex) : _sheet.addRule(selector, rules, insertIndex), 
+        sheet.rules ? insertedRule = sheet.rules[insertIndex] : sheet.cssRules && (insertedRule = sheet.cssRules[insertIndex]), 
+        insertedRule;
+    }, _getRuleIndex = function(rule, rules) {
+        var i, ruleIndex;
+        for (i = 0; i < rules.length; i++) if (rules[i].cssText === rule.cssText) {
+            ruleIndex = i;
+            break;
+        }
+        return ruleIndex;
+    }, removeCSSRule = function(rule) {
+        _removeCSSRule(sheet, rule);
+    }, _removeCSSRule = function(sheet, rule) {
+        var rules = sheet.cssRules || sheet.rules;
+        if (rules && 0 !== rules.length) {
+            var ruleIndex = _getRuleIndex(rule, rules);
+            sheet.removeRule ? sheet.removeRule(ruleIndex) : sheet.deleteRule(ruleIndex);
+        }
+    };
+}
+
+angular.module("textAngular.factories", []).factory("taBrowserTag", [ function() {
+    return function(tag) {
+        return tag ? "" === tag ? void 0 === _browserDetect.ie ? "div" : _browserDetect.ie <= 8 ? "P" : "p" : _browserDetect.ie <= 8 ? tag.toUpperCase() : tag : _browserDetect.ie <= 8 ? "P" : "p";
+    };
+} ]).factory("taApplyCustomRenderers", [ "taCustomRenderers", "taDOM", function(taCustomRenderers, taDOM) {
+    return function(val) {
+        var element = angular.element("<div></div>");
+        return element[0].innerHTML = val, angular.forEach(taCustomRenderers, function(renderer) {
+            var elements = [];
+            renderer.selector && "" !== renderer.selector ? elements = element.find(renderer.selector) : renderer.customAttribute && "" !== renderer.customAttribute && (elements = taDOM.getByAttribute(element, renderer.customAttribute)), 
+            angular.forEach(elements, function(_element) {
+                _element = angular.element(_element), renderer.selector && "" !== renderer.selector && renderer.customAttribute && "" !== renderer.customAttribute ? void 0 !== _element.attr(renderer.customAttribute) && renderer.renderLogic(_element) : renderer.renderLogic(_element);
+            });
+        }), element[0].innerHTML;
+    };
+} ]).factory("taFixChrome", function() {
+    var taFixChrome = function(html, keepStyles) {
+        if (!html || !angular.isString(html) || html.length <= 0) return html;
+        for (var match, styleVal, appleSpaceVal, betterSpanMatch = /style\s?=\s?(["'])(?:(?=(\\?))\2.)*?\1/gi, appleConvertedSpaceMatch = /<span class="Apple-converted-space">([^<]+)<\/span>/gi, finalHtml = "", lastIndex = 0; match = appleConvertedSpaceMatch.exec(html); ) appleSpaceVal = match[1], 
+        appleSpaceVal = appleSpaceVal.replace(/&nbsp;/gi, " "), finalHtml += html.substring(lastIndex, match.index) + appleSpaceVal, 
+        lastIndex = match.index + match[0].length;
+        if (lastIndex && (finalHtml += html.substring(lastIndex), html = finalHtml, finalHtml = "", 
+        lastIndex = 0), !keepStyles) {
+            for (;match = betterSpanMatch.exec(html); ) finalHtml += html.substring(lastIndex, match.index - 1), 
+            styleVal = match[0], match = /font-family: inherit;|line-height: 1.[0-9]{3,12};|color: inherit; line-height: 1.1;|color: rgb\(\d{1,3}, \d{1,3}, \d{1,3}\);|background-color: rgb\(\d{1,3}, \d{1,3}, \d{1,3}\);/gi.exec(styleVal), 
+            match ? (styleVal = styleVal.replace(/( |)font-family: inherit;|( |)line-height: 1.[0-9]{3,12};|( |)color: inherit;|( |)color: rgb\(\d{1,3}, \d{1,3}, \d{1,3}\);|( |)background-color: rgb\(\d{1,3}, \d{1,3}, \d{1,3}\);/gi, ""), 
+            styleVal.length > 8 && (finalHtml += " " + styleVal)) : finalHtml += " " + styleVal, 
+            lastIndex = betterSpanMatch.lastIndex;
+            finalHtml += html.substring(lastIndex);
+        }
+        if (lastIndex > 0) {
+            var fe = finalHtml.replace(/<span\s?>(.*?)<\/span>(<br(\/|)>|)/gi, "$1");
+            return fe;
+        }
+        return html;
+    };
+    return taFixChrome;
+}).factory("taSanitize", [ "$sanitize", function($sanitize) {
+    function wrapNested(html, wrapTag) {
+        for (var match, depth = 0, lastIndex = 0, tagRegex = /<[^>]*>/gi; match = tagRegex.exec(html); ) if (lastIndex = match.index, 
+        "/" === match[0].substr(1, 1)) {
+            if (0 === depth) break;
+            depth--;
+        } else depth++;
+        return wrapTag + html.substring(0, lastIndex) + angular.element(wrapTag)[0].outerHTML.substring(wrapTag.length) + html.substring(lastIndex);
+    }
+    function transformLegacyStyles(html) {
+        if (!html || !angular.isString(html) || html.length <= 0) return html;
+        for (var i, match, subMatch, styleVal, newTag, newHtml, styleElementMatch = /<([^>\/]+?)style=("([^"]+)"|'([^']+)')([^>]*)>/gi, lastNewTag = "", finalHtml = "", lastIndex = 0; match = styleElementMatch.exec(html); ) {
+            styleVal = match[3] || match[4];
+            var styleRegex = new RegExp(styleRegexString, "i");
+            if (angular.isString(styleVal) && styleRegex.test(styleVal)) {
+                newTag = "";
+                for (var styleRegexExec = new RegExp(styleRegexString, "ig"); subMatch = styleRegexExec.exec(styleVal); ) for (i = 0; i < convert_infos.length; i++) subMatch[2 * i + 2] && (newTag += "<" + convert_infos[i].tag + ">");
+                newHtml = transformLegacyStyles(html.substring(lastIndex, match.index)), finalHtml += lastNewTag.length > 0 ? wrapNested(newHtml, lastNewTag) : newHtml, 
+                styleVal = styleVal.replace(new RegExp(styleRegexString, "ig"), ""), finalHtml += "<" + match[1].trim(), 
+                styleVal.length > 0 && (finalHtml += ' style="' + styleVal + '"'), finalHtml += match[5] + ">", 
+                lastIndex = match.index + match[0].length, lastNewTag = newTag;
+            }
+        }
+        return finalHtml += lastNewTag.length > 0 ? wrapNested(html.substring(lastIndex), lastNewTag) : html.substring(lastIndex);
+    }
+    function transformLegacyAttributes(html) {
+        if (!html || !angular.isString(html) || html.length <= 0) return html;
+        for (var match, attrElementMatch = /<([^>\/]+?)align=("([^"]+)"|'([^']+)')([^>]*)>/gi, finalHtml = "", lastIndex = 0; match = attrElementMatch.exec(html); ) {
+            finalHtml += html.substring(lastIndex, match.index), lastIndex = match.index + match[0].length;
+            var newTag = "<" + match[1] + match[5];
+            /style=("([^"]+)"|'([^']+)')/gi.test(newTag) ? newTag = newTag.replace(/style=("([^"]+)"|'([^']+)')/i, 'style="$2$3 text-align:' + (match[3] || match[4]) + ';"') : newTag += ' style="text-align:' + (match[3] || match[4]) + ';"', 
+            newTag += ">", finalHtml += newTag;
+        }
+        return finalHtml + html.substring(lastIndex);
+    }
+    for (var convert_infos = [ {
+        property: "font-weight",
+        values: [ "bold" ],
+        tag: "b"
+    }, {
+        property: "font-style",
+        values: [ "italic" ],
+        tag: "i"
+    } ], styleMatch = [], i = 0; i < convert_infos.length; i++) {
+        for (var _partialStyle = "(" + convert_infos[i].property + ":\\s*(", j = 0; j < convert_infos[i].values.length; j++) j > 0 && (_partialStyle += "|"), 
+        _partialStyle += convert_infos[i].values[j];
+        _partialStyle += ");)", styleMatch.push(_partialStyle);
+    }
+    var styleRegexString = "(" + styleMatch.join("|") + ")", rsb1 = new RegExp(/<span id="selectionBoundary_\d+_\d+" class="rangySelectionBoundary">[^<>]+?<\/span>/gi), rsb2 = new RegExp(/<span class="rangySelectionBoundary" id="selectionBoundary_\d+_\d+">[^<>]+?<\/span>/gi), rsb3 = new RegExp(/<span id="selectionBoundary_\d+_\d+" class="rangySelectionBoundary">[^<>]+?<\/span>/gi);
+    return function(unsafe, oldsafe, ignore) {
+        if (!ignore) try {
+            unsafe = transformLegacyStyles(unsafe);
+        } catch (e) {}
+        if (unsafe = transformLegacyAttributes(unsafe)) try {
+            unsafe = unsafe.replace(rsb1, ""), unsafe = unsafe.replace(rsb2, ""), unsafe = unsafe.replace(rsb1, ""), 
+            unsafe = unsafe.replace(rsb3, "");
+        } catch (e) {}
+        var safe;
+        try {
+            safe = $sanitize(unsafe), ignore && (safe = unsafe);
+        } catch (e) {
+            safe = oldsafe || "";
+        }
+        var origTag, _preTags = safe.match(/(<pre[^>]*>.*?<\/pre[^>]*>)/gi), processedSafe = safe.replace(/(&#(9|10);)*/gi, ""), re = /<pre[^>]*>.*?<\/pre[^>]*>/gi, index = 0, lastIndex = 0;
+        for (safe = ""; null !== (origTag = re.exec(processedSafe)) && index < _preTags.length; ) safe += processedSafe.substring(lastIndex, origTag.index) + _preTags[index], 
+        lastIndex = origTag.index + origTag[0].length, index++;
+        return safe + processedSafe.substring(lastIndex);
+    };
+} ]).factory("taToolExecuteAction", [ "$q", "$log", function($q, $log) {
+    return function(editor) {
+        void 0 !== editor && (this.$editor = function() {
+            return editor;
+        });
+        var result, deferred = $q.defer(), promise = deferred.promise, _editor = this.$editor();
+        try {
+            result = this.action(deferred, _editor.startAction()), promise["finally"](function() {
+                _editor.endAction.call(_editor);
+            });
+        } catch (exc) {
+            $log.error(exc);
+        }
+        (result || void 0 === result) && deferred.resolve();
+    };
+} ]), angular.module("textAngular.DOM", [ "textAngular.factories" ]).factory("taExecCommand", [ "taSelection", "taBrowserTag", "$document", function(taSelection, taBrowserTag, $document) {
+    var listToDefault = function(listElement, defaultWrap) {
+        var $target, i, children = listElement.find("li");
+        for (i = children.length - 1; i >= 0; i--) $target = angular.element("<" + defaultWrap + ">" + children[i].innerHTML + "</" + defaultWrap + ">"), 
+        listElement.after($target);
+        listElement.remove(), taSelection.setSelectionToElementEnd($target[0]);
+    }, listElementToSelfTag = function(list, listElement, selfTag, bDefault, defaultWrap) {
+        var $target, i, priorElement, nextElement, foundIndex, children = list.find("li");
+        for (i = 0; i < children.length; i++) if (children[i].outerHTML === listElement[0].outerHTML) {
+            foundIndex = i, i > 0 && (priorElement = children[i - 1]), i + 1 < children.length && (nextElement = children[i + 1]);
+            break;
+        }
+        var html = "";
+        if (bDefault ? html += "<" + defaultWrap + ">" + listElement[0].innerHTML + "</" + defaultWrap + ">" : (html += "<" + taBrowserTag(selfTag) + ">", 
+        html += "<li>" + listElement[0].innerHTML + "</li>", html += "</" + taBrowserTag(selfTag) + ">"), 
+        $target = angular.element(html), !priorElement) return listElement.remove(), list.after(angular.element(list[0].outerHTML)), 
+        list.after($target), list.remove(), void taSelection.setSelectionToElementEnd($target[0]);
+        if (nextElement) {
+            var html1 = (list.parent(), ""), listTag = list[0].nodeName.toLowerCase();
+            for (html1 += "<" + listTag + ">", i = 0; foundIndex > i; i++) html1 += "<li>" + children[i].innerHTML + "</li>";
+            html1 += "</" + listTag + ">";
+            var html2 = "";
+            for (html2 += "<" + listTag + ">", i = foundIndex + 1; i < children.length; i++) html2 += "<li>" + children[i].innerHTML + "</li>";
+            html2 += "</" + listTag + ">", list.after(angular.element(html2)), list.after($target), 
+            list.after(angular.element(html1)), list.remove(), taSelection.setSelectionToElementEnd($target[0]);
+        } else listElement.remove(), list.after($target), taSelection.setSelectionToElementEnd($target[0]);
+    }, listElementsToSelfTag = function(list, listElements, selfTag, bDefault, defaultWrap) {
+        var $target, i, j, priorElement, afterElement, children = list.find("li"), foundIndexes = [];
+        for (i = 0; i < children.length; i++) for (j = 0; j < listElements.length; j++) children[i].isEqualNode(listElements[j]) && (foundIndexes[j] = i);
+        foundIndexes[0] > 0 && (priorElement = children[foundIndexes[0] - 1]), foundIndexes[listElements.length - 1] + 1 < children.length && (afterElement = children[foundIndexes[listElements.length - 1] + 1]);
+        var html = "";
+        if (bDefault) for (j = 0; j < listElements.length; j++) html += "<" + defaultWrap + ">" + listElements[j].innerHTML + "</" + defaultWrap + ">", 
+        listElements[j].remove(); else {
+            for (html += "<" + taBrowserTag(selfTag) + ">", j = 0; j < listElements.length; j++) html += listElements[j].outerHTML, 
+            listElements[j].remove();
+            html += "</" + taBrowserTag(selfTag) + ">";
+        }
+        if ($target = angular.element(html), !priorElement) return list.after(angular.element(list[0].outerHTML)), 
+        list.after($target), list.remove(), void taSelection.setSelectionToElementEnd($target[0]);
+        if (!afterElement) return list.after($target), void taSelection.setSelectionToElementEnd($target[0]);
+        var html1 = "", listTag = list[0].nodeName.toLowerCase();
+        for (html1 += "<" + listTag + ">", i = 0; i < foundIndexes[0]; i++) html1 += "<li>" + children[i].innerHTML + "</li>";
+        html1 += "</" + listTag + ">";
+        var html2 = "";
+        for (html2 += "<" + listTag + ">", i = foundIndexes[listElements.length - 1] + 1; i < children.length; i++) html2 += "<li>" + children[i].innerHTML + "</li>";
+        html2 += "</" + listTag + ">", list.after(angular.element(html2)), list.after($target), 
+        list.after(angular.element(html1)), list.remove(), taSelection.setSelectionToElementEnd($target[0]);
+    }, selectLi = function(liElement) {
+        /(<br(|\/)>)$/i.test(liElement.innerHTML.trim()) ? taSelection.setSelectionBeforeElement(angular.element(liElement).find("br")[0]) : taSelection.setSelectionToElementEnd(liElement);
+    }, listToList = function(listElement, newListTag) {
+        var $target = angular.element("<" + newListTag + ">" + listElement[0].innerHTML + "</" + newListTag + ">");
+        listElement.after($target), listElement.remove(), selectLi($target.find("li")[0]);
+    }, childElementsToList = function(elements, listElement, newListTag) {
+        for (var html = "", i = 0; i < elements.length; i++) html += "<" + taBrowserTag("li") + ">" + elements[i].innerHTML + "</" + taBrowserTag("li") + ">";
+        var $target = angular.element("<" + newListTag + ">" + html + "</" + newListTag + ">");
+        listElement.after($target), listElement.remove(), selectLi($target.find("li")[0]);
+    }, turnBlockIntoBlocks = function(element, options) {
+        for (var i = 0; i < element.childNodes.length; i++) {
+            var _n = element.childNodes[i];
+            _n.tagName && _n.tagName.match(BLOCKELEMENTS) && turnBlockIntoBlocks(_n, options);
+        }
+        if (null === element.parentNode) return element;
+        if ("<br>" === options) return element;
+        var $target = angular.element(options);
+        return $target[0].innerHTML = element.innerHTML, element.parentNode.insertBefore($target[0], element), 
+        element.parentNode.removeChild(element), $target;
+    };
+    return function(taDefaultWrap, topNode) {
+        return taDefaultWrap = taBrowserTag(taDefaultWrap), function(command, showUI, options, defaultTagAttributes) {
+            var i, $target, html, _nodes, next, optionsTagName, selectedElement, ourSelection, defaultWrapper = angular.element("<" + taDefaultWrap + ">");
+            try {
+                taSelection.getSelection && (ourSelection = taSelection.getSelection()), selectedElement = taSelection.getSelectionElement();
+                var __h, _innerNode;
+                void 0 !== selectedElement.tagName && ("div" === selectedElement.tagName.toLowerCase() && /taTextElement.+/.test(selectedElement.id) && ourSelection && ourSelection.start && 1 === ourSelection.start.offset && 1 === ourSelection.end.offset ? (__h = selectedElement.innerHTML, 
+                /<br>/i.test(__h) && (__h = __h.replace(/<br>/i, "&#8203;")), /<br\/>/i.test(__h) && (__h = __h.replace(/<br\/>/i, "&#8203;")), 
+                /<span>(<span>)+/i.test(__h) && (__h = __.replace(/<span>(<span>)+/i, "<span>")), 
+                /<\/span>(<\/span>)+/i.test(__h) && (__h = __.replace(/<\/span>(<\/span>)+/i, "</span>")), 
+                /<span><\/span>/i.test(__h) && (__h = __h.replace(/<span><\/span>/i, "")), _innerNode = "<div>" + __h + "</div>", 
+                selectedElement.innerHTML = _innerNode, taSelection.setSelectionToElementEnd(selectedElement.childNodes[0]), 
+                selectedElement = taSelection.getSelectionElement()) : "span" === selectedElement.tagName.toLowerCase() && ourSelection && ourSelection.start && 1 === ourSelection.start.offset && 1 === ourSelection.end.offset ? (__h = selectedElement.innerHTML, 
+                /<br>/i.test(__h) && (__h = __h.replace(/<br>/i, "&#8203;")), /<br\/>/i.test(__h) && (__h = __h.replace(/<br\/>/i, "&#8203;")), 
+                /<span>(<span>)+/i.test(__h) && (__h = __.replace(/<span>(<span>)+/i, "<span>")), 
+                /<\/span>(<\/span>)+/i.test(__h) && (__h = __.replace(/<\/span>(<\/span>)+/i, "</span>")), 
+                /<span><\/span>/i.test(__h) && (__h = __h.replace(/<span><\/span>/i, "")), _innerNode = "<div>" + __h + "</div>", 
+                selectedElement.innerHTML = _innerNode, taSelection.setSelectionToElementEnd(selectedElement.childNodes[0]), 
+                selectedElement = taSelection.getSelectionElement()) : "p" === selectedElement.tagName.toLowerCase() && ourSelection && ourSelection.start && 1 === ourSelection.start.offset && 1 === ourSelection.end.offset ? (__h = selectedElement.innerHTML, 
+                /<br>/i.test(__h) && (__h = __h.replace(/<br>/i, "&#8203;"), selectedElement.innerHTML = __h)) : "li" === selectedElement.tagName.toLowerCase() && ourSelection && ourSelection.start && ourSelection.start.offset === ourSelection.end.offset && (__h = selectedElement.innerHTML, 
+                /<br>/i.test(__h) && (__h = __h.replace(/<br>/i, ""), selectedElement.innerHTML = __h)));
+            } catch (e) {}
+            if (selectedElement) {
+                var $selected = angular.element(selectedElement), tagName = selectedElement && selectedElement.tagName && selectedElement.tagName.toLowerCase() || "";
+                if ("insertorderedlist" === command.toLowerCase() || "insertunorderedlist" === command.toLowerCase()) {
+                    var selfTag = taBrowserTag("insertorderedlist" === command.toLowerCase() ? "ol" : "ul"), selectedElements = taSelection.getOnlySelectedElements();
+                    if (selectedElements.length > 1 && ("ol" === tagName || "ul" === tagName)) return listElementsToSelfTag($selected, selectedElements, selfTag, selfTag === tagName, taDefaultWrap);
+                    if (tagName === selfTag) return $selected[0].childNodes.length !== selectedElements.length && 1 === selectedElements.length ? ($selected = angular.element(selectedElements[0]), 
+                    listElementToSelfTag($selected.parent(), $selected, selfTag, !0, taDefaultWrap)) : listToDefault($selected, taDefaultWrap);
+                    if ("li" === tagName && $selected.parent()[0].tagName.toLowerCase() === selfTag && 1 === $selected.parent().children().length) return listToDefault($selected.parent(), taDefaultWrap);
+                    if ("li" === tagName && $selected.parent()[0].tagName.toLowerCase() !== selfTag && 1 === $selected.parent().children().length) return listToList($selected.parent(), selfTag);
+                    if (tagName.match(BLOCKELEMENTS) && !$selected.hasClass("ta-bind")) {
+                        if (selectedElements.length && $selected[0].childNodes.length !== selectedElements.length && 1 === selectedElements.length) return $selected = angular.element(selectedElements[0]), 
+                        listElementToSelfTag($selected.parent(), $selected, selfTag, selfTag === tagName, taDefaultWrap);
+                        if ("ol" === tagName || "ul" === tagName) return listToList($selected, selfTag);
+                        var childBlockElements = !1;
+                        return angular.forEach($selected.children(), function(elem) {
+                            elem.tagName.match(BLOCKELEMENTS) && (childBlockElements = !0);
+                        }), childBlockElements ? childElementsToList($selected.children(), $selected, selfTag) : childElementsToList([ angular.element("<div>" + selectedElement.innerHTML + "</div>")[0] ], $selected, selfTag);
+                    }
+                    if (tagName.match(BLOCKELEMENTS)) {
+                        if (_nodes = taSelection.getOnlySelectedElements(), 0 === _nodes.length) $target = angular.element("<" + selfTag + "><li>" + selectedElement.innerHTML + "</li></" + selfTag + ">"), 
+                        $selected.html(""), $selected.append($target); else {
+                            if (1 === _nodes.length && ("ol" === _nodes[0].tagName.toLowerCase() || "ul" === _nodes[0].tagName.toLowerCase())) return _nodes[0].tagName.toLowerCase() === selfTag ? listToDefault(angular.element(_nodes[0]), taDefaultWrap) : listToList(angular.element(_nodes[0]), selfTag);
+                            html = "";
+                            var $nodes = [];
+                            for (i = 0; i < _nodes.length; i++) if (3 !== _nodes[i].nodeType) {
+                                var $n = angular.element(_nodes[i]);
+                                if ("li" === _nodes[i].tagName.toLowerCase()) continue;
+                                html += "ol" === _nodes[i].tagName.toLowerCase() || "ul" === _nodes[i].tagName.toLowerCase() ? $n[0].innerHTML : "span" !== _nodes[i].tagName.toLowerCase() || "ol" !== _nodes[i].childNodes[0].tagName.toLowerCase() && "ul" !== _nodes[i].childNodes[0].tagName.toLowerCase() ? "<" + taBrowserTag("li") + ">" + $n[0].innerHTML + "</" + taBrowserTag("li") + ">" : $n[0].childNodes[0].innerHTML, 
+                                $nodes.unshift($n);
+                            }
+                            $target = angular.element("<" + selfTag + ">" + html + "</" + selfTag + ">"), $nodes.pop().replaceWith($target), 
+                            angular.forEach($nodes, function($node) {
+                                $node.remove();
+                            });
+                        }
+                        return void taSelection.setSelectionToElementEnd($target[0]);
+                    }
+                } else {
+                    if ("formatblock" === command.toLowerCase()) {
+                        for (optionsTagName = options.toLowerCase().replace(/[<>]/gi, ""), "default" === optionsTagName.trim() && (optionsTagName = taDefaultWrap, 
+                        options = "<" + taDefaultWrap + ">"), $target = "li" === tagName ? $selected.parent() : $selected; !$target[0].tagName || !$target[0].tagName.match(BLOCKELEMENTS) && !$target.parent().attr("contenteditable"); ) $target = $target.parent(), 
+                        tagName = ($target[0].tagName || "").toLowerCase();
+                        if (tagName === optionsTagName) {
+                            _nodes = $target.children();
+                            var hasBlock = !1;
+                            for (i = 0; i < _nodes.length; i++) hasBlock = hasBlock || _nodes[i].tagName.match(BLOCKELEMENTS);
+                            hasBlock ? ($target.after(_nodes), next = $target.next(), $target.remove(), $target = next) : (defaultWrapper.append($target[0].childNodes), 
+                            $target.after(defaultWrapper), $target.remove(), $target = defaultWrapper);
+                        } else if ($target.parent()[0].tagName.toLowerCase() !== optionsTagName || $target.parent().hasClass("ta-bind")) if (tagName.match(LISTELEMENTS)) $target.wrap(options); else {
+                            for (_nodes = taSelection.getOnlySelectedElements(), 0 === _nodes.length && (_nodes = [ $target[0] ]), 
+                            i = 0; i < _nodes.length; i++) if (3 === _nodes[i].nodeType || !_nodes[i].tagName.match(BLOCKELEMENTS)) for (;3 === _nodes[i].nodeType || !_nodes[i].tagName || !_nodes[i].tagName.match(BLOCKELEMENTS); ) _nodes[i] = _nodes[i].parentNode;
+                            if (_nodes = _nodes.filter(function(value, index, self) {
+                                return self.indexOf(value) === index;
+                            }), _nodes.length > 1 && (_nodes = _nodes.filter(function(value) {
+                                return !("div" === value.nodeName.toLowerCase() && /^taTextElement/.test(value.id));
+                            })), angular.element(_nodes[0]).hasClass("ta-bind")) $target = angular.element(options), 
+                            $target[0].innerHTML = _nodes[0].innerHTML, _nodes[0].innerHTML = $target[0].outerHTML; else if ("blockquote" === optionsTagName) {
+                                for (html = "", i = 0; i < _nodes.length; i++) html += _nodes[i].outerHTML;
+                                for ($target = angular.element(options), $target[0].innerHTML = html, _nodes[0].parentNode.insertBefore($target[0], _nodes[0]), 
+                                i = _nodes.length - 1; i >= 0; i--) _nodes[i].parentNode && _nodes[i].parentNode.removeChild(_nodes[i]);
+                            } else if ("pre" === optionsTagName && taSelection.getStateShiftKey()) {
+                                for (html = "", i = 0; i < _nodes.length; i++) html += _nodes[i].outerHTML;
+                                for ($target = angular.element(options), $target[0].innerHTML = html, _nodes[0].parentNode.insertBefore($target[0], _nodes[0]), 
+                                i = _nodes.length - 1; i >= 0; i--) _nodes[i].parentNode && _nodes[i].parentNode.removeChild(_nodes[i]);
+                            } else for (i = 0; i < _nodes.length; i++) {
+                                var newBlock = turnBlockIntoBlocks(_nodes[i], options);
+                                _nodes[i] === $target[0] && ($target = angular.element(newBlock));
+                            }
+                        } else {
+                            var blockElement = $target.parent(), contents = blockElement.contents();
+                            for (i = 0; i < contents.length; i++) blockElement.parent().hasClass("ta-bind") && 3 === contents[i].nodeType && (defaultWrapper = angular.element("<" + taDefaultWrap + ">"), 
+                            defaultWrapper[0].innerHTML = contents[i].outerHTML, contents[i] = defaultWrapper[0]), 
+                            blockElement.parent()[0].insertBefore(contents[i], blockElement[0]);
+                            blockElement.remove();
+                        }
+                        return taSelection.setSelectionToElementEnd($target[0]), void $target[0].focus();
+                    }
+                    if ("createlink" === command.toLowerCase()) {
+                        if ("a" === tagName) return void (taSelection.getSelectionElement().href = options);
+                        var tagBegin = '<a href="' + options + '" target="' + (defaultTagAttributes.a.target ? defaultTagAttributes.a.target : "") + '">', tagEnd = "</a>", _selection = taSelection.getSelection();
+                        if (_selection.collapsed) taSelection.insertHtml(tagBegin + options + tagEnd, topNode); else if (rangy.getSelection().getRangeAt(0).canSurroundContents()) {
+                            var node = angular.element(tagBegin + tagEnd)[0];
+                            rangy.getSelection().getRangeAt(0).surroundContents(node);
+                        }
+                        return;
+                    }
+                    if ("inserthtml" === command.toLowerCase()) return void taSelection.insertHtml(options, topNode);
+                }
+                try {
+                    $document[0].execCommand(command, showUI, options);
+                } catch (e) {}
+            }
+        };
+    };
+} ]).service("taSelection", [ "$document", "taDOM", "$log", function($document, taDOM) {
+    var bShiftState, _document = $document[0], brException = function(element, offset) {
+        return element.tagName && element.tagName.match(/^br$/i) && 0 === offset && !element.previousSibling ? {
+            element: element.parentNode,
+            offset: 0
+        } : {
+            element: element,
+            offset: offset
+        };
+    }, api = {
+        getSelection: function() {
+            var range;
+            try {
+                range = rangy.getSelection().getRangeAt(0);
+            } catch (e) {
+                return void 0;
+            }
+            var container = range.commonAncestorContainer, selection = {
+                start: brException(range.startContainer, range.startOffset),
+                end: brException(range.endContainer, range.endOffset),
+                collapsed: range.collapsed
+            };
+            return 3 === container.nodeType && ("div" === container.parentNode.nodeName.toLowerCase() && /^taTextElement/.test(container.parentNode.id) || (container = container.parentNode)), 
+            "div" === container.nodeName.toLowerCase() && /^taTextElement/.test(container.id) ? (selection.start.element = container.childNodes[selection.start.offset], 
+            selection.end.element = container.childNodes[selection.end.offset], selection.container = container) : selection.container = container.parentNode === selection.start.element || container.parentNode === selection.end.element ? container.parentNode : container, 
+            selection;
+        },
+        updateLeftArrowKey: function() {
+            var range = rangy.getSelection().getRangeAt(0);
+            if (range && range.collapsed) {
+                var _nodes = api.getFlattenedDom(range);
+                if (!_nodes.findIndex) return;
+                var m, nextNodeToRight, _node = range.startContainer, indexStartContainer = _nodes.findIndex(function(element) {
+                    if (element.node === _node) return !0;
+                    var _indexp = element.parents.indexOf(_node);
+                    return -1 !== _indexp;
+                });
+                if (_nodes.forEach(function(n) {
+                    n.parents.forEach(function() {});
+                }), indexStartContainer + 1 < _nodes.length && (nextNodeToRight = _nodes[indexStartContainer + 1].node), 
+                nextNodeToRight && nextNodeToRight.textContent && (m = /^\ufeff([^\ufeff]*)$/.exec(nextNodeToRight.textContent))) return;
+                var nextNodeToLeft;
+                if (indexStartContainer > 0 && (nextNodeToLeft = _nodes[indexStartContainer - 1].node), 
+                0 === range.startOffset && nextNodeToLeft && (m = /^\ufeff([^\ufeff]*)$/.exec(nextNodeToLeft.textContent))) return void api.setSelectionToElementEnd(nextNodeToLeft);
+            }
+        },
+        updateRightArrowKey: function() {
+        },
+        getFlattenedDom: function(range) {
+            function addNodes(_set) {
+                if (_set.node.childNodes.length) {
+                    var childNodes = Array.prototype.slice.call(_set.node.childNodes);
+                    childNodes.forEach(function(n) {
+                        var _t = _set.parents.slice();
+                        _t.slice(-1)[0] !== _set.node && _t.push(_set.node), addNodes({
+                            parents: _t,
+                            node: n
+                        });
+                    });
+                } else nodes.push({
+                    parents: _set.parents,
+                    node: _set.node
+                });
+            }
+            var parent = range.commonAncestorContainer.parentNode;
+            if (!parent) return range.commonAncestorContainer.childNodes;
+            var nodes = Array.prototype.slice.call(parent.childNodes), indexStartContainer = nodes.indexOf(range.startContainer);
+            return indexStartContainer + 1 < nodes.length && indexStartContainer > 0 || parent.parentNode && (parent = parent.parentNode), 
+            nodes = [], addNodes({
+                parents: [ parent ],
+                node: parent
+            }), nodes;
+        },
+        getOnlySelectedElements: function() {
+            var range = rangy.getSelection().getRangeAt(0), container = range.commonAncestorContainer;
+            return container = 3 === container.nodeType ? container.parentNode : container, 
+            range.getNodes([ 1 ], function(node) {
+                return node.parentNode === container;
+            });
+        },
+        getAllSelectedElements: function() {
+            var range = rangy.getSelection().getRangeAt(0), container = range.commonAncestorContainer;
+            container = 3 === container.nodeType ? container.parentNode : container;
+            var selectedNodes = range.getNodes([ 1 ], function(node) {
+                return node.parentNode === container;
+            }), innerHtml = container.innerHTML;
+            if (innerHtml = innerHtml.replace(/<span id=.selectionBoundary[^>]+>\ufeff?<\/span>/gi, ""), 
+            innerHtml === range.toHtml() && ("div" !== container.nodeName.toLowerCase() || !/^taTextElement/.test(container.id))) {
+                for (var arr = [], i = selectedNodes.length; i--; arr.unshift(selectedNodes[i])) ;
+                selectedNodes = arr, selectedNodes.push(container);
+            }
+            return selectedNodes;
+        },
+        getSelectionElement: function() {
+            var s = api.getSelection();
+            return s ? api.getSelection().container : void 0;
+        },
+        setSelection: function(elStart, elEnd, start, end) {
+            var range = rangy.createRange();
+            range.setStart(elStart, start), range.setEnd(elEnd, end), rangy.getSelection().setSingleRange(range);
+        },
+        setSelectionBeforeElement: function(el) {
+            var range = rangy.createRange();
+            range.selectNode(el), range.collapse(!0), rangy.getSelection().setSingleRange(range);
+        },
+        setSelectionAfterElement: function(el) {
+            var range = rangy.createRange();
+            range.selectNode(el), range.collapse(!1), rangy.getSelection().setSingleRange(range);
+        },
+        setSelectionToElementStart: function(el) {
+            var range = rangy.createRange();
+            range.selectNodeContents(el), range.collapse(!0), rangy.getSelection().setSingleRange(range);
+        },
+        setSelectionToElementEnd: function(el) {
+            var range = rangy.createRange();
+            range.selectNodeContents(el), range.collapse(!1), el.childNodes && el.childNodes[el.childNodes.length - 1] && "br" === el.childNodes[el.childNodes.length - 1].nodeName && (range.startOffset = range.endOffset = range.startOffset - 1), 
+            rangy.getSelection().setSingleRange(range);
+        },
+        setStateShiftKey: function(bS) {
+            bShiftState = bS;
+        },
+        getStateShiftKey: function() {
+            return bShiftState;
+        },
+        insertHtml: function(html, topNode) {
+            var parent, secondParent, _childI, nodes, i, lastNode, _tempFrag, element = angular.element("<div>" + html + "</div>"), range = rangy.getSelection().getRangeAt(0), frag = _document.createDocumentFragment(), children = element[0].childNodes, isInline = !0;
+            if (children.length > 0) {
+                for (nodes = [], _childI = 0; _childI < children.length; _childI++) {
+                    var _cnode = children[_childI];
+                    ("p" !== _cnode.nodeName.toLowerCase() || "" !== _cnode.innerHTML.trim()) && (isInline = isInline && !BLOCKELEMENTS.test(_cnode.nodeName), 
+                    nodes.push(_cnode));
+                }
+                for (var _n = 0; _n < nodes.length; _n++) lastNode = frag.appendChild(nodes[_n]);
+                !isInline && range.collapsed && /^(|<br(|\/)>)$/i.test(range.startContainer.innerHTML) && range.selectNode(range.startContainer);
+            } else isInline = !0, lastNode = frag = _document.createTextNode(html);
+            if (isInline) range.deleteContents(); else if (range.collapsed && range.startContainer !== topNode) if (range.startContainer.innerHTML && range.startContainer.innerHTML.match(/^<[^>]*>$/i)) parent = range.startContainer, 
+            1 === range.startOffset ? (range.setStartAfter(parent), range.setEndAfter(parent)) : (range.setStartBefore(parent), 
+            range.setEndBefore(parent)); else {
+                if (3 === range.startContainer.nodeType && range.startContainer.parentNode !== topNode) for (parent = range.startContainer.parentNode, 
+                secondParent = parent.cloneNode(), taDOM.splitNodes(parent.childNodes, parent, secondParent, range.startContainer, range.startOffset); !VALIDELEMENTS.test(parent.nodeName); ) {
+                    angular.element(parent).after(secondParent), parent = parent.parentNode;
+                    var _lastSecondParent = secondParent;
+                    secondParent = parent.cloneNode(), taDOM.splitNodes(parent.childNodes, parent, secondParent, _lastSecondParent);
+                } else parent = range.startContainer, secondParent = parent.cloneNode(), taDOM.splitNodes(parent.childNodes, parent, secondParent, void 0, void 0, range.startOffset);
+                if (angular.element(parent).after(secondParent), range.setStartAfter(parent), range.setEndAfter(parent), 
+                /^(|<br(|\/)>)$/i.test(parent.innerHTML.trim()) && (range.setStartBefore(parent), 
+                range.setEndBefore(parent), angular.element(parent).remove()), /^(|<br(|\/)>)$/i.test(secondParent.innerHTML.trim()) && angular.element(secondParent).remove(), 
+                "li" === parent.nodeName.toLowerCase()) {
+                    for (_tempFrag = _document.createDocumentFragment(), i = 0; i < frag.childNodes.length; i++) element = angular.element("<li>"), 
+                    taDOM.transferChildNodes(frag.childNodes[i], element[0]), taDOM.transferNodeAttributes(frag.childNodes[i], element[0]), 
+                    _tempFrag.appendChild(element[0]);
+                    frag = _tempFrag, lastNode && (lastNode = frag.childNodes[frag.childNodes.length - 1], 
+                    lastNode = lastNode.childNodes[lastNode.childNodes.length - 1]);
+                }
+            } else range.deleteContents();
+            range.insertNode(frag), lastNode && api.setSelectionToElementEnd(lastNode);
+        }
+    };
+    return api;
+} ]).service("taDOM", function() {
+    var taDOM = {
+        getByAttribute: function(element, attribute) {
+            var resultingElements = [], childNodes = element.children();
+            return childNodes.length && angular.forEach(childNodes, function(child) {
+                resultingElements = resultingElements.concat(taDOM.getByAttribute(angular.element(child), attribute));
+            }), void 0 !== element.attr(attribute) && resultingElements.push(element), resultingElements;
+        },
+        transferChildNodes: function(source, target) {
+            for (target.innerHTML = ""; source.childNodes.length > 0; ) target.appendChild(source.childNodes[0]);
+            return target;
+        },
+        splitNodes: function(nodes, target1, target2, splitNode, subSplitIndex, splitIndex) {
+            if (!splitNode && isNaN(splitIndex)) throw new Error("taDOM.splitNodes requires a splitNode or splitIndex");
+            for (var startNodes = document.createDocumentFragment(), endNodes = document.createDocumentFragment(), index = 0; nodes.length > 0 && (isNaN(splitIndex) || splitIndex !== index) && nodes[0] !== splitNode; ) startNodes.appendChild(nodes[0]), 
+            index++;
+            for (!isNaN(subSplitIndex) && subSplitIndex >= 0 && nodes[0] && (startNodes.appendChild(document.createTextNode(nodes[0].nodeValue.substring(0, subSplitIndex))), 
+            nodes[0].nodeValue = nodes[0].nodeValue.substring(subSplitIndex)); nodes.length > 0; ) endNodes.appendChild(nodes[0]);
+            taDOM.transferChildNodes(startNodes, target1), taDOM.transferChildNodes(endNodes, target2);
+        },
+        transferNodeAttributes: function(source, target) {
+            for (var i = 0; i < source.attributes.length; i++) target.setAttribute(source.attributes[i].name, source.attributes[i].value);
+            return target;
+        }
+    };
+    return taDOM;
+}), angular.module("textAngular.validators", []).directive("taMaxText", function() {
+    return {
+        restrict: "A",
+        require: "ngModel",
+        link: function(scope, elem, attrs, ctrl) {
+            var max = parseInt(scope.$eval(attrs.taMaxText));
+            if (isNaN(max)) throw "Max text must be an integer";
+            attrs.$observe("taMaxText", function(value) {
+                if (max = parseInt(value), isNaN(max)) throw "Max text must be an integer";
+                ctrl.$dirty && ctrl.$validate();
+            }), ctrl.$validators.taMaxText = function(viewValue) {
+                var source = angular.element("<div/>");
+                return source.html(viewValue), source.text().length <= max;
+            };
+        }
+    };
+}).directive("taMinText", function() {
+    return {
+        restrict: "A",
+        require: "ngModel",
+        link: function(scope, elem, attrs, ctrl) {
+            var min = parseInt(scope.$eval(attrs.taMinText));
+            if (isNaN(min)) throw "Min text must be an integer";
+            attrs.$observe("taMinText", function(value) {
+                if (min = parseInt(value), isNaN(min)) throw "Min text must be an integer";
+                ctrl.$dirty && ctrl.$validate();
+            }), ctrl.$validators.taMinText = function(viewValue) {
+                var source = angular.element("<div/>");
+                return source.html(viewValue), !source.text().length || source.text().length >= min;
+            };
+        }
+    };
+}), angular.module("textAngular.taBind", [ "textAngular.factories", "textAngular.DOM" ]).service("_taBlankTest", [ function() {
+    return function(_blankVal) {
+        if (!_blankVal) return !0;
+        var _text_ = stripHtmlToText(_blankVal);
+        return "" === _text_ ? /<img[^>]+>/.test(_blankVal) ? !1 : !0 : !1;
+    };
+} ]).directive("taButton", [ function() {
+    return {
+        link: function(scope, element) {
+            element.attr("unselectable", "on"), element.on("mousedown", function(e, eventData) {
+                return eventData && angular.extend(e, eventData), e.preventDefault(), !1;
+            });
+        }
+    };
+} ]).directive("taBind", [ "taSanitize", "$timeout", "$document", "taFixChrome", "taBrowserTag", "taSelection", "taSelectableElements", "taApplyCustomRenderers", "taOptions", "_taBlankTest", "$parse", "taDOM", "textAngularManager", function(taSanitize, $timeout, $document, taFixChrome, taBrowserTag, taSelection, taSelectableElements, taApplyCustomRenderers, taOptions, _taBlankTest, $parse, taDOM, textAngularManager) {
+    return {
+        priority: 2,
+        require: [ "ngModel", "?ngModelOptions" ],
+        link: function(scope, element, attrs, controller) {
+            function _mapKeys(event) {
+                var specialKey;
+                return _keyMappings.forEach(function(map) {
+                    if (map.keyCode === event.keyCode) {
+                        var netModifiers = (event.metaKey ? _META_KEY : 0) + (event.ctrlKey ? _CTRL_KEY : 0) + (event.shiftKey ? _SHIFT_KEY : 0) + (event.altKey ? _ALT_KEY : 0);
+                        if (map.forbiddenModifiers & netModifiers) return;
+                        map.mustHaveModifiers.every(function(modifier) {
+                            return netModifiers & modifier;
+                        }) && (specialKey = map.specialKey);
+                    }
+                }), specialKey;
+            }
+            var _lastKey, _pasteHandler, _defaultVal, _defaultTest, ngModel = controller[0], ngModelOptions = controller[1] || {}, _isContentEditable = void 0 !== element.attr("contenteditable") && element.attr("contenteditable"), _isInputFriendly = _isContentEditable || "textarea" === element[0].tagName.toLowerCase() || "input" === element[0].tagName.toLowerCase(), _isReadonly = !1, _focussed = !1, _skipRender = !1, _disableSanitizer = attrs.taUnsafeSanitizer || taOptions.disableSanitizer, _keepStyles = attrs.taKeepStyles || taOptions.keepStyles, BLOCKED_KEYS = /^(9|19|20|27|33|34|35|36|37|38|39|40|45|112|113|114|115|116|117|118|119|120|121|122|123|144|145)$/i, UNDO_TRIGGER_KEYS = /^(8|13|32|46|59|61|107|109|173|186|187|188|189|190|191|192|219|220|221|222)$/i, _CTRL_KEY = 1, _META_KEY = 2, _ALT_KEY = 4, _SHIFT_KEY = 8, _ENTER_KEYCODE = 13, _SHIFT_KEYCODE = 16, _TAB_KEYCODE = 9, _LEFT_ARROW_KEYCODE = 37, _RIGHT_ARROW_KEYCODE = 39, _keyMappings = [ {
+                specialKey: "UndoKey",
+                forbiddenModifiers: _ALT_KEY + _SHIFT_KEY,
+                mustHaveModifiers: [ _META_KEY + _CTRL_KEY ],
+                keyCode: 90
+            }, {
+                specialKey: "RedoKey",
+                forbiddenModifiers: _ALT_KEY,
+                mustHaveModifiers: [ _META_KEY + _CTRL_KEY, _SHIFT_KEY ],
+                keyCode: 90
+            }, {
+                specialKey: "RedoKey",
+                forbiddenModifiers: _ALT_KEY + _SHIFT_KEY,
+                mustHaveModifiers: [ _META_KEY + _CTRL_KEY ],
+                keyCode: 89
+            }, {
+                specialKey: "TabKey",
+                forbiddenModifiers: _META_KEY + _SHIFT_KEY + _ALT_KEY + _CTRL_KEY,
+                mustHaveModifiers: [],
+                keyCode: _TAB_KEYCODE
+            }, {
+                specialKey: "ShiftTabKey",
+                forbiddenModifiers: _META_KEY + _ALT_KEY + _CTRL_KEY,
+                mustHaveModifiers: [ _SHIFT_KEY ],
+                keyCode: _TAB_KEYCODE
+            } ];
+            void 0 === attrs.taDefaultWrap && (attrs.taDefaultWrap = "p"), "" === attrs.taDefaultWrap ? (_defaultVal = "", 
+            _defaultTest = void 0 === _browserDetect.ie ? "<div><br></div>" : _browserDetect.ie >= 11 ? "<p><br></p>" : _browserDetect.ie <= 8 ? "<P>&nbsp;</P>" : "<p>&nbsp;</p>") : (_defaultVal = void 0 === _browserDetect.ie || _browserDetect.ie >= 11 ? "br" === attrs.taDefaultWrap.toLowerCase() ? "<BR><BR>" : "<" + attrs.taDefaultWrap + "><br></" + attrs.taDefaultWrap + ">" : _browserDetect.ie <= 8 ? "<" + attrs.taDefaultWrap.toUpperCase() + "></" + attrs.taDefaultWrap.toUpperCase() + ">" : "<" + attrs.taDefaultWrap + "></" + attrs.taDefaultWrap + ">", 
+            _defaultTest = void 0 === _browserDetect.ie || _browserDetect.ie >= 11 ? "br" === attrs.taDefaultWrap.toLowerCase() ? "<br><br>" : "<" + attrs.taDefaultWrap + "><br></" + attrs.taDefaultWrap + ">" : _browserDetect.ie <= 8 ? "<" + attrs.taDefaultWrap.toUpperCase() + ">&nbsp;</" + attrs.taDefaultWrap.toUpperCase() + ">" : "<" + attrs.taDefaultWrap + ">&nbsp;</" + attrs.taDefaultWrap + ">"), 
+            ngModelOptions.$options || (ngModelOptions.$options = {});
+            var _ensureContentWrapped = function(value) {
+                if (_taBlankTest(value)) return value;
+                var domTest = angular.element("<div>" + value + "</div>");
+                if (0 === domTest.children().length) value = "<" + attrs.taDefaultWrap + ">" + value + "</" + attrs.taDefaultWrap + ">"; else {
+                    var i, _children = domTest[0].childNodes, _foundBlockElement = !1;
+                    for (i = 0; i < _children.length && !(_foundBlockElement = _children[i].nodeName.toLowerCase().match(BLOCKELEMENTS)); i++) ;
+                    if (_foundBlockElement) for (value = "", i = 0; i < _children.length; i++) {
+                        var node = _children[i], nodeName = node.nodeName.toLowerCase();
+                        if ("#comment" === nodeName) value += "<!--" + node.nodeValue + "-->"; else if ("#text" === nodeName) {
+                            var text = node.textContent;
+                            value += text.trim() ? "<" + attrs.taDefaultWrap + ">" + text + "</" + attrs.taDefaultWrap + ">" : text;
+                        } else if (nodeName.match(BLOCKELEMENTS)) value += node.outerHTML; else {
+                            var _subVal = node.outerHTML || node.nodeValue;
+                            value += "" !== _subVal.trim() ? "<" + attrs.taDefaultWrap + ">" + _subVal + "</" + attrs.taDefaultWrap + ">" : _subVal;
+                        }
+                    } else value = "<" + attrs.taDefaultWrap + ">" + value + "</" + attrs.taDefaultWrap + ">";
+                }
+                return value;
+            };
+            attrs.taPaste && (_pasteHandler = $parse(attrs.taPaste)), element.addClass("ta-bind");
+            var _undoKeyupTimeout;
+            scope["$undoManager" + (attrs.id || "")] = ngModel.$undoManager = {
+                _stack: [],
+                _index: 0,
+                _max: 1e3,
+                push: function(value) {
+                    return "undefined" == typeof value || null === value || "undefined" != typeof this.current() && null !== this.current() && value === this.current() ? value : (this._index < this._stack.length - 1 && (this._stack = this._stack.slice(0, this._index + 1)), 
+                    this._stack.push(value), _undoKeyupTimeout && $timeout.cancel(_undoKeyupTimeout), 
+                    this._stack.length > this._max && this._stack.shift(), this._index = this._stack.length - 1, 
+                    value);
+                },
+                undo: function() {
+                    return this.setToIndex(this._index - 1);
+                },
+                redo: function() {
+                    return this.setToIndex(this._index + 1);
+                },
+                setToIndex: function(index) {
+                    return 0 > index || index > this._stack.length - 1 ? void 0 : (this._index = index, 
+                    this.current());
+                },
+                current: function() {
+                    return this._stack[this._index];
+                }
+            };
+            var _redoUndoTimeout, _compileHtml = function() {
+                if (_isContentEditable) return element[0].innerHTML;
+                if (_isInputFriendly) return element.val();
+                throw "textAngular Error: attempting to update non-editable taBind";
+            }, selectorClickHandler = function(event) {
+                return scope.$emit("ta-element-select", this), event.preventDefault(), !1;
+            }, _reApplyOnSelectorHandlers = scope["reApplyOnSelectorHandlers" + (attrs.id || "")] = function() {
+                _isReadonly || angular.forEach(taSelectableElements, function(selector) {
+                    element.find(selector).off("click", selectorClickHandler).on("click", selectorClickHandler);
+                });
+            }, _setViewValue = function(_val, triggerUndo, skipRender) {
+                _skipRender = skipRender || !1, ("undefined" == typeof triggerUndo || null === triggerUndo) && (triggerUndo = !0 && _isContentEditable), 
+                ("undefined" == typeof _val || null === _val) && (_val = _compileHtml()), _taBlankTest(_val) ? ("" !== ngModel.$viewValue && ngModel.$setViewValue(""), 
+                triggerUndo && "" !== ngModel.$undoManager.current() && ngModel.$undoManager.push("")) : (_reApplyOnSelectorHandlers(), 
+                ngModel.$viewValue !== _val && (ngModel.$setViewValue(_val), triggerUndo && ngModel.$undoManager.push(_val))), 
+                ngModel.$render();
+            }, _setInnerHTML = function(newval) {
+                element[0].innerHTML = newval;
+            }, _undo = scope["$undoTaBind" + (attrs.id || "")] = function() {
+                if (!_isReadonly && _isContentEditable) {
+                    var content = ngModel.$undoManager.undo();
+                    "undefined" != typeof content && null !== content && (_setInnerHTML(content), _setViewValue(content, !1), 
+                    _redoUndoTimeout && $timeout.cancel(_redoUndoTimeout), _redoUndoTimeout = $timeout(function() {
+                        element[0].focus(), taSelection.setSelectionToElementEnd(element[0]);
+                    }, 1));
+                }
+            }, _redo = scope["$redoTaBind" + (attrs.id || "")] = function() {
+                if (!_isReadonly && _isContentEditable) {
+                    var content = ngModel.$undoManager.redo();
+                    "undefined" != typeof content && null !== content && (_setInnerHTML(content), _setViewValue(content, !1), 
+                    _redoUndoTimeout && $timeout.cancel(_redoUndoTimeout), _redoUndoTimeout = $timeout(function() {
+                        element[0].focus(), taSelection.setSelectionToElementEnd(element[0]);
+                    }, 1));
+                }
+            };
+            scope["updateTaBind" + (attrs.id || "")] = function() {
+                _isReadonly || _setViewValue(void 0, void 0, !0);
+            };
+            var _sanitize = function(unsafe) {
+                return ngModel.$oldViewValue = taSanitize(taFixChrome(unsafe, _keepStyles), ngModel.$oldViewValue, _disableSanitizer);
+            };
+            if (element.attr("required") && (ngModel.$validators.required = function(modelValue, viewValue) {
+                return !_taBlankTest(modelValue || viewValue);
+            }), ngModel.$parsers.push(_sanitize), ngModel.$parsers.unshift(_ensureContentWrapped), 
+            ngModel.$formatters.push(_sanitize), ngModel.$formatters.unshift(_ensureContentWrapped), 
+            ngModel.$formatters.unshift(function(value) {
+                return ngModel.$undoManager.push(value || "");
+            }), _isInputFriendly) if (scope.events = {}, _isContentEditable) {
+                var _processingPaste = !1, processpaste = function(text) {
+                    var _isOneNote = void 0 !== text ? text.match(/content=["']*OneNote.File/i) : !1;
+                    if (text && text.trim().length) {
+                        if (text.match(/class=["']*Mso(Normal|List)/i) || text.match(/content=["']*Word.Document/i) || text.match(/content=["']*OneNote.File/i)) {
+                            var textFragment = text.match(/<!--StartFragment-->([\s\S]*?)<!--EndFragment-->/i);
+                            textFragment = textFragment ? textFragment[1] : text, textFragment = textFragment.replace(/<o:p>[\s\S]*?<\/o:p>/gi, "").replace(/class=(["']|)MsoNormal(["']|)/gi, "");
+                            var dom = angular.element("<div>" + textFragment + "</div>"), targetDom = angular.element("<div></div>"), _list = {
+                                element: null,
+                                lastIndent: [],
+                                lastLi: null,
+                                isUl: !1
+                            };
+                            _list.lastIndent.peek = function() {
+                                var n = this.length;
+                                return n > 0 ? this[n - 1] : void 0;
+                            };
+                            for (var _resetList = function(isUl) {
+                                _list.isUl = isUl, _list.element = angular.element(isUl ? "<ul>" : "<ol>"), _list.lastIndent = [], 
+                                _list.lastIndent.peek = function() {
+                                    var n = this.length;
+                                    return n > 0 ? this[n - 1] : void 0;
+                                }, _list.lastLevelMatch = null;
+                            }, i = 0; i <= dom[0].childNodes.length; i++) if (dom[0].childNodes[i] && "#text" !== dom[0].childNodes[i].nodeName) {
+                                var tagName = dom[0].childNodes[i].tagName.toLowerCase();
+                                if ("p" === tagName || "ul" === tagName || "h1" === tagName || "h2" === tagName || "h3" === tagName || "h4" === tagName || "h5" === tagName || "h6" === tagName || "table" === tagName) {
+                                    var el = angular.element(dom[0].childNodes[i]), _listMatch = (el.attr("class") || "").match(/MsoList(Bullet|Number|Paragraph)(CxSp(First|Middle|Last)|)/i);
+                                    if (_listMatch) {
+                                        if (el[0].childNodes.length < 2 || el[0].childNodes[1].childNodes.length < 1) continue;
+                                        var isUl = "bullet" === _listMatch[1].toLowerCase() || "number" !== _listMatch[1].toLowerCase() && !(/^[^0-9a-z<]*[0-9a-z]+[^0-9a-z<>]</i.test(el[0].childNodes[1].innerHTML) || /^[^0-9a-z<]*[0-9a-z]+[^0-9a-z<>]</i.test(el[0].childNodes[1].childNodes[0].innerHTML)), _indentMatch = (el.attr("style") || "").match(/margin-left:([\-\.0-9]*)/i), indent = parseFloat(_indentMatch ? _indentMatch[1] : 0), _levelMatch = (el.attr("style") || "").match(/mso-list:l([0-9]+) level([0-9]+) lfo[0-9+]($|;)/i);
+                                        if (_levelMatch && _levelMatch[2] && (indent = parseInt(_levelMatch[2])), _levelMatch && (!_list.lastLevelMatch || _levelMatch[1] !== _list.lastLevelMatch[1]) || !_listMatch[3] || "first" === _listMatch[3].toLowerCase() || null === _list.lastIndent.peek() || _list.isUl !== isUl && _list.lastIndent.peek() === indent) _resetList(isUl), 
+                                        targetDom.append(_list.element); else if (null != _list.lastIndent.peek() && _list.lastIndent.peek() < indent) _list.element = angular.element(isUl ? "<ul>" : "<ol>"), 
+                                        _list.lastLi.append(_list.element); else if (null != _list.lastIndent.peek() && _list.lastIndent.peek() > indent) {
+                                            for (;null != _list.lastIndent.peek() && _list.lastIndent.peek() > indent; ) if ("li" !== _list.element.parent()[0].tagName.toLowerCase()) {
+                                                if (!/[uo]l/i.test(_list.element.parent()[0].tagName.toLowerCase())) break;
+                                                _list.element = _list.element.parent(), _list.lastIndent.pop();
+                                            } else _list.element = _list.element.parent();
+                                            _list.isUl = "ul" === _list.element[0].tagName.toLowerCase(), isUl !== _list.isUl && (_resetList(isUl), 
+                                            targetDom.append(_list.element));
+                                        }
+                                        _list.lastLevelMatch = _levelMatch, indent !== _list.lastIndent.peek() && _list.lastIndent.push(indent), 
+                                        _list.lastLi = angular.element("<li>"), _list.element.append(_list.lastLi), _list.lastLi.html(el.html().replace(/<!(--|)\[if !supportLists\](--|)>[\s\S]*?<!(--|)\[endif\](--|)>/gi, "")), 
+                                        el.remove();
+                                    } else _resetList(!1), targetDom.append(el);
+                                }
+                            }
+                            var _unwrapElement = function(node) {
+                                node = angular.element(node);
+                                for (var _n = node[0].childNodes.length - 1; _n >= 0; _n--) node.after(node[0].childNodes[_n]);
+                                node.remove();
+                            };
+                            angular.forEach(targetDom.find("span"), function(node) {
+                                node.removeAttribute("lang"), node.attributes.length <= 0 && _unwrapElement(node);
+                            }), angular.forEach(targetDom.find("font"), _unwrapElement), text = targetDom.html(), 
+                            _isOneNote && (text = targetDom.html() || dom.html()), text = text.replace(/\n/g, " ");
+                        } else {
+                            if (text = text.replace(/<(|\/)meta[^>]*?>/gi, ""), text.match(/<[^>]*?(ta-bind)[^>]*?>/)) {
+                                if (text.match(/<[^>]*?(text-angular)[^>]*?>/)) {
+                                    var _el = angular.element("<div>" + text + "</div>");
+                                    _el.find("textarea").remove();
+                                    for (var _b = 0; _b < binds.length; _b++) {
+                                        for (var _target = binds[_b][0].parentNode.parentNode, _c = 0; _c < binds[_b][0].childNodes.length; _c++) _target.parentNode.insertBefore(binds[_b][0].childNodes[_c], _target);
+                                        _target.parentNode.removeChild(_target);
+                                    }
+                                    text = _el.html().replace('<br class="Apple-interchange-newline">', "");
+                                }
+                            } else text.match(/^<span/) && (text.match(/<span class=(\"Apple-converted-space\"|\'Apple-converted-space\')>.<\/span>/gi) || (text = text.replace(/<(|\/)span[^>]*?>/gi, "")));
+                            text = text.replace(/<br class="Apple-interchange-newline"[^>]*?>/gi, "").replace(/<span class="Apple-converted-space">( |&nbsp;)<\/span>/gi, "&nbsp;");
+                        }
+                        /<li(\s.*)?>/i.test(text) && /(<ul(\s.*)?>|<ol(\s.*)?>).*<li(\s.*)?>/i.test(text) === !1 && (text = text.replace(/<li(\s.*)?>.*<\/li(\s.*)?>/i, "<ul>$&</ul>")), 
+                        text = text.replace(/^[ |\u00A0]+/gm, function(match) {
+                            for (var result = "", i = 0; i < match.length; i++) result += "&nbsp;";
+                            return result;
+                        }).replace(/\n|\r\n|\r/g, "<br />").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;"), 
+                        _pasteHandler && (text = _pasteHandler(scope, {
+                            $html: text
+                        }) || text), text = text.replace(/<span style=("|')([^<]*?)vertical-align\s*:\s*super;?([^>]*?)("|')>([^<]+?)<\/span>/g, "<sup style='$2$3'>$5</sup>"), 
+                        text = taSanitize(text, "", _disableSanitizer), taSelection.insertHtml(text, element[0]), 
+                        $timeout(function() {
+                            ngModel.$setViewValue(_compileHtml()), _processingPaste = !1, element.removeClass("processing-paste");
+                        }, 0);
+                    } else _processingPaste = !1, element.removeClass("processing-paste");
+                };
+                element.on("paste", scope.events.paste = function(e, eventData) {
+                    if (eventData && angular.extend(e, eventData), _isReadonly || _processingPaste) return e.stopPropagation(), 
+                    e.preventDefault(), !1;
+                    _processingPaste = !0, element.addClass("processing-paste");
+                    var pastedContent, clipboardData = (e.originalEvent || e).clipboardData;
+                    if (!clipboardData && window.clipboardData && window.clipboardData.getData) return pastedContent = window.clipboardData.getData("Text"), 
+                    processpaste(pastedContent), e.stopPropagation(), e.preventDefault(), !1;
+                    if (clipboardData && clipboardData.getData && clipboardData.types.length > 0) {
+                        for (var _types = "", _t = 0; _t < clipboardData.types.length; _t++) _types += " " + clipboardData.types[_t];
+                        return /text\/html/i.test(_types) ? pastedContent = clipboardData.getData("text/html") : /text\/plain/i.test(_types) && (pastedContent = clipboardData.getData("text/plain")), 
+                        processpaste(pastedContent), e.stopPropagation(), e.preventDefault(), !1;
+                    }
+                    var _savedSelection = rangy.saveSelection(), _tempDiv = angular.element('<div class="ta-hidden-input" contenteditable="true"></div>');
+                    $document.find("body").append(_tempDiv), _tempDiv[0].focus(), $timeout(function() {
+                        rangy.restoreSelection(_savedSelection), processpaste(_tempDiv[0].innerHTML), element[0].focus(), 
+                        _tempDiv.remove();
+                    }, 0);
+                }), element.on("cut", scope.events.cut = function(e) {
+                    _isReadonly ? e.preventDefault() : $timeout(function() {
+                        ngModel.$setViewValue(_compileHtml());
+                    }, 0);
+                }), element.on("keydown", scope.events.keydown = function(event, eventData) {
+                    eventData && angular.extend(event, eventData), taSelection.setStateShiftKey(event.keyCode === _SHIFT_KEYCODE ? !0 : !1), 
+                    event.specialKey = _mapKeys(event);
+                    var userSpecialKey;
+                    if (taOptions.keyMappings.forEach(function(mapping) {
+                        event.specialKey === mapping.commandKeyCode && (event.specialKey = void 0), mapping.testForKey(event) && (userSpecialKey = mapping.commandKeyCode), 
+                        ("UndoKey" === mapping.commandKeyCode || "RedoKey" === mapping.commandKeyCode) && (mapping.enablePropagation || event.preventDefault());
+                    }), "undefined" != typeof userSpecialKey && (event.specialKey = userSpecialKey), 
+                    "undefined" == typeof event.specialKey || "UndoKey" === event.specialKey && "RedoKey" === event.specialKey || (event.preventDefault(), 
+                    textAngularManager.sendKeyCommand(scope, event)), !(_isReadonly || ("UndoKey" === event.specialKey && (_undo(), 
+                    event.preventDefault()), "RedoKey" === event.specialKey && (_redo(), event.preventDefault()), 
+                    event.keyCode !== _ENTER_KEYCODE || event.shiftKey || event.ctrlKey || event.metaKey || event.altKey))) {
+                        var $selection, contains = function(a, obj) {
+                            for (var i = 0; i < a.length; i++) if (a[i] === obj) return !0;
+                            return !1;
+                        }, selection = taSelection.getSelectionElement();
+                        if (!selection.nodeName.match(VALIDELEMENTS)) return;
+                        var _new = angular.element(_defaultVal), moveOutsideElements = [ "blockquote", "ul", "ol" ];
+                        if (contains(moveOutsideElements, selection.parentNode.tagName.toLowerCase())) {
+                            if (/^<br(|\/)>$/i.test(selection.innerHTML.trim()) && !selection.nextSibling) {
+                                $selection = angular.element(selection);
+                                var _parent = $selection.parent();
+                                _parent.after(_new), $selection.remove(), 0 === _parent.children().length && _parent.remove(), 
+                                taSelection.setSelectionToElementStart(_new[0]), event.preventDefault();
+                            }
+                            /^<[^>]+><br(|\/)><\/[^>]+>$/i.test(selection.innerHTML.trim()) && ($selection = angular.element(selection), 
+                            $selection.after(_new), $selection.remove(), taSelection.setSelectionToElementStart(_new[0]), 
+                            event.preventDefault());
+                        }
+                    }
+                });
+                var _keyupTimeout;
+                element.on("keyup", scope.events.keyup = function(event, eventData) {
+                    if (eventData && angular.extend(event, eventData), taSelection.setStateShiftKey(!1), 
+                    event.keyCode === _TAB_KEYCODE) {
+                        var _selection = taSelection.getSelection();
+                        return void (_selection.start.element === element[0] && element.children().length && taSelection.setSelectionToElementStart(element.children()[0]));
+                    }
+                    if (event.keyCode !== _LEFT_ARROW_KEYCODE || event.shiftKey || taSelection.updateLeftArrowKey(element), 
+                    event.keyCode !== _RIGHT_ARROW_KEYCODE || event.shiftKey || taSelection.updateRightArrowKey(element), 
+                    _undoKeyupTimeout && $timeout.cancel(_undoKeyupTimeout), !_isReadonly && !BLOCKED_KEYS.test(event.keyCode)) if (event.keyCode === _ENTER_KEYCODE && (event.ctrlKey || event.metaKey || event.altKey)) ; else {
+                        if ("" !== _defaultVal && "<BR><BR>" !== _defaultVal && event.keyCode === _ENTER_KEYCODE && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                            for (var selection = taSelection.getSelectionElement(); !selection.nodeName.match(VALIDELEMENTS) && selection !== element[0]; ) selection = selection.parentNode;
+                            if (event.shiftKey) {
+                                var tagName = selection.tagName.toLowerCase();
+                                if ((tagName === attrs.taDefaultWrap || "li" === tagName || "pre" === tagName || "div" === tagName) && !/.+<br><br>/.test(selection.innerHTML.trim())) {
+                                    var ps = selection.previousSibling;
+                                    ps && (ps.innerHTML = ps.innerHTML + "<br><br>", angular.element(selection).remove(), 
+                                    taSelection.setSelectionToElementEnd(ps));
+                                }
+                            } else if (selection.tagName.toLowerCase() !== attrs.taDefaultWrap && "li" !== selection.nodeName.toLowerCase() && ("" === selection.innerHTML.trim() || "<br>" === selection.innerHTML.trim())) {
+                                var _new = angular.element(_defaultVal);
+                                angular.element(selection).replaceWith(_new), taSelection.setSelectionToElementStart(_new[0]);
+                            }
+                        }
+                        var val = _compileHtml();
+                        "" === _defaultVal || "" !== val.trim() && "<br>" !== val.trim() ? "<" !== val.substring(0, 1) && "" !== attrs.taDefaultWrap : (_setInnerHTML(_defaultVal), 
+                        taSelection.setSelectionToElementStart(element.children()[0]));
+                        var triggerUndo = _lastKey !== event.keyCode && UNDO_TRIGGER_KEYS.test(event.keyCode);
+                        _keyupTimeout && $timeout.cancel(_keyupTimeout), _keyupTimeout = $timeout(function() {
+                            _setViewValue(val, triggerUndo, !0);
+                        }, ngModelOptions.$options.debounce || 400), triggerUndo || (_undoKeyupTimeout = $timeout(function() {
+                            ngModel.$undoManager.push(val);
+                        }, 250)), _lastKey = event.keyCode;
+                    }
+                });
+                var _inputTimeout;
+                if (element.on("input", function() {
+                    _compileHtml() !== ngModel.$viewValue && (_inputTimeout && $timeout.cancel(_inputTimeout), 
+                    _inputTimeout = $timeout(function() {
+                        var _savedSelection = rangy.saveSelection(), _val = _compileHtml();
+                        _val !== ngModel.$viewValue && _setViewValue(_val, !0), 0 !== ngModel.$viewValue.length && rangy.restoreSelection(_savedSelection);
+                    }, 1e3));
+                }), element.on("blur", scope.events.blur = function() {
+                    _focussed = !1, _isReadonly ? (_skipRender = !0, ngModel.$render()) : _setViewValue(void 0, void 0, !0);
+                }), attrs.placeholder && (_browserDetect.ie > 8 || void 0 === _browserDetect.ie)) {
+                    var rule;
+                    if (!attrs.id) throw "textAngular Error: An unique ID is required for placeholders to work";
+                    rule = addCSSRule("#" + attrs.id + ".placeholder-text:before", 'content: "' + attrs.placeholder + '"'), 
+                    scope.$on("$destroy", function() {
+                        removeCSSRule(rule);
+                    });
+                }
+                element.on("focus", scope.events.focus = function() {
+                    _focussed = !0, element.removeClass("placeholder-text"), _reApplyOnSelectorHandlers();
+                }), element.on("mouseup", scope.events.mouseup = function() {
+                    var _selection = taSelection.getSelection();
+                    _selection && _selection.start.element === element[0] && element.children().length && taSelection.setSelectionToElementStart(element.children()[0]);
+                }), element.on("mousedown", scope.events.mousedown = function(event, eventData) {
+                    eventData && angular.extend(event, eventData), event.stopPropagation();
+                });
+            } else {
+                element.on("change blur", scope.events.change = scope.events.blur = function() {
+                    _isReadonly || ngModel.$setViewValue(_compileHtml());
+                }), element.on("keydown", scope.events.keydown = function(event, eventData) {
+                    if (eventData && angular.extend(event, eventData), event.keyCode === _TAB_KEYCODE) {
+                        var start = this.selectionStart, end = this.selectionEnd, value = element.val();
+                        if (event.shiftKey) {
+                            var _linebreak = value.lastIndexOf("\n", start), _tab = value.lastIndexOf("	", start);
+                            -1 !== _tab && _tab >= _linebreak && (element.val(value.substring(0, _tab) + value.substring(_tab + 1)), 
+                            this.selectionStart = this.selectionEnd = start - 1);
+                        } else element.val(value.substring(0, start) + "	" + value.substring(end)), this.selectionStart = this.selectionEnd = start + 1;
+                        event.preventDefault();
+                    }
+                });
+                var _repeat = function(string, n) {
+                    for (var result = "", _n = 0; n > _n; _n++) result += string;
+                    return result;
+                }, forEach = function(array, callback, scope) {
+                    for (var i = 0; i < array.length; i++) callback.call(scope, i, array[i]);
+                }, recursiveListFormat = function(listNode, tablevel) {
+                    var _html = "", _subnodes = listNode.childNodes;
+                    return tablevel++, _html += _repeat("	", tablevel - 1) + listNode.outerHTML.substring(0, 4), 
+                    forEach(_subnodes, function(index, node) {
+                        var nodeName = node.nodeName.toLowerCase();
+                        return "#comment" === nodeName ? void (_html += "<!--" + node.nodeValue + "-->") : "#text" === nodeName ? void (_html += node.textContent) : void (node.outerHTML && (_html += "ul" === nodeName || "ol" === nodeName ? "\n" + recursiveListFormat(node, tablevel) : "\n" + _repeat("	", tablevel) + node.outerHTML));
+                    }), _html += "\n" + _repeat("	", tablevel - 1) + listNode.outerHTML.substring(listNode.outerHTML.lastIndexOf("<"));
+                };
+                ngModel.$formatters.unshift(function(htmlValue) {
+                    var _nodes = angular.element("<div>" + htmlValue + "</div>")[0].childNodes;
+                    return _nodes.length > 0 && (htmlValue = "", forEach(_nodes, function(index, node) {
+                        var nodeName = node.nodeName.toLowerCase();
+                        return "#comment" === nodeName ? void (htmlValue += "<!--" + node.nodeValue + "-->") : "#text" === nodeName ? void (htmlValue += node.textContent) : void (node.outerHTML && (htmlValue.length > 0 && (htmlValue += "\n"), 
+                        htmlValue += "ul" === nodeName || "ol" === nodeName ? "" + recursiveListFormat(node, 0) : "" + node.outerHTML));
+                    })), htmlValue;
+                });
+            }
+            var _renderTimeout, fileDropHandler = function(event, eventData) {
+                if (eventData && angular.extend(event, eventData), !dropFired && !_isReadonly) {
+                    dropFired = !0;
+                    var dataTransfer;
+                    dataTransfer = event.originalEvent ? event.originalEvent.dataTransfer : event.dataTransfer, 
+                    scope.$emit("ta-drop-event", this, event, dataTransfer), $timeout(function() {
+                        dropFired = !1, _setViewValue(void 0, void 0, !0);
+                    }, 100);
+                }
+            }, _renderInProgress = !1;
+            ngModel.$render = function() {
+                if (!_renderInProgress) {
+                    _renderInProgress = !0;
+                    var val = ngModel.$viewValue || "";
+                    _skipRender || (_isContentEditable && _focussed && (element.removeClass("placeholder-text"), 
+                    _renderTimeout && $timeout.cancel(_renderTimeout), _renderTimeout = $timeout(function() {
+                        _focussed || (element[0].focus(), taSelection.setSelectionToElementEnd(element.children()[element.children().length - 1])), 
+                        _renderTimeout = void 0;
+                    }, 1)), _isContentEditable ? (_setInnerHTML(attrs.placeholder ? "" === val ? _defaultVal : val : "" === val ? _defaultVal : val), 
+                    _isReadonly ? element.off("drop", fileDropHandler) : (_reApplyOnSelectorHandlers(), 
+                    element.on("drop", fileDropHandler))) : "textarea" !== element[0].tagName.toLowerCase() && "input" !== element[0].tagName.toLowerCase() ? _setInnerHTML(taApplyCustomRenderers(val)) : element.val(val)), 
+                    _isContentEditable && attrs.placeholder && ("" === val ? _focussed ? element.removeClass("placeholder-text") : element.addClass("placeholder-text") : element.removeClass("placeholder-text")), 
+                    _renderInProgress = _skipRender = !1;
+                }
+            }, attrs.taReadonly && (_isReadonly = scope.$eval(attrs.taReadonly), _isReadonly ? (element.addClass("ta-readonly"), 
+            ("textarea" === element[0].tagName.toLowerCase() || "input" === element[0].tagName.toLowerCase()) && element.attr("disabled", "disabled"), 
+            void 0 !== element.attr("contenteditable") && element.attr("contenteditable") && element.removeAttr("contenteditable")) : (element.removeClass("ta-readonly"), 
+            "textarea" === element[0].tagName.toLowerCase() || "input" === element[0].tagName.toLowerCase() ? element.removeAttr("disabled") : _isContentEditable && element.attr("contenteditable", "true")), 
+            scope.$watch(attrs.taReadonly, function(newVal, oldVal) {
+                oldVal !== newVal && (newVal ? (element.addClass("ta-readonly"), ("textarea" === element[0].tagName.toLowerCase() || "input" === element[0].tagName.toLowerCase()) && element.attr("disabled", "disabled"), 
+                void 0 !== element.attr("contenteditable") && element.attr("contenteditable") && element.removeAttr("contenteditable"), 
+                angular.forEach(taSelectableElements, function(selector) {
+                    element.find(selector).on("click", selectorClickHandler);
+                }), element.off("drop", fileDropHandler)) : (element.removeClass("ta-readonly"), 
+                "textarea" === element[0].tagName.toLowerCase() || "input" === element[0].tagName.toLowerCase() ? element.removeAttr("disabled") : _isContentEditable && element.attr("contenteditable", "true"), 
+                angular.forEach(taSelectableElements, function(selector) {
+                    element.find(selector).off("click", selectorClickHandler);
+                }), element.on("drop", fileDropHandler)), _isReadonly = newVal);
+            })), _isContentEditable && !_isReadonly && (angular.forEach(taSelectableElements, function(selector) {
+                element.find(selector).on("click", selectorClickHandler);
+            }), element.on("drop", fileDropHandler));
+        }
+    };
+} ]);
+
+var dropFired = !1, textAngular = angular.module("textAngular", [ "ngSanitize", "textAngularSetup", "textAngular.factories", "textAngular.DOM", "textAngular.validators", "textAngular.taBind" ]);
+
+textAngular.config([ function() {
+    angular.forEach(taTools, function(value, key) {
+        delete taTools[key];
+    });
+} ]), textAngular.directive("textAngular", [ "$compile", "$timeout", "taOptions", "taSelection", "taExecCommand", "textAngularManager", "$document", "$animate", "$log", "$q", "$parse", function($compile, $timeout, taOptions, taSelection, taExecCommand, textAngularManager, $document, $animate, $log, $q, $parse) {
+    return {
+        require: "?ngModel",
+        scope: {},
+        restrict: "EA",
+        priority: 2,
+        link: function(scope, element, attrs, ngModel) {
+            var _keydown, _keyup, _keypress, _mouseup, _focusin, _focusout, _originalContents, _editorFunctions, _taExecCommand, _resizeMouseDown, _updateSelectedStylesTimeout, _resizeTimeout, _serial = attrs.serial ? attrs.serial : Math.floor(1e16 * Math.random());
+            scope._name = attrs.name ? attrs.name : "textAngularEditor" + _serial;
+            var oneEvent = function(_element, event, action) {
+                $timeout(function() {
+                    _element.one(event, action);
+                }, 100);
+            };
+            if (_taExecCommand = taExecCommand(attrs.taDefaultWrap), angular.extend(scope, angular.copy(taOptions), {
+                wrapSelection: function(command, opt, isSelectableElementTool) {
+                    "undo" === command.toLowerCase() ? scope["$undoTaBindtaTextElement" + _serial]() : "redo" === command.toLowerCase() ? scope["$redoTaBindtaTextElement" + _serial]() : (_taExecCommand(command, !1, opt, scope.defaultTagAttributes), 
+                    isSelectableElementTool && scope["reApplyOnSelectorHandlerstaTextElement" + _serial](), 
+                    scope.displayElements.text[0].focus());
+                },
+                showHtml: scope.$eval(attrs.taShowHtml) || !1
+            }), attrs.taFocussedClass && (scope.classes.focussed = attrs.taFocussedClass), attrs.taTextEditorClass && (scope.classes.textEditor = attrs.taTextEditorClass), 
+            attrs.taHtmlEditorClass && (scope.classes.htmlEditor = attrs.taHtmlEditorClass), 
+            attrs.taDefaultTagAttributes) try {
+                angular.extend(scope.defaultTagAttributes, angular.fromJson(attrs.taDefaultTagAttributes));
+            } catch (error) {
+                $log.error(error);
+            }
+            attrs.taTextEditorSetup && (scope.setup.textEditorSetup = scope.$parent.$eval(attrs.taTextEditorSetup)), 
+            attrs.taHtmlEditorSetup && (scope.setup.htmlEditorSetup = scope.$parent.$eval(attrs.taHtmlEditorSetup)), 
+            scope.fileDropHandler = attrs.taFileDrop ? scope.$parent.$eval(attrs.taFileDrop) : scope.defaultFileDropHandler, 
+            _originalContents = element[0].innerHTML, element[0].innerHTML = "", scope.displayElements = {
+                forminput: angular.element("<input type='hidden' tabindex='-1' style='display: none;'>"),
+                html: angular.element("<textarea></textarea>"),
+                text: angular.element("<div></div>"),
+                scrollWindow: angular.element("<div class='ta-scroll-window'></div>"),
+                popover: angular.element('<div class="popover fade bottom" style="max-width: none; width: 305px;"></div>'),
+                popoverArrow: angular.element('<div class="arrow"></div>'),
+                popoverContainer: angular.element('<div class="popover-content"></div>'),
+                resize: {
+                    overlay: angular.element('<div class="ta-resizer-handle-overlay"></div>'),
+                    background: angular.element('<div class="ta-resizer-handle-background"></div>'),
+                    anchors: [ angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-tl"></div>'), angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-tr"></div>'), angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-bl"></div>'), angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-br"></div>') ],
+                    info: angular.element('<div class="ta-resizer-handle-info"></div>')
+                }
+            }, scope.displayElements.popover.append(scope.displayElements.popoverArrow), scope.displayElements.popover.append(scope.displayElements.popoverContainer), 
+            scope.displayElements.scrollWindow.append(scope.displayElements.popover), scope.displayElements.popover.on("mousedown", function(e, eventData) {
+                return eventData && angular.extend(e, eventData), e.preventDefault(), !1;
+            }), scope.handlePopoverEvents = function() {
+                "block" === scope.displayElements.popover.css("display") && (_resizeTimeout && $timeout.cancel(_resizeTimeout), 
+                _resizeTimeout = $timeout(function() {
+                    scope.reflowPopover(scope.resizeElement), scope.reflowResizeOverlay(scope.resizeElement);
+                }, 100));
+            }, angular.element(window).on("resize", scope.handlePopoverEvents), angular.element(window).on("scroll", scope.handlePopoverEvents);
+            var isScrollable = function(node) {
+                var cs, _notScrollable = {
+                    vertical: !1,
+                    horizontal: !1
+                };
+                try {
+                    if (cs = window.getComputedStyle(node), null === cs) return _notScrollable;
+                } catch (e) {
+                    return _notScrollable;
+                }
+                var overflowY = cs["overflow-y"], overflowX = cs["overflow-x"];
+                return {
+                    vertical: ("scroll" === overflowY || "auto" === overflowY) && node.scrollHeight > node.clientHeight,
+                    horizontal: ("scroll" === overflowX || "auto" === overflowX) && node.scrollWidth > node.clientWidth
+                };
+            };
+            scope.getScrollTop = function(_el, bAddListener) {
+                var scrollTop = _el.scrollTop;
+                return "undefined" == typeof scrollTop && (scrollTop = 0), bAddListener && isScrollable(_el).vertical && (_el.removeEventListener("scroll", scope._scrollListener, !1), 
+                _el.addEventListener("scroll", scope._scrollListener, !1)), 0 !== scrollTop ? {
+                    node: _el.nodeName,
+                    top: scrollTop
+                } : _el.parentNode ? scope.getScrollTop(_el.parentNode, bAddListener) : {
+                    node: "<none>",
+                    top: 0
+                };
+            }, scope.showPopover = function(_el) {
+                scope.getScrollTop(scope.displayElements.scrollWindow[0], !0), scope.displayElements.popover.css("display", "block"), 
+                $timeout(function() {
+                    scope.displayElements.resize.overlay.css("display", "block");
+                }), scope.resizeElement = _el, scope.reflowPopover(_el), $animate.addClass(scope.displayElements.popover, "in"), 
+                oneEvent($document.find("body"), "click keyup", function() {
+                    scope.hidePopover();
+                });
+            }, scope._scrollListener = function() {
+                scope.handlePopoverEvents();
+            }, scope.reflowPopover = function(_el) {
+                var scrollTop = scope.getScrollTop(scope.displayElements.scrollWindow[0], !1), spaceAboveImage = _el[0].offsetTop - scrollTop.top;
+                51 > spaceAboveImage ? (scope.displayElements.popover.css("top", _el[0].offsetTop + _el[0].offsetHeight + scope.displayElements.scrollWindow[0].scrollTop + "px"), 
+                scope.displayElements.popover.removeClass("top").addClass("bottom")) : (scope.displayElements.popover.css("top", _el[0].offsetTop - 54 + scope.displayElements.scrollWindow[0].scrollTop + "px"), 
+                scope.displayElements.popover.removeClass("bottom").addClass("top"));
+                var _maxLeft = scope.displayElements.text[0].offsetWidth - scope.displayElements.popover[0].offsetWidth, _targetLeft = _el[0].offsetLeft + _el[0].offsetWidth / 2 - scope.displayElements.popover[0].offsetWidth / 2, _rleft = Math.max(0, Math.min(_maxLeft, _targetLeft)), _marginLeft = Math.min(_targetLeft, Math.max(0, _targetLeft - _maxLeft)) - 11;
+                _rleft += window.scrollX, _marginLeft -= window.scrollX, scope.displayElements.popover.css("left", _rleft + "px"), 
+                scope.displayElements.popoverArrow.css("margin-left", _marginLeft + "px");
+            }, scope.hidePopover = function() {
+                scope.displayElements.popover.css("display", "none"), scope.displayElements.popoverContainer.attr("style", ""), 
+                scope.displayElements.popoverContainer.attr("class", "popover-content"), scope.displayElements.popover.removeClass("in"), 
+                scope.displayElements.resize.overlay.css("display", "none");
+            }, scope.displayElements.resize.overlay.append(scope.displayElements.resize.background), 
+            angular.forEach(scope.displayElements.resize.anchors, function(anchor) {
+                scope.displayElements.resize.overlay.append(anchor);
+            }), scope.displayElements.resize.overlay.append(scope.displayElements.resize.info), 
+            scope.displayElements.scrollWindow.append(scope.displayElements.resize.overlay), 
+            scope.displayElements.resize.background.on("click", function() {
+                scope.displayElements.text[0].focus();
+            }), scope.reflowResizeOverlay = function(_el) {
+                _el = angular.element(_el)[0], scope.displayElements.resize.overlay.css({
+                    display: "block",
+                    left: _el.offsetLeft - 5 + "px",
+                    top: _el.offsetTop - 5 + "px",
+                    width: _el.offsetWidth + 10 + "px",
+                    height: _el.offsetHeight + 10 + "px"
+                }), scope.displayElements.resize.info.text(_el.offsetWidth + " x " + _el.offsetHeight);
+            }, scope.showResizeOverlay = function(_el) {
+                var _body = $document.find("body");
+                _resizeMouseDown = function(event) {
+                    var startPosition = {
+                        width: parseInt(_el.attr("width")),
+                        height: parseInt(_el.attr("height")),
+                        x: event.clientX,
+                        y: event.clientY
+                    };
+                    (void 0 === startPosition.width || isNaN(startPosition.width)) && (startPosition.width = _el[0].offsetWidth), 
+                    (void 0 === startPosition.height || isNaN(startPosition.height)) && (startPosition.height = _el[0].offsetHeight), 
+                    scope.hidePopover();
+                    var ratio = startPosition.height / startPosition.width, mousemove = function(event) {
+                        function roundedMaxVal(val) {
+                            return Math.round(Math.max(0, val));
+                        }
+                        var pos = {
+                            x: Math.max(0, startPosition.width + (event.clientX - startPosition.x)),
+                            y: Math.max(0, startPosition.height + (event.clientY - startPosition.y))
+                        }, bForceAspectRatio = void 0 !== attrs.taResizeForceAspectRatio, bFlipKeyBinding = attrs.taResizeMaintainAspectRatio, bKeepRatio = bForceAspectRatio || bFlipKeyBinding && !event.shiftKey;
+                        if (bKeepRatio) {
+                            var newRatio = pos.y / pos.x;
+                            pos.x = ratio > newRatio ? pos.x : pos.y / ratio, pos.y = ratio > newRatio ? pos.x * ratio : pos.y;
+                        }
+                        var el = angular.element(_el);
+                        el.css("height", roundedMaxVal(pos.y) + "px"), el.css("width", roundedMaxVal(pos.x) + "px"), 
+                        scope.reflowResizeOverlay(_el);
+                    };
+                    _body.on("mousemove", mousemove), oneEvent(_body, "mouseup", function(event) {
+                        event.preventDefault(), event.stopPropagation(), _body.off("mousemove", mousemove), 
+                        scope.$apply(function() {
+                            scope.hidePopover(), scope.updateTaBindtaTextElement();
+                        }, 100);
+                    }), event.stopPropagation(), event.preventDefault();
+                }, scope.displayElements.resize.anchors[3].off("mousedown"), scope.displayElements.resize.anchors[3].on("mousedown", _resizeMouseDown), 
+                scope.reflowResizeOverlay(_el), oneEvent(_body, "click", function() {
+                    scope.hideResizeOverlay();
+                });
+            }, scope.hideResizeOverlay = function() {
+                scope.displayElements.resize.anchors[3].off("mousedown", _resizeMouseDown), scope.displayElements.resize.overlay.css("display", "none");
+            }, scope.setup.htmlEditorSetup(scope.displayElements.html), scope.setup.textEditorSetup(scope.displayElements.text), 
+            scope.displayElements.html.attr({
+                id: "taHtmlElement" + _serial,
+                "ng-show": "showHtml",
+                "ta-bind": "ta-bind",
+                "ng-model": "html",
+                "ng-model-options": element.attr("ng-model-options")
+            }), scope.displayElements.text.attr({
+                id: "taTextElement" + _serial,
+                contentEditable: "true",
+                "ta-bind": "ta-bind",
+                "ng-model": "html",
+                "ng-model-options": element.attr("ng-model-options")
+            }), scope.displayElements.scrollWindow.attr({
+                "ng-hide": "showHtml"
+            }), attrs.taDefaultWrap && scope.displayElements.text.attr("ta-default-wrap", attrs.taDefaultWrap), 
+            attrs.taUnsafeSanitizer && (scope.displayElements.text.attr("ta-unsafe-sanitizer", attrs.taUnsafeSanitizer), 
+            scope.displayElements.html.attr("ta-unsafe-sanitizer", attrs.taUnsafeSanitizer)), 
+            attrs.taKeepStyles && (scope.displayElements.text.attr("ta-keep-styles", attrs.taKeepStyles), 
+            scope.displayElements.html.attr("ta-keep-styles", attrs.taKeepStyles)), scope.displayElements.scrollWindow.append(scope.displayElements.text), 
+            element.append(scope.displayElements.scrollWindow), element.append(scope.displayElements.html), 
+            scope.displayElements.forminput.attr("name", scope._name), element.append(scope.displayElements.forminput), 
+            attrs.tabindex && (element.removeAttr("tabindex"), scope.displayElements.text.attr("tabindex", attrs.tabindex), 
+            scope.displayElements.html.attr("tabindex", attrs.tabindex)), attrs.placeholder && (scope.displayElements.text.attr("placeholder", attrs.placeholder), 
+            scope.displayElements.html.attr("placeholder", attrs.placeholder)), attrs.taDisabled && (scope.displayElements.text.attr("ta-readonly", "disabled"), 
+            scope.displayElements.html.attr("ta-readonly", "disabled"), scope.disabled = scope.$parent.$eval(attrs.taDisabled), 
+            scope.$parent.$watch(attrs.taDisabled, function(newVal) {
+                scope.disabled = newVal, scope.disabled ? element.addClass(scope.classes.disabled) : element.removeClass(scope.classes.disabled);
+            })), attrs.taPaste && (scope._pasteHandler = function(_html) {
+                return $parse(attrs.taPaste)(scope.$parent, {
+                    $html: _html
+                });
+            }, scope.displayElements.text.attr("ta-paste", "_pasteHandler($html)")), $compile(scope.displayElements.scrollWindow)(scope), 
+            $compile(scope.displayElements.html)(scope), scope.updateTaBindtaTextElement = scope["updateTaBindtaTextElement" + _serial], 
+            scope.updateTaBindtaHtmlElement = scope["updateTaBindtaHtmlElement" + _serial], 
+            element.addClass("ta-root"), scope.displayElements.scrollWindow.addClass("ta-text ta-editor " + scope.classes.textEditor), 
+            scope.displayElements.html.addClass("ta-html ta-editor " + scope.classes.htmlEditor);
+            var testAndSet = function(choice, beforeState) {
+                beforeState !== $document[0].queryCommandState(choice) && $document[0].execCommand(choice, !1, null);
+            };
+            scope._actionRunning = !1;
+            var _savedSelection = !1;
+            if (scope.startAction = function() {
+                var _beforeStateBold = !1, _beforeStateItalic = !1, _beforeStateUnderline = !1, _beforeStateStrikethough = !1;
+                return scope._actionRunning = !0, _beforeStateBold = $document[0].queryCommandState("bold"), 
+                _beforeStateItalic = $document[0].queryCommandState("italic"), _beforeStateUnderline = $document[0].queryCommandState("underline"), 
+                _beforeStateStrikethough = $document[0].queryCommandState("strikeThrough"), _savedSelection = rangy.saveSelection(), 
+                testAndSet("bold", _beforeStateBold), testAndSet("italic", _beforeStateItalic), 
+                testAndSet("underline", _beforeStateUnderline), testAndSet("strikeThrough", _beforeStateStrikethough), 
+                function() {
+                    _savedSelection && rangy.restoreSelection(_savedSelection);
+                };
+            }, scope.endAction = function() {
+                scope._actionRunning = !1, _savedSelection && (scope.showHtml ? scope.displayElements.html[0].focus() : scope.displayElements.text[0].focus(), 
+                rangy.removeMarkers(_savedSelection)), _savedSelection = !1, scope.updateSelectedStyles(), 
+                scope.showHtml || scope["updateTaBindtaTextElement" + _serial]();
+            }, _focusin = function() {
+                scope.focussed = !0, element.addClass(scope.classes.focussed), _editorFunctions.focus(), 
+                element.triggerHandler("focus"), scope.updateSelectedStyles && !scope._bUpdateSelectedStyles && $timeout(function() {
+                    scope.updateSelectedStyles();
+                }, 0);
+            }, scope.displayElements.html.on("focus", _focusin), scope.displayElements.text.on("focus", _focusin), 
+            _focusout = function(e) {
+                return scope._actionRunning || $document[0].activeElement === scope.displayElements.html[0] || $document[0].activeElement === scope.displayElements.text[0] || (element.removeClass(scope.classes.focussed), 
+                _editorFunctions.unfocus(), $timeout(function() {
+                    scope._bUpdateSelectedStyles = !1, element.triggerHandler("blur"), scope.focussed = !1;
+                }, 0)), e.preventDefault(), !1;
+            }, scope.displayElements.html.on("blur", _focusout), scope.displayElements.text.on("blur", _focusout), 
+            scope.displayElements.text.on("paste", function(event) {
+                element.triggerHandler("paste", event);
+            }), scope.queryFormatBlockState = function(command) {
+                return !scope.showHtml && command.toLowerCase() === $document[0].queryCommandValue("formatBlock").toLowerCase();
+            }, scope.queryCommandState = function(command) {
+                return scope.showHtml ? "" : $document[0].queryCommandState(command);
+            }, scope.switchView = function() {
+                scope.showHtml = !scope.showHtml, $animate.enabled(!1, scope.displayElements.html), 
+                $animate.enabled(!1, scope.displayElements.text), scope.showHtml ? $timeout(function() {
+                    return $animate.enabled(!0, scope.displayElements.html), $animate.enabled(!0, scope.displayElements.text), 
+                    scope.displayElements.html[0].focus();
+                }, 100) : $timeout(function() {
+                    return $animate.enabled(!0, scope.displayElements.html), $animate.enabled(!0, scope.displayElements.text), 
+                    scope.displayElements.text[0].focus();
+                }, 100);
+            }, attrs.ngModel) {
+                var _firstRun = !0;
+                ngModel.$render = function() {
+                    if (_firstRun) {
+                        _firstRun = !1;
+                        var _initialValue = scope.$parent.$eval(attrs.ngModel);
+                        void 0 !== _initialValue && null !== _initialValue || !_originalContents || "" === _originalContents || ngModel.$setViewValue(_originalContents);
+                    }
+                    scope.displayElements.forminput.val(ngModel.$viewValue), scope.html = ngModel.$viewValue || "";
+                }, element.attr("required") && (ngModel.$validators.required = function(modelValue, viewValue) {
+                    var value = modelValue || viewValue;
+                    return !(!value || "" === value.trim());
+                });
+            } else scope.displayElements.forminput.val(_originalContents), scope.html = _originalContents;
+            if (scope.$watch("html", function(newValue, oldValue) {
+                newValue !== oldValue && (attrs.ngModel && ngModel.$viewValue !== newValue && ngModel.$setViewValue(newValue), 
+                scope.displayElements.forminput.val(newValue));
+            }), attrs.taTargetToolbars) _editorFunctions = textAngularManager.registerEditor(scope._name, scope, attrs.taTargetToolbars.split(",")); else {
+                var _toolbar = angular.element('<div text-angular-toolbar name="textAngularToolbar' + _serial + '">');
+                attrs.taToolbar && _toolbar.attr("ta-toolbar", attrs.taToolbar), attrs.taToolbarClass && _toolbar.attr("ta-toolbar-class", attrs.taToolbarClass), 
+                attrs.taToolbarGroupClass && _toolbar.attr("ta-toolbar-group-class", attrs.taToolbarGroupClass), 
+                attrs.taToolbarButtonClass && _toolbar.attr("ta-toolbar-button-class", attrs.taToolbarButtonClass), 
+                attrs.taToolbarActiveButtonClass && _toolbar.attr("ta-toolbar-active-button-class", attrs.taToolbarActiveButtonClass), 
+                attrs.taFocussedClass && _toolbar.attr("ta-focussed-class", attrs.taFocussedClass), 
+                element.prepend(_toolbar), $compile(_toolbar)(scope.$parent), _editorFunctions = textAngularManager.registerEditor(scope._name, scope, [ "textAngularToolbar" + _serial ]);
+            }
+            scope.$on("$destroy", function() {
+                textAngularManager.unregisterEditor(scope._name), angular.element(window).off("blur"), 
+                angular.element(window).off("resize", scope.handlePopoverEvents), angular.element(window).off("scroll", scope.handlePopoverEvents);
+            }), scope.$on("ta-element-select", function(event, element) {
+                _editorFunctions.triggerElementSelect(event, element) && scope["reApplyOnSelectorHandlerstaTextElement" + _serial]();
+            }), scope.$on("ta-drop-event", function(event, element, dropEvent, dataTransfer) {
+                dataTransfer && dataTransfer.files && dataTransfer.files.length > 0 ? (scope.displayElements.text[0].focus(), 
+                taSelection.setSelectionToElementEnd(dropEvent.target), angular.forEach(dataTransfer.files, function(file) {
+                    try {
+                        $q.when(scope.fileDropHandler(file, scope.wrapSelection) || scope.fileDropHandler !== scope.defaultFileDropHandler && $q.when(scope.defaultFileDropHandler(file, scope.wrapSelection))).then(function() {
+                            scope["updateTaBindtaTextElement" + _serial]();
+                        });
+                    } catch (error) {
+                        $log.error(error);
+                    }
+                }), dropEvent.preventDefault(), dropEvent.stopPropagation()) : $timeout(function() {
+                    scope["updateTaBindtaTextElement" + _serial]();
+                }, 0);
+            }), scope._bUpdateSelectedStyles = !1, angular.element(window).on("blur", function() {
+                scope._bUpdateSelectedStyles = !1, scope.focussed = !1;
+            }), scope.updateSelectedStyles = function() {
+                var _selection;
+                _updateSelectedStylesTimeout && $timeout.cancel(_updateSelectedStylesTimeout), void 0 !== (_selection = taSelection.getSelectionElement()) && _selection.parentNode !== scope.displayElements.text[0] ? _editorFunctions.updateSelectedStyles(angular.element(_selection)) : _editorFunctions.updateSelectedStyles(), 
+                scope._bUpdateSelectedStyles && (_updateSelectedStylesTimeout = $timeout(scope.updateSelectedStyles, 200));
+            }, _keydown = function() {
+                return scope.focussed ? void (scope._bUpdateSelectedStyles || (scope._bUpdateSelectedStyles = !0, 
+                scope.$apply(function() {
+                    scope.updateSelectedStyles();
+                }))) : void (scope._bUpdateSelectedStyles = !1);
+            }, scope.displayElements.html.on("keydown", _keydown), scope.displayElements.text.on("keydown", _keydown), 
+            _keyup = function() {
+                scope._bUpdateSelectedStyles = !1;
+            }, scope.displayElements.html.on("keyup", _keyup), scope.displayElements.text.on("keyup", _keyup), 
+            _keypress = function(event, eventData) {
+                if (taSelection.getSelection) {
+                    var _selection = taSelection.getSelection();
+                    taSelection.getSelectionElement() && "a" === taSelection.getSelectionElement().nodeName.toLowerCase() && (3 === _selection.start.element.nodeType && _selection.start.element.textContent.length === _selection.end.offset && taSelection.setSelectionAfterElement(taSelection.getSelectionElement()), 
+                    3 === _selection.start.element.nodeType && 0 === _selection.start.offset && taSelection.setSelectionBeforeElement(taSelection.getSelectionElement()));
+                }
+                eventData && angular.extend(event, eventData), scope.$apply(function() {
+                    return _editorFunctions.sendKeyCommand(event) ? (scope._bUpdateSelectedStyles || scope.updateSelectedStyles(), 
+                    event.preventDefault(), !1) : void 0;
+                });
+            }, scope.displayElements.html.on("keypress", _keypress), scope.displayElements.text.on("keypress", _keypress), 
+            _mouseup = function() {
+                scope._bUpdateSelectedStyles = !1, $timeout(function() {
+                    scope.updateSelectedStyles();
+                }, 0);
+            }, scope.displayElements.html.on("mouseup", _mouseup), scope.displayElements.text.on("mouseup", _mouseup);
+        }
+    };
+} ]), textAngular.service("textAngularManager", [ "taToolExecuteAction", "taTools", "taRegisterTool", "$interval", "$rootScope", "$log", function(taToolExecuteAction, taTools, taRegisterTool, $interval, $rootScope) {
+    var triggerIntervalTimer, toolbars = {}, editors = {}, timeRecentModification = 0, updateStyles = function(selectedElement) {
+        angular.forEach(editors, function(editor) {
+            editor.editorFunctions.updateSelectedStyles(selectedElement);
+        });
+    }, triggerInterval = 50, setupTriggerUpdateStyles = function() {
+        timeRecentModification = Date.now(), triggerIntervalTimer = $interval(function() {
+            updateStyles(), triggerIntervalTimer = void 0;
+        }, triggerInterval, 1);
+    };
+    $rootScope.$on("destroy", function() {
+        triggerIntervalTimer && ($interval.cancel(triggerIntervalTimer), triggerIntervalTimer = void 0);
+    });
+    var touchModification = function() {
+        Math.abs(Date.now() - timeRecentModification) > triggerInterval && setupTriggerUpdateStyles();
+    };
+    return {
+        registerEditor: function(editorName, editorScope, targetToolbars) {
+            if (!editorName || "" === editorName) throw "textAngular Error: An editor requires a name";
+            if (!editorScope) throw "textAngular Error: An editor requires a scope";
+            if (editors[editorName]) throw 'textAngular Error: An Editor with name "' + editorName + '" already exists';
+            return editors[editorName] = {
+                scope: editorScope,
+                toolbars: targetToolbars,
+                toolbarScopes: [],
+                _registerToolbarScope: function(toolbarScope) {
+                    this.toolbars.indexOf(toolbarScope.name) >= 0 && this.toolbarScopes.push(toolbarScope);
+                },
+                editorFunctions: {
+                    disable: function() {
+                        angular.forEach(editors[editorName].toolbarScopes, function(toolbarScope) {
+                            toolbarScope.disabled = !0;
+                        });
+                    },
+                    enable: function() {
+                        angular.forEach(editors[editorName].toolbarScopes, function(toolbarScope) {
+                            toolbarScope.disabled = !1;
+                        });
+                    },
+                    focus: function() {
+                        angular.forEach(editors[editorName].toolbarScopes, function(toolbarScope) {
+                            toolbarScope._parent = editorScope, toolbarScope.disabled = !1, toolbarScope.focussed = !0;
+                        }), editorScope.focussed = !0;
+                    },
+                    unfocus: function() {
+                        angular.forEach(editors[editorName].toolbarScopes, function(toolbarScope) {
+                            toolbarScope.disabled = !0, toolbarScope.focussed = !1;
+                        }), editorScope.focussed = !1;
+                    },
+                    updateSelectedStyles: function(selectedElement) {
+                        angular.forEach(editors[editorName].toolbarScopes, function(toolbarScope) {
+                            angular.forEach(toolbarScope.tools, function(toolScope) {
+                                toolScope.activeState && (toolbarScope._parent = editorScope, toolScope.active = toolScope.activeState(selectedElement));
+                            });
+                        });
+                    },
+                    sendKeyCommand: function(event) {
+                        var result = !1;
+                        return (event.ctrlKey || event.metaKey || event.specialKey) && angular.forEach(taTools, function(tool, name) {
+                            if (tool.commandKeyCode && (tool.commandKeyCode === event.which || tool.commandKeyCode === event.specialKey)) for (var _t = 0; _t < editors[editorName].toolbarScopes.length; _t++) if (void 0 !== editors[editorName].toolbarScopes[_t].tools[name]) {
+                                taToolExecuteAction.call(editors[editorName].toolbarScopes[_t].tools[name], editorScope), 
+                                result = !0;
+                                break;
+                            }
+                        }), result;
+                    },
+                    triggerElementSelect: function(event, element) {
+                        var elementHasAttrs = function(_element, attrs) {
+                            for (var result = !0, i = 0; i < attrs.length; i++) result = result && _element.attr(attrs[i]);
+                            return result;
+                        }, workerTools = [], unfilteredTools = {}, result = !1;
+                        element = angular.element(element);
+                        var onlyWithAttrsFilter = !1;
+                        if (angular.forEach(taTools, function(tool, name) {
+                            tool.onElementSelect && tool.onElementSelect.element && tool.onElementSelect.element.toLowerCase() === element[0].tagName.toLowerCase() && (!tool.onElementSelect.filter || tool.onElementSelect.filter(element)) && (onlyWithAttrsFilter = onlyWithAttrsFilter || angular.isArray(tool.onElementSelect.onlyWithAttrs) && elementHasAttrs(element, tool.onElementSelect.onlyWithAttrs), 
+                            (!tool.onElementSelect.onlyWithAttrs || elementHasAttrs(element, tool.onElementSelect.onlyWithAttrs)) && (unfilteredTools[name] = tool));
+                        }), onlyWithAttrsFilter ? (angular.forEach(unfilteredTools, function(tool, name) {
+                            tool.onElementSelect.onlyWithAttrs && elementHasAttrs(element, tool.onElementSelect.onlyWithAttrs) && workerTools.push({
+                                name: name,
+                                tool: tool
+                            });
+                        }), workerTools.sort(function(a, b) {
+                            return b.tool.onElementSelect.onlyWithAttrs.length - a.tool.onElementSelect.onlyWithAttrs.length;
+                        })) : angular.forEach(unfilteredTools, function(tool, name) {
+                            workerTools.push({
+                                name: name,
+                                tool: tool
+                            });
+                        }), workerTools.length > 0) for (var _i = 0; _i < workerTools.length; _i++) {
+                            for (var tool = workerTools[_i].tool, name = workerTools[_i].name, _t = 0; _t < editors[editorName].toolbarScopes.length; _t++) if (void 0 !== editors[editorName].toolbarScopes[_t].tools[name]) {
+                                tool.onElementSelect.action.call(editors[editorName].toolbarScopes[_t].tools[name], event, element, editorScope), 
+                                result = !0;
+                                break;
+                            }
+                            if (result) break;
+                        }
+                        return result;
+                    }
+                }
+            }, angular.forEach(targetToolbars, function(_name) {
+                toolbars[_name] && editors[editorName].toolbarScopes.push(toolbars[_name]);
+            }), touchModification(), editors[editorName].editorFunctions;
+        },
+        retrieveEditor: function(name) {
+            return editors[name];
+        },
+        unregisterEditor: function(name) {
+            delete editors[name], touchModification();
+        },
+        registerToolbar: function(toolbarScope) {
+            if (!toolbarScope) throw "textAngular Error: A toolbar requires a scope";
+            if (!toolbarScope.name || "" === toolbarScope.name) throw "textAngular Error: A toolbar requires a name";
+            if (toolbars[toolbarScope.name]) throw 'textAngular Error: A toolbar with name "' + toolbarScope.name + '" already exists';
+            toolbars[toolbarScope.name] = toolbarScope, angular.forEach(editors, function(_editor) {
+                _editor._registerToolbarScope(toolbarScope);
+            }), touchModification();
+        },
+        retrieveToolbar: function(name) {
+            return toolbars[name];
+        },
+        retrieveToolbarsViaEditor: function(name) {
+            var result = [], _this = this;
+            return angular.forEach(this.retrieveEditor(name).toolbars, function(name) {
+                result.push(_this.retrieveToolbar(name));
+            }), result;
+        },
+        unregisterToolbar: function(name) {
+            delete toolbars[name], touchModification();
+        },
+        updateToolsDisplay: function(newTaTools) {
+            var _this = this;
+            angular.forEach(newTaTools, function(_newTool, key) {
+                _this.updateToolDisplay(key, _newTool);
+            });
+        },
+        resetToolsDisplay: function() {
+            var _this = this;
+            angular.forEach(taTools, function(_newTool, key) {
+                _this.resetToolDisplay(key);
+            }), touchModification();
+        },
+        updateToolDisplay: function(toolKey, _newTool) {
+            var _this = this;
+            angular.forEach(toolbars, function(toolbarScope, toolbarKey) {
+                _this.updateToolbarToolDisplay(toolbarKey, toolKey, _newTool);
+            }), touchModification();
+        },
+        resetToolDisplay: function(toolKey) {
+            var _this = this;
+            angular.forEach(toolbars, function(toolbarScope, toolbarKey) {
+                _this.resetToolbarToolDisplay(toolbarKey, toolKey);
+            }), touchModification();
+        },
+        updateToolbarToolDisplay: function(toolbarKey, toolKey, _newTool) {
+            if (!toolbars[toolbarKey]) throw 'textAngular Error: No Toolbar with name "' + toolbarKey + '" exists';
+            toolbars[toolbarKey].updateToolDisplay(toolKey, _newTool);
+        },
+        resetToolbarToolDisplay: function(toolbarKey, toolKey) {
+            if (!toolbars[toolbarKey]) throw 'textAngular Error: No Toolbar with name "' + toolbarKey + '" exists';
+            toolbars[toolbarKey].updateToolDisplay(toolKey, taTools[toolKey], !0);
+        },
+        removeTool: function(toolKey) {
+            delete taTools[toolKey], angular.forEach(toolbars, function(toolbarScope) {
+                delete toolbarScope.tools[toolKey];
+                for (var i = 0; i < toolbarScope.toolbar.length; i++) {
+                    for (var toolbarIndex, j = 0; j < toolbarScope.toolbar[i].length; j++) {
+                        if (toolbarScope.toolbar[i][j] === toolKey) {
+                            toolbarIndex = {
+                                group: i,
+                                index: j
+                            };
+                            break;
+                        }
+                        if (void 0 !== toolbarIndex) break;
+                    }
+                    void 0 !== toolbarIndex && (toolbarScope.toolbar[toolbarIndex.group].slice(toolbarIndex.index, 1), 
+                    toolbarScope._$element.children().eq(toolbarIndex.group).children().eq(toolbarIndex.index).remove());
+                }
+            }), touchModification();
+        },
+        addTool: function(toolKey, toolDefinition, group, index) {
+            taRegisterTool(toolKey, toolDefinition), angular.forEach(toolbars, function(toolbarScope) {
+                toolbarScope.addTool(toolKey, toolDefinition, group, index);
+            }), touchModification();
+        },
+        addToolToToolbar: function(toolKey, toolDefinition, toolbarKey, group, index) {
+            taRegisterTool(toolKey, toolDefinition), toolbars[toolbarKey].addTool(toolKey, toolDefinition, group, index), 
+            touchModification();
+        },
+        refreshEditor: function(name) {
+            if (!editors[name]) throw 'textAngular Error: No Editor with name "' + name + '" exists';
+            editors[name].scope.updateTaBindtaTextElement(), editors[name].scope.$$phase || editors[name].scope.$digest(), 
+            touchModification();
+        },
+        sendKeyCommand: function(scope, event) {
+            var _editor = editors[scope._name];
+            return _editor && _editor.editorFunctions.sendKeyCommand(event) ? (scope._bUpdateSelectedStyles || scope.updateSelectedStyles(), 
+            event.preventDefault(), !1) : void 0;
+        },
+        updateStyles: updateStyles,
+        getVersion: function() {
+            return textAngularVersion;
+        },
+        getToolbarScopes: function() {
+            var tmp = [];
+            return angular.forEach(editors, function(_editor) {
+                tmp = tmp.concat(_editor.toolbarScopes);
+            }), tmp;
+        }
+    };
+} ]), textAngular.directive("textAngularToolbar", [ "$compile", "textAngularManager", "taOptions", "taTools", "taToolExecuteAction", "$window", function($compile, textAngularManager, taOptions, taTools, taToolExecuteAction, $window) {
+    return {
+        scope: {
+            name: "@"
+        },
+        restrict: "EA",
+        link: function(scope, element, attrs) {
+            if (!scope.name || "" === scope.name) throw "textAngular Error: A toolbar requires a name";
+            angular.extend(scope, angular.copy(taOptions)), attrs.taToolbar && (scope.toolbar = scope.$parent.$eval(attrs.taToolbar)), 
+            attrs.taToolbarClass && (scope.classes.toolbar = attrs.taToolbarClass), attrs.taToolbarGroupClass && (scope.classes.toolbarGroup = attrs.taToolbarGroupClass), 
+            attrs.taToolbarButtonClass && (scope.classes.toolbarButton = attrs.taToolbarButtonClass), 
+            attrs.taToolbarActiveButtonClass && (scope.classes.toolbarButtonActive = attrs.taToolbarActiveButtonClass), 
+            attrs.taFocussedClass && (scope.classes.focussed = attrs.taFocussedClass), scope.disabled = !0, 
+            scope.focussed = !1, scope._$element = element, element[0].innerHTML = "", element.addClass("ta-toolbar " + scope.classes.toolbar), 
+            scope.$watch("focussed", function() {
+                scope.focussed ? element.addClass(scope.classes.focussed) : element.removeClass(scope.classes.focussed);
+            });
+            var setupToolElement = function(toolDefinition, toolScope) {
+                var toolElement;
+                if (toolElement = angular.element(toolDefinition && toolDefinition.display ? toolDefinition.display : "<button type='button'>"), 
+                toolElement.addClass(toolDefinition && toolDefinition["class"] ? toolDefinition["class"] : scope.classes.toolbarButton), 
+                toolElement.attr("name", toolScope.name), toolElement.attr("ta-button", "ta-button"), 
+                toolElement.attr("ng-disabled", "isDisabled()"), toolElement.attr("tabindex", "-1"), 
+                toolElement.attr("ng-click", "executeAction()"), toolElement.attr("ng-class", "displayActiveToolClass(active)"), 
+                toolDefinition && toolDefinition.tooltiptext && toolElement.attr("title", toolDefinition.tooltiptext), 
+                toolDefinition && !toolDefinition.display && !toolScope._display && (toolElement[0].innerHTML = "", 
+                toolDefinition.buttontext && (toolElement[0].innerHTML = toolDefinition.buttontext), 
+                toolDefinition.iconclass)) {
+                    var icon = angular.element("<i>"), content = toolElement[0].innerHTML;
+                    icon.addClass(toolDefinition.iconclass), toolElement[0].innerHTML = "", toolElement.append(icon), 
+                    content && "" !== content && toolElement.append("&nbsp;" + content);
+                }
+                return toolScope._lastToolDefinition = angular.copy(toolDefinition), $compile(toolElement)(toolScope);
+            };
+            scope.tools = {}, scope._parent = {
+                disabled: !0,
+                showHtml: !1,
+                queryFormatBlockState: function() {
+                    return !1;
+                },
+                queryCommandState: function() {
+                    return !1;
+                }
+            };
+            var defaultChildScope = {
+                $window: $window,
+                $editor: function() {
+                    return scope._parent;
+                },
+                isDisabled: function() {
+                    return "html" === this.name && scope._parent.startAction ? !1 : "function" != typeof this.$eval("disabled") && this.$eval("disabled") || this.$eval("disabled()") || "html" !== this.name && this.$editor().showHtml || this.$parent.disabled || this.$editor().disabled;
+                },
+                displayActiveToolClass: function(active) {
+                    return active ? scope.classes.toolbarButtonActive : "";
+                },
+                executeAction: taToolExecuteAction
+            };
+            angular.forEach(scope.toolbar, function(group) {
+                var groupElement = angular.element("<div>");
+                groupElement.addClass(scope.classes.toolbarGroup), angular.forEach(group, function(tool) {
+                    scope.tools[tool] = angular.extend(scope.$new(!0), taTools[tool], defaultChildScope, {
+                        name: tool
+                    }), scope.tools[tool].$element = setupToolElement(taTools[tool], scope.tools[tool]), 
+                    groupElement.append(scope.tools[tool].$element);
+                }), element.append(groupElement);
+            }), scope.updateToolDisplay = function(key, _newTool, forceNew) {
+                var toolInstance = scope.tools[key];
+                if (toolInstance) {
+                    if (toolInstance._lastToolDefinition && !forceNew && (_newTool = angular.extend({}, toolInstance._lastToolDefinition, _newTool)), 
+                    null === _newTool.buttontext && null === _newTool.iconclass && null === _newTool.display) throw 'textAngular Error: Tool Definition for updating "' + key + '" does not have a valid display/iconclass/buttontext value';
+                    null === _newTool.buttontext && delete _newTool.buttontext, null === _newTool.iconclass && delete _newTool.iconclass, 
+                    null === _newTool.display && delete _newTool.display;
+                    var toolElement = setupToolElement(_newTool, toolInstance);
+                    toolInstance.$element.replaceWith(toolElement), toolInstance.$element = toolElement;
+                }
+            }, scope.addTool = function(key, _newTool, groupIndex, index) {
+                scope.tools[key] = angular.extend(scope.$new(!0), taTools[key], defaultChildScope, {
+                    name: key
+                }), scope.tools[key].$element = setupToolElement(taTools[key], scope.tools[key]);
+                var group;
+                void 0 === groupIndex && (groupIndex = scope.toolbar.length - 1), group = angular.element(element.children()[groupIndex]), 
+                void 0 === index ? (group.append(scope.tools[key].$element), scope.toolbar[groupIndex][scope.toolbar[groupIndex].length - 1] = key) : (group.children().eq(index).after(scope.tools[key].$element), 
+                scope.toolbar[groupIndex][index] = key);
+            }, textAngularManager.registerToolbar(scope), scope.$on("$destroy", function() {
+                textAngularManager.unregisterToolbar(scope.name);
+            });
+        }
+    };
+} ]), textAngular.directive("textAngularVersion", [ "textAngularManager", function(textAngularManager) {
+    var version = textAngularManager.getVersion();
+    return {
+        restrict: "EA",
+        link: function(scope, element) {
+            element.html(version);
+        }
+    };
+} ]), define("ngdir/text/textAngular", [ "angular" ], function() {}), angular.lowercase = angular.$$lowercase, 
+function(window, angular) {
+    function $SanitizeProvider() {
+        this.$get = [ "$$sanitizeUri", function($$sanitizeUri) {
+            return function(html) {
+                "undefined" != typeof arguments[1] && (arguments[1].version = "taSanitize");
+                var buf = [];
+                return htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
+                    return !/^unsafe/.test($$sanitizeUri(uri, isImage));
+                })), buf.join("");
+            };
+        } ];
+    }
+    function sanitizeText(chars) {
+        var buf = [], writer = htmlSanitizeWriter(buf, angular.noop);
+        return writer.chars(chars), buf.join("");
+    }
+    function makeMap(str) {
+        var i, obj = {}, items = str.split(",");
+        for (i = 0; i < items.length; i++) obj[items[i]] = !0;
+        return obj;
+    }
+    function htmlParser(html, handler) {
+        function parseStartTag(tag, tagName, rest, unary) {
+            if (tagName = angular.lowercase(tagName), blockElements[tagName]) for (;stack.last() && inlineElements[stack.last()]; ) parseEndTag("", stack.last());
+            optionalEndTagElements[tagName] && stack.last() == tagName && parseEndTag("", tagName), 
+            unary = voidElements[tagName] || !!unary, unary || stack.push(tagName);
+            var attrs = {};
+            rest.replace(ATTR_REGEXP, function(match, name, doubleQuotedValue, singleQuotedValue, unquotedValue) {
+                var value = doubleQuotedValue || singleQuotedValue || unquotedValue || "";
+                attrs[name] = decodeEntities(value);
+            }), handler.start && handler.start(tagName, attrs, unary);
+        }
+        function parseEndTag(tag, tagName) {
+            var i, pos = 0;
+            if (tagName = angular.lowercase(tagName)) for (pos = stack.length - 1; pos >= 0 && stack[pos] != tagName; pos--) ;
+            if (pos >= 0) {
+                for (i = stack.length - 1; i >= pos; i--) handler.end && handler.end(stack[i]);
+                stack.length = pos;
+            }
+        }
+        "string" != typeof html && (html = null === html || "undefined" == typeof html ? "" : "" + html);
+        var index, chars, match, text, stack = [], last = html;
+        for (stack.last = function() {
+            return stack[stack.length - 1];
+        }; html; ) {
+            if (text = "", chars = !0, stack.last() && specialElements[stack.last()]) html = html.replace(new RegExp("([^]*)<\\s*\\/\\s*" + stack.last() + "[^>]*>", "i"), function(all, text) {
+                return text = text.replace(COMMENT_REGEXP, "$1").replace(CDATA_REGEXP, "$1"), handler.chars && handler.chars(decodeEntities(text)), 
+                "";
+            }), parseEndTag("", stack.last()); else {
+                if (WHITE_SPACE_REGEXP.test(html)) {
+                    if (match = html.match(WHITE_SPACE_REGEXP)) {
+                        {
+                            match[0];
+                        }
+                        handler.whitespace && handler.whitespace(match[0]), html = html.replace(match[0], ""), 
+                        chars = !1;
+                    }
+                } else SINGLE_COMMENT_REGEXP.test(html) ? (match = html.match(SINGLE_COMMENT_REGEXP), 
+                match && (handler.comment && handler.comment(match[1]), html = html.replace(match[0], ""), 
+                chars = !1)) : DOCTYPE_REGEXP.test(html) ? (match = html.match(DOCTYPE_REGEXP), 
+                match && (html = html.replace(match[0], ""), chars = !1)) : BEGING_END_TAGE_REGEXP.test(html) ? (match = html.match(END_TAG_REGEXP), 
+                match && (html = html.substring(match[0].length), match[0].replace(END_TAG_REGEXP, parseEndTag), 
+                chars = !1)) : BEGIN_TAG_REGEXP.test(html) && (match = html.match(START_TAG_REGEXP), 
+                match ? (match[4] && (html = html.substring(match[0].length), match[0].replace(START_TAG_REGEXP, parseStartTag)), 
+                chars = !1) : (text += "<", html = html.substring(1)));
+                chars && (index = html.indexOf("<"), text += 0 > index ? html : html.substring(0, index), 
+                html = 0 > index ? "" : html.substring(index), handler.chars && handler.chars(decodeEntities(text)));
+            }
+            if (html == last) throw $sanitizeMinErr("badparse", "The sanitizer was unable to parse the following block of html: {0}", html);
+            last = html;
+        }
+        parseEndTag();
+    }
+    function decodeEntities(value) {
+        if (!value) return "";
+        var parts = spaceRe.exec(value), spaceBefore = parts[1], spaceAfter = parts[3], content = parts[2];
+        return content && (hiddenPre.innerHTML = content.replace(/</g, "&lt;"), content = "textContent" in hiddenPre ? hiddenPre.textContent : hiddenPre.innerText), 
+        spaceBefore + content + spaceAfter;
+    }
+    function encodeEntities(value) {
+        return value.replace(/&/g, "&amp;").replace(SURROGATE_PAIR_REGEXP, function(value) {
+            var hi = value.charCodeAt(0), low = value.charCodeAt(1);
+            return "&#" + (1024 * (hi - 55296) + (low - 56320) + 65536) + ";";
+        }).replace(NON_ALPHANUMERIC_REGEXP, function(value) {
+            var c = value.charCodeAt(0);
+            return 159 >= c || 173 == c || c >= 1536 && 1540 >= c || 1807 == c || 6068 == c || 6069 == c || c >= 8204 && 8207 >= c || c >= 8232 && 8239 >= c || c >= 8288 && 8303 >= c || 65279 == c || c >= 65520 && 65535 >= c ? "&#" + c + ";" : value;
+        }).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function validStyles(styleAttr) {
+        var result = "", styleArray = styleAttr.split(";");
+        return angular.forEach(styleArray, function(value) {
+            var v = value.split(":");
+            if (2 == v.length) {
+                var key = trim(angular.lowercase(v[0])), value = trim(angular.lowercase(v[1]));
+                (("color" === key || "background-color" === key) && (value.match(/^rgb\([0-9%,\. ]*\)$/i) || value.match(/^rgba\([0-9%,\. ]*\)$/i) || value.match(/^hsl\([0-9%,\. ]*\)$/i) || value.match(/^hsla\([0-9%,\. ]*\)$/i) || value.match(/^#[0-9a-f]{3,6}$/i) || value.match(/^[a-z]*$/i)) || "text-align" === key && ("left" === value || "right" === value || "center" === value || "justify" === value) || "text-decoration" === key && ("underline" === value || "line-through" === value) || "font-weight" === key && "bold" === value || "font-style" === key && "italic" === value || "float" === key && ("left" === value || "right" === value || "none" === value) || "vertical-align" === key && ("baseline" === value || "sub" === value || "super" === value || "test-top" === value || "text-bottom" === value || "middle" === value || "top" === value || "bottom" === value || value.match(/[0-9]*(px|em)/) || value.match(/[0-9]+?%/)) || "font-size" === key && ("xx-small" === value || "x-small" === value || "small" === value || "medium" === value || "large" === value || "x-large" === value || "xx-large" === value || "larger" === value || "smaller" === value || value.match(/[0-9]*\.?[0-9]*(px|em|rem|mm|q|cm|in|pt|pc|%)/)) || ("width" === key || "height" === key) && value.match(/[0-9\.]*(px|em|rem|%)/) || "direction" === key && value.match(/^ltr|rtl|initial|inherit$/)) && (result += key + ": " + value + ";");
+            }
+        }), result;
+    }
+    function validCustomTag(tag, attrs, lkey, value) {
+        return "img" === tag && attrs["ta-insert-video"] && ("ta-insert-video" === lkey || "allowfullscreen" === lkey || "frameborder" === lkey || "contenteditable" === lkey && "false" === value) ? !0 : !1;
+    }
+    function htmlSanitizeWriter(buf, uriValidator) {
+        var ignore = !1, out = angular.bind(buf, buf.push);
+        return {
+            start: function(tag, attrs, unary) {
+                tag = angular.lowercase(tag), !ignore && specialElements[tag] && (ignore = tag), 
+                ignore || validElements[tag] !== !0 || (out("<"), out(tag), angular.forEach(attrs, function(value, key) {
+                    var lkey = angular.lowercase(key), isImage = "img" === tag && "src" === lkey || "background" === lkey;
+                    ("style" === lkey && "" !== (value = validStyles(value)) || validCustomTag(tag, attrs, lkey, value) || validAttrs[lkey] === !0 && (uriAttrs[lkey] !== !0 || uriValidator(value, isImage))) && (out(" "), 
+                    out(key), out('="'), out(encodeEntities(value)), out('"'));
+                }), out(unary ? "/>" : ">"));
+            },
+            comment: function(com) {
+                out(com);
+            },
+            whitespace: function(ws) {
+                out(encodeEntities(ws));
+            },
+            end: function(tag) {
+                tag = angular.lowercase(tag), ignore || validElements[tag] !== !0 || (out("</"), 
+                out(tag), out(">")), tag == ignore && (ignore = !1);
+            },
+            chars: function(chars) {
+                ignore || out(encodeEntities(chars));
+            }
+        };
+    }
+    var $sanitizeMinErr = angular.$$minErr("$sanitize"), START_TAG_REGEXP = /^<((?:[a-zA-Z])[\w:-]*)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*(>?)/, END_TAG_REGEXP = /^<\/\s*([\w:-]+)[^>]*>/, ATTR_REGEXP = /([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g, BEGIN_TAG_REGEXP = /^</, BEGING_END_TAGE_REGEXP = /^<\//, COMMENT_REGEXP = /<!--(.*?)-->/g, SINGLE_COMMENT_REGEXP = /(^<!--.*?-->)/, DOCTYPE_REGEXP = /<!DOCTYPE([^>]*?)>/i, CDATA_REGEXP = /<!\[CDATA\[(.*?)]]>/g, SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g, NON_ALPHANUMERIC_REGEXP = /([^\#-~| |!])/g, WHITE_SPACE_REGEXP = /^(\s+)/, voidElements = makeMap("area,br,col,hr,img,wbr,input"), optionalEndTagBlockElements = makeMap("colgroup,dd,dt,li,p,tbody,td,tfoot,th,thead,tr"), optionalEndTagInlineElements = makeMap("rp,rt"), optionalEndTagElements = angular.extend({}, optionalEndTagInlineElements, optionalEndTagBlockElements), blockElements = angular.extend({}, optionalEndTagBlockElements, makeMap("address,article,aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5,h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,script,section,table,ul")), inlineElements = angular.extend({}, optionalEndTagInlineElements, makeMap("a,abbr,acronym,b,bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s,samp,small,span,strike,strong,sub,sup,time,tt,u,var")), svgElements = makeMap("animate,animateColor,animateMotion,animateTransform,circle,defs,desc,ellipse,font-face,font-face-name,font-face-src,g,glyph,hkern,image,linearGradient,line,marker,metadata,missing-glyph,mpath,path,polygon,polyline,radialGradient,rect,set,stop,svg,switch,text,title,tspan,use"), specialElements = makeMap("script,style"), validElements = angular.extend({}, voidElements, blockElements, inlineElements, optionalEndTagElements, svgElements), uriAttrs = makeMap("background,cite,href,longdesc,src,usemap,xlink:href"), htmlAttrs = makeMap("abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,id,ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,scope,scrolling,shape,size,span,start,summary,target,title,type,valign,value,vspace,width"), svgAttrs = makeMap("accent-height,accumulate,additive,alphabetic,arabic-form,ascent,attributeName,attributeType,baseProfile,bbox,begin,by,calcMode,cap-height,class,color,color-rendering,content,cx,cy,d,dx,dy,descent,display,dur,end,fill,fill-rule,font-family,font-size,font-stretch,font-style,font-variant,font-weight,from,fx,fy,g1,g2,glyph-name,gradientUnits,hanging,height,horiz-adv-x,horiz-origin-x,ideographic,k,keyPoints,keySplines,keyTimes,lang,marker-end,marker-mid,marker-start,markerHeight,markerUnits,markerWidth,mathematical,max,min,offset,opacity,orient,origin,overline-position,overline-thickness,panose-1,path,pathLength,points,preserveAspectRatio,r,refX,refY,repeatCount,repeatDur,requiredExtensions,requiredFeatures,restart,rotate,rx,ry,slope,stemh,stemv,stop-color,stop-opacity,strikethrough-position,strikethrough-thickness,stroke,stroke-dasharray,stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,stroke-opacity,stroke-width,systemLanguage,target,text-anchor,to,transform,type,u1,u2,underline-position,underline-thickness,unicode,unicode-range,units-per-em,values,version,viewBox,visibility,width,widths,x,x-height,x1,x2,xlink:actuate,xlink:arcrole,xlink:role,xlink:show,xlink:title,xlink:type,xml:base,xml:lang,xml:space,xmlns,xmlns:xlink,y,y1,y2,zoomAndPan"), validAttrs = angular.extend({}, uriAttrs, svgAttrs, htmlAttrs), hiddenPre = document.createElement("pre"), spaceRe = /^(\s*)([\s\S]*?)(\s*)$/, trim = function() {
+        return String.prototype.trim ? function(value) {
+            return angular.isString(value) ? value.trim() : value;
+        } : function(value) {
+            return angular.isString(value) ? value.replace(/^\s\s*/, "").replace(/\s\s*$/, "") : value;
+        };
+    }();
+    angular.module("ngSanitize", []).provider("$sanitize", $SanitizeProvider), angular.module("ngSanitize").filter("linky", [ "$sanitize", function($sanitize) {
+        var LINKY_URL_REGEXP = /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"”’]/, MAILTO_REGEXP = /^mailto:/;
+        return function(text, target) {
+            function addText(text) {
+                text && html.push(sanitizeText(text));
+            }
+            function addLink(url, text) {
+                html.push("<a "), angular.isDefined(target) && html.push('target="', target, '" '), 
+                html.push('href="', url.replace(/"/g, "&quot;"), '">'), addText(text), html.push("</a>");
+            }
+            if (!text) return text;
+            for (var match, url, i, raw = text, html = []; match = raw.match(LINKY_URL_REGEXP); ) url = match[0], 
+            match[2] || match[4] || (url = (match[3] ? "http://" : "mailto:") + url), i = match.index, 
+            addText(raw.substr(0, i)), addLink(url, match[0].replace(MAILTO_REGEXP, "")), raw = raw.substring(i + match[0].length);
+            return addText(raw), $sanitize(html.join(""));
+        };
+    } ]);
+}(window, window.angular), define("ngdir/text/textAngular-sanitize", [ "angular" ], function() {});
+
+var taTools = {};
+
+angular.module("textAngularSetup", []).constant("taRegisterTool", registerTextAngularTool).value("taTools", taTools).value("taOptions", {
+    forceTextAngularSanitize: !0,
+    keyMappings: [],
+    toolbar: [ [ "h1", "h2", "h3", "h4", "h5", "h6", "p", "pre", "quote" ], [ "bold", "italics", "underline", "strikeThrough", "ul", "ol", "redo", "undo", "clear" ], [ "justifyLeft", "justifyCenter", "justifyRight", "justifyFull", "indent", "outdent" ], [ "html", "insertImage", "insertLink", "insertVideo", "wordcount", "charcount" ] ],
+    classes: {
+        focussed: "focussed",
+        toolbar: "btn-toolbar",
+        toolbarGroup: "btn-group",
+        toolbarButton: "btn btn-default",
+        toolbarButtonActive: "active",
+        disabled: "disabled",
+        textEditor: "form-control",
+        htmlEditor: "form-control"
+    },
+    defaultTagAttributes: {
+        a: {
+            target: ""
+        }
+    },
+    setup: {
+        textEditorSetup: function() {},
+        htmlEditorSetup: function() {}
+    },
+    defaultFileDropHandler: function(file, insertAction) {
+        var reader = new FileReader();
+        return "image" === file.type.substring(0, 5) ? (reader.onload = function() {
+            "" !== reader.result && insertAction("insertImage", reader.result, !0);
+        }, reader.readAsDataURL(file), !0) : !1;
+    }
+}).value("taSelectableElements", [ "a", "img" ]).value("taCustomRenderers", [ {
+    selector: "img",
+    customAttribute: "ta-insert-video",
+    renderLogic: function(element) {
+        var iframe = angular.element("<iframe></iframe>"), attributes = element.prop("attributes");
+        angular.forEach(attributes, function(attr) {
+            iframe.attr(attr.name, attr.value);
+        }), iframe.attr("src", iframe.attr("ta-insert-video")), element.replaceWith(iframe);
+    }
+} ]).value("taTranslations", {
+    html: {
+        tooltip: "Toggle html / Rich Text"
+    },
+    heading: {
+        tooltip: "Heading "
+    },
+    p: {
+        tooltip: "Paragraph"
+    },
+    pre: {
+        tooltip: "Preformatted text"
+    },
+    ul: {
+        tooltip: "Unordered List"
+    },
+    ol: {
+        tooltip: "Ordered List"
+    },
+    quote: {
+        tooltip: "Quote/unquote selection or paragraph"
+    },
+    undo: {
+        tooltip: "Undo"
+    },
+    redo: {
+        tooltip: "Redo"
+    },
+    bold: {
+        tooltip: "Bold"
+    },
+    italic: {
+        tooltip: "Italic"
+    },
+    underline: {
+        tooltip: "Underline"
+    },
+    strikeThrough: {
+        tooltip: "Strikethrough"
+    },
+    justifyLeft: {
+        tooltip: "Align text left"
+    },
+    justifyRight: {
+        tooltip: "Align text right"
+    },
+    justifyFull: {
+        tooltip: "Justify text"
+    },
+    justifyCenter: {
+        tooltip: "Center"
+    },
+    indent: {
+        tooltip: "Increase indent"
+    },
+    outdent: {
+        tooltip: "Decrease indent"
+    },
+    clear: {
+        tooltip: "Clear formatting"
+    },
+    insertImage: {
+        dialogPrompt: "Please enter an image URL to insert",
+        tooltip: "Insert image",
+        hotkey: "the - possibly language dependent hotkey ... for some future implementation"
+    },
+    insertVideo: {
+        tooltip: "Insert video",
+        dialogPrompt: "Please enter a youtube URL to embed"
+    },
+    insertLink: {
+        tooltip: "Insert / edit link",
+        dialogPrompt: "Please enter a URL to insert"
+    },
+    editLink: {
+        reLinkButton: {
+            tooltip: "Relink"
+        },
+        unLinkButton: {
+            tooltip: "Unlink"
+        },
+        targetToggle: {
+            buttontext: "Open in New Window"
+        }
+    },
+    wordcount: {
+        tooltip: "Display words Count"
+    },
+    charcount: {
+        tooltip: "Display characters Count"
+    }
+}).factory("taToolFunctions", [ "$window", "taTranslations", function($window, taTranslations) {
+    return {
+        imgOnSelectAction: function(event, $element, editorScope) {
+            var finishEdit = function() {
+                editorScope.updateTaBindtaTextElement(), editorScope.hidePopover();
+            };
+            event.preventDefault(), editorScope.displayElements.popover.css("width", "375px");
+            var container = editorScope.displayElements.popoverContainer;
+            container.empty();
+            var buttonGroup = angular.element('<div class="btn-group" style="padding-right: 6px;">'), fullButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">100% </button>');
+            fullButton.on("click", function(event) {
+                event.preventDefault(), $element.css({
+                    width: "100%",
+                    height: ""
+                }), finishEdit();
+            });
+            var halfButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">50% </button>');
+            halfButton.on("click", function(event) {
+                event.preventDefault(), $element.css({
+                    width: "50%",
+                    height: ""
+                }), finishEdit();
+            });
+            var quartButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">25% </button>');
+            quartButton.on("click", function(event) {
+                event.preventDefault(), $element.css({
+                    width: "25%",
+                    height: ""
+                }), finishEdit();
+            });
+            var resetButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">Reset</button>');
+            resetButton.on("click", function(event) {
+                event.preventDefault(), $element.css({
+                    width: "",
+                    height: ""
+                }), finishEdit();
+            }), buttonGroup.append(fullButton), buttonGroup.append(halfButton), buttonGroup.append(quartButton), 
+            buttonGroup.append(resetButton), container.append(buttonGroup), buttonGroup = angular.element('<div class="btn-group" style="padding-right: 6px;">');
+            var floatLeft = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-align-left"></i></button>');
+            floatLeft.on("click", function(event) {
+                event.preventDefault(), $element.css("float", "left"), $element.css("cssFloat", "left"), 
+                $element.css("styleFloat", "left"), finishEdit();
+            });
+            var floatRight = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-align-right"></i></button>');
+            floatRight.on("click", function(event) {
+                event.preventDefault(), $element.css("float", "right"), $element.css("cssFloat", "right"), 
+                $element.css("styleFloat", "right"), finishEdit();
+            });
+            var floatNone = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-align-justify"></i></button>');
+            floatNone.on("click", function(event) {
+                event.preventDefault(), $element.css("float", ""), $element.css("cssFloat", ""), 
+                $element.css("styleFloat", ""), finishEdit();
+            }), buttonGroup.append(floatLeft), buttonGroup.append(floatNone), buttonGroup.append(floatRight), 
+            container.append(buttonGroup), buttonGroup = angular.element('<div class="btn-group">');
+            var remove = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-trash-o"></i></button>');
+            remove.on("click", function(event) {
+                event.preventDefault(), $element.remove(), finishEdit();
+            }), buttonGroup.append(remove), container.append(buttonGroup), editorScope.showPopover($element), 
+            editorScope.showResizeOverlay($element);
+        },
+        aOnSelectAction: function(event, $element, editorScope) {
+            event.preventDefault(), editorScope.displayElements.popover.css("width", "436px");
+            var container = editorScope.displayElements.popoverContainer;
+            container.empty(), container.css("line-height", "28px");
+            var link = angular.element('<a href="' + $element.attr("href") + '" target="_blank">' + $element.attr("href") + "</a>");
+            link.css({
+                display: "inline-block",
+                "max-width": "200px",
+                overflow: "hidden",
+                "text-overflow": "ellipsis",
+                "white-space": "nowrap",
+                "vertical-align": "middle"
+            }), container.append(link);
+            var buttonGroup = angular.element('<div class="btn-group pull-right">'), reLinkButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on" title="' + taTranslations.editLink.reLinkButton.tooltip + '"><i class="fa fa-edit icon-edit"></i></button>');
+            reLinkButton.on("click", function(event) {
+                event.preventDefault();
+                var urlLink = $window.prompt(taTranslations.insertLink.dialogPrompt, $element.attr("href"));
+                urlLink && "" !== urlLink && "http://" !== urlLink && ($element.attr("href", urlLink), 
+                editorScope.updateTaBindtaTextElement()), editorScope.hidePopover();
+            }), buttonGroup.append(reLinkButton);
+            var unLinkButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on" title="' + taTranslations.editLink.unLinkButton.tooltip + '"><i class="fa fa-unlink icon-unlink"></i></button>');
+            unLinkButton.on("click", function(event) {
+                event.preventDefault(), $element.replaceWith($element.contents()), editorScope.updateTaBindtaTextElement(), 
+                editorScope.hidePopover();
+            }), buttonGroup.append(unLinkButton);
+            var targetToggle = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on">' + taTranslations.editLink.targetToggle.buttontext + "</button>");
+            "_blank" === $element.attr("target") && targetToggle.addClass("active"), targetToggle.on("click", function(event) {
+                event.preventDefault(), $element.attr("target", "_blank" === $element.attr("target") ? "" : "_blank"), 
+                targetToggle.toggleClass("active"), editorScope.updateTaBindtaTextElement();
+            }), buttonGroup.append(targetToggle), container.append(buttonGroup), editorScope.showPopover($element);
+        },
+        extractYoutubeVideoId: function(url) {
+            var re = /(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i, match = url.match(re);
+            return match && match[1] || null;
+        }
+    };
+} ]).run([ "taRegisterTool", "$window", "taTranslations", "taSelection", "taToolFunctions", "$sanitize", "taOptions", "$log", function(taRegisterTool, $window, taTranslations, taSelection, taToolFunctions, $sanitize, taOptions) {
+    var gv = {};
+    if ($sanitize("", gv), taOptions.forceTextAngularSanitize === !0 && "taSanitize" !== gv.version) throw angular.$$minErr("textAngular")("textAngularSetup", "The textAngular-sanitize provider has been replaced by another -- have you included angular-sanitize by mistake?");
+    taRegisterTool("html", {
+        iconclass: "fa fa-code",
+        tooltiptext: taTranslations.html.tooltip,
+        action: function() {
+            this.$editor().switchView();
+        },
+        activeState: function() {
+            return this.$editor().showHtml;
+        }
+    });
+    var _retActiveStateFunction = function(q) {
+        return function() {
+            return this.$editor().queryFormatBlockState(q);
+        };
+    }, headerAction = function() {
+        return this.$editor().wrapSelection("formatBlock", "<" + this.name.toUpperCase() + ">");
+    };
+    angular.forEach([ "h1", "h2", "h3", "h4", "h5", "h6" ], function(h) {
+        taRegisterTool(h.toLowerCase(), {
+            buttontext: h.toUpperCase(),
+            tooltiptext: taTranslations.heading.tooltip + h.charAt(1),
+            action: headerAction,
+            activeState: _retActiveStateFunction(h.toLowerCase())
+        });
+    }), taRegisterTool("p", {
+        buttontext: "P",
+        tooltiptext: taTranslations.p.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("formatBlock", "<P>");
+        },
+        activeState: function() {
+            return this.$editor().queryFormatBlockState("p");
+        }
+    }), taRegisterTool("pre", {
+        buttontext: "pre",
+        tooltiptext: taTranslations.pre.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("formatBlock", "<PRE>");
+        },
+        activeState: function() {
+            return this.$editor().queryFormatBlockState("pre");
+        }
+    }), taRegisterTool("ul", {
+        iconclass: "fa fa-list-ul",
+        tooltiptext: taTranslations.ul.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("insertUnorderedList", null);
+        },
+        activeState: function() {
+            return this.$editor().queryCommandState("insertUnorderedList");
+        }
+    }), taRegisterTool("ol", {
+        iconclass: "fa fa-list-ol",
+        tooltiptext: taTranslations.ol.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("insertOrderedList", null);
+        },
+        activeState: function() {
+            return this.$editor().queryCommandState("insertOrderedList");
+        }
+    }), taRegisterTool("quote", {
+        iconclass: "fa fa-quote-right",
+        tooltiptext: taTranslations.quote.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("formatBlock", "<BLOCKQUOTE>");
+        },
+        activeState: function() {
+            return this.$editor().queryFormatBlockState("blockquote");
+        }
+    }), taRegisterTool("undo", {
+        iconclass: "fa fa-undo",
+        tooltiptext: taTranslations.undo.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("undo", null);
+        }
+    }), taRegisterTool("redo", {
+        iconclass: "fa fa-repeat",
+        tooltiptext: taTranslations.redo.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("redo", null);
+        }
+    }), taRegisterTool("bold", {
+        iconclass: "fa fa-bold",
+        tooltiptext: taTranslations.bold.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("bold", null);
+        },
+        activeState: function() {
+            return this.$editor().queryCommandState("bold");
+        },
+        commandKeyCode: 98
+    }), taRegisterTool("justifyLeft", {
+        iconclass: "fa fa-align-left",
+        tooltiptext: taTranslations.justifyLeft.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("justifyLeft", null);
+        },
+        activeState: function(commonElement) {
+            if (commonElement && "#document" === commonElement.nodeName) return !1;
+            var result = !1;
+            if (commonElement) try {
+                result = "left" === commonElement.css("text-align") || "left" === commonElement.attr("align") || "right" !== commonElement.css("text-align") && "center" !== commonElement.css("text-align") && "justify" !== commonElement.css("text-align") && !this.$editor().queryCommandState("justifyRight") && !this.$editor().queryCommandState("justifyCenter") && !this.$editor().queryCommandState("justifyFull");
+            } catch (e) {
+                result = !1;
+            }
+            return result = result || this.$editor().queryCommandState("justifyLeft");
+        }
+    }), taRegisterTool("justifyRight", {
+        iconclass: "fa fa-align-right",
+        tooltiptext: taTranslations.justifyRight.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("justifyRight", null);
+        },
+        activeState: function(commonElement) {
+            if (commonElement && "#document" === commonElement.nodeName) return !1;
+            var result = !1;
+            if (commonElement) try {
+                result = "right" === commonElement.css("text-align");
+            } catch (e) {
+                result = !1;
+            }
+            return result = result || this.$editor().queryCommandState("justifyRight");
+        }
+    }), taRegisterTool("justifyFull", {
+        iconclass: "fa fa-align-justify",
+        tooltiptext: taTranslations.justifyFull.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("justifyFull", null);
+        },
+        activeState: function(commonElement) {
+            var result = !1;
+            if (commonElement) try {
+                result = "justify" === commonElement.css("text-align");
+            } catch (e) {
+                result = !1;
+            }
+            return result = result || this.$editor().queryCommandState("justifyFull");
+        }
+    }), taRegisterTool("justifyCenter", {
+        iconclass: "fa fa-align-center",
+        tooltiptext: taTranslations.justifyCenter.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("justifyCenter", null);
+        },
+        activeState: function(commonElement) {
+            if (commonElement && "#document" === commonElement.nodeName) return !1;
+            var result = !1;
+            if (commonElement) try {
+                result = "center" === commonElement.css("text-align");
+            } catch (e) {
+                result = !1;
+            }
+            return result = result || this.$editor().queryCommandState("justifyCenter");
+        }
+    }), taRegisterTool("indent", {
+        iconclass: "fa fa-indent",
+        tooltiptext: taTranslations.indent.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("indent", null);
+        },
+        activeState: function() {
+            return this.$editor().queryFormatBlockState("blockquote");
+        },
+        commandKeyCode: "TabKey"
+    }), taRegisterTool("outdent", {
+        iconclass: "fa fa-outdent",
+        tooltiptext: taTranslations.outdent.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("outdent", null);
+        },
+        activeState: function() {
+            return !1;
+        },
+        commandKeyCode: "ShiftTabKey"
+    }), taRegisterTool("italics", {
+        iconclass: "fa fa-italic",
+        tooltiptext: taTranslations.italic.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("italic", null);
+        },
+        activeState: function() {
+            return this.$editor().queryCommandState("italic");
+        },
+        commandKeyCode: 105
+    }), taRegisterTool("underline", {
+        iconclass: "fa fa-underline",
+        tooltiptext: taTranslations.underline.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("underline", null);
+        },
+        activeState: function() {
+            return this.$editor().queryCommandState("underline");
+        },
+        commandKeyCode: 117
+    }), taRegisterTool("strikeThrough", {
+        iconclass: "fa fa-strikethrough",
+        tooltiptext: taTranslations.strikeThrough.tooltip,
+        action: function() {
+            return this.$editor().wrapSelection("strikeThrough", null);
+        },
+        activeState: function() {
+            return document.queryCommandState("strikeThrough");
+        }
+    }), taRegisterTool("clear", {
+        iconclass: "fa fa-ban",
+        tooltiptext: taTranslations.clear.tooltip,
+        action: function(deferred, restoreSelection) {
+            var selectedElements;
+            this.$editor().wrapSelection("removeFormat", null);
+            var possibleNodes = angular.element(taSelection.getSelectionElement());
+            selectedElements = taSelection.getAllSelectedElements();
+            var removeListElements = function(list, pe) {
+                list = angular.element(list);
+                var prevElement = pe;
+                return pe || (prevElement = list), angular.forEach(list.children(), function(liElem) {
+                    if ("ul" === liElem.tagName.toLowerCase() || "ol" === liElem.tagName.toLowerCase()) prevElement = removeListElements(liElem, prevElement); else {
+                        var newElem = angular.element("<p></p>");
+                        newElem.html(angular.element(liElem).html()), prevElement.after(newElem), prevElement = newElem;
+                    }
+                }), list.remove(), prevElement;
+            };
+            angular.forEach(selectedElements, function(element) {
+                ("ul" === element.nodeName.toLowerCase() || "ol" === element.nodeName.toLowerCase()) && removeListElements(element);
+            }), angular.forEach(possibleNodes.find("ul"), removeListElements), angular.forEach(possibleNodes.find("ol"), removeListElements);
+            var $editor = this.$editor(), recursiveRemoveClass = function(node) {
+                node = angular.element(node), node[0] !== $editor.displayElements.text[0] && node.removeAttr("class"), 
+                angular.forEach(node.children(), recursiveRemoveClass);
+            };
+            angular.forEach(possibleNodes, recursiveRemoveClass), possibleNodes[0] && "li" !== possibleNodes[0].tagName.toLowerCase() && "ol" !== possibleNodes[0].tagName.toLowerCase() && "ul" !== possibleNodes[0].tagName.toLowerCase() && "true" !== possibleNodes[0].getAttribute("contenteditable") && this.$editor().wrapSelection("formatBlock", "default"), 
+            restoreSelection();
+        }
+    });
+    var blockJavascript = function(link) {
+        return -1 !== link.toLowerCase().indexOf("javascript") ? !0 : !1;
+    };
+    taRegisterTool("insertImage", {
+        iconclass: "fa fa-picture-o",
+        tooltiptext: taTranslations.insertImage.tooltip,
+        action: function() {
+            var imageLink;
+            if (imageLink = $window.prompt(taTranslations.insertImage.dialogPrompt, "http://"), 
+            imageLink && "" !== imageLink && "http://" !== imageLink && !blockJavascript(imageLink)) {
+                taSelection.getSelectionElement().tagName && "a" === taSelection.getSelectionElement().tagName.toLowerCase() && taSelection.setSelectionAfterElement(taSelection.getSelectionElement());
+                var embed = '<img src="' + imageLink + '">';
+                return this.$editor().wrapSelection("insertHTML", embed, !0);
+            }
+        },
+        onElementSelect: {
+            element: "img",
+            action: taToolFunctions.imgOnSelectAction
+        }
+    }), taRegisterTool("insertVideo", {
+        iconclass: "fa fa-youtube-play",
+        tooltiptext: taTranslations.insertVideo.tooltip,
+        action: function() {
+            var urlPrompt;
+            if (urlPrompt = $window.prompt(taTranslations.insertVideo.dialogPrompt, "https://"), 
+            !blockJavascript(urlPrompt) && urlPrompt && "" !== urlPrompt && "https://" !== urlPrompt && (videoId = taToolFunctions.extractYoutubeVideoId(urlPrompt))) {
+                var urlLink = "https://www.youtube.com/embed/" + videoId, embed = '<img class="ta-insert-video" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" ta-insert-video="' + urlLink + '" contenteditable="false" allowfullscreen="true" frameborder="0" />';
+                return taSelection.getSelectionElement().tagName && "a" === taSelection.getSelectionElement().tagName.toLowerCase() && taSelection.setSelectionAfterElement(taSelection.getSelectionElement()), 
+                this.$editor().wrapSelection("insertHTML", embed, !0);
+            }
+        },
+        onElementSelect: {
+            element: "img",
+            onlyWithAttrs: [ "ta-insert-video" ],
+            action: taToolFunctions.imgOnSelectAction
+        }
+    }), taRegisterTool("insertLink", {
+        tooltiptext: taTranslations.insertLink.tooltip,
+        iconclass: "fa fa-link",
+        action: function() {
+            var urlLink;
+            return urlLink = taSelection.getSelectionElement().tagName && "a" === taSelection.getSelectionElement().tagName.toLowerCase() ? $window.prompt(taTranslations.insertLink.dialogPrompt, taSelection.getSelectionElement().href) : $window.prompt(taTranslations.insertLink.dialogPrompt, "http://"), 
+            urlLink && "" !== urlLink && "http://" !== urlLink && !blockJavascript(urlLink) ? this.$editor().wrapSelection("createLink", urlLink, !0) : void 0;
+        },
+        activeState: function(commonElement) {
+            return commonElement ? "A" === commonElement[0].tagName : !1;
+        },
+        onElementSelect: {
+            element: "a",
+            action: taToolFunctions.aOnSelectAction
+        }
+    }), taRegisterTool("wordcount", {
+        display: '<div id="toolbarWC" style="display:block; min-width:100px;">Words: <span ng-bind="wordcount"></span></div>',
+        disabled: !0,
+        wordcount: 0,
+        activeState: function() {
+            var textElement = this.$editor().displayElements.text, workingHTML = textElement[0].innerHTML || "", noOfWords = 0;
+            return "" !== workingHTML.replace(/\s*<[^>]*?>\s*/g, "") && "" !== workingHTML.trim() && (noOfWords = workingHTML.replace(/<\/?(b|i|em|strong|span|u|strikethrough|a|img|small|sub|sup|label)( [^>*?])?>/gi, "").replace(/(<[^>]*?>\s*<[^>]*?>)/gi, " ").replace(/(<[^>]*?>)/gi, "").replace(/\s+/gi, " ").match(/\S+/g).length), 
+            this.wordcount = noOfWords, this.$editor().wordcount = noOfWords, !1;
+        }
+    }), taRegisterTool("charcount", {
+        display: '<div id="toolbarCC" style="display:block; min-width:120px;">Characters: <span ng-bind="charcount"></span></div>',
+        disabled: !0,
+        charcount: 0,
+        activeState: function() {
+            var textElement = this.$editor().displayElements.text, sourceText = textElement[0].innerText || textElement[0].textContent, noOfChars = sourceText.replace(/(\r\n|\n|\r)/gm, "").replace(/^\s+/g, " ").replace(/\s+$/g, " ").length;
+            return this.charcount = noOfChars, this.$editor().charcount = noOfChars, !1;
+        }
+    });
+} ]), define("ngdir/text/textAngular-setup", [ "angular" ], function() {}), function(window, angular, undefined) {
     function $$CookieWriter($document, $log, $browser) {
         function buildCookieString(name, value, options) {
             var path, expires;
@@ -18332,8 +20722,12 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
         }
         function setTagProp(tagName, attributeName, attributeValue, propName, propValue) {
             var tag = getTag(tagName, attributeName, attributeValue);
-            tag || (tag = document.createElement(tagName), tag.setAttribute(attributeName, attributeValue), 
-            document.getElementsByTagName("head")[0].appendChild(tag)), tag.setAttribute(propName, propValue);
+            if (!tag) {
+                tag = document.createElement(tagName), tag.setAttribute(attributeName, attributeValue);
+                var firstStyle = document.querySelector("head>style");
+                firstStyle.parentNode.insertBefore(tag, firstStyle);
+            }
+            tag.setAttribute(propName, propValue);
         }
         function removeTag(tagName, attributeName, attributeValue) {
             var tag = getTag(tagName, attributeName, attributeValue);
@@ -18927,16 +21321,18 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
         };
     });
 }), define("common/js/modules/domUtils/bsRightClickDirective", [ "./domUtilsModule" ], function(module) {
-    module.directive("bsRightClick", function($parse) {
+    module.directive("bsRightClick", function($parse, $rootScope) {
         return function(scope, element, attrs) {
-            var fn = $parse(attrs.bsRightClick);
-            element.bind("contextmenu", function(event) {
-                scope.$apply(function() {
-                    event.preventDefault(), fn(scope, {
-                        $event: event
+            if (!$rootScope.searchAgentRequest) {
+                var fn = $parse(attrs.bsRightClick);
+                element.bind("contextmenu", function(event) {
+                    scope.$apply(function() {
+                        event.preventDefault(), fn(scope, {
+                            $event: event
+                        });
                     });
                 });
-            });
+            }
         };
     });
 }), define("common/js/modules/domUtils/stopEventDirective", [ "./domUtilsModule" ], function(module) {
@@ -19686,12 +22082,14 @@ define("common/js/modules/paths/pathsModule", [ "angular" ], function(ng) {
             return getUiHref(auction.singleItemIdInApp ? "/lotPage/source/catalog/auction/" + auction.intKey + "/lot/" + auction.singleItemIdInApp + "/" : "/catalog/auction/" + auction.intKey + "/1");
         }
         function getCurrentUiHref() {
-            return 0 == window.location.hash.indexOf("#!") ? window.location.hash.split("#!")[1] : -1 != window.location.href.indexOf("/ui/") ? "/" + window.location.href.split("/ui/")[1].split("?")[0] : "home";
+            var uiHref;
+            return uiHref = 0 == window.location.hash.indexOf("#!") ? window.location.hash.split("#!")[1] : -1 != window.location.href.indexOf("/ui/") ? "/" + window.location.href.split("/ui/")[1].split("?")[0] : "home", 
+            uiHref.replace(/\/\//g, "/");
         }
         function getUiHref(path) {
-            var href;
-            return href = GlobalConfig.prettyUrls ? GlobalConfig.devEnv ? "/portal/ui" : "/ui" : "#!", 
-            0 != path.indexOf("/") && (href += "/"), href += path, $rootScope.currentLang && GlobalConfig.prettyUrls && (href += "?lang=" + $rootScope.currentLang), 
+            var href, userPrettyUrl = $rootScope.searchAgentRequest || GlobalConfig.prettyUrls;
+            return href = userPrettyUrl ? GlobalConfig.devEnv ? "/portal/ui" : "/ui" : "#!", 
+            0 != path.indexOf("/") && (href += "/"), href += path, $rootScope.currentLang && userPrettyUrl && (href += "?lang=" + $rootScope.currentLang), 
             href;
         }
         function getStaticFilesBase() {
@@ -22001,490 +24399,7 @@ define("commonModules", [ "angular", "ngdir/angular-ui-router", "ngdir/angular-n
     }).run(function($rootScope, $state, $stateParams) {
         $rootScope.$state = $state, $rootScope.$stateParams = $stateParams, $rootScope.serverFilesBase = GlobalConfig.serverFilesBase;
     });
-}), window.console || (console = {
-    log: function() {}
-});
-
-var textAngular = angular.module("textAngular", [ "ngSanitize" ]);
-
-textAngular.directive("textAngular", [ "$compile", "$window", "$document", "$rootScope", "$timeout", "taFixChrome", function($compile, $window, $document, $rootScope, $timeout, taFixChrome) {
-    function deepExtend(destination, source) {
-        for (var property in source) source[property] && source[property].constructor && source[property].constructor === Object ? (destination[property] = destination[property] || {}, 
-        arguments.callee(destination[property], source[property])) : destination[property] = source[property];
-        return destination;
-    }
-    $rootScope.textAngularOpts = deepExtend({
-        toolbar: [ [ "h1", "h2", "h3", "p", "pre", "quote", "color" ], [ "bold", "italics", "underline", "ul", "ol", "redo", "undo", "clear" ], [ "justifyLeft", "justifyCenter", "justifyRight" ], [ "html", "insertImage", "insertLink", "unlink" ] ],
-        classes: {
-            focussed: "focussed",
-            toolbar: "btn-toolbar",
-            toolbarGroup: "btn-group",
-            toolbarButton: "btn btn-default",
-            toolbarButtonActive: "active",
-            textEditor: "form-control",
-            htmlEditor: "form-control"
-        }
-    }, null != $rootScope.textAngularOpts ? $rootScope.textAngularOpts : {});
-    var queryFormatBlockState = function(command) {
-        command = command.toLowerCase();
-        var val = $document[0].queryCommandValue("formatBlock").toLowerCase();
-        return val === command || val === command;
-    };
-    return $rootScope.textAngularTools = deepExtend({
-        html: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'>Toggle HTML</button>",
-            action: function() {
-                var _this = this;
-                this.$parent.showHtml = !this.$parent.showHtml, this.$parent.showHtml ? $timeout(function() {
-                    return _this.$parent.displayElements.html[0].focus();
-                }, 100) : $timeout(function() {
-                    return _this.$parent.displayElements.text[0].focus();
-                }, 100), this.active = this.$parent.showHtml;
-            }
-        },
-        color: {
-            display: "<button type='button'  ng-class='displayActiveToolClass(active)' ><input type='color' ng-change='action()' ng-model='color'></button>",
-            action: function() {
-                var color = angular.element(this.$parent.displayElements.toolbar)[0].querySelector("input[type=color]").value;
-                return this.$parent.wrapSelection("foreColor", color);
-            },
-            activeState: function() {
-                return queryFormatBlockState("color");
-            }
-        },
-        h1: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'>H1</button>",
-            action: function() {
-                return this.$parent.wrapSelection("formatBlock", "<H1>");
-            },
-            activeState: function() {
-                return queryFormatBlockState("h1");
-            }
-        },
-        h2: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'>H2</button>",
-            action: function() {
-                return this.$parent.wrapSelection("formatBlock", "<H2>");
-            },
-            activeState: function() {
-                return queryFormatBlockState("h2");
-            }
-        },
-        h3: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'>H3</button>",
-            action: function() {
-                return this.$parent.wrapSelection("formatBlock", "<H3>");
-            },
-            activeState: function() {
-                return queryFormatBlockState("h3");
-            }
-        },
-        p: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'>P</button>",
-            action: function() {
-                return this.$parent.wrapSelection("formatBlock", "<P>");
-            },
-            activeState: function() {
-                return queryFormatBlockState("p");
-            }
-        },
-        pre: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'>pre</button>",
-            action: function() {
-                return this.$parent.wrapSelection("formatBlock", "<PRE>");
-            },
-            activeState: function() {
-                return queryFormatBlockState("pre");
-            }
-        },
-        ul: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-list-ul'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("insertUnorderedList", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("insertUnorderedList");
-            }
-        },
-        ol: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-list-ol'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("insertOrderedList", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("insertOrderedList");
-            }
-        },
-        quote: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-quote-right'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("formatBlock", "<BLOCKQUOTE>");
-            },
-            activeState: function() {
-                return queryFormatBlockState("blockquote");
-            }
-        },
-        undo: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-undo'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("undo", null);
-            }
-        },
-        redo: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-repeat'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("redo", null);
-            }
-        },
-        bold: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-bold'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("bold", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("bold");
-            }
-        },
-        justifyLeft: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-align-left'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("justifyLeft", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("justifyLeft");
-            }
-        },
-        justifyRight: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-align-right'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("justifyRight", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("justifyRight");
-            }
-        },
-        justifyCenter: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-align-center'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("justifyCenter", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("justifyCenter");
-            }
-        },
-        italics: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-italic'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("italic", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("italic");
-            }
-        },
-        underline: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-underline'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("underline", null);
-            },
-            activeState: function() {
-                return $document[0].queryCommandState("underline");
-            }
-        },
-        clear: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-ban'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("removeFormat", null);
-            }
-        },
-        insertImage: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-picture-o'></i></button>",
-            action: function() {
-                var imageLink;
-                return imageLink = prompt("Please enter an image URL to insert", "http://"), "" !== imageLink ? this.$parent.wrapSelection("insertImage", imageLink) : void 0;
-            }
-        },
-        insertLink: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-link'></i></button>",
-            action: function() {
-                var urlLink;
-                return urlLink = prompt("Please enter an URL to insert", "http://"), "" !== urlLink ? this.$parent.wrapSelection("createLink", urlLink) : void 0;
-            }
-        },
-        unlink: {
-            display: "<button type='button' ng-click='action()' ng-class='displayActiveToolClass(active)'><i class='fa fa-unlink'></i></button>",
-            action: function() {
-                return this.$parent.wrapSelection("unlink", null);
-            }
-        }
-    }, null != $rootScope.textAngularTools ? $rootScope.textAngularTools : {}), {
-        require: "ngModel",
-        scope: {},
-        restrict: "EA",
-        link: function(scope, element, attrs, ngModel) {
-            var group, groupElement, keydown, keyup, tool, toolElement;
-            angular.extend(scope, $rootScope.textAngularOpts, {
-                wrapSelection: function(command, opt) {
-                    document.execCommand(command, !1, opt), ("insertUnorderedList" === command || "insertOrderedList" === command) && taFixChrome(scope.displayElements.text), 
-                    scope.showHtml ? scope.displayElements.html[0].focus() : scope.displayElements.text[0].focus(), 
-                    scope.updateSelectedStyles(), scope.showHtml || scope.updateTaBindtext();
-                },
-                showHtml: !1
-            }), attrs.taToolbar && (scope.toolbar = scope.$eval(attrs.taToolbar)), attrs.taFocussedClass && (scope.classes.focussed = scope.$eval(attrs.taFocussedClass)), 
-            attrs.taToolbarClass && (scope.classes.toolbar = attrs.taToolbarClass), attrs.taToolbarGroupClass && (scope.classes.toolbarGroup = attrs.taToolbarGroupClass), 
-            attrs.taToolbarButtonClass && (scope.classes.toolbarButton = attrs.taToolbarButtonClass), 
-            attrs.taToolbarActiveButtonClass && (scope.classes.toolbarButtonActive = attrs.taToolbarActiveButtonClass), 
-            attrs.taTextEditorClass && (scope.classes.textEditor = attrs.taTextEditorClass), 
-            attrs.taHtmlEditorClass && (scope.classes.htmlEditor = attrs.taHtmlEditorClass), 
-            scope.displayElements = {
-                toolbar: angular.element("<div></div>"),
-                forminput: angular.element("<input type='hidden' style='display: none;'>"),
-                html: angular.element("<textarea ng-show='showHtml' ta-bind='html' ng-model='html' ></textarea>"),
-                text: angular.element("<div contentEditable='true' ng-hide='showHtml' ta-bind='text' ng-model='text' ></div>")
-            }, element.append(scope.displayElements.toolbar), element.append(scope.displayElements.text), 
-            element.append(scope.displayElements.html), attrs.name && (scope.displayElements.forminput.attr("name", attrs.name), 
-            element.append(scope.displayElements.forminput)), $compile(scope.displayElements.text)(scope), 
-            $compile(scope.displayElements.html)(scope), element.addClass("ta-root"), scope.displayElements.toolbar.addClass("ta-toolbar " + scope.classes.toolbar), 
-            scope.displayElements.text.addClass("ta-text ta-editor " + scope.classes.textEditor), 
-            scope.displayElements.html.addClass("ta-html ta-editor " + scope.classes.textEditor), 
-            element.on("focusin", function() {
-                element.addClass(scope.classes.focussed), $timeout(function() {
-                    element.triggerHandler("focus");
-                }, 0);
-            }), element.on("focusout", function() {
-                $timeout(function() {
-                    $document[0].activeElement !== scope.displayElements.html[0] && $document[0].activeElement !== scope.displayElements.text[0] && (element.removeClass(scope.classes.focussed), 
-                    $timeout(function() {
-                        element.triggerHandler("blur");
-                    }, 0));
-                }, 0);
-            }), scope.tools = {};
-            for (var _i = 0; _i < scope.toolbar.length; _i++) {
-                group = scope.toolbar[_i], groupElement = angular.element("<div></div>"), groupElement.addClass(scope.classes.toolbarGroup);
-                for (var _j = 0; _j < group.length; _j++) {
-                    tool = group[_j], toolElement = angular.element($rootScope.textAngularTools[tool].display), 
-                    toolElement.addClass(scope.classes.toolbarButton), toolElement.attr("unselectable", "on"), 
-                    toolElement.attr("ng-disabled", "showHtml()");
-                    var childScope = angular.extend(scope.$new(!0), $rootScope.textAngularTools[tool], {
-                        name: tool,
-                        showHtml: function() {
-                            return "html" !== this.name ? this.$parent.showHtml : !1;
-                        },
-                        displayActiveToolClass: function(active) {
-                            return active ? this.$parent.classes.toolbarButtonActive : "";
-                        }
-                    });
-                    scope.tools[tool] = childScope, groupElement.append($compile(toolElement)(childScope));
-                }
-                scope.displayElements.toolbar.append(groupElement);
-            }
-            ngModel.$render = function() {
-                if (scope.displayElements.forminput.val(ngModel.$viewValue), void 0 !== ngModel.$viewValue && $document[0].activeElement !== scope.displayElements.html[0] && $document[0].activeElement !== scope.displayElements.text[0]) {
-                    var val = ngModel.$viewValue || "";
-                    scope.text = val, scope.html = val;
-                }
-            }, scope.$watch("text", function(newValue) {
-                scope.html = newValue, ngModel.$setViewValue(newValue), scope.displayElements.forminput.val(newValue);
-            }), scope.$watch("html", function(newValue) {
-                scope.text = newValue, ngModel.$setViewValue(newValue), scope.displayElements.forminput.val(newValue);
-            }), scope.bUpdateSelectedStyles = !1, scope.updateSelectedStyles = function() {
-                for (var _k = 0; _k < scope.toolbar.length; _k++) for (var groups = scope.toolbar[_k], _l = 0; _l < groups.length; _l++) tool = groups[_l], 
-                null != scope.tools[tool].activeState && (scope.tools[tool].active = scope.tools[tool].activeState.apply(scope));
-                this.bUpdateSelectedStyles && $timeout(this.updateSelectedStyles, 200);
-            }, keydown = function() {
-                scope.bUpdateSelectedStyles = !0, scope.$apply(function() {
-                    scope.updateSelectedStyles();
-                });
-            }, scope.displayElements.html.on("keydown", keydown), scope.displayElements.text.on("keydown", keydown), 
-            keyup = function() {
-                scope.bUpdateSelectedStyles = !1;
-            }, scope.displayElements.html.on("keyup", keyup), scope.displayElements.text.on("keyup", keyup), 
-            mouseup = function() {
-                scope.$apply(function() {
-                    scope.updateSelectedStyles();
-                });
-            }, scope.displayElements.html.on("mouseup", mouseup), scope.displayElements.text.on("mouseup", mouseup);
-        }
-    };
-} ]).directive("taBind", [ "$sanitize", "$document", "taFixChrome", function($sanitize, $document, taFixChrome) {
-    return {
-        require: "ngModel",
-        scope: {
-            taBind: "@"
-        },
-        link: function(scope, element, attrs, ngModel) {
-            var isContentEditable = "textarea" !== element[0].tagName.toLowerCase() && "input" !== element[0].tagName.toLowerCase() && void 0 !== element.attr("contenteditable"), compileHtml = function() {
-                var result = taFixChrome(angular.element("<div>").append(element.html())).html();
-                return "html" === scope.taBind && isContentEditable && (result = result.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&")), 
-                result;
-            };
-            scope.$parent["updateTaBind" + scope.taBind] = function() {
-                var compHtml = compileHtml(), tempParsers = ngModel.$parsers;
-                ngModel.$parsers = [], ngModel.$oldViewValue = compHtml, ngModel.$setViewValue(compHtml), 
-                ngModel.$parsers = tempParsers;
-            }, isContentEditable && element.on("keyup", function() {
-                ngModel.$setViewValue(compileHtml());
-            }), ngModel.$parsers.push(function(value) {
-                void 0 === ngModel.$oldViewValue && (ngModel.$oldViewValue = value);
-                try {
-                    $sanitize(value);
-                } catch (e) {
-                    return ngModel.$oldViewValue;
-                }
-                return ngModel.$oldViewValue = value, value;
-            }), ngModel.$render = function() {
-                if (void 0 !== ngModel.$viewValue) if ($document[0].activeElement !== element[0]) {
-                    var val = ngModel.$viewValue || "";
-                    ngModel.$oldViewValue = val, "text" === scope.taBind ? (element.html(val), element.find("a").on("click", function(e) {
-                        return e.preventDefault(), !1;
-                    })) : isContentEditable || "textarea" !== element[0].tagName.toLowerCase() && "input" !== element[0].tagName.toLowerCase() ? element.html(val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")) : element.val(val);
-                } else isContentEditable || element.val(val);
-            };
-        }
-    };
-} ]).factory("taFixChrome", function() {
-    var taFixChrome = function($html) {
-        for (var spans = angular.element($html).find("span"), s = 0; s < spans.length; s++) {
-            var span = angular.element(spans[s]);
-            span.attr("style") && span.attr("style").match(/line-height: 1.428571429;|color: inherit; line-height: 1.1;/i) && (span.next().length > 0 && "BR" === span.next()[0].tagName && span.next().remove(), 
-            span.replaceWith(span.html()));
-        }
-        var result = $html.html().replace(/style="[^"]*?(line-height: 1.428571429;|color: inherit; line-height: 1.1;)[^"]*"/gi, "");
-        return $html.html(result), $html;
-    };
-    return taFixChrome;
-}), define("ngdir/text/textAngular", [ "angular" ], function() {}), !function(a, b) {
-    b["true"] = a, function(a, b) {
-        function c() {
-            this.$get = [ "$$sanitizeUri", function(a) {
-                return function(b) {
-                    var c = [];
-                    return f(b, k(c, function(b, c) {
-                        return !/^unsafe/.test(a(b, c));
-                    })), c.join("");
-                };
-            } ];
-        }
-        function d(a) {
-            var c = [], d = k(c, b.noop);
-            return d.chars(a), c.join("");
-        }
-        function e(a) {
-            var b, c = {}, d = a.split(",");
-            for (b = 0; b < d.length; b++) c[d[b]] = !0;
-            return c;
-        }
-        function f(a, c) {
-            function d(a, d, f, h) {
-                if (d = b.lowercase(d), A[d]) for (;j.last() && B[j.last()]; ) e("", j.last());
-                z[d] && j.last() == d && e("", d), h = w[d] || !!h, h || j.push(d);
-                var i = {};
-                f.replace(o, function(a, b, c, d, e) {
-                    var f = c || d || e || "";
-                    i[b] = g(f);
-                }), c.start && c.start(d, i, h);
-            }
-            function e(a, d) {
-                var e, f = 0;
-                if (d = b.lowercase(d)) for (f = j.length - 1; f >= 0 && j[f] != d; f--) ;
-                if (f >= 0) {
-                    for (e = j.length - 1; e >= f; e--) c.end && c.end(j[e]);
-                    j.length = f;
-                }
-            }
-            var f, h, i, j = [], k = a;
-            for (j.last = function() {
-                return j[j.length - 1];
-            }; a; ) {
-                if (h = !0, j.last() && C[j.last()]) a = a.replace(new RegExp("(.*)<\\s*\\/\\s*" + j.last() + "[^>]*>", "i"), function(a, b) {
-                    return b = b.replace(r, "$1").replace(t, "$1"), c.chars && c.chars(g(b)), "";
-                }), e("", j.last()); else if (0 === a.indexOf("<!--") ? (f = a.indexOf("--", 4), 
-                f >= 0 && a.lastIndexOf("-->", f) === f && (c.comment && c.comment(a.substring(4, f)), 
-                a = a.substring(f + 3), h = !1)) : s.test(a) ? (i = a.match(s), i && (a = a.replace(i[0], ""), 
-                h = !1)) : q.test(a) ? (i = a.match(n), i && (a = a.substring(i[0].length), i[0].replace(n, e), 
-                h = !1)) : p.test(a) && (i = a.match(m), i && (a = a.substring(i[0].length), i[0].replace(m, d), 
-                h = !1)), h) {
-                    f = a.indexOf("<");
-                    var u = 0 > f ? a : a.substring(0, f);
-                    a = 0 > f ? "" : a.substring(f), c.chars && c.chars(g(u));
-                }
-                if (a == k) throw l("badparse", "The sanitizer was unable to parse the following block of html: {0}", a);
-                k = a;
-            }
-            e();
-        }
-        function g(a) {
-            if (!a) return "";
-            var b = H.exec(a), c = b[1], d = b[3], e = b[2];
-            return e && (G.innerHTML = e.replace(/</g, "&lt;"), e = "textContent" in G ? G.textContent : G.innerText), 
-            c + e + d;
-        }
-        function h(a) {
-            return a.replace(/&/g, "&amp;").replace(u, function(a) {
-                var b = a.charCodeAt(0), c = a.charCodeAt(1);
-                return "&#" + (1024 * (b - 55296) + (c - 56320) + 65536) + ";";
-            }).replace(v, function(a) {
-                var b = a.charCodeAt(0);
-                return 159 >= b || 173 == b || b >= 1536 && 1540 >= b || 1807 == b || 6068 == b || 6069 == b || b >= 8204 && 8207 >= b || b >= 8232 && 8239 >= b || b >= 8288 && 8303 >= b || 65279 == b || b >= 65520 && 65535 >= b ? "&#" + b + ";" : a;
-            }).replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-        function i(a) {
-            var c = "", d = a.split(";");
-            return b.forEach(d, function(a) {
-                var d = a.split(":");
-                if (2 == d.length) {
-                    var e = I(b.lowercase(d[0])), a = I(b.lowercase(d[1]));
-                    ("color" === e && (a.match(/^rgb\([0-9%,\. ]*\)$/i) || a.match(/^rgba\([0-9%,\. ]*\)$/i) || a.match(/^hsl\([0-9%,\. ]*\)$/i) || a.match(/^hsla\([0-9%,\. ]*\)$/i) || a.match(/^#[0-9a-f]{3,6}$/i) || a.match(/^[a-z]*$/i)) || "text-align" === e && ("left" === a || "right" === a || "center" === a || "justify" === a) || "float" === e && ("left" === a || "right" === a || "none" === a) || ("width" === e || "height" === e) && a.match(/[0-9\.]*(px|em|rem|%)/)) && (c += e + ": " + a + ";");
-                }
-            }), c;
-        }
-        function j(a, b, c, d) {
-            return "img" === a && b["ta-insert-video"] && ("ta-insert-video" === c || "allowfullscreen" === c || "frameborder" === c || "contenteditble" === c && "false" === d) ? !0 : !1;
-        }
-        function k(a, c) {
-            var d = !1, e = b.bind(a, a.push);
-            return {
-                start: function(a, f, g) {
-                    a = b.lowercase(a), !d && C[a] && (d = a), d || D[a] !== !0 || (e("<"), e(a), b.forEach(f, function(d, g) {
-                        var k = b.lowercase(g), l = "img" === a && "src" === k || "background" === k;
-                        ("style" === k && "" !== (d = i(d)) || j(a, f, k, d) || F[k] === !0 && (E[k] !== !0 || c(d, l))) && (e(" "), 
-                        e(g), e('="'), e(h(d)), e('"'));
-                    }), e(g ? "/>" : ">"));
-                },
-                end: function(a) {
-                    a = b.lowercase(a), d || D[a] !== !0 || (e("</"), e(a), e(">")), a == d && (d = !1);
-                },
-                chars: function(a) {
-                    d || e(h(a));
-                }
-            };
-        }
-        var l = b.$$minErr("$sanitize"), m = /^<\s*([\w:-]+)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*>/, n = /^<\s*\/\s*([\w:-]+)[^>]*>/, o = /([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g, p = /^</, q = /^<\s*\//, r = /<!--(.*?)-->/g, s = /<!DOCTYPE([^>]*?)>/i, t = /<!\[CDATA\[(.*?)]]>/g, u = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g, v = /([^\#-~| |!])/g, w = e("area,br,col,hr,img,wbr"), x = e("colgroup,dd,dt,li,p,tbody,td,tfoot,th,thead,tr"), y = e("rp,rt"), z = b.extend({}, y, x), A = b.extend({}, x, e("address,article,aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5,h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,script,section,table,ul")), B = b.extend({}, y, e("a,abbr,acronym,b,bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s,samp,small,span,strike,strong,sub,sup,time,tt,u,var")), C = e("script,style"), D = b.extend({}, w, A, B, z), E = e("background,cite,href,longdesc,src,usemap"), F = b.extend({}, E, e("abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,scope,scrolling,shape,size,span,start,summary,target,title,type,valign,value,vspace,width")), G = document.createElement("pre"), H = /^(\s*)([\s\S]*?)(\s*)$/, I = function() {
-            return String.prototype.trim ? function(a) {
-                return b.isString(a) ? a.trim() : a;
-            } : function(a) {
-                return b.isString(a) ? a.replace(/^\s\s*/, "").replace(/\s\s*$/, "") : a;
-            };
-        }();
-        b.module("ngSanitize", []).provider("$sanitize", c), b.module("ngSanitize").filter("linky", [ "$sanitize", function(a) {
-            var c = /((ftp|https?):\/\/|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>]/, e = /^mailto:/;
-            return function(f, g) {
-                function h(a) {
-                    a && n.push(d(a));
-                }
-                function i(a, c) {
-                    n.push("<a "), b.isDefined(g) && (n.push('target="'), n.push(g), n.push('" ')), 
-                    n.push('href="'), n.push(a), n.push('">'), h(c), n.push("</a>");
-                }
-                if (!f) return f;
-                for (var j, k, l, m = f, n = []; j = m.match(c); ) k = j[0], j[2] == j[3] && (k = "mailto:" + k), 
-                l = j.index, h(m.substr(0, l)), i(k, j[0].replace(e, "")), m = m.substring(l + j[0].length);
-                return h(m), a(n.join(""));
-            };
-        } ]);
-    }(window, window.angular);
-}({}, function() {
-    return this;
-}()), define("ngdir/text/textAngular-sanitize", [ "angular" ], function() {}), define("portal/js/modules/external/externalsModule", [ "angular" ], function(ng) {
+}), define("portal/js/modules/external/externalsModule", [ "angular" ], function(ng) {
     return ng.module("app.externals", []);
 }), define("portal/js/modules/external/wallop/wallop-slider-directive", [ "../externalsModule" ], function(module) {
     module.directive("wallopSlider", function() {
@@ -22838,36 +24753,21 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         function clearCachedPortalInfo() {
             LocalStorageService.clearByPrefix("portalInfo_");
         }
-
-
-function loadLastStoredPortalInfo(region){
-			var lastStoredInfo = LocalStorageService.load("portalInfo_"+$rootScope.contentType+"_"+(region || "ALL"));
-			if (lastStoredInfo){
-				$rootScope.firstTimeVisit = false;
-alert("not");
-				try {
-					var portalInfo  = JSON.parse(lastStoredInfo);
-					var settings = portalInfo.sessionInfo.settings;
-					if (settings.appVersion != GlobalConfig.appVersion){
-						clearCachedPortalInfo();
-						return null;
-					} else if (portalInfo.sessionInfo.sessionId==SessionInfo.sessionId){
-						settings.serverTime = null;//server time is no longer relevant when loaded from cache...
-						mLoadedRegion = region;
-						handleLoadedPortalInfo(portalInfo, false);
-						SessionsService.setSessionInfo(mInfo.sessionInfo);
-						return CachedApiService.cachedPromiseWrap(mInfo);
-					}
-				} catch (e){
-					LogService.logError("Failed to load cached portal info", e);
-				}	
-			} else {
-				$rootScope.firstTimeVisit = true;
-alert("forst");
-				return null;
-			}				
-		}
-
+        function loadLastStoredPortalInfo(region) {
+            var lastStoredInfo = LocalStorageService.load("portalInfo_" + $rootScope.contentType + "_" + (region || "ALL"));
+            if (!lastStoredInfo) return $rootScope.firstTimeVisit = !0, null;
+            $rootScope.firstTimeVisit = !1;
+            try {
+                var portalInfo = JSON.parse(lastStoredInfo), settings = portalInfo.sessionInfo.settings;
+                if (settings.appVersion != GlobalConfig.appVersion) return clearCachedPortalInfo(), 
+                null;
+                if (portalInfo.sessionInfo.sessionId == SessionInfo.sessionId) return settings.serverTime = null, 
+                mLoadedRegion = region, handleLoadedPortalInfo(portalInfo, !1), SessionsService.setSessionInfo(mInfo.sessionInfo), 
+                CachedApiService.cachedPromiseWrap(mInfo);
+            } catch (e) {
+                LogService.logError("Failed to load cached portal info", e);
+            }
+        }
         function init(region) {
             if (-1 == [ "IL", "RU", "RO", "SA", "ALL" ].indexOf(region) && (region = null), 
             SessionsService.loadPreviousSessionId(), mInfo = {}, $rootScope.searchAgentRequest) return loadForRegion(region, !0).success(function(portalInfo) {
@@ -23346,7 +25246,8 @@ alert("forst");
             }), PathsService.appTemplateState("app.installMobileApp", "nudges/scenes/installApp", {
                 url: "installMobileApp"
             }), PathsService.appTemplateState("app.auth", "auth/authScene", {
-                url: "auth/:authScene/:authSubScene/:args"
+                url: "auth/:authScene/:authSubScene/:args",
+                optionalParams: [ "authSubScene", "args" ]
             }), PathsService.appTemplateState("app.reload", "components/navigation/reload", {
                 url: "reload"
             });
@@ -23358,7 +25259,7 @@ alert("forst");
             var initailState = $urlService.match({
                 path: PathsService.getCurrentUiHref()
             });
-            initailState ? $state.go(initailState.rule.state, initailState.match) : $state.go("app.home");
+            initailState && "app" != initailState.rule.state.name ? $state.go(initailState.rule.state, initailState.match) : $state.go("app.home");
         }
         function saveAcquisitionInfo() {
             var initialReferer = LocalStorageService.load("initialReferer");
@@ -25184,7 +27085,8 @@ define("portal/js/modules/catalogs/catalogsModule", [ "angular" ], function(ng) 
                             "background-repeat": "no-repeat"
                         }) : (scope.loadedImageSrc = imageUrl, setImgSize()), setStateInfo(null);
                     }
-                    imageLoaded = !1, setStateInfo(null), scope.narrowHeight = !1, rect = null;
+                    scope.debugInfo = "Loaund:  " + $rootScope.searchAgentRequest, imageLoaded = !1, 
+                    setStateInfo(null), scope.narrowHeight = !1, rect = null;
                     $rootScope.search;
                     $timeout(function() {
                         imageLoaded || scope.stateInfo || $rootScope.searchAgentRequest || setStateInfo("image_load");
@@ -26418,7 +28320,7 @@ define("portal/js/modules/auctions/auctionsModule", [ "angular" ], function(ng) 
             var textImageName = "bidspirit", serverFilesBase = $rootScope.serverFilesBase, regionPart = -1 == [ "RU", "RO" ].indexOf($rootScope.currentRegion) ? "il" : $rootScope.currentRegion.toLowerCase(), textKey = "home_upper_message_" + regionPart;
             $rootScope.judaicaOnly ? (textImageName = "judaica", textKey = "home_upper_message_judaica") : "CARS" == $rootScope.contentType ? (textImageName = "cars-" + regionPart, 
             textKey = "home_upper_message_cars_" + regionPart) : "REAL_ESTATE" == $rootScope.contentType && (textImageName = "houses-" + regionPart, 
-            textKey = "home_upper_message_real_estate_" + regionPart);
+            textKey = "home_upper_message_real_estate_" + regionPart, GlobalConfig.isMobileApp && (serverFilesBase = "https://bidspirit-portal.global.ssl.fastly.net/"));
             var textImagePath = serverFilesBase + GlobalConfig.appName + "/images/home/text/" + textImageName + ".png";
             $scope.upperMessage = I18nService.getTextWithRegion(textKey, {
                 logo: '<img class="logo-text ' + textImageName + '" src="' + textImagePath + '" alt="' + textImageName + '" >'
@@ -29606,7 +31508,7 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
     } ]);
 }), define("portal/js/modules/components/structuredDataService", [ "./componentsModule" ], function(module) {
     var mDefaultData;
-    module.factory("StructuredDataService", function($rootScope, SettingsService, StringsService, I18nService, PathsService, DomUtilsService, CloudinaryService, CatalogUtilsService) {
+    module.factory("StructuredDataService", function($rootScope, $state, SettingsService, StringsService, I18nService, PathsService, DomUtilsService, CloudinaryService, CatalogUtilsService) {
         function getAuctionName(auction) {
             var auctionName = "";
             return auction.number && (auctionName = I18nService.getText("auction_label_number_public", {
@@ -29640,10 +31542,10 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
             DomUtilsService.setMetaTag("name", "twitter:description", description);
         }
         function setImageMetaTags(image, width, height) {
-            image.match(/\.[a-z]{1,4}$/) || (image += ".jpg"), DomUtilsService.setMetaTag("property", "og:image", image), 
+            image && (image.match(/\.[a-z]{1,4}$/) || (image += ".jpg"), DomUtilsService.setMetaTag("property", "og:image", image), 
             DomUtilsService.setTagProp("meta", "property", "og:image", "itemprop", "image"), 
             DomUtilsService.setMetaTag("name", "twitter:image", image), DomUtilsService.setMetaTag("property", "og:image:width", width), 
-            DomUtilsService.setMetaTag("property", "og:image:height", height);
+            DomUtilsService.setMetaTag("property", "og:image:height", height));
         }
         function setTwitterData(index, data, label) {
             DomUtilsService.setMetaTag("name", "twitter:data" + index, data), DomUtilsService.setMetaTag("name", "twitter:label" + index, label);
@@ -29673,11 +31575,15 @@ define("portal/js/modules/components/componentsModule", [ "angular" ], function(
             document.title = mDefaultData.title, setDescriptionMetaTags(mDefaultData.description), 
             DomUtilsService.setMetaTag("property", "og:type", "article"), DomUtilsService.setMetaTag("name", "twitter:card", "summary"), 
             setTimeout(function() {
-                var canonicalUrl = (window.location + "").replace(/[\&\?]searchAgentRequest=true/, "").replace(/[\&\?]sessionId[^\&\#]+/, "").replace(/[\&\?]s=[^\&\#]+/, "").replace(/[\&\?]_escaped_fragment_=/, "ui").replace(/\%2F/gi, "/");
+                var canonicalUrl = getCanonicalUrl();
                 DomUtilsService.setMetaTag("bidspirit-property", "originalUrl", window.location + ""), 
                 DomUtilsService.setMetaTag("property", "og:url", canonicalUrl), DomUtilsService.setMetaTag("property", "og:title", document.title + ""), 
                 DomUtilsService.setMetaTag("name", "twitter:title", document.title + ""), DomUtilsService.setTagProp("link", "rel", "canonical", "href", canonicalUrl);
             }, 20);
+        }
+        function getCanonicalUrl() {
+            var stateHref = $state.href($state.current), uiPath = stateHref.match(/(ui|#!)(.+)/)[2];
+            return PathsService.getCurrentPortalBase() + PathsService.getUiHref(uiPath).substr(1);
         }
         function getPriceStructuredDataTag(price, currency) {
             var suffix, tagHtml = price.replace(new RegExp(currency + " ", "ig"), currency), rangeSepInd = tagHtml.search(/\s|\-/);
@@ -34379,12 +36285,10 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             }
         }
         function checkIfShouldChoosePortal() {
-	alert("fir:"+$rootScope.firstTimeVisit);
             $rootScope.firstTimeVisit && shouldChoosePortal() && ($rootScope.initialStateOverridden = !0, 
             $state.go("app.choosePortal"));
         }
         function shouldChoosePortal() {
-	     alert(LocalStorageService.load("portalChoiceNeeded"));
             return "true" == LocalStorageService.load("portalChoiceNeeded") ? !0 : "false" == LocalStorageService.load("portalChoiceNeeded") ? !1 : "IL" != $rootScope.currentRegion ? !1 : $rootScope.firstTimeVisit && GlobalConfig.isMobileApp ? !0 : !1;
         }
         function openWindow(url, options) {
@@ -34826,184 +36730,1903 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 }), define("portal/js/modules/navigation/index", [ "./navigationModule", "./upperNavigationController", "./mobileMenuController", "./auctionsMenuController", "./reloadController", "./appSiteWinodwsService", "./portalNavigationService", "./installAppButtonDirective", "./houseEventsListenerService", "./helpMenuController", "./upperNavigationMenuDirective", "./tagsMenusService", "./tagsSceneController", "./choosePortalController" ], function() {}), 
 define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/index", "./auth/index", "./userDetails/index", "./alerts/index", "./info/index", "./catalogs/index", "./auctions/index", "./houses/index", "./shops/index", "./account/index", "./nudges/index", "./promotions/index", "./support/index", "./components/index", "./navigation/index" ], function(ng) {
     return ng.module("app.portalModules", [ "app.main", "app.auth", "app.userDetails", "app.userAlerts", "app.info", "app.catalogs", "app.auctions", "app.houses", "app.shops", "app.account", "app.nudges", "app.ads", "app.support", "app.components", "app.navigation" ]);
-}), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "commonModules", "ngdir/text/textAngular", "ngdir/text/textAngular-sanitize", "portal/js/modules/external/index", "portal/js/modules/portalModules" ], function(angular) {
+}), function(factory, root) {
+    "function" == typeof define && define.amd ? define("rangy-core", factory) : "undefined" != typeof module && "object" == typeof exports ? module.exports = factory() : root.rangy = factory();
+}(function() {
+    function isHostMethod(o, p) {
+        var t = typeof o[p];
+        return t == FUNCTION || !(t != OBJECT || !o[p]) || "unknown" == t;
+    }
+    function isHostObject(o, p) {
+        return !(typeof o[p] != OBJECT || !o[p]);
+    }
+    function isHostProperty(o, p) {
+        return typeof o[p] != UNDEFINED;
+    }
+    function createMultiplePropertyTest(testFunc) {
+        return function(o, props) {
+            for (var i = props.length; i--; ) if (!testFunc(o, props[i])) return !1;
+            return !0;
+        };
+    }
+    function isTextRange(range) {
+        return range && areHostMethods(range, textRangeMethods) && areHostProperties(range, textRangeProperties);
+    }
+    function getBody(doc) {
+        return isHostObject(doc, "body") ? doc.body : doc.getElementsByTagName("body")[0];
+    }
+    function consoleLog(msg) {
+        typeof console != UNDEFINED && isHostMethod(console, "log") && console.log(msg);
+    }
+    function alertOrLog(msg, shouldAlert) {
+        isBrowser && shouldAlert ? alert(msg) : consoleLog(msg);
+    }
+    function fail(reason) {
+        api.initialized = !0, api.supported = !1, alertOrLog("Rangy is not supported in this environment. Reason: " + reason, api.config.alertOnFail);
+    }
+    function warn(msg) {
+        alertOrLog("Rangy warning: " + msg, api.config.alertOnWarn);
+    }
+    function getErrorDesc(ex) {
+        return ex.message || ex.description || String(ex);
+    }
+    function init() {
+        if (isBrowser && !api.initialized) {
+            var testRange, implementsDomRange = !1, implementsTextRange = !1;
+            isHostMethod(document, "createRange") && (testRange = document.createRange(), areHostMethods(testRange, domRangeMethods) && areHostProperties(testRange, domRangeProperties) && (implementsDomRange = !0));
+            var body = getBody(document);
+            if (!body || "body" != body.nodeName.toLowerCase()) return void fail("No body element found");
+            if (body && isHostMethod(body, "createTextRange") && (testRange = body.createTextRange(), 
+            isTextRange(testRange) && (implementsTextRange = !0)), !implementsDomRange && !implementsTextRange) return void fail("Neither Range nor TextRange are available");
+            api.initialized = !0, api.features = {
+                implementsDomRange: implementsDomRange,
+                implementsTextRange: implementsTextRange
+            };
+            var module, errorMessage;
+            for (var moduleName in modules) (module = modules[moduleName]) instanceof Module && module.init(module, api);
+            for (var i = 0, len = initListeners.length; len > i; ++i) try {
+                initListeners[i](api);
+            } catch (ex) {
+                errorMessage = "Rangy init listener threw an exception. Continuing. Detail: " + getErrorDesc(ex), 
+                consoleLog(errorMessage);
+            }
+        }
+    }
+    function deprecationNotice(deprecated, replacement, module) {
+        module && (deprecated += " in module " + module.name), api.warn("DEPRECATED: " + deprecated + " is deprecated. Please use " + replacement + " instead.");
+    }
+    function createAliasForDeprecatedMethod(owner, deprecated, replacement, module) {
+        owner[deprecated] = function() {
+            return deprecationNotice(deprecated, replacement, module), owner[replacement].apply(owner, util.toArray(arguments));
+        };
+    }
+    function shim(win) {
+        win = win || window, init();
+        for (var i = 0, len = shimListeners.length; len > i; ++i) shimListeners[i](win);
+    }
+    function Module(name, dependencies, initializer) {
+        this.name = name, this.dependencies = dependencies, this.initialized = !1, this.supported = !1, 
+        this.initializer = initializer;
+    }
+    function createModule(name, dependencies, initFunc) {
+        var newModule = new Module(name, dependencies, function(module) {
+            if (!module.initialized) {
+                module.initialized = !0;
+                try {
+                    initFunc(api, module), module.supported = !0;
+                } catch (ex) {
+                    var errorMessage = "Module '" + name + "' failed to load: " + getErrorDesc(ex);
+                    consoleLog(errorMessage), ex.stack && consoleLog(ex.stack);
+                }
+            }
+        });
+        return modules[name] = newModule, newModule;
+    }
+    function RangePrototype() {}
+    function SelectionPrototype() {}
+    var OBJECT = "object", FUNCTION = "function", UNDEFINED = "undefined", domRangeProperties = [ "startContainer", "startOffset", "endContainer", "endOffset", "collapsed", "commonAncestorContainer" ], domRangeMethods = [ "setStart", "setStartBefore", "setStartAfter", "setEnd", "setEndBefore", "setEndAfter", "collapse", "selectNode", "selectNodeContents", "compareBoundaryPoints", "deleteContents", "extractContents", "cloneContents", "insertNode", "surroundContents", "cloneRange", "toString", "detach" ], textRangeProperties = [ "boundingHeight", "boundingLeft", "boundingTop", "boundingWidth", "htmlText", "text" ], textRangeMethods = [ "collapse", "compareEndPoints", "duplicate", "moveToElementText", "parentElement", "select", "setEndPoint", "getBoundingClientRect" ], areHostMethods = createMultiplePropertyTest(isHostMethod), areHostObjects = createMultiplePropertyTest(isHostObject), areHostProperties = createMultiplePropertyTest(isHostProperty), forEach = [].forEach ? function(arr, func) {
+        arr.forEach(func);
+    } : function(arr, func) {
+        for (var i = 0, len = arr.length; len > i; ++i) func(arr[i], i);
+    }, modules = {}, isBrowser = typeof window != UNDEFINED && typeof document != UNDEFINED, util = {
+        isHostMethod: isHostMethod,
+        isHostObject: isHostObject,
+        isHostProperty: isHostProperty,
+        areHostMethods: areHostMethods,
+        areHostObjects: areHostObjects,
+        areHostProperties: areHostProperties,
+        isTextRange: isTextRange,
+        getBody: getBody,
+        forEach: forEach
+    }, api = {
+        version: "1.3.1-dev",
+        initialized: !1,
+        isBrowser: isBrowser,
+        supported: !0,
+        util: util,
+        features: {},
+        modules: modules,
+        config: {
+            alertOnFail: !1,
+            alertOnWarn: !1,
+            preferTextRange: !1,
+            autoInitialize: typeof rangyAutoInitialize == UNDEFINED ? !0 : rangyAutoInitialize
+        }
+    };
+    api.fail = fail, api.warn = warn;
+    var extend;
+    ({}).hasOwnProperty ? (util.extend = extend = function(obj, props, deep) {
+        var o, p;
+        for (var i in props) props.hasOwnProperty(i) && (o = obj[i], p = props[i], deep && null !== o && "object" == typeof o && null !== p && "object" == typeof p && extend(o, p, !0), 
+        obj[i] = p);
+        return props.hasOwnProperty("toString") && (obj.toString = props.toString), obj;
+    }, util.createOptions = function(optionsParam, defaults) {
+        var options = {};
+        return extend(options, defaults), optionsParam && extend(options, optionsParam), 
+        options;
+    }) : fail("hasOwnProperty not supported"), isBrowser || fail("Rangy can only run in a browser"), 
+    function() {
+        var toArray;
+        if (isBrowser) {
+            var el = document.createElement("div");
+            el.appendChild(document.createElement("span"));
+            var slice = [].slice;
+            try {
+                1 == slice.call(el.childNodes, 0)[0].nodeType && (toArray = function(arrayLike) {
+                    return slice.call(arrayLike, 0);
+                });
+            } catch (e) {}
+        }
+        toArray || (toArray = function(arrayLike) {
+            for (var arr = [], i = 0, len = arrayLike.length; len > i; ++i) arr[i] = arrayLike[i];
+            return arr;
+        }), util.toArray = toArray;
+    }();
+    var addListener;
+    isBrowser && (isHostMethod(document, "addEventListener") ? addListener = function(obj, eventType, listener) {
+        obj.addEventListener(eventType, listener, !1);
+    } : isHostMethod(document, "attachEvent") ? addListener = function(obj, eventType, listener) {
+        obj.attachEvent("on" + eventType, listener);
+    } : fail("Document does not have required addEventListener or attachEvent method"), 
+    util.addListener = addListener);
+    var initListeners = [];
+    util.deprecationNotice = deprecationNotice, util.createAliasForDeprecatedMethod = createAliasForDeprecatedMethod, 
+    api.init = init, api.addInitListener = function(listener) {
+        api.initialized ? listener(api) : initListeners.push(listener);
+    };
+    var shimListeners = [];
+    api.addShimListener = function(listener) {
+        shimListeners.push(listener);
+    }, isBrowser && (api.shim = api.createMissingNativeApi = shim, createAliasForDeprecatedMethod(api, "createMissingNativeApi", "shim")), 
+    Module.prototype = {
+        init: function() {
+            for (var requiredModule, moduleName, requiredModuleNames = this.dependencies || [], i = 0, len = requiredModuleNames.length; len > i; ++i) {
+                if (moduleName = requiredModuleNames[i], requiredModule = modules[moduleName], !(requiredModule && requiredModule instanceof Module)) throw new Error("required module '" + moduleName + "' not found");
+                if (requiredModule.init(), !requiredModule.supported) throw new Error("required module '" + moduleName + "' not supported");
+            }
+            this.initializer(this);
+        },
+        fail: function(reason) {
+            throw this.initialized = !0, this.supported = !1, new Error(reason);
+        },
+        warn: function(msg) {
+            api.warn("Module " + this.name + ": " + msg);
+        },
+        deprecationNotice: function(deprecated, replacement) {
+            api.warn("DEPRECATED: " + deprecated + " in module " + this.name + " is deprecated. Please use " + replacement + " instead");
+        },
+        createError: function(msg) {
+            return new Error("Error in Rangy " + this.name + " module: " + msg);
+        }
+    }, api.createModule = function(name) {
+        var initFunc, dependencies;
+        2 == arguments.length ? (initFunc = arguments[1], dependencies = []) : (initFunc = arguments[2], 
+        dependencies = arguments[1]);
+        var module = createModule(name, dependencies, initFunc);
+        api.initialized && api.supported && module.init();
+    }, api.createCoreModule = function(name, dependencies, initFunc) {
+        createModule(name, dependencies, initFunc);
+    }, api.RangePrototype = RangePrototype, api.rangePrototype = new RangePrototype(), 
+    api.selectionPrototype = new SelectionPrototype(), api.createCoreModule("DomUtil", [], function(api, module) {
+        function isHtmlNamespace(node) {
+            var ns;
+            return typeof node.namespaceURI == UNDEF || null === (ns = node.namespaceURI) || "http://www.w3.org/1999/xhtml" == ns;
+        }
+        function parentElement(node) {
+            var parent = node.parentNode;
+            return 1 == parent.nodeType ? parent : null;
+        }
+        function getNodeIndex(node) {
+            for (var i = 0; node = node.previousSibling; ) ++i;
+            return i;
+        }
+        function getNodeLength(node) {
+            switch (node.nodeType) {
+              case 7:
+              case 10:
+                return 0;
+
+              case 3:
+              case 8:
+                return node.length;
+
+              default:
+                return node.childNodes.length;
+            }
+        }
+        function getCommonAncestor(node1, node2) {
+            var n, ancestors = [];
+            for (n = node1; n; n = n.parentNode) ancestors.push(n);
+            for (n = node2; n; n = n.parentNode) if (arrayContains(ancestors, n)) return n;
+            return null;
+        }
+        function isAncestorOf(ancestor, descendant, selfIsAncestor) {
+            for (var n = selfIsAncestor ? descendant : descendant.parentNode; n; ) {
+                if (n === ancestor) return !0;
+                n = n.parentNode;
+            }
+            return !1;
+        }
+        function isOrIsAncestorOf(ancestor, descendant) {
+            return isAncestorOf(ancestor, descendant, !0);
+        }
+        function getClosestAncestorIn(node, ancestor, selfIsAncestor) {
+            for (var p, n = selfIsAncestor ? node : node.parentNode; n; ) {
+                if (p = n.parentNode, p === ancestor) return n;
+                n = p;
+            }
+            return null;
+        }
+        function isCharacterDataNode(node) {
+            var t = node.nodeType;
+            return 3 == t || 4 == t || 8 == t;
+        }
+        function isTextOrCommentNode(node) {
+            if (!node) return !1;
+            var t = node.nodeType;
+            return 3 == t || 8 == t;
+        }
+        function insertAfter(node, precedingNode) {
+            var nextNode = precedingNode.nextSibling, parent = precedingNode.parentNode;
+            return nextNode ? parent.insertBefore(node, nextNode) : parent.appendChild(node), 
+            node;
+        }
+        function splitDataNode(node, index, positionsToPreserve) {
+            var newNode = node.cloneNode(!1);
+            if (newNode.deleteData(0, index), node.deleteData(index, node.length - index), insertAfter(newNode, node), 
+            positionsToPreserve) for (var position, i = 0; position = positionsToPreserve[i++]; ) position.node == node && position.offset > index ? (position.node = newNode, 
+            position.offset -= index) : position.node == node.parentNode && position.offset > getNodeIndex(node) && ++position.offset;
+            return newNode;
+        }
+        function getDocument(node) {
+            if (9 == node.nodeType) return node;
+            if (typeof node.ownerDocument != UNDEF) return node.ownerDocument;
+            if (typeof node.document != UNDEF) return node.document;
+            if (node.parentNode) return getDocument(node.parentNode);
+            throw module.createError("getDocument: no document found for node");
+        }
+        function getWindow(node) {
+            var doc = getDocument(node);
+            if (typeof doc.defaultView != UNDEF) return doc.defaultView;
+            if (typeof doc.parentWindow != UNDEF) return doc.parentWindow;
+            throw module.createError("Cannot get a window object for node");
+        }
+        function getIframeDocument(iframeEl) {
+            if (typeof iframeEl.contentDocument != UNDEF) return iframeEl.contentDocument;
+            if (typeof iframeEl.contentWindow != UNDEF) return iframeEl.contentWindow.document;
+            throw module.createError("getIframeDocument: No Document object found for iframe element");
+        }
+        function getIframeWindow(iframeEl) {
+            if (typeof iframeEl.contentWindow != UNDEF) return iframeEl.contentWindow;
+            if (typeof iframeEl.contentDocument != UNDEF) return iframeEl.contentDocument.defaultView;
+            throw module.createError("getIframeWindow: No Window object found for iframe element");
+        }
+        function isWindow(obj) {
+            return obj && util.isHostMethod(obj, "setTimeout") && util.isHostObject(obj, "document");
+        }
+        function getContentDocument(obj, module, methodName) {
+            var doc;
+            if (obj ? util.isHostProperty(obj, "nodeType") ? doc = 1 == obj.nodeType && "iframe" == obj.tagName.toLowerCase() ? getIframeDocument(obj) : getDocument(obj) : isWindow(obj) && (doc = obj.document) : doc = document, 
+            !doc) throw module.createError(methodName + "(): Parameter must be a Window object or DOM node");
+            return doc;
+        }
+        function getRootContainer(node) {
+            for (var parent; parent = node.parentNode; ) node = parent;
+            return node;
+        }
+        function comparePoints(nodeA, offsetA, nodeB, offsetB) {
+            var nodeC, root, childA, childB, n;
+            if (nodeA == nodeB) return offsetA === offsetB ? 0 : offsetB > offsetA ? -1 : 1;
+            if (nodeC = getClosestAncestorIn(nodeB, nodeA, !0)) return offsetA <= getNodeIndex(nodeC) ? -1 : 1;
+            if (nodeC = getClosestAncestorIn(nodeA, nodeB, !0)) return getNodeIndex(nodeC) < offsetB ? -1 : 1;
+            if (root = getCommonAncestor(nodeA, nodeB), !root) throw new Error("comparePoints error: nodes have no common ancestor");
+            if (childA = nodeA === root ? root : getClosestAncestorIn(nodeA, root, !0), childB = nodeB === root ? root : getClosestAncestorIn(nodeB, root, !0), 
+            childA === childB) throw module.createError("comparePoints got to case 4 and childA and childB are the same!");
+            for (n = root.firstChild; n; ) {
+                if (n === childA) return -1;
+                if (n === childB) return 1;
+                n = n.nextSibling;
+            }
+        }
+        function isBrokenNode(node) {
+            var n;
+            try {
+                return n = node.parentNode, !1;
+            } catch (e) {
+                return !0;
+            }
+        }
+        function inspectNode(node) {
+            if (!node) return "[No node]";
+            if (crashyTextNodes && isBrokenNode(node)) return "[Broken node]";
+            if (isCharacterDataNode(node)) return '"' + node.data + '"';
+            if (1 == node.nodeType) {
+                var idAttr = node.id ? ' id="' + node.id + '"' : "";
+                return "<" + node.nodeName + idAttr + ">[index:" + getNodeIndex(node) + ",length:" + node.childNodes.length + "][" + (node.innerHTML || "[innerHTML not supported]").slice(0, 25) + "]";
+            }
+            return node.nodeName;
+        }
+        function fragmentFromNodeChildren(node) {
+            for (var child, fragment = getDocument(node).createDocumentFragment(); child = node.firstChild; ) fragment.appendChild(child);
+            return fragment;
+        }
+        function createTestElement(doc, html, contentEditable) {
+            var body = getBody(doc), el = doc.createElement("div");
+            el.contentEditable = "" + !!contentEditable, html && (el.innerHTML = html);
+            var bodyFirstChild = body.firstChild;
+            return bodyFirstChild ? body.insertBefore(el, bodyFirstChild) : body.appendChild(el), 
+            el;
+        }
+        function removeNode(node) {
+            return node.parentNode.removeChild(node);
+        }
+        function NodeIterator(root) {
+            this.root = root, this._next = root;
+        }
+        function createIterator(root) {
+            return new NodeIterator(root);
+        }
+        function DomPosition(node, offset) {
+            this.node = node, this.offset = offset;
+        }
+        function DOMException(codeName) {
+            this.code = this[codeName], this.codeName = codeName, this.message = "DOMException: " + this.codeName;
+        }
+        var UNDEF = "undefined", util = api.util, getBody = util.getBody;
+        util.areHostMethods(document, [ "createDocumentFragment", "createElement", "createTextNode" ]) || module.fail("document missing a Node creation method"), 
+        util.isHostMethod(document, "getElementsByTagName") || module.fail("document missing getElementsByTagName method");
+        var el = document.createElement("div");
+        util.areHostMethods(el, [ "insertBefore", "appendChild", "cloneNode" ] || !util.areHostObjects(el, [ "previousSibling", "nextSibling", "childNodes", "parentNode" ])) || module.fail("Incomplete Element implementation"), 
+        util.isHostProperty(el, "innerHTML") || module.fail("Element is missing innerHTML property");
+        var textNode = document.createTextNode("test");
+        util.areHostMethods(textNode, [ "splitText", "deleteData", "insertData", "appendData", "cloneNode" ] || !util.areHostObjects(el, [ "previousSibling", "nextSibling", "childNodes", "parentNode" ]) || !util.areHostProperties(textNode, [ "data" ])) || module.fail("Incomplete Text Node implementation");
+        var arrayContains = function(arr, val) {
+            for (var i = arr.length; i--; ) if (arr[i] === val) return !0;
+            return !1;
+        }, crashyTextNodes = !1;
+        !function() {
+            var el = document.createElement("b");
+            el.innerHTML = "1";
+            var textNode = el.firstChild;
+            el.innerHTML = "<br />", crashyTextNodes = isBrokenNode(textNode), api.features.crashyTextNodes = crashyTextNodes;
+        }();
+        var getComputedStyleProperty;
+        typeof window.getComputedStyle != UNDEF ? getComputedStyleProperty = function(el, propName) {
+            return getWindow(el).getComputedStyle(el, null)[propName];
+        } : typeof document.documentElement.currentStyle != UNDEF ? getComputedStyleProperty = function(el, propName) {
+            return el.currentStyle ? el.currentStyle[propName] : "";
+        } : module.fail("No means of obtaining computed style properties found"), NodeIterator.prototype = {
+            _current: null,
+            hasNext: function() {
+                return !!this._next;
+            },
+            next: function() {
+                var child, next, n = this._current = this._next;
+                if (this._current) if (child = n.firstChild) this._next = child; else {
+                    for (next = null; n !== this.root && !(next = n.nextSibling); ) n = n.parentNode;
+                    this._next = next;
+                }
+                return this._current;
+            },
+            detach: function() {
+                this._current = this._next = this.root = null;
+            }
+        }, DomPosition.prototype = {
+            equals: function(pos) {
+                return !!pos && this.node === pos.node && this.offset == pos.offset;
+            },
+            inspect: function() {
+                return "[DomPosition(" + inspectNode(this.node) + ":" + this.offset + ")]";
+            },
+            toString: function() {
+                return this.inspect();
+            }
+        }, DOMException.prototype = {
+            INDEX_SIZE_ERR: 1,
+            HIERARCHY_REQUEST_ERR: 3,
+            WRONG_DOCUMENT_ERR: 4,
+            NO_MODIFICATION_ALLOWED_ERR: 7,
+            NOT_FOUND_ERR: 8,
+            NOT_SUPPORTED_ERR: 9,
+            INVALID_STATE_ERR: 11,
+            INVALID_NODE_TYPE_ERR: 24
+        }, DOMException.prototype.toString = function() {
+            return this.message;
+        }, api.dom = {
+            arrayContains: arrayContains,
+            isHtmlNamespace: isHtmlNamespace,
+            parentElement: parentElement,
+            getNodeIndex: getNodeIndex,
+            getNodeLength: getNodeLength,
+            getCommonAncestor: getCommonAncestor,
+            isAncestorOf: isAncestorOf,
+            isOrIsAncestorOf: isOrIsAncestorOf,
+            getClosestAncestorIn: getClosestAncestorIn,
+            isCharacterDataNode: isCharacterDataNode,
+            isTextOrCommentNode: isTextOrCommentNode,
+            insertAfter: insertAfter,
+            splitDataNode: splitDataNode,
+            getDocument: getDocument,
+            getWindow: getWindow,
+            getIframeWindow: getIframeWindow,
+            getIframeDocument: getIframeDocument,
+            getBody: getBody,
+            isWindow: isWindow,
+            getContentDocument: getContentDocument,
+            getRootContainer: getRootContainer,
+            comparePoints: comparePoints,
+            isBrokenNode: isBrokenNode,
+            inspectNode: inspectNode,
+            getComputedStyleProperty: getComputedStyleProperty,
+            createTestElement: createTestElement,
+            removeNode: removeNode,
+            fragmentFromNodeChildren: fragmentFromNodeChildren,
+            createIterator: createIterator,
+            DomPosition: DomPosition
+        }, api.DOMException = DOMException;
+    }), api.createCoreModule("DomRange", [ "DomUtil" ], function(api) {
+        function isNonTextPartiallySelected(node, range) {
+            return 3 != node.nodeType && (isOrIsAncestorOf(node, range.startContainer) || isOrIsAncestorOf(node, range.endContainer));
+        }
+        function getRangeDocument(range) {
+            return range.document || getDocument(range.startContainer);
+        }
+        function getRangeRoot(range) {
+            return getRootContainer(range.startContainer);
+        }
+        function getBoundaryBeforeNode(node) {
+            return new DomPosition(node.parentNode, getNodeIndex(node));
+        }
+        function getBoundaryAfterNode(node) {
+            return new DomPosition(node.parentNode, getNodeIndex(node) + 1);
+        }
+        function insertNodeAtPosition(node, n, o) {
+            var firstNodeInserted = 11 == node.nodeType ? node.firstChild : node;
+            return isCharacterDataNode(n) ? o == n.length ? dom.insertAfter(node, n) : n.parentNode.insertBefore(node, 0 == o ? n : splitDataNode(n, o)) : o >= n.childNodes.length ? n.appendChild(node) : n.insertBefore(node, n.childNodes[o]), 
+            firstNodeInserted;
+        }
+        function rangesIntersect(rangeA, rangeB, touchingIsIntersecting) {
+            if (assertRangeValid(rangeA), assertRangeValid(rangeB), getRangeDocument(rangeB) != getRangeDocument(rangeA)) throw new DOMException("WRONG_DOCUMENT_ERR");
+            var startComparison = comparePoints(rangeA.startContainer, rangeA.startOffset, rangeB.endContainer, rangeB.endOffset), endComparison = comparePoints(rangeA.endContainer, rangeA.endOffset, rangeB.startContainer, rangeB.startOffset);
+            return touchingIsIntersecting ? 0 >= startComparison && endComparison >= 0 : 0 > startComparison && endComparison > 0;
+        }
+        function cloneSubtree(iterator) {
+            for (var partiallySelected, node, subIterator, frag = getRangeDocument(iterator.range).createDocumentFragment(); node = iterator.next(); ) {
+                if (partiallySelected = iterator.isPartiallySelectedSubtree(), node = node.cloneNode(!partiallySelected), 
+                partiallySelected && (subIterator = iterator.getSubtreeIterator(), node.appendChild(cloneSubtree(subIterator)), 
+                subIterator.detach()), 10 == node.nodeType) throw new DOMException("HIERARCHY_REQUEST_ERR");
+                frag.appendChild(node);
+            }
+            return frag;
+        }
+        function iterateSubtree(rangeIterator, func, iteratorState) {
+            var it, n;
+            iteratorState = iteratorState || {
+                stop: !1
+            };
+            for (var node, subRangeIterator; node = rangeIterator.next(); ) if (rangeIterator.isPartiallySelectedSubtree()) {
+                if (func(node) === !1) return void (iteratorState.stop = !0);
+                if (subRangeIterator = rangeIterator.getSubtreeIterator(), iterateSubtree(subRangeIterator, func, iteratorState), 
+                subRangeIterator.detach(), iteratorState.stop) return;
+            } else for (it = dom.createIterator(node); n = it.next(); ) if (func(n) === !1) return void (iteratorState.stop = !0);
+        }
+        function deleteSubtree(iterator) {
+            for (var subIterator; iterator.next(); ) iterator.isPartiallySelectedSubtree() ? (subIterator = iterator.getSubtreeIterator(), 
+            deleteSubtree(subIterator), subIterator.detach()) : iterator.remove();
+        }
+        function extractSubtree(iterator) {
+            for (var node, subIterator, frag = getRangeDocument(iterator.range).createDocumentFragment(); node = iterator.next(); ) {
+                if (iterator.isPartiallySelectedSubtree() ? (node = node.cloneNode(!1), subIterator = iterator.getSubtreeIterator(), 
+                node.appendChild(extractSubtree(subIterator)), subIterator.detach()) : iterator.remove(), 
+                10 == node.nodeType) throw new DOMException("HIERARCHY_REQUEST_ERR");
+                frag.appendChild(node);
+            }
+            return frag;
+        }
+        function getNodesInRange(range, nodeTypes, filter) {
+            var regex, filterNodeTypes = !(!nodeTypes || !nodeTypes.length), filterExists = !!filter;
+            filterNodeTypes && (regex = new RegExp("^(" + nodeTypes.join("|") + ")$"));
+            var nodes = [];
+            return iterateSubtree(new RangeIterator(range, !1), function(node) {
+                if (!(filterNodeTypes && !regex.test(node.nodeType) || filterExists && !filter(node))) {
+                    var sc = range.startContainer;
+                    if (node != sc || !isCharacterDataNode(sc) || range.startOffset != sc.length) {
+                        var ec = range.endContainer;
+                        node == ec && isCharacterDataNode(ec) && 0 == range.endOffset || nodes.push(node);
+                    }
+                }
+            }), nodes;
+        }
+        function inspect(range) {
+            var name = "undefined" == typeof range.getName ? "Range" : range.getName();
+            return "[" + name + "(" + dom.inspectNode(range.startContainer) + ":" + range.startOffset + ", " + dom.inspectNode(range.endContainer) + ":" + range.endOffset + ")]";
+        }
+        function RangeIterator(range, clonePartiallySelectedTextNodes) {
+            if (this.range = range, this.clonePartiallySelectedTextNodes = clonePartiallySelectedTextNodes, 
+            !range.collapsed) {
+                this.sc = range.startContainer, this.so = range.startOffset, this.ec = range.endContainer, 
+                this.eo = range.endOffset;
+                var root = range.commonAncestorContainer;
+                this.sc === this.ec && isCharacterDataNode(this.sc) ? (this.isSingleCharacterDataNode = !0, 
+                this._first = this._last = this._next = this.sc) : (this._first = this._next = this.sc !== root || isCharacterDataNode(this.sc) ? getClosestAncestorIn(this.sc, root, !0) : this.sc.childNodes[this.so], 
+                this._last = this.ec !== root || isCharacterDataNode(this.ec) ? getClosestAncestorIn(this.ec, root, !0) : this.ec.childNodes[this.eo - 1]);
+            }
+        }
+        function createAncestorFinder(nodeTypes) {
+            return function(node, selfIsAncestor) {
+                for (var t, n = selfIsAncestor ? node : node.parentNode; n; ) {
+                    if (t = n.nodeType, arrayContains(nodeTypes, t)) return n;
+                    n = n.parentNode;
+                }
+                return null;
+            };
+        }
+        function assertNoDocTypeNotationEntityAncestor(node, allowSelf) {
+            if (getDocTypeNotationEntityAncestor(node, allowSelf)) throw new DOMException("INVALID_NODE_TYPE_ERR");
+        }
+        function assertValidNodeType(node, invalidTypes) {
+            if (!arrayContains(invalidTypes, node.nodeType)) throw new DOMException("INVALID_NODE_TYPE_ERR");
+        }
+        function assertValidOffset(node, offset) {
+            if (0 > offset || offset > (isCharacterDataNode(node) ? node.length : node.childNodes.length)) throw new DOMException("INDEX_SIZE_ERR");
+        }
+        function assertSameDocumentOrFragment(node1, node2) {
+            if (getDocumentOrFragmentContainer(node1, !0) !== getDocumentOrFragmentContainer(node2, !0)) throw new DOMException("WRONG_DOCUMENT_ERR");
+        }
+        function assertNodeNotReadOnly(node) {
+            if (getReadonlyAncestor(node, !0)) throw new DOMException("NO_MODIFICATION_ALLOWED_ERR");
+        }
+        function assertNode(node, codeName) {
+            if (!node) throw new DOMException(codeName);
+        }
+        function isValidOffset(node, offset) {
+            return offset <= (isCharacterDataNode(node) ? node.length : node.childNodes.length);
+        }
+        function isRangeValid(range) {
+            return !!range.startContainer && !!range.endContainer && !(crashyTextNodes && (dom.isBrokenNode(range.startContainer) || dom.isBrokenNode(range.endContainer))) && getRootContainer(range.startContainer) == getRootContainer(range.endContainer) && isValidOffset(range.startContainer, range.startOffset) && isValidOffset(range.endContainer, range.endOffset);
+        }
+        function assertRangeValid(range) {
+            if (!isRangeValid(range)) throw new Error("Range error: Range is not valid. This usually happens after DOM mutation. Range: (" + range.inspect() + ")");
+        }
+        function splitRangeBoundaries(range, positionsToPreserve) {
+            assertRangeValid(range);
+            var sc = range.startContainer, so = range.startOffset, ec = range.endContainer, eo = range.endOffset, startEndSame = sc === ec;
+            isCharacterDataNode(ec) && eo > 0 && eo < ec.length && splitDataNode(ec, eo, positionsToPreserve), 
+            isCharacterDataNode(sc) && so > 0 && so < sc.length && (sc = splitDataNode(sc, so, positionsToPreserve), 
+            startEndSame ? (eo -= so, ec = sc) : ec == sc.parentNode && eo >= getNodeIndex(sc) && eo++, 
+            so = 0), range.setStartAndEnd(sc, so, ec, eo);
+        }
+        function rangeToHtml(range) {
+            assertRangeValid(range);
+            var container = range.commonAncestorContainer.parentNode.cloneNode(!1);
+            return container.appendChild(range.cloneContents()), container.innerHTML;
+        }
+        function copyComparisonConstantsToObject(obj) {
+            obj.START_TO_START = s2s, obj.START_TO_END = s2e, obj.END_TO_END = e2e, obj.END_TO_START = e2s, 
+            obj.NODE_BEFORE = n_b, obj.NODE_AFTER = n_a, obj.NODE_BEFORE_AND_AFTER = n_b_a, 
+            obj.NODE_INSIDE = n_i;
+        }
+        function copyComparisonConstants(constructor) {
+            copyComparisonConstantsToObject(constructor), copyComparisonConstantsToObject(constructor.prototype);
+        }
+        function createRangeContentRemover(remover, boundaryUpdater) {
+            return function() {
+                assertRangeValid(this);
+                var node, boundary, sc = this.startContainer, so = this.startOffset, root = this.commonAncestorContainer, iterator = new RangeIterator(this, !0);
+                sc !== root && (node = getClosestAncestorIn(sc, root, !0), boundary = getBoundaryAfterNode(node), 
+                sc = boundary.node, so = boundary.offset), iterateSubtree(iterator, assertNodeNotReadOnly), 
+                iterator.reset();
+                var returnValue = remover(iterator);
+                return iterator.detach(), boundaryUpdater(this, sc, so, sc, so), returnValue;
+            };
+        }
+        function createPrototypeRange(constructor, boundaryUpdater) {
+            function createBeforeAfterNodeSetter(isBefore, isStart) {
+                return function(node) {
+                    assertValidNodeType(node, beforeAfterNodeTypes), assertValidNodeType(getRootContainer(node), rootContainerNodeTypes);
+                    var boundary = (isBefore ? getBoundaryBeforeNode : getBoundaryAfterNode)(node);
+                    (isStart ? setRangeStart : setRangeEnd)(this, boundary.node, boundary.offset);
+                };
+            }
+            function setRangeStart(range, node, offset) {
+                var ec = range.endContainer, eo = range.endOffset;
+                (node !== range.startContainer || offset !== range.startOffset) && ((getRootContainer(node) != getRootContainer(ec) || 1 == comparePoints(node, offset, ec, eo)) && (ec = node, 
+                eo = offset), boundaryUpdater(range, node, offset, ec, eo));
+            }
+            function setRangeEnd(range, node, offset) {
+                var sc = range.startContainer, so = range.startOffset;
+                (node !== range.endContainer || offset !== range.endOffset) && ((getRootContainer(node) != getRootContainer(sc) || -1 == comparePoints(node, offset, sc, so)) && (sc = node, 
+                so = offset), boundaryUpdater(range, sc, so, node, offset));
+            }
+            var F = function() {};
+            F.prototype = api.rangePrototype, constructor.prototype = new F(), util.extend(constructor.prototype, {
+                setStart: function(node, offset) {
+                    assertNoDocTypeNotationEntityAncestor(node, !0), assertValidOffset(node, offset), 
+                    setRangeStart(this, node, offset);
+                },
+                setEnd: function(node, offset) {
+                    assertNoDocTypeNotationEntityAncestor(node, !0), assertValidOffset(node, offset), 
+                    setRangeEnd(this, node, offset);
+                },
+                setStartAndEnd: function() {
+                    var args = arguments, sc = args[0], so = args[1], ec = sc, eo = so;
+                    switch (args.length) {
+                      case 3:
+                        eo = args[2];
+                        break;
+
+                      case 4:
+                        ec = args[2], eo = args[3];
+                    }
+                    boundaryUpdater(this, sc, so, ec, eo);
+                },
+                setBoundary: function(node, offset, isStart) {
+                    this["set" + (isStart ? "Start" : "End")](node, offset);
+                },
+                setStartBefore: createBeforeAfterNodeSetter(!0, !0),
+                setStartAfter: createBeforeAfterNodeSetter(!1, !0),
+                setEndBefore: createBeforeAfterNodeSetter(!0, !1),
+                setEndAfter: createBeforeAfterNodeSetter(!1, !1),
+                collapse: function(isStart) {
+                    assertRangeValid(this), isStart ? boundaryUpdater(this, this.startContainer, this.startOffset, this.startContainer, this.startOffset) : boundaryUpdater(this, this.endContainer, this.endOffset, this.endContainer, this.endOffset);
+                },
+                selectNodeContents: function(node) {
+                    assertNoDocTypeNotationEntityAncestor(node, !0), boundaryUpdater(this, node, 0, node, getNodeLength(node));
+                },
+                selectNode: function(node) {
+                    assertNoDocTypeNotationEntityAncestor(node, !1), assertValidNodeType(node, beforeAfterNodeTypes);
+                    var start = getBoundaryBeforeNode(node), end = getBoundaryAfterNode(node);
+                    boundaryUpdater(this, start.node, start.offset, end.node, end.offset);
+                },
+                extractContents: createRangeContentRemover(extractSubtree, boundaryUpdater),
+                deleteContents: createRangeContentRemover(deleteSubtree, boundaryUpdater),
+                canSurroundContents: function() {
+                    assertRangeValid(this), assertNodeNotReadOnly(this.startContainer), assertNodeNotReadOnly(this.endContainer);
+                    var iterator = new RangeIterator(this, !0), boundariesInvalid = iterator._first && isNonTextPartiallySelected(iterator._first, this) || iterator._last && isNonTextPartiallySelected(iterator._last, this);
+                    return iterator.detach(), !boundariesInvalid;
+                },
+                splitBoundaries: function() {
+                    splitRangeBoundaries(this);
+                },
+                splitBoundariesPreservingPositions: function(positionsToPreserve) {
+                    splitRangeBoundaries(this, positionsToPreserve);
+                },
+                normalizeBoundaries: function() {
+                    assertRangeValid(this);
+                    var sibling, sc = this.startContainer, so = this.startOffset, ec = this.endContainer, eo = this.endOffset, mergeForward = function(node) {
+                        var sibling = node.nextSibling;
+                        sibling && sibling.nodeType == node.nodeType && (ec = node, eo = node.length, node.appendData(sibling.data), 
+                        removeNode(sibling));
+                    }, mergeBackward = function(node) {
+                        var sibling = node.previousSibling;
+                        if (sibling && sibling.nodeType == node.nodeType) {
+                            sc = node;
+                            var nodeLength = node.length;
+                            if (so = sibling.length, node.insertData(0, sibling.data), removeNode(sibling), 
+                            sc == ec) eo += so, ec = sc; else if (ec == node.parentNode) {
+                                var nodeIndex = getNodeIndex(node);
+                                eo == nodeIndex ? (ec = node, eo = nodeLength) : eo > nodeIndex && eo--;
+                            }
+                        }
+                    }, normalizeStart = !0;
+                    if (isCharacterDataNode(ec)) eo == ec.length ? mergeForward(ec) : 0 == eo && (sibling = ec.previousSibling, 
+                    sibling && sibling.nodeType == ec.nodeType && (eo = sibling.length, sc == ec && (normalizeStart = !1), 
+                    sibling.appendData(ec.data), removeNode(ec), ec = sibling)); else {
+                        if (eo > 0) {
+                            var endNode = ec.childNodes[eo - 1];
+                            endNode && isCharacterDataNode(endNode) && mergeForward(endNode);
+                        }
+                        normalizeStart = !this.collapsed;
+                    }
+                    if (normalizeStart) {
+                        if (isCharacterDataNode(sc)) 0 == so ? mergeBackward(sc) : so == sc.length && (sibling = sc.nextSibling, 
+                        sibling && sibling.nodeType == sc.nodeType && (ec == sibling && (ec = sc, eo += sc.length), 
+                        sc.appendData(sibling.data), removeNode(sibling))); else if (so < sc.childNodes.length) {
+                            var startNode = sc.childNodes[so];
+                            startNode && isCharacterDataNode(startNode) && mergeBackward(startNode);
+                        }
+                    } else sc = ec, so = eo;
+                    boundaryUpdater(this, sc, so, ec, eo);
+                },
+                collapseToPoint: function(node, offset) {
+                    assertNoDocTypeNotationEntityAncestor(node, !0), assertValidOffset(node, offset), 
+                    this.setStartAndEnd(node, offset);
+                }
+            }), copyComparisonConstants(constructor);
+        }
+        function updateCollapsedAndCommonAncestor(range) {
+            range.collapsed = range.startContainer === range.endContainer && range.startOffset === range.endOffset, 
+            range.commonAncestorContainer = range.collapsed ? range.startContainer : dom.getCommonAncestor(range.startContainer, range.endContainer);
+        }
+        function updateBoundaries(range, startContainer, startOffset, endContainer, endOffset) {
+            range.startContainer = startContainer, range.startOffset = startOffset, range.endContainer = endContainer, 
+            range.endOffset = endOffset, range.document = dom.getDocument(startContainer), updateCollapsedAndCommonAncestor(range);
+        }
+        function Range(doc) {
+            this.startContainer = doc, this.startOffset = 0, this.endContainer = doc, this.endOffset = 0, 
+            this.document = doc, updateCollapsedAndCommonAncestor(this);
+        }
+        var dom = api.dom, util = api.util, DomPosition = dom.DomPosition, DOMException = api.DOMException, isCharacterDataNode = dom.isCharacterDataNode, getNodeIndex = dom.getNodeIndex, isOrIsAncestorOf = dom.isOrIsAncestorOf, getDocument = dom.getDocument, comparePoints = dom.comparePoints, splitDataNode = dom.splitDataNode, getClosestAncestorIn = dom.getClosestAncestorIn, getNodeLength = dom.getNodeLength, arrayContains = dom.arrayContains, getRootContainer = dom.getRootContainer, crashyTextNodes = api.features.crashyTextNodes, removeNode = dom.removeNode;
+        RangeIterator.prototype = {
+            _current: null,
+            _next: null,
+            _first: null,
+            _last: null,
+            isSingleCharacterDataNode: !1,
+            reset: function() {
+                this._current = null, this._next = this._first;
+            },
+            hasNext: function() {
+                return !!this._next;
+            },
+            next: function() {
+                var current = this._current = this._next;
+                return current && (this._next = current !== this._last ? current.nextSibling : null, 
+                isCharacterDataNode(current) && this.clonePartiallySelectedTextNodes && (current === this.ec && (current = current.cloneNode(!0)).deleteData(this.eo, current.length - this.eo), 
+                this._current === this.sc && (current = current.cloneNode(!0)).deleteData(0, this.so))), 
+                current;
+            },
+            remove: function() {
+                var start, end, current = this._current;
+                !isCharacterDataNode(current) || current !== this.sc && current !== this.ec ? current.parentNode && removeNode(current) : (start = current === this.sc ? this.so : 0, 
+                end = current === this.ec ? this.eo : current.length, start != end && current.deleteData(start, end - start));
+            },
+            isPartiallySelectedSubtree: function() {
+                var current = this._current;
+                return isNonTextPartiallySelected(current, this.range);
+            },
+            getSubtreeIterator: function() {
+                var subRange;
+                if (this.isSingleCharacterDataNode) subRange = this.range.cloneRange(), subRange.collapse(!1); else {
+                    subRange = new Range(getRangeDocument(this.range));
+                    var current = this._current, startContainer = current, startOffset = 0, endContainer = current, endOffset = getNodeLength(current);
+                    isOrIsAncestorOf(current, this.sc) && (startContainer = this.sc, startOffset = this.so), 
+                    isOrIsAncestorOf(current, this.ec) && (endContainer = this.ec, endOffset = this.eo), 
+                    updateBoundaries(subRange, startContainer, startOffset, endContainer, endOffset);
+                }
+                return new RangeIterator(subRange, this.clonePartiallySelectedTextNodes);
+            },
+            detach: function() {
+                this.range = this._current = this._next = this._first = this._last = this.sc = this.so = this.ec = this.eo = null;
+            }
+        };
+        var beforeAfterNodeTypes = [ 1, 3, 4, 5, 7, 8, 10 ], rootContainerNodeTypes = [ 2, 9, 11 ], readonlyNodeTypes = [ 5, 6, 10, 12 ], insertableNodeTypes = [ 1, 3, 4, 5, 7, 8, 10, 11 ], surroundNodeTypes = [ 1, 3, 4, 5, 7, 8 ], getDocumentOrFragmentContainer = createAncestorFinder([ 9, 11 ]), getReadonlyAncestor = createAncestorFinder(readonlyNodeTypes), getDocTypeNotationEntityAncestor = createAncestorFinder([ 6, 10, 12 ]), styleEl = document.createElement("style"), htmlParsingConforms = !1;
+        try {
+            styleEl.innerHTML = "<b>x</b>", htmlParsingConforms = 3 == styleEl.firstChild.nodeType;
+        } catch (e) {}
+        api.features.htmlParsingConforms = htmlParsingConforms;
+        var createContextualFragment = htmlParsingConforms ? function(fragmentStr) {
+            var node = this.startContainer, doc = getDocument(node);
+            if (!node) throw new DOMException("INVALID_STATE_ERR");
+            var el = null;
+            return 1 == node.nodeType ? el = node : isCharacterDataNode(node) && (el = dom.parentElement(node)), 
+            el = null === el || "HTML" == el.nodeName && dom.isHtmlNamespace(getDocument(el).documentElement) && dom.isHtmlNamespace(el) ? doc.createElement("body") : el.cloneNode(!1), 
+            el.innerHTML = fragmentStr, dom.fragmentFromNodeChildren(el);
+        } : function(fragmentStr) {
+            var doc = getRangeDocument(this), el = doc.createElement("body");
+            return el.innerHTML = fragmentStr, dom.fragmentFromNodeChildren(el);
+        }, rangeProperties = [ "startContainer", "startOffset", "endContainer", "endOffset", "collapsed", "commonAncestorContainer" ], s2s = 0, s2e = 1, e2e = 2, e2s = 3, n_b = 0, n_a = 1, n_b_a = 2, n_i = 3;
+        util.extend(api.rangePrototype, {
+            compareBoundaryPoints: function(how, range) {
+                assertRangeValid(this), assertSameDocumentOrFragment(this.startContainer, range.startContainer);
+                var nodeA, offsetA, nodeB, offsetB, prefixA = how == e2s || how == s2s ? "start" : "end", prefixB = how == s2e || how == s2s ? "start" : "end";
+                return nodeA = this[prefixA + "Container"], offsetA = this[prefixA + "Offset"], 
+                nodeB = range[prefixB + "Container"], offsetB = range[prefixB + "Offset"], comparePoints(nodeA, offsetA, nodeB, offsetB);
+            },
+            insertNode: function(node) {
+                if (assertRangeValid(this), assertValidNodeType(node, insertableNodeTypes), assertNodeNotReadOnly(this.startContainer), 
+                isOrIsAncestorOf(node, this.startContainer)) throw new DOMException("HIERARCHY_REQUEST_ERR");
+                var firstNodeInserted = insertNodeAtPosition(node, this.startContainer, this.startOffset);
+                this.setStartBefore(firstNodeInserted);
+            },
+            cloneContents: function() {
+                assertRangeValid(this);
+                var clone, frag;
+                if (this.collapsed) return getRangeDocument(this).createDocumentFragment();
+                if (this.startContainer === this.endContainer && isCharacterDataNode(this.startContainer)) return clone = this.startContainer.cloneNode(!0), 
+                clone.data = clone.data.slice(this.startOffset, this.endOffset), frag = getRangeDocument(this).createDocumentFragment(), 
+                frag.appendChild(clone), frag;
+                var iterator = new RangeIterator(this, !0);
+                return clone = cloneSubtree(iterator), iterator.detach(), clone;
+            },
+            canSurroundContents: function() {
+                assertRangeValid(this), assertNodeNotReadOnly(this.startContainer), assertNodeNotReadOnly(this.endContainer);
+                var iterator = new RangeIterator(this, !0), boundariesInvalid = iterator._first && isNonTextPartiallySelected(iterator._first, this) || iterator._last && isNonTextPartiallySelected(iterator._last, this);
+                return iterator.detach(), !boundariesInvalid;
+            },
+            surroundContents: function(node) {
+                if (assertValidNodeType(node, surroundNodeTypes), !this.canSurroundContents()) throw new DOMException("INVALID_STATE_ERR");
+                var content = this.extractContents();
+                if (node.hasChildNodes()) for (;node.lastChild; ) node.removeChild(node.lastChild);
+                insertNodeAtPosition(node, this.startContainer, this.startOffset), node.appendChild(content), 
+                this.selectNode(node);
+            },
+            cloneRange: function() {
+                assertRangeValid(this);
+                for (var prop, range = new Range(getRangeDocument(this)), i = rangeProperties.length; i--; ) prop = rangeProperties[i], 
+                range[prop] = this[prop];
+                return range;
+            },
+            toString: function() {
+                assertRangeValid(this);
+                var sc = this.startContainer;
+                if (sc === this.endContainer && isCharacterDataNode(sc)) return 3 == sc.nodeType || 4 == sc.nodeType ? sc.data.slice(this.startOffset, this.endOffset) : "";
+                var textParts = [], iterator = new RangeIterator(this, !0);
+                return iterateSubtree(iterator, function(node) {
+                    (3 == node.nodeType || 4 == node.nodeType) && textParts.push(node.data);
+                }), iterator.detach(), textParts.join("");
+            },
+            compareNode: function(node) {
+                assertRangeValid(this);
+                var parent = node.parentNode, nodeIndex = getNodeIndex(node);
+                if (!parent) throw new DOMException("NOT_FOUND_ERR");
+                var startComparison = this.comparePoint(parent, nodeIndex), endComparison = this.comparePoint(parent, nodeIndex + 1);
+                return 0 > startComparison ? endComparison > 0 ? n_b_a : n_b : endComparison > 0 ? n_a : n_i;
+            },
+            comparePoint: function(node, offset) {
+                return assertRangeValid(this), assertNode(node, "HIERARCHY_REQUEST_ERR"), assertSameDocumentOrFragment(node, this.startContainer), 
+                comparePoints(node, offset, this.startContainer, this.startOffset) < 0 ? -1 : comparePoints(node, offset, this.endContainer, this.endOffset) > 0 ? 1 : 0;
+            },
+            createContextualFragment: createContextualFragment,
+            toHtml: function() {
+                return rangeToHtml(this);
+            },
+            intersectsNode: function(node, touchingIsIntersecting) {
+                if (assertRangeValid(this), getRootContainer(node) != getRangeRoot(this)) return !1;
+                var parent = node.parentNode, offset = getNodeIndex(node);
+                if (!parent) return !0;
+                var startComparison = comparePoints(parent, offset, this.endContainer, this.endOffset), endComparison = comparePoints(parent, offset + 1, this.startContainer, this.startOffset);
+                return touchingIsIntersecting ? 0 >= startComparison && endComparison >= 0 : 0 > startComparison && endComparison > 0;
+            },
+            isPointInRange: function(node, offset) {
+                return assertRangeValid(this), assertNode(node, "HIERARCHY_REQUEST_ERR"), assertSameDocumentOrFragment(node, this.startContainer), 
+                comparePoints(node, offset, this.startContainer, this.startOffset) >= 0 && comparePoints(node, offset, this.endContainer, this.endOffset) <= 0;
+            },
+            intersectsRange: function(range) {
+                return rangesIntersect(this, range, !1);
+            },
+            intersectsOrTouchesRange: function(range) {
+                return rangesIntersect(this, range, !0);
+            },
+            intersection: function(range) {
+                if (this.intersectsRange(range)) {
+                    var startComparison = comparePoints(this.startContainer, this.startOffset, range.startContainer, range.startOffset), endComparison = comparePoints(this.endContainer, this.endOffset, range.endContainer, range.endOffset), intersectionRange = this.cloneRange();
+                    return -1 == startComparison && intersectionRange.setStart(range.startContainer, range.startOffset), 
+                    1 == endComparison && intersectionRange.setEnd(range.endContainer, range.endOffset), 
+                    intersectionRange;
+                }
+                return null;
+            },
+            union: function(range) {
+                if (this.intersectsOrTouchesRange(range)) {
+                    var unionRange = this.cloneRange();
+                    return -1 == comparePoints(range.startContainer, range.startOffset, this.startContainer, this.startOffset) && unionRange.setStart(range.startContainer, range.startOffset), 
+                    1 == comparePoints(range.endContainer, range.endOffset, this.endContainer, this.endOffset) && unionRange.setEnd(range.endContainer, range.endOffset), 
+                    unionRange;
+                }
+                throw new DOMException("Ranges do not intersect");
+            },
+            containsNode: function(node, allowPartial) {
+                return allowPartial ? this.intersectsNode(node, !1) : this.compareNode(node) == n_i;
+            },
+            containsNodeContents: function(node) {
+                return this.comparePoint(node, 0) >= 0 && this.comparePoint(node, getNodeLength(node)) <= 0;
+            },
+            containsRange: function(range) {
+                var intersection = this.intersection(range);
+                return null !== intersection && range.equals(intersection);
+            },
+            containsNodeText: function(node) {
+                var nodeRange = this.cloneRange();
+                nodeRange.selectNode(node);
+                var textNodes = nodeRange.getNodes([ 3 ]);
+                if (textNodes.length > 0) {
+                    nodeRange.setStart(textNodes[0], 0);
+                    var lastTextNode = textNodes.pop();
+                    return nodeRange.setEnd(lastTextNode, lastTextNode.length), this.containsRange(nodeRange);
+                }
+                return this.containsNodeContents(node);
+            },
+            getNodes: function(nodeTypes, filter) {
+                return assertRangeValid(this), getNodesInRange(this, nodeTypes, filter);
+            },
+            getDocument: function() {
+                return getRangeDocument(this);
+            },
+            collapseBefore: function(node) {
+                this.setEndBefore(node), this.collapse(!1);
+            },
+            collapseAfter: function(node) {
+                this.setStartAfter(node), this.collapse(!0);
+            },
+            getBookmark: function(containerNode) {
+                var doc = getRangeDocument(this), preSelectionRange = api.createRange(doc);
+                containerNode = containerNode || dom.getBody(doc), preSelectionRange.selectNodeContents(containerNode);
+                var range = this.intersection(preSelectionRange), start = 0, end = 0;
+                return range && (preSelectionRange.setEnd(range.startContainer, range.startOffset), 
+                start = preSelectionRange.toString().length, end = start + range.toString().length), 
+                {
+                    start: start,
+                    end: end,
+                    containerNode: containerNode
+                };
+            },
+            moveToBookmark: function(bookmark) {
+                var containerNode = bookmark.containerNode, charIndex = 0;
+                this.setStart(containerNode, 0), this.collapse(!0);
+                for (var node, nextCharIndex, i, childNodes, nodeStack = [ containerNode ], foundStart = !1, stop = !1; !stop && (node = nodeStack.pop()); ) if (3 == node.nodeType) nextCharIndex = charIndex + node.length, 
+                !foundStart && bookmark.start >= charIndex && bookmark.start <= nextCharIndex && (this.setStart(node, bookmark.start - charIndex), 
+                foundStart = !0), foundStart && bookmark.end >= charIndex && bookmark.end <= nextCharIndex && (this.setEnd(node, bookmark.end - charIndex), 
+                stop = !0), charIndex = nextCharIndex; else for (childNodes = node.childNodes, i = childNodes.length; i--; ) nodeStack.push(childNodes[i]);
+            },
+            getName: function() {
+                return "DomRange";
+            },
+            equals: function(range) {
+                return Range.rangesEqual(this, range);
+            },
+            isValid: function() {
+                return isRangeValid(this);
+            },
+            inspect: function() {
+                return inspect(this);
+            },
+            detach: function() {}
+        }), createPrototypeRange(Range, updateBoundaries), util.extend(Range, {
+            rangeProperties: rangeProperties,
+            RangeIterator: RangeIterator,
+            copyComparisonConstants: copyComparisonConstants,
+            createPrototypeRange: createPrototypeRange,
+            inspect: inspect,
+            toHtml: rangeToHtml,
+            getRangeDocument: getRangeDocument,
+            rangesEqual: function(r1, r2) {
+                return r1.startContainer === r2.startContainer && r1.startOffset === r2.startOffset && r1.endContainer === r2.endContainer && r1.endOffset === r2.endOffset;
+            }
+        }), api.DomRange = Range;
+    }), api.createCoreModule("WrappedRange", [ "DomRange" ], function(api, module) {
+        var WrappedRange, WrappedTextRange, dom = api.dom, util = api.util, DomPosition = dom.DomPosition, DomRange = api.DomRange, getBody = dom.getBody, getContentDocument = dom.getContentDocument, isCharacterDataNode = dom.isCharacterDataNode;
+        if (api.features.implementsDomRange && !function() {
+            function updateRangeProperties(range) {
+                for (var prop, i = rangeProperties.length; i--; ) prop = rangeProperties[i], range[prop] = range.nativeRange[prop];
+                range.collapsed = range.startContainer === range.endContainer && range.startOffset === range.endOffset;
+            }
+            function updateNativeRange(range, startContainer, startOffset, endContainer, endOffset) {
+                var startMoved = range.startContainer !== startContainer || range.startOffset != startOffset, endMoved = range.endContainer !== endContainer || range.endOffset != endOffset, nativeRangeDifferent = !range.equals(range.nativeRange);
+                (startMoved || endMoved || nativeRangeDifferent) && (range.setEnd(endContainer, endOffset), 
+                range.setStart(startContainer, startOffset));
+            }
+            var rangeProto, createBeforeAfterNodeSetter, rangeProperties = DomRange.rangeProperties;
+            WrappedRange = function(range) {
+                if (!range) throw module.createError("WrappedRange: Range must be specified");
+                this.nativeRange = range, updateRangeProperties(this);
+            }, DomRange.createPrototypeRange(WrappedRange, updateNativeRange), rangeProto = WrappedRange.prototype, 
+            rangeProto.selectNode = function(node) {
+                this.nativeRange.selectNode(node), updateRangeProperties(this);
+            }, rangeProto.cloneContents = function() {
+                return this.nativeRange.cloneContents();
+            }, rangeProto.surroundContents = function(node) {
+                this.nativeRange.surroundContents(node), updateRangeProperties(this);
+            }, rangeProto.collapse = function(isStart) {
+                this.nativeRange.collapse(isStart), updateRangeProperties(this);
+            }, rangeProto.cloneRange = function() {
+                return new WrappedRange(this.nativeRange.cloneRange());
+            }, rangeProto.refresh = function() {
+                updateRangeProperties(this);
+            }, rangeProto.toString = function() {
+                return this.nativeRange.toString();
+            };
+            var testTextNode = document.createTextNode("test");
+            getBody(document).appendChild(testTextNode);
+            var range = document.createRange();
+            range.setStart(testTextNode, 0), range.setEnd(testTextNode, 0);
+            try {
+                range.setStart(testTextNode, 1), rangeProto.setStart = function(node, offset) {
+                    this.nativeRange.setStart(node, offset), updateRangeProperties(this);
+                }, rangeProto.setEnd = function(node, offset) {
+                    this.nativeRange.setEnd(node, offset), updateRangeProperties(this);
+                }, createBeforeAfterNodeSetter = function(name) {
+                    return function(node) {
+                        this.nativeRange[name](node), updateRangeProperties(this);
+                    };
+                };
+            } catch (ex) {
+                rangeProto.setStart = function(node, offset) {
+                    try {
+                        this.nativeRange.setStart(node, offset);
+                    } catch (ex) {
+                        this.nativeRange.setEnd(node, offset), this.nativeRange.setStart(node, offset);
+                    }
+                    updateRangeProperties(this);
+                }, rangeProto.setEnd = function(node, offset) {
+                    try {
+                        this.nativeRange.setEnd(node, offset);
+                    } catch (ex) {
+                        this.nativeRange.setStart(node, offset), this.nativeRange.setEnd(node, offset);
+                    }
+                    updateRangeProperties(this);
+                }, createBeforeAfterNodeSetter = function(name, oppositeName) {
+                    return function(node) {
+                        try {
+                            this.nativeRange[name](node);
+                        } catch (ex) {
+                            this.nativeRange[oppositeName](node), this.nativeRange[name](node);
+                        }
+                        updateRangeProperties(this);
+                    };
+                };
+            }
+            rangeProto.setStartBefore = createBeforeAfterNodeSetter("setStartBefore", "setEndBefore"), 
+            rangeProto.setStartAfter = createBeforeAfterNodeSetter("setStartAfter", "setEndAfter"), 
+            rangeProto.setEndBefore = createBeforeAfterNodeSetter("setEndBefore", "setStartBefore"), 
+            rangeProto.setEndAfter = createBeforeAfterNodeSetter("setEndAfter", "setStartAfter"), 
+            rangeProto.selectNodeContents = function(node) {
+                this.setStartAndEnd(node, 0, dom.getNodeLength(node));
+            }, range.selectNodeContents(testTextNode), range.setEnd(testTextNode, 3);
+            var range2 = document.createRange();
+            range2.selectNodeContents(testTextNode), range2.setEnd(testTextNode, 4), range2.setStart(testTextNode, 2), 
+            rangeProto.compareBoundaryPoints = -1 == range.compareBoundaryPoints(range.START_TO_END, range2) && 1 == range.compareBoundaryPoints(range.END_TO_START, range2) ? function(type, range) {
+                return range = range.nativeRange || range, type == range.START_TO_END ? type = range.END_TO_START : type == range.END_TO_START && (type = range.START_TO_END), 
+                this.nativeRange.compareBoundaryPoints(type, range);
+            } : function(type, range) {
+                return this.nativeRange.compareBoundaryPoints(type, range.nativeRange || range);
+            };
+            var el = document.createElement("div");
+            el.innerHTML = "123";
+            var textNode = el.firstChild, body = getBody(document);
+            body.appendChild(el), range.setStart(textNode, 1), range.setEnd(textNode, 2), range.deleteContents(), 
+            "13" == textNode.data && (rangeProto.deleteContents = function() {
+                this.nativeRange.deleteContents(), updateRangeProperties(this);
+            }, rangeProto.extractContents = function() {
+                var frag = this.nativeRange.extractContents();
+                return updateRangeProperties(this), frag;
+            }), body.removeChild(el), body = null, util.isHostMethod(range, "createContextualFragment") && (rangeProto.createContextualFragment = function(fragmentStr) {
+                return this.nativeRange.createContextualFragment(fragmentStr);
+            }), getBody(document).removeChild(testTextNode), rangeProto.getName = function() {
+                return "WrappedRange";
+            }, api.WrappedRange = WrappedRange, api.createNativeRange = function(doc) {
+                return doc = getContentDocument(doc, module, "createNativeRange"), doc.createRange();
+            };
+        }(), api.features.implementsTextRange) {
+            var getTextRangeContainerElement = function(textRange) {
+                var parentEl = textRange.parentElement(), range = textRange.duplicate();
+                range.collapse(!0);
+                var startEl = range.parentElement();
+                range = textRange.duplicate(), range.collapse(!1);
+                var endEl = range.parentElement(), startEndContainer = startEl == endEl ? startEl : dom.getCommonAncestor(startEl, endEl);
+                return startEndContainer == parentEl ? startEndContainer : dom.getCommonAncestor(parentEl, startEndContainer);
+            }, textRangeIsCollapsed = function(textRange) {
+                return 0 == textRange.compareEndPoints("StartToEnd", textRange);
+            }, getTextRangeBoundaryPosition = function(textRange, wholeRangeContainerElement, isStart, isCollapsed, startInfo) {
+                var workingRange = textRange.duplicate();
+                workingRange.collapse(isStart);
+                var containerElement = workingRange.parentElement();
+                if (dom.isOrIsAncestorOf(wholeRangeContainerElement, containerElement) || (containerElement = wholeRangeContainerElement), 
+                !containerElement.canHaveHTML) {
+                    var pos = new DomPosition(containerElement.parentNode, dom.getNodeIndex(containerElement));
+                    return {
+                        boundaryPosition: pos,
+                        nodeInfo: {
+                            nodeIndex: pos.offset,
+                            containerElement: pos.node
+                        }
+                    };
+                }
+                var workingNode = dom.getDocument(containerElement).createElement("span");
+                workingNode.parentNode && dom.removeNode(workingNode);
+                for (var comparison, previousNode, nextNode, boundaryPosition, boundaryNode, workingComparisonType = isStart ? "StartToStart" : "StartToEnd", start = startInfo && startInfo.containerElement == containerElement ? startInfo.nodeIndex : 0, childNodeCount = containerElement.childNodes.length, end = childNodeCount, nodeIndex = end; ;) {
+                    if (nodeIndex == childNodeCount ? containerElement.appendChild(workingNode) : containerElement.insertBefore(workingNode, containerElement.childNodes[nodeIndex]), 
+                    workingRange.moveToElementText(workingNode), comparison = workingRange.compareEndPoints(workingComparisonType, textRange), 
+                    0 == comparison || start == end) break;
+                    if (-1 == comparison) {
+                        if (end == start + 1) break;
+                        start = nodeIndex;
+                    } else end = end == start + 1 ? start : nodeIndex;
+                    nodeIndex = Math.floor((start + end) / 2), containerElement.removeChild(workingNode);
+                }
+                if (boundaryNode = workingNode.nextSibling, -1 == comparison && boundaryNode && isCharacterDataNode(boundaryNode)) {
+                    workingRange.setEndPoint(isStart ? "EndToStart" : "EndToEnd", textRange);
+                    var offset;
+                    if (/[\r\n]/.test(boundaryNode.data)) {
+                        var tempRange = workingRange.duplicate(), rangeLength = tempRange.text.replace(/\r\n/g, "\r").length;
+                        for (offset = tempRange.moveStart("character", rangeLength); -1 == (comparison = tempRange.compareEndPoints("StartToEnd", tempRange)); ) offset++, 
+                        tempRange.moveStart("character", 1);
+                    } else offset = workingRange.text.length;
+                    boundaryPosition = new DomPosition(boundaryNode, offset);
+                } else previousNode = (isCollapsed || !isStart) && workingNode.previousSibling, 
+                nextNode = (isCollapsed || isStart) && workingNode.nextSibling, boundaryPosition = nextNode && isCharacterDataNode(nextNode) ? new DomPosition(nextNode, 0) : previousNode && isCharacterDataNode(previousNode) ? new DomPosition(previousNode, previousNode.data.length) : new DomPosition(containerElement, dom.getNodeIndex(workingNode));
+                return dom.removeNode(workingNode), {
+                    boundaryPosition: boundaryPosition,
+                    nodeInfo: {
+                        nodeIndex: nodeIndex,
+                        containerElement: containerElement
+                    }
+                };
+            }, createBoundaryTextRange = function(boundaryPosition, isStart) {
+                var boundaryNode, boundaryParent, workingNode, childNodes, boundaryOffset = boundaryPosition.offset, doc = dom.getDocument(boundaryPosition.node), workingRange = getBody(doc).createTextRange(), nodeIsDataNode = isCharacterDataNode(boundaryPosition.node);
+                return nodeIsDataNode ? (boundaryNode = boundaryPosition.node, boundaryParent = boundaryNode.parentNode) : (childNodes = boundaryPosition.node.childNodes, 
+                boundaryNode = boundaryOffset < childNodes.length ? childNodes[boundaryOffset] : null, 
+                boundaryParent = boundaryPosition.node), workingNode = doc.createElement("span"), 
+                workingNode.innerHTML = "&#feff;", boundaryNode ? boundaryParent.insertBefore(workingNode, boundaryNode) : boundaryParent.appendChild(workingNode), 
+                workingRange.moveToElementText(workingNode), workingRange.collapse(!isStart), boundaryParent.removeChild(workingNode), 
+                nodeIsDataNode && workingRange[isStart ? "moveStart" : "moveEnd"]("character", boundaryOffset), 
+                workingRange;
+            };
+            WrappedTextRange = function(textRange) {
+                this.textRange = textRange, this.refresh();
+            }, WrappedTextRange.prototype = new DomRange(document), WrappedTextRange.prototype.refresh = function() {
+                var start, end, startBoundary, rangeContainerElement = getTextRangeContainerElement(this.textRange);
+                textRangeIsCollapsed(this.textRange) ? end = start = getTextRangeBoundaryPosition(this.textRange, rangeContainerElement, !0, !0).boundaryPosition : (startBoundary = getTextRangeBoundaryPosition(this.textRange, rangeContainerElement, !0, !1), 
+                start = startBoundary.boundaryPosition, end = getTextRangeBoundaryPosition(this.textRange, rangeContainerElement, !1, !1, startBoundary.nodeInfo).boundaryPosition), 
+                this.setStart(start.node, start.offset), this.setEnd(end.node, end.offset);
+            }, WrappedTextRange.prototype.getName = function() {
+                return "WrappedTextRange";
+            }, DomRange.copyComparisonConstants(WrappedTextRange);
+            var rangeToTextRange = function(range) {
+                if (range.collapsed) return createBoundaryTextRange(new DomPosition(range.startContainer, range.startOffset), !0);
+                var startRange = createBoundaryTextRange(new DomPosition(range.startContainer, range.startOffset), !0), endRange = createBoundaryTextRange(new DomPosition(range.endContainer, range.endOffset), !1), textRange = getBody(DomRange.getRangeDocument(range)).createTextRange();
+                return textRange.setEndPoint("StartToStart", startRange), textRange.setEndPoint("EndToEnd", endRange), 
+                textRange;
+            };
+            if (WrappedTextRange.rangeToTextRange = rangeToTextRange, WrappedTextRange.prototype.toTextRange = function() {
+                return rangeToTextRange(this);
+            }, api.WrappedTextRange = WrappedTextRange, !api.features.implementsDomRange || api.config.preferTextRange) {
+                var globalObj = function(f) {
+                    return f("return this;")();
+                }(Function);
+                "undefined" == typeof globalObj.Range && (globalObj.Range = WrappedTextRange), api.createNativeRange = function(doc) {
+                    return doc = getContentDocument(doc, module, "createNativeRange"), getBody(doc).createTextRange();
+                }, api.WrappedRange = WrappedTextRange;
+            }
+        }
+        api.createRange = function(doc) {
+            return doc = getContentDocument(doc, module, "createRange"), new api.WrappedRange(api.createNativeRange(doc));
+        }, api.createRangyRange = function(doc) {
+            return doc = getContentDocument(doc, module, "createRangyRange"), new DomRange(doc);
+        }, util.createAliasForDeprecatedMethod(api, "createIframeRange", "createRange"), 
+        util.createAliasForDeprecatedMethod(api, "createIframeRangyRange", "createRangyRange"), 
+        api.addShimListener(function(win) {
+            var doc = win.document;
+            "undefined" == typeof doc.createRange && (doc.createRange = function() {
+                return api.createRange(doc);
+            }), doc = win = null;
+        });
+    }), api.createCoreModule("WrappedSelection", [ "DomRange", "WrappedRange" ], function(api, module) {
+        function isDirectionBackward(dir) {
+            return "string" == typeof dir ? /^backward(s)?$/i.test(dir) : !!dir;
+        }
+        function getWindow(win, methodName) {
+            if (win) {
+                if (dom.isWindow(win)) return win;
+                if (win instanceof WrappedSelection) return win.win;
+                var doc = dom.getContentDocument(win, module, methodName);
+                return dom.getWindow(doc);
+            }
+            return window;
+        }
+        function getWinSelection(winParam) {
+            return getWindow(winParam, "getWinSelection").getSelection();
+        }
+        function getDocSelection(winParam) {
+            return getWindow(winParam, "getDocSelection").document.selection;
+        }
+        function winSelectionIsBackward(sel) {
+            var backward = !1;
+            return sel.anchorNode && (backward = 1 == dom.comparePoints(sel.anchorNode, sel.anchorOffset, sel.focusNode, sel.focusOffset)), 
+            backward;
+        }
+        function updateAnchorAndFocusFromRange(sel, range, backward) {
+            var anchorPrefix = backward ? "end" : "start", focusPrefix = backward ? "start" : "end";
+            sel.anchorNode = range[anchorPrefix + "Container"], sel.anchorOffset = range[anchorPrefix + "Offset"], 
+            sel.focusNode = range[focusPrefix + "Container"], sel.focusOffset = range[focusPrefix + "Offset"];
+        }
+        function updateAnchorAndFocusFromNativeSelection(sel) {
+            var nativeSel = sel.nativeSelection;
+            sel.anchorNode = nativeSel.anchorNode, sel.anchorOffset = nativeSel.anchorOffset, 
+            sel.focusNode = nativeSel.focusNode, sel.focusOffset = nativeSel.focusOffset;
+        }
+        function updateEmptySelection(sel) {
+            sel.anchorNode = sel.focusNode = null, sel.anchorOffset = sel.focusOffset = 0, sel.rangeCount = 0, 
+            sel.isCollapsed = !0, sel._ranges.length = 0;
+        }
+        function getNativeRange(range) {
+            var nativeRange;
+            return range instanceof DomRange ? (nativeRange = api.createNativeRange(range.getDocument()), 
+            nativeRange.setEnd(range.endContainer, range.endOffset), nativeRange.setStart(range.startContainer, range.startOffset)) : range instanceof WrappedRange ? nativeRange = range.nativeRange : features.implementsDomRange && range instanceof dom.getWindow(range.startContainer).Range && (nativeRange = range), 
+            nativeRange;
+        }
+        function rangeContainsSingleElement(rangeNodes) {
+            if (!rangeNodes.length || 1 != rangeNodes[0].nodeType) return !1;
+            for (var i = 1, len = rangeNodes.length; len > i; ++i) if (!dom.isAncestorOf(rangeNodes[0], rangeNodes[i])) return !1;
+            return !0;
+        }
+        function getSingleElementFromRange(range) {
+            var nodes = range.getNodes();
+            if (!rangeContainsSingleElement(nodes)) throw module.createError("getSingleElementFromRange: range " + range.inspect() + " did not consist of a single element");
+            return nodes[0];
+        }
+        function isTextRange(range) {
+            return !!range && "undefined" != typeof range.text;
+        }
+        function updateFromTextRange(sel, range) {
+            var wrappedRange = new WrappedRange(range);
+            sel._ranges = [ wrappedRange ], updateAnchorAndFocusFromRange(sel, wrappedRange, !1), 
+            sel.rangeCount = 1, sel.isCollapsed = wrappedRange.collapsed;
+        }
+        function updateControlSelection(sel) {
+            if (sel._ranges.length = 0, "None" == sel.docSelection.type) updateEmptySelection(sel); else {
+                var controlRange = sel.docSelection.createRange();
+                if (isTextRange(controlRange)) updateFromTextRange(sel, controlRange); else {
+                    sel.rangeCount = controlRange.length;
+                    for (var range, doc = getDocument(controlRange.item(0)), i = 0; i < sel.rangeCount; ++i) range = api.createRange(doc), 
+                    range.selectNode(controlRange.item(i)), sel._ranges.push(range);
+                    sel.isCollapsed = 1 == sel.rangeCount && sel._ranges[0].collapsed, updateAnchorAndFocusFromRange(sel, sel._ranges[sel.rangeCount - 1], !1);
+                }
+            }
+        }
+        function addRangeToControlSelection(sel, range) {
+            for (var controlRange = sel.docSelection.createRange(), rangeElement = getSingleElementFromRange(range), doc = getDocument(controlRange.item(0)), newControlRange = getBody(doc).createControlRange(), i = 0, len = controlRange.length; len > i; ++i) newControlRange.add(controlRange.item(i));
+            try {
+                newControlRange.add(rangeElement);
+            } catch (ex) {
+                throw module.createError("addRange(): Element within the specified Range could not be added to control selection (does it have layout?)");
+            }
+            newControlRange.select(), updateControlSelection(sel);
+        }
+        function WrappedSelection(selection, docSelection, win) {
+            this.nativeSelection = selection, this.docSelection = docSelection, this._ranges = [], 
+            this.win = win, this.refresh();
+        }
+        function deleteProperties(sel) {
+            sel.win = sel.anchorNode = sel.focusNode = sel._ranges = null, sel.rangeCount = sel.anchorOffset = sel.focusOffset = 0, 
+            sel.detached = !0;
+        }
+        function actOnCachedSelection(win, action) {
+            for (var cached, sel, i = cachedRangySelections.length; i--; ) if (cached = cachedRangySelections[i], 
+            sel = cached.selection, "deleteAll" == action) deleteProperties(sel); else if (cached.win == win) return "delete" == action ? (cachedRangySelections.splice(i, 1), 
+            !0) : sel;
+            return "deleteAll" == action && (cachedRangySelections.length = 0), null;
+        }
+        function createControlSelection(sel, ranges) {
+            for (var el, doc = getDocument(ranges[0].startContainer), controlRange = getBody(doc).createControlRange(), i = 0, len = ranges.length; len > i; ++i) {
+                el = getSingleElementFromRange(ranges[i]);
+                try {
+                    controlRange.add(el);
+                } catch (ex) {
+                    throw module.createError("setRanges(): Element within one of the specified Ranges could not be added to control selection (does it have layout?)");
+                }
+            }
+            controlRange.select(), updateControlSelection(sel);
+        }
+        function assertNodeInSameDocument(sel, node) {
+            if (sel.win.document != getDocument(node)) throw new DOMException("WRONG_DOCUMENT_ERR");
+        }
+        function createStartOrEndSetter(isStart) {
+            return function(node, offset) {
+                var range;
+                this.rangeCount ? (range = this.getRangeAt(0), range["set" + (isStart ? "Start" : "End")](node, offset)) : (range = api.createRange(this.win.document), 
+                range.setStartAndEnd(node, offset)), this.setSingleRange(range, this.isBackward());
+            };
+        }
+        function inspect(sel) {
+            var rangeInspects = [], anchor = new DomPosition(sel.anchorNode, sel.anchorOffset), focus = new DomPosition(sel.focusNode, sel.focusOffset), name = "function" == typeof sel.getName ? sel.getName() : "Selection";
+            if ("undefined" != typeof sel.rangeCount) for (var i = 0, len = sel.rangeCount; len > i; ++i) rangeInspects[i] = DomRange.inspect(sel.getRangeAt(i));
+            return "[" + name + "(Ranges: " + rangeInspects.join(", ") + ")(anchor: " + anchor.inspect() + ", focus: " + focus.inspect() + "]";
+        }
+        api.config.checkSelectionRanges = !0;
+        var getNativeSelection, selectionIsCollapsed, BOOLEAN = "boolean", NUMBER = "number", dom = api.dom, util = api.util, isHostMethod = util.isHostMethod, DomRange = api.DomRange, WrappedRange = api.WrappedRange, DOMException = api.DOMException, DomPosition = dom.DomPosition, features = api.features, CONTROL = "Control", getDocument = dom.getDocument, getBody = dom.getBody, rangesEqual = DomRange.rangesEqual, implementsWinGetSelection = isHostMethod(window, "getSelection"), implementsDocSelection = util.isHostObject(document, "selection");
+        features.implementsWinGetSelection = implementsWinGetSelection, features.implementsDocSelection = implementsDocSelection;
+        var useDocumentSelection = implementsDocSelection && (!implementsWinGetSelection || api.config.preferTextRange);
+        if (useDocumentSelection) getNativeSelection = getDocSelection, api.isSelectionValid = function(winParam) {
+            var doc = getWindow(winParam, "isSelectionValid").document, nativeSel = doc.selection;
+            return "None" != nativeSel.type || getDocument(nativeSel.createRange().parentElement()) == doc;
+        }; else {
+            if (!implementsWinGetSelection) return module.fail("Neither document.selection or window.getSelection() detected."), 
+            !1;
+            getNativeSelection = getWinSelection, api.isSelectionValid = function() {
+                return !0;
+            };
+        }
+        api.getNativeSelection = getNativeSelection;
+        var testSelection = getNativeSelection();
+        if (!testSelection) return module.fail("Native selection was null (possibly issue 138?)"), 
+        !1;
+        var testRange = api.createNativeRange(document), body = getBody(document), selectionHasAnchorAndFocus = util.areHostProperties(testSelection, [ "anchorNode", "focusNode", "anchorOffset", "focusOffset" ]);
+        features.selectionHasAnchorAndFocus = selectionHasAnchorAndFocus;
+        var selectionHasExtend = isHostMethod(testSelection, "extend");
+        features.selectionHasExtend = selectionHasExtend;
+        var selectionHasRangeCount = typeof testSelection.rangeCount == NUMBER;
+        features.selectionHasRangeCount = selectionHasRangeCount;
+        var selectionSupportsMultipleRanges = !1, collapsedNonEditableSelectionsSupported = !0, addRangeBackwardToNative = selectionHasExtend ? function(nativeSelection, range) {
+            var doc = DomRange.getRangeDocument(range), endRange = api.createRange(doc);
+            endRange.collapseToPoint(range.endContainer, range.endOffset), nativeSelection.addRange(getNativeRange(endRange)), 
+            nativeSelection.extend(range.startContainer, range.startOffset);
+        } : null;
+        util.areHostMethods(testSelection, [ "addRange", "getRangeAt", "removeAllRanges" ]) && typeof testSelection.rangeCount == NUMBER && features.implementsDomRange && !function() {
+            var sel = window.getSelection();
+            if (sel) {
+                for (var originalSelectionRangeCount = sel.rangeCount, selectionHasMultipleRanges = originalSelectionRangeCount > 1, originalSelectionRanges = [], originalSelectionBackward = winSelectionIsBackward(sel), i = 0; originalSelectionRangeCount > i; ++i) originalSelectionRanges[i] = sel.getRangeAt(i);
+                var testEl = dom.createTestElement(document, "", !1), textNode = testEl.appendChild(document.createTextNode("   ")), r1 = document.createRange();
+                if (r1.setStart(textNode, 1), r1.collapse(!0), sel.removeAllRanges(), sel.addRange(r1), 
+                collapsedNonEditableSelectionsSupported = 1 == sel.rangeCount, sel.removeAllRanges(), 
+                !selectionHasMultipleRanges) {
+                    var chromeMatch = window.navigator.appVersion.match(/Chrome\/(.*?) /);
+                    if (chromeMatch && parseInt(chromeMatch[1]) >= 36) selectionSupportsMultipleRanges = !1; else {
+                        var r2 = r1.cloneRange();
+                        r1.setStart(textNode, 0), r2.setEnd(textNode, 3), r2.setStart(textNode, 2), sel.addRange(r1), 
+                        sel.addRange(r2), selectionSupportsMultipleRanges = 2 == sel.rangeCount;
+                    }
+                }
+                for (dom.removeNode(testEl), sel.removeAllRanges(), i = 0; originalSelectionRangeCount > i; ++i) 0 == i && originalSelectionBackward ? addRangeBackwardToNative ? addRangeBackwardToNative(sel, originalSelectionRanges[i]) : (api.warn("Rangy initialization: original selection was backwards but selection has been restored forwards because the browser does not support Selection.extend"), 
+                sel.addRange(originalSelectionRanges[i])) : sel.addRange(originalSelectionRanges[i]);
+            }
+        }(), features.selectionSupportsMultipleRanges = selectionSupportsMultipleRanges, 
+        features.collapsedNonEditableSelectionsSupported = collapsedNonEditableSelectionsSupported;
+        var testControlRange, implementsControlRange = !1;
+        body && isHostMethod(body, "createControlRange") && (testControlRange = body.createControlRange(), 
+        util.areHostProperties(testControlRange, [ "item", "add" ]) && (implementsControlRange = !0)), 
+        features.implementsControlRange = implementsControlRange, selectionIsCollapsed = selectionHasAnchorAndFocus ? function(sel) {
+            return sel.anchorNode === sel.focusNode && sel.anchorOffset === sel.focusOffset;
+        } : function(sel) {
+            return sel.rangeCount ? sel.getRangeAt(sel.rangeCount - 1).collapsed : !1;
+        };
+        var getSelectionRangeAt;
+        isHostMethod(testSelection, "getRangeAt") ? getSelectionRangeAt = function(sel, index) {
+            try {
+                return sel.getRangeAt(index);
+            } catch (ex) {
+                return null;
+            }
+        } : selectionHasAnchorAndFocus && (getSelectionRangeAt = function(sel) {
+            var doc = getDocument(sel.anchorNode), range = api.createRange(doc);
+            return range.setStartAndEnd(sel.anchorNode, sel.anchorOffset, sel.focusNode, sel.focusOffset), 
+            range.collapsed !== this.isCollapsed && range.setStartAndEnd(sel.focusNode, sel.focusOffset, sel.anchorNode, sel.anchorOffset), 
+            range;
+        }), WrappedSelection.prototype = api.selectionPrototype;
+        var cachedRangySelections = [], getSelection = function(win) {
+            if (win && win instanceof WrappedSelection) return win.refresh(), win;
+            win = getWindow(win, "getNativeSelection");
+            var sel = actOnCachedSelection(win), nativeSel = getNativeSelection(win), docSel = implementsDocSelection ? getDocSelection(win) : null;
+            return sel ? (sel.nativeSelection = nativeSel, sel.docSelection = docSel, sel.refresh()) : (sel = new WrappedSelection(nativeSel, docSel, win), 
+            cachedRangySelections.push({
+                win: win,
+                selection: sel
+            })), sel;
+        };
+        api.getSelection = getSelection, util.createAliasForDeprecatedMethod(api, "getIframeSelection", "getSelection");
+        var selProto = WrappedSelection.prototype;
+        if (!useDocumentSelection && selectionHasAnchorAndFocus && util.areHostMethods(testSelection, [ "removeAllRanges", "addRange" ])) {
+            selProto.removeAllRanges = function() {
+                this.nativeSelection.removeAllRanges(), updateEmptySelection(this);
+            };
+            var addRangeBackward = function(sel, range) {
+                addRangeBackwardToNative(sel.nativeSelection, range), sel.refresh();
+            };
+            selProto.addRange = selectionHasRangeCount ? function(range, direction) {
+                if (implementsControlRange && implementsDocSelection && this.docSelection.type == CONTROL) addRangeToControlSelection(this, range); else if (isDirectionBackward(direction) && selectionHasExtend) addRangeBackward(this, range); else {
+                    var previousRangeCount;
+                    selectionSupportsMultipleRanges ? previousRangeCount = this.rangeCount : (this.removeAllRanges(), 
+                    previousRangeCount = 0);
+                    var clonedNativeRange = getNativeRange(range).cloneRange();
+                    try {
+                        this.nativeSelection.addRange(clonedNativeRange);
+                    } catch (ex) {}
+                    if (this.rangeCount = this.nativeSelection.rangeCount, this.rangeCount == previousRangeCount + 1) {
+                        if (api.config.checkSelectionRanges) {
+                            var nativeRange = getSelectionRangeAt(this.nativeSelection, this.rangeCount - 1);
+                            nativeRange && !rangesEqual(nativeRange, range) && (range = new WrappedRange(nativeRange));
+                        }
+                        this._ranges[this.rangeCount - 1] = range, updateAnchorAndFocusFromRange(this, range, selectionIsBackward(this.nativeSelection)), 
+                        this.isCollapsed = selectionIsCollapsed(this);
+                    } else this.refresh();
+                }
+            } : function(range, direction) {
+                isDirectionBackward(direction) && selectionHasExtend ? addRangeBackward(this, range) : (this.nativeSelection.addRange(getNativeRange(range)), 
+                this.refresh());
+            }, selProto.setRanges = function(ranges) {
+                if (implementsControlRange && implementsDocSelection && ranges.length > 1) createControlSelection(this, ranges); else {
+                    this.removeAllRanges();
+                    for (var i = 0, len = ranges.length; len > i; ++i) this.addRange(ranges[i]);
+                }
+            };
+        } else {
+            if (!(isHostMethod(testSelection, "empty") && isHostMethod(testRange, "select") && implementsControlRange && useDocumentSelection)) return module.fail("No means of selecting a Range or TextRange was found"), 
+            !1;
+            selProto.removeAllRanges = function() {
+                try {
+                    if (this.docSelection.empty(), "None" != this.docSelection.type) {
+                        var doc;
+                        if (this.anchorNode) doc = getDocument(this.anchorNode); else if (this.docSelection.type == CONTROL) {
+                            var controlRange = this.docSelection.createRange();
+                            controlRange.length && (doc = getDocument(controlRange.item(0)));
+                        }
+                        if (doc) {
+                            var textRange = getBody(doc).createTextRange();
+                            textRange.select(), this.docSelection.empty();
+                        }
+                    }
+                } catch (ex) {}
+                updateEmptySelection(this);
+            }, selProto.addRange = function(range) {
+                this.docSelection.type == CONTROL ? addRangeToControlSelection(this, range) : (api.WrappedTextRange.rangeToTextRange(range).select(), 
+                this._ranges[0] = range, this.rangeCount = 1, this.isCollapsed = this._ranges[0].collapsed, 
+                updateAnchorAndFocusFromRange(this, range, !1));
+            }, selProto.setRanges = function(ranges) {
+                this.removeAllRanges();
+                var rangeCount = ranges.length;
+                rangeCount > 1 ? createControlSelection(this, ranges) : rangeCount && this.addRange(ranges[0]);
+            };
+        }
+        selProto.getRangeAt = function(index) {
+            if (0 > index || index >= this.rangeCount) throw new DOMException("INDEX_SIZE_ERR");
+            return this._ranges[index].cloneRange();
+        };
+        var refreshSelection;
+        if (useDocumentSelection) refreshSelection = function(sel) {
+            var range;
+            api.isSelectionValid(sel.win) ? range = sel.docSelection.createRange() : (range = getBody(sel.win.document).createTextRange(), 
+            range.collapse(!0)), sel.docSelection.type == CONTROL ? updateControlSelection(sel) : isTextRange(range) ? updateFromTextRange(sel, range) : updateEmptySelection(sel);
+        }; else if (isHostMethod(testSelection, "getRangeAt") && typeof testSelection.rangeCount == NUMBER) refreshSelection = function(sel) {
+            if (implementsControlRange && implementsDocSelection && sel.docSelection.type == CONTROL) updateControlSelection(sel); else if (sel._ranges.length = sel.rangeCount = sel.nativeSelection.rangeCount, 
+            sel.rangeCount) {
+                for (var i = 0, len = sel.rangeCount; len > i; ++i) sel._ranges[i] = new api.WrappedRange(sel.nativeSelection.getRangeAt(i));
+                updateAnchorAndFocusFromRange(sel, sel._ranges[sel.rangeCount - 1], selectionIsBackward(sel.nativeSelection)), 
+                sel.isCollapsed = selectionIsCollapsed(sel);
+            } else updateEmptySelection(sel);
+        }; else {
+            if (!selectionHasAnchorAndFocus || typeof testSelection.isCollapsed != BOOLEAN || typeof testRange.collapsed != BOOLEAN || !features.implementsDomRange) return module.fail("No means of obtaining a Range or TextRange from the user's selection was found"), 
+            !1;
+            refreshSelection = function(sel) {
+                var range, nativeSel = sel.nativeSelection;
+                nativeSel.anchorNode ? (range = getSelectionRangeAt(nativeSel, 0), sel._ranges = [ range ], 
+                sel.rangeCount = 1, updateAnchorAndFocusFromNativeSelection(sel), sel.isCollapsed = selectionIsCollapsed(sel)) : updateEmptySelection(sel);
+            };
+        }
+        selProto.refresh = function(checkForChanges) {
+            var oldRanges = checkForChanges ? this._ranges.slice(0) : null, oldAnchorNode = this.anchorNode, oldAnchorOffset = this.anchorOffset;
+            if (refreshSelection(this), checkForChanges) {
+                var i = oldRanges.length;
+                if (i != this._ranges.length) return !0;
+                if (this.anchorNode != oldAnchorNode || this.anchorOffset != oldAnchorOffset) return !0;
+                for (;i--; ) if (!rangesEqual(oldRanges[i], this._ranges[i])) return !0;
+                return !1;
+            }
+        };
+        var removeRangeManually = function(sel, range) {
+            var ranges = sel.getAllRanges();
+            sel.removeAllRanges();
+            for (var i = 0, len = ranges.length; len > i; ++i) rangesEqual(range, ranges[i]) || sel.addRange(ranges[i]);
+            sel.rangeCount || updateEmptySelection(sel);
+        };
+        selProto.removeRange = implementsControlRange && implementsDocSelection ? function(range) {
+            if (this.docSelection.type == CONTROL) {
+                for (var el, controlRange = this.docSelection.createRange(), rangeElement = getSingleElementFromRange(range), doc = getDocument(controlRange.item(0)), newControlRange = getBody(doc).createControlRange(), removed = !1, i = 0, len = controlRange.length; len > i; ++i) el = controlRange.item(i), 
+                el !== rangeElement || removed ? newControlRange.add(controlRange.item(i)) : removed = !0;
+                newControlRange.select(), updateControlSelection(this);
+            } else removeRangeManually(this, range);
+        } : function(range) {
+            removeRangeManually(this, range);
+        };
+        var selectionIsBackward;
+        !useDocumentSelection && selectionHasAnchorAndFocus && features.implementsDomRange ? (selectionIsBackward = winSelectionIsBackward, 
+        selProto.isBackward = function() {
+            return selectionIsBackward(this);
+        }) : selectionIsBackward = selProto.isBackward = function() {
+            return !1;
+        }, selProto.isBackwards = selProto.isBackward, selProto.toString = function() {
+            for (var rangeTexts = [], i = 0, len = this.rangeCount; len > i; ++i) rangeTexts[i] = "" + this._ranges[i];
+            return rangeTexts.join("");
+        }, selProto.collapse = function(node, offset) {
+            assertNodeInSameDocument(this, node);
+            var range = api.createRange(node);
+            range.collapseToPoint(node, offset), this.setSingleRange(range), this.isCollapsed = !0;
+        }, selProto.collapseToStart = function() {
+            if (!this.rangeCount) throw new DOMException("INVALID_STATE_ERR");
+            var range = this._ranges[0];
+            this.collapse(range.startContainer, range.startOffset);
+        }, selProto.collapseToEnd = function() {
+            if (!this.rangeCount) throw new DOMException("INVALID_STATE_ERR");
+            var range = this._ranges[this.rangeCount - 1];
+            this.collapse(range.endContainer, range.endOffset);
+        }, selProto.selectAllChildren = function(node) {
+            assertNodeInSameDocument(this, node);
+            var range = api.createRange(node);
+            range.selectNodeContents(node), this.setSingleRange(range);
+        }, selProto.deleteFromDocument = function() {
+            if (implementsControlRange && implementsDocSelection && this.docSelection.type == CONTROL) {
+                for (var element, controlRange = this.docSelection.createRange(); controlRange.length; ) element = controlRange.item(0), 
+                controlRange.remove(element), dom.removeNode(element);
+                this.refresh();
+            } else if (this.rangeCount) {
+                var ranges = this.getAllRanges();
+                if (ranges.length) {
+                    this.removeAllRanges();
+                    for (var i = 0, len = ranges.length; len > i; ++i) ranges[i].deleteContents();
+                    this.addRange(ranges[len - 1]);
+                }
+            }
+        }, selProto.eachRange = function(func, returnValue) {
+            for (var i = 0, len = this._ranges.length; len > i; ++i) if (func(this.getRangeAt(i))) return returnValue;
+        }, selProto.getAllRanges = function() {
+            var ranges = [];
+            return this.eachRange(function(range) {
+                ranges.push(range);
+            }), ranges;
+        }, selProto.setSingleRange = function(range, direction) {
+            this.removeAllRanges(), this.addRange(range, direction);
+        }, selProto.callMethodOnEachRange = function(methodName, params) {
+            var results = [];
+            return this.eachRange(function(range) {
+                results.push(range[methodName].apply(range, params || []));
+            }), results;
+        }, selProto.setStart = createStartOrEndSetter(!0), selProto.setEnd = createStartOrEndSetter(!1), 
+        api.rangePrototype.select = function(direction) {
+            getSelection(this.getDocument()).setSingleRange(this, direction);
+        }, selProto.changeEachRange = function(func) {
+            var ranges = [], backward = this.isBackward();
+            this.eachRange(function(range) {
+                func(range), ranges.push(range);
+            }), this.removeAllRanges(), backward && 1 == ranges.length ? this.addRange(ranges[0], "backward") : this.setRanges(ranges);
+        }, selProto.containsNode = function(node, allowPartial) {
+            return this.eachRange(function(range) {
+                return range.containsNode(node, allowPartial);
+            }, !0) || !1;
+        }, selProto.getBookmark = function(containerNode) {
+            return {
+                backward: this.isBackward(),
+                rangeBookmarks: this.callMethodOnEachRange("getBookmark", [ containerNode ])
+            };
+        }, selProto.moveToBookmark = function(bookmark) {
+            for (var rangeBookmark, range, selRanges = [], i = 0; rangeBookmark = bookmark.rangeBookmarks[i++]; ) range = api.createRange(this.win), 
+            range.moveToBookmark(rangeBookmark), selRanges.push(range);
+            bookmark.backward ? this.setSingleRange(selRanges[0], "backward") : this.setRanges(selRanges);
+        }, selProto.saveRanges = function() {
+            return {
+                backward: this.isBackward(),
+                ranges: this.callMethodOnEachRange("cloneRange")
+            };
+        }, selProto.restoreRanges = function(selRanges) {
+            this.removeAllRanges();
+            for (var range, i = 0; range = selRanges.ranges[i]; ++i) this.addRange(range, selRanges.backward && 0 == i);
+        }, selProto.toHtml = function() {
+            var rangeHtmls = [];
+            return this.eachRange(function(range) {
+                rangeHtmls.push(DomRange.toHtml(range));
+            }), rangeHtmls.join("");
+        }, features.implementsTextRange && (selProto.getNativeTextRange = function() {
+            var sel;
+            if (sel = this.docSelection) {
+                var range = sel.createRange();
+                if (isTextRange(range)) return range;
+                throw module.createError("getNativeTextRange: selection is a control selection");
+            }
+            if (this.rangeCount > 0) return api.WrappedTextRange.rangeToTextRange(this.getRangeAt(0));
+            throw module.createError("getNativeTextRange: selection contains no range");
+        }), selProto.getName = function() {
+            return "WrappedSelection";
+        }, selProto.inspect = function() {
+            return inspect(this);
+        }, selProto.detach = function() {
+            actOnCachedSelection(this.win, "delete"), deleteProperties(this);
+        }, WrappedSelection.detachAll = function() {
+            actOnCachedSelection(null, "deleteAll");
+        }, WrappedSelection.inspect = inspect, WrappedSelection.isDirectionBackward = isDirectionBackward, 
+        api.Selection = WrappedSelection, api.selectionPrototype = selProto, api.addShimListener(function(win) {
+            "undefined" == typeof win.getSelection && (win.getSelection = function() {
+                return getSelection(win);
+            }), win = null;
+        });
+    });
+    var docReady = !1, loadHandler = function() {
+        docReady || (docReady = !0, !api.initialized && api.config.autoInitialize && init());
+    };
+    return isBrowser && ("complete" == document.readyState ? loadHandler() : (isHostMethod(document, "addEventListener") && document.addEventListener("DOMContentLoaded", loadHandler, !1), 
+    addListener(window, "load", loadHandler))), api;
+}, this), function(factory, root) {
+    "function" == typeof define && define.amd ? define("rangy-saverestore", [ "./rangy-core" ], factory) : "undefined" != typeof module && "object" == typeof exports ? module.exports = factory(require("rangy")) : factory(root.rangy);
+}(function(rangy) {
+    return rangy.createModule("SaveRestore", [ "WrappedRange" ], function(api, module) {
+        function gEBI(id, doc) {
+            return (doc || document).getElementById(id);
+        }
+        function insertRangeBoundaryMarker(range, atStart) {
+            var markerEl, markerId = "selectionBoundary_" + +new Date() + "_" + ("" + Math.random()).slice(2), doc = dom.getDocument(range.startContainer), boundaryRange = range.cloneRange();
+            return boundaryRange.collapse(atStart), markerEl = doc.createElement("span"), markerEl.id = markerId, 
+            markerEl.style.lineHeight = "0", markerEl.style.display = "none", markerEl.className = "rangySelectionBoundary", 
+            markerEl.appendChild(doc.createTextNode(markerTextChar)), boundaryRange.insertNode(markerEl), 
+            markerEl;
+        }
+        function setRangeBoundary(doc, range, markerId, atStart) {
+            var markerEl = gEBI(markerId, doc);
+            markerEl ? (range[atStart ? "setStartBefore" : "setEndBefore"](markerEl), removeNode(markerEl)) : module.warn("Marker element has been removed. Cannot restore selection.");
+        }
+        function compareRanges(r1, r2) {
+            return r2.compareBoundaryPoints(r1.START_TO_START, r1);
+        }
+        function saveRange(range, direction) {
+            var startEl, endEl, doc = api.DomRange.getRangeDocument(range), text = range.toString(), backward = isDirectionBackward(direction);
+            return range.collapsed ? (endEl = insertRangeBoundaryMarker(range, !1), {
+                document: doc,
+                markerId: endEl.id,
+                collapsed: !0
+            }) : (endEl = insertRangeBoundaryMarker(range, !1), startEl = insertRangeBoundaryMarker(range, !0), 
+            {
+                document: doc,
+                startMarkerId: startEl.id,
+                endMarkerId: endEl.id,
+                collapsed: !1,
+                backward: backward,
+                toString: function() {
+                    return "original text: '" + text + "', new text: '" + range.toString() + "'";
+                }
+            });
+        }
+        function restoreRange(rangeInfo, normalize) {
+            var doc = rangeInfo.document;
+            "undefined" == typeof normalize && (normalize = !0);
+            var range = api.createRange(doc);
+            if (rangeInfo.collapsed) {
+                var markerEl = gEBI(rangeInfo.markerId, doc);
+                if (markerEl) {
+                    markerEl.style.display = "inline";
+                    var previousNode = markerEl.previousSibling;
+                    previousNode && 3 == previousNode.nodeType ? (removeNode(markerEl), range.collapseToPoint(previousNode, previousNode.length)) : (range.collapseBefore(markerEl), 
+                    removeNode(markerEl));
+                } else module.warn("Marker element has been removed. Cannot restore selection.");
+            } else setRangeBoundary(doc, range, rangeInfo.startMarkerId, !0), setRangeBoundary(doc, range, rangeInfo.endMarkerId, !1);
+            return normalize && range.normalizeBoundaries(), range;
+        }
+        function saveRanges(ranges, direction) {
+            var range, doc, rangeInfos = [], backward = isDirectionBackward(direction);
+            ranges = ranges.slice(0), ranges.sort(compareRanges);
+            for (var i = 0, len = ranges.length; len > i; ++i) rangeInfos[i] = saveRange(ranges[i], backward);
+            for (i = len - 1; i >= 0; --i) range = ranges[i], doc = api.DomRange.getRangeDocument(range), 
+            range.collapsed ? range.collapseAfter(gEBI(rangeInfos[i].markerId, doc)) : (range.setEndBefore(gEBI(rangeInfos[i].endMarkerId, doc)), 
+            range.setStartAfter(gEBI(rangeInfos[i].startMarkerId, doc)));
+            return rangeInfos;
+        }
+        function saveSelection(win) {
+            if (!api.isSelectionValid(win)) return module.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus."), 
+            null;
+            var sel = api.getSelection(win), ranges = sel.getAllRanges(), backward = 1 == ranges.length && sel.isBackward(), rangeInfos = saveRanges(ranges, backward);
+            return backward ? sel.setSingleRange(ranges[0], backward) : sel.setRanges(ranges), 
+            {
+                win: win,
+                rangeInfos: rangeInfos,
+                restored: !1
+            };
+        }
+        function restoreRanges(rangeInfos) {
+            for (var ranges = [], rangeCount = rangeInfos.length, i = rangeCount - 1; i >= 0; i--) ranges[i] = restoreRange(rangeInfos[i], !0);
+            return ranges;
+        }
+        function restoreSelection(savedSelection, preserveDirection) {
+            if (!savedSelection.restored) {
+                var rangeInfos = savedSelection.rangeInfos, sel = api.getSelection(savedSelection.win), ranges = restoreRanges(rangeInfos), rangeCount = rangeInfos.length;
+                1 == rangeCount && preserveDirection && api.features.selectionHasExtend && rangeInfos[0].backward ? (sel.removeAllRanges(), 
+                sel.addRange(ranges[0], !0)) : sel.setRanges(ranges), savedSelection.restored = !0;
+            }
+        }
+        function removeMarkerElement(doc, markerId) {
+            var markerEl = gEBI(markerId, doc);
+            markerEl && removeNode(markerEl);
+        }
+        function removeMarkers(savedSelection) {
+            for (var rangeInfo, rangeInfos = savedSelection.rangeInfos, i = 0, len = rangeInfos.length; len > i; ++i) rangeInfo = rangeInfos[i], 
+            rangeInfo.collapsed ? removeMarkerElement(savedSelection.doc, rangeInfo.markerId) : (removeMarkerElement(savedSelection.doc, rangeInfo.startMarkerId), 
+            removeMarkerElement(savedSelection.doc, rangeInfo.endMarkerId));
+        }
+        var dom = api.dom, removeNode = dom.removeNode, isDirectionBackward = api.Selection.isDirectionBackward, markerTextChar = "﻿";
+        api.util.extend(api, {
+            saveRange: saveRange,
+            restoreRange: restoreRange,
+            saveRanges: saveRanges,
+            restoreRanges: restoreRanges,
+            saveSelection: saveSelection,
+            restoreSelection: restoreSelection,
+            removeMarkerElement: removeMarkerElement,
+            removeMarkers: removeMarkers
+        });
+    }), rangy;
+}, this), define("app", [ "angular", "ngdir/angular-animate", "ngdir/angular-ui-router", "ngdir/angular-ui-bootstrap", "ngdir/angular-upload", "ngdir/angular-google-analytics", "ngdir/text/textAngular", "ngdir/text/textAngular-sanitize", "ngdir/text/textAngular-setup", "commonModules", "ngdir/text/textAngular", "ngdir/text/textAngular-sanitize", "ngdir/text/textAngular-setup", "portal/js/modules/external/index", "portal/js/modules/portalModules", "rangy-saverestore" ], function(angular) {
     function initAnalytics(AnalyticsProvider) {
         GlobalConfig.isMobileApp ? document.addEventListener("deviceready", function() {
             window.analytics && window.analytics.startTrackerWithId("UA-56607963-2");
-        }, !1) : -1 == window.location.href.indexOf("searchAgentRequest") && -1 != window.location.href.indexOf("bidspirit") && (AnalyticsProvider.setAccount("UA-56607963-1"), 
+        }, !1) : isSearchAgentRequest || -1 == window.location.href.indexOf("bidspirit") || (AnalyticsProvider.setAccount("UA-56607963-1"), 
         AnalyticsProvider.useAnalytics(!0));
     }
+    var isSearchAgentRequest = -1 != window.location.href.indexOf("searchAgentRequest");
     return angular.module("app", [ "ngAnimate", "lr.upload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap", "textAngular" ]).config(function($locationProvider, $urlMatcherFactoryProvider, AnalyticsProvider) {
         if ($urlMatcherFactoryProvider.strictMode(!1), $urlMatcherFactoryProvider.type("raw", {
             raw: !0
-        }), !GlobalConfig.isMobileApp) {
+        }), !GlobalConfig.isMobileApp && !isSearchAgentRequest) {
             var base = document.createElement("base");
             base.href = GlobalConfig.devEnv ? "/portal/ui/" : "/ui/", document.head.prepend(base), 
             GlobalConfig.prettyUrls = !0, $locationProvider.html5Mode(!0);
         }
         initAnalytics(AnalyticsProvider);
     }).run(function($templateCache) {
-        $templateCache.put("/common/templates/forms/asyncButton.html?1.1950", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
-        $templateCache.put("/common/templates/forms/monthPicker.html?1.1950", '<div class="col-md-3 form-group"> <label>{{(label || \'reports_select_month\') | i18n}}</label>  <p class="input-group"> <input type="text"  name="date" placeholder="{{\'reports_select_month\' | i18n}}" class="form-control" ng-model="selectedDate" uib-datepicker-popup="MM/yyyy" is-open="monthPopupVisible" ng-click="monthPopupVisible = true" datepicker-options="{minMode: \'month\'}" datepicker-mode="\'month\'" close-text="{{\'command_close\' | i18n}}"  > </p> <div class="newLine"></div> </div>    '), 
-        $templateCache.put("/common/templates/forms/formGroup.html?1.1950", '<div class="form-group {{cssClass}}"> <div> <div ng-transclude></div> </div>  </div> '), 
-        $templateCache.put("/common/templates/dialogs/scopeAlert.html?1.1950", "<div style=\"display:{{alert.message?'block':'none'}}\"> <div uib-alert  ng-class=\"'alert-' + (alert.type)\"   type=\"{{alert.type || 'info'}}\" close=\"hideScopeAlert()\"> {{alert.message | i18n}} </div> </div> "), 
-        $templateCache.put("/common/templates/dialogs/alert.html?1.1950", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title"><h4>{{((dialogData.title || "notice") | i18n) | capitalize}}</h4></div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.ok || "ok") | i18n}}</button> </div> </div>  '), 
-        $templateCache.put("/common/templates/dialogs/image.html?1.1950", '<div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button> <h4 class="modal-title">{{dialogData.imageName}}</h4> </div>  <div class="modal-body"><img ng-src="{{dialogData.imagePath | cloudinary}}" class="img-responsive"> </ </div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.close || "close") | i18n}}</button> </div> '), 
-        $templateCache.put("/common/templates/dialogs/confirm.html?1.1950", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title"><h4>{{(dialogData.title) | i18n}}</h4></div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-danger" ng-click="ok()">{{(dialogData.ok || "ok") | i18n}}</button> <button class="btn btn-warning" ng-click="close()">{{(dialogData.cancel || "cancel") | i18n}}</button> </div> </div>  '), 
-        $templateCache.put("/common/templates/elements/pagination.html?1.1950", '<div class="bs-pagination" dir="ltr">  <a class="link" ng-repeat="link in links" ng-href="{{baseHref && link.page && !link.isCurrent ? ((baseHref+link.page) | uiHref) : \'\'}}"  ng-click="onLinkClick(link)" ng-bind-html="link.html" ng-class="{ current:link.isCurrent, disabled:!link.page, enabled:link.page && !link.isCurrent, needsclick:link.isPrev || link.isNext,  prev:link.isPrev,  next:link.isNext}"> </a>   </div>   '), 
-        $templateCache.put("/portal/templates/info/allFutureAuctions.html?1.1950", '<div class="all-future-auctions"> <table class="table table-striped default-align" bs-text-direction> <tr> <th>{{"auction_house" | i18n}}</th> <th>{{"time" | i18n}}</th> <th>{{"auction_name" | i18n}}</th> </tr> <tr ng-repeat="auction in options.data.auctions" class="clickable" ng-click="options.data.onAuctionClick(auction)"> <td>{{auction.house.details.name | langField}}</td> <td>{{auction| auctionTime}}</td> <td> <span ng-if="::auction.number"> {{::"auction_label_number_public" | i18n:{number:auction.number} }} <span ng-if="auction.part"> {{::("auction_part_"+auction.part) | i18n}}  </span> </span>  <span ng-if="::auction.number && auction.name | langField"> - </span>  <span> {{::auction.name | langField}} </span> </td> </tr>  </table> </div>  '), 
-        $templateCache.put("/portal/templates/info/demoVideo.html?1.1950", '<div class="demo-video-popup" bs-text-direction> <div class="modal-header"> <div class="modal-title"> <h4 class="float">Bidspirit - {{"demo_video" | i18n}}</h4> <button type="button" class="opposite float close" ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  </div>  <div class="modal-body" >  <iframe class="center-block" width="800" height="450" ng-src="{{demoVideoUrl}}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>  </div>  <div class="modal-footer"> <button class="btn btn-default" ng-click="$close()">{{"close" | i18n}}</button>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/info/contact.html?1.1950", '<div  class="contact scene" ng-controller="ContactController" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1>{{\'contact_us\' | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{\'contact_message_line_1\' | i18n}}</h4> <h4 class="message-line">{{\'contact_message_line_2\' | i18n}}</h4>  <bs-linkable-text  ng-if="contentType==\'ART\'" class="sell-message" options="{ textKey:\'contact_message_sell\',  onLinkClick:gotoContactForSale }" > </bs-linkable-text> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders> <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="$state.current.name!=\'app.contact.thanks\'"> <div class="row"> <bs-form-group field-name="name" label="name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="phone" css-class="col-md-5  col-xs-11 float"> <label></label> <input dir="ltr"   name="phone" class="form-control" ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="country" css-class="col-md-5 col-xs-11 float"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>   </div> <div class="row">  <bs-form-group field-name="message" label="contact_message_body" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="sendDebugInfo() || contactForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div>   </div> </form> <div class="thanks .container animate-show" ng-show="$state.current.name==\'app.contact.thanks\'"> {{"contact_thanks" | i18n }} </div> </div>  <div class="direct-contact"> <div class="text" ng-bind-html=\'(BidspiritInfo.phoneLink ?  "contact_direct" : "contact_direct_no_phone") | i18n:{phone:BidspiritInfo.phoneLink, email:BidspiritInfo.emailLink}\'>  </div> </div> </div> '), 
-        $templateCache.put("/portal/templates/info/downForHolyDay.html?1.1950", '<div  class="down-for-holy-day scene" bs-scroll-to-top> <div class="content container col-lg-5 col-md-7  col-xs-12" > <div class="image"> </div> <div class="text" ng-bind-html="\'down_for_holy_day_1\' | i18n"></div> <div class="text" ng-bind-html="\'down_for_holy_day_2\' | i18n "></div> </div> </div> '), 
-        $templateCache.put("/portal/templates/info/product/productMain.html?1.1950", '<div ng-controller="ProductController" bs-scroll-to-top> <div class="product scene"> <div class="upper-part">  <div class="dark overlay"> </div> </div>  <div class="main center-block "> <h1 class="center-block col-md-5 col-xs-12" ng-bind-html="mainFeature.title | langField"></h1>  <div class="short-separator"></div> <div class="image center-block  col-md-7 col-xs-12" ng-if="mainFeature.resources!=null" bs-cloudinary-bg="{{mainFeature.resources[\'productsPagePic\']}}"  >  </div> <div class="info center-block  col-md-9 col-lg-7 col-xs-12" ng-bind-html="mainFeature.info | langField">  </div> <div class="orange contact-us common-button center-block center-block"  ui-sref="app.contact"> <div class="text">{{"contact_us" | i18n }}</div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div> </div>  <div class="features"> <h3 class="section-title">{{\'product_features\' | i18n}}</h3> <div class="short-separator"></div> <div ng-include src="\'info/product/productFeatures\' | appTemplate"></div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div>  <div class="contact"> <div class="container col-lg-4 col-md-5 col-sm-6 col xs-10 center-block"> <h3 class="caption">{{\'product_contact_caption\' | i18n}}</h3> <div class="short-separator"></div> <div class="message-line">{{\'product_contact\' | i18n}}</div> <div class="orange contact-us common-button center-block" ui-sref="app.contact"> <div class="text">{{"contact_us" | i18n }}</div> </div> </div>  </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/info/product/productFeatures.html?1.1950", '<div class="list container-fluid"> <div class="row"> <div class="item col-md-3 col-xs-10"  ng-repeat="feature in features" ng-if  = "feature.code!=\'main\'"> <div class="frame" ng-class="[feature.code,currentLang]"> <div class="image"  bs-cloudinary-bg="{{feature.resources[\'productsPagePic\']}}"  params=" {imageMode:\'fill\',size:\'360x226\'} ">  </div>  <div class="texts"> <h2 class="caption"> {{feature.title | langField}} </h2>   <div class="short-separator"></div> <div class="info" ng-bind-html="feature.info | langField"> </div>  </div> <div ng-if="feature.code==\'bidder\'"> <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> </div>  <div ng-if="feature.code==\'virtualAuctioneer\' && !isMobile">  <div class="orange  common-button center-block" ng-click="showDemo(\'virtualAuctioneer\')" >  <div class="text"> {{\'product_demo_virtual_auctioneer\' | i18n}}  </div> </div> </div>  </div>  </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/info/contactForSale.html?1.1950", '<div  class="contact scene" ng-controller="ContactForSaleController" bs-scroll-to-top>  <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1 class="for-sale">{{titleTextKey | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{ line1Key  | i18n}}</h4> <h4 class="message-line">{{\'contact_for_sale_message_line_2\' | i18n}}</h4> </div> </div> </div>  <div class="content container col-lg-5 col-md-7  col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders> <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="!showThanks"> <div class="row"> <bs-form-group field-name="name" label="name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="phone" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><input dir="ltr"   name="phone" class="form-control" required ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="country" css-class="col-md-5 col-xs-11 float" ng-show="contentType==\'ART\'"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="message" label="{{descriptionKey}}" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div> <div class="float images"> <div ng-repeat="image in upladedImagesInfo" class="float attachment" ng-class="{pending:image.pending}">  <img src="{{image.url ? image.url : (\'system/pagePreLoader.gif\' | commonImage) }}">    <div class="clearfix"></div> <div class="btn btn-link" ng-click="removeImage(image)">{{"remove" |i18n}}</div> </div> <div class="btn btn-default btn-upload float" upload-button accept="{{\'image/*\'}}" url="{{\'/resources/uploadFilesToS3\' | formActionPath}}" multiple="{{allowMultiple}}"  on-success="addPicFromResponse(response)" on-error="handleError(response)" on-upload = "addPendingPic(files)" >{{\'contact_for_sale_add_pic\'  | i18n}}</div> </div>  <div class="clearfix"></div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="sendDebugInfo() || contactForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div> </div> </form> <div class="thanks .container animate-show" ng-show="showThanks"> {{"contact_thanks" | i18n }} </div> </div> </div> '), 
-        $templateCache.put("/portal/templates/info/helpScreen.html?1.1950", '<div class="help-screen scene" ng-controller="HelpScreensController" bs-scroll-to-top> <div class="content container">  <div class="float texts" ng-class="[currentLang,helpScreen.code]"> <h2 class="caption"> {{helpScreen.title | langField}} </h2> <div class="info" ng-bind-html="helpScreen.info | langField">  </div>   <div ng-switch="helpScreen.code" > <div ng-switch-when="screen_live">  <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> <div class="clearfix"></div> </div> <div ng-switch-when="screen_bids"> <div class="orange common-button center-block" ng-click="showRegistration()" ng-if="!currentUser">  <div class="text"> {{\'help_register\' | i18n}}  </div> </div>  </div> <div ng-switch-when="screen_search"> <form name=\'searchForm\' novalidate bs-form  bs-submit="doSearch()" class="global-search-form center-block" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <bs-search-input></bs-search-input> </bs-form-group> <div class="button" ng-click="doSearch()"></div> <div class="clearfix"></div> </form> </div> </div> </div>   <div class="opposite float screenshot" bs-cloudinary-bg="{{sceenshot}}"></div> <div class="clearfix"></div> <div class="btn home btn-link center-block" ui-sref="app.home"> {{"home_back_to" | i18n }} </div> </div>   </div> '), 
-        $templateCache.put("/portal/templates/info/faq.html?1.1950", '<div class="faq scene" ng-controller="FaqController" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"faq" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders> <div class="faq-group" ng-repeat="(code,questions) in data.groups"> <div class="title"> {{"faq_"+code | i18n}} </div> <div class="item" ng-repeat="question in questions"> <div class="question"  bs-right-click="openInNewWindow(question)" ng-click="data.answerVisible[question.code]  = !data.answerVisible[question.code] " bs-scroll-on="question.code == data.scrollTo" > {{question.title | langField}} </div> <div class="answer" ng-show="data.answerVisible[question.code]" ng-bind-html="question.info | langField">  </div> </div>  </div>    <div class="btn home btn-link center-block" ui-sref="app.home"> {{"home_back_to" | i18n }} </div> </div>   </div> '), 
-        $templateCache.put("/portal/templates/info/downForMaintenance.html?1.1950", '<div  class="down-for-maintenance scene" bs-scroll-to-top> <div class="content container col-lg-5 col-md-7  col-xs-12" > <div class="image"> </div> <div class="text" ng-bind-html="\'down_for_maintenance\' | i18n"></div> </div> </div> '), 
-        $templateCache.put("/portal/templates/info/about.html?1.1950", '<div  class="about scene" bs-scroll-to-top ng-controller="AboutController"> <div class="wide upper-part" >  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <H1>{{\'about_upper_caption\' | i18n}}</H1> <div class="short-separator"></div> <h2 class="text">{{contentAwareText(\'about_upper_text\')}}</h2> </div> </div> </div> <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <bs-upper-space-holders> </bs-upper-space-holders> <div class="portal-info"> <div class="line">{{contentAwareText(\'about_portal_info_line_1\')}}</div> <div class="line">{{contentAwareText(\'about_portal_info_line_2\')}}</div> </div>  <div class="short-separator"></div>  <div class="company-info"> <div class="line">{{contentAwareText(\'about_company_info\')}}</div> </div> </div> <div class="contact"> <div class="container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div class="caption">{{\'about_contact_caption\' | i18n}}</div> <div class="short-separator"></div> <div class="message-line">{{\'contact_message_line_1\' | i18n}}</div> <div class="message-line">{{\'contact_message_line_2\' | i18n}}</div> <div class="orange common-button center-block" ui-sref="app.contact"> <div class="text">{{"contact_us" | i18n }}</div> </div> </div>  </div> <div ng-if="versionInfo" class="version-info" dir="ltr">{{versionInfo}}</div> </div> '), 
-        $templateCache.put("/portal/templates/info/upgradeRequired.html?1.1950", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{"notice" | i18n}}</div>  </div>  <div class="modal-body" ng-bind-html="\'upgrade_required_message\' | i18n"></div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-primary" ng-click="redirectToUpgrade()">{{"update" | i18n}}</button> </div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/support/support.html?1.1950", '<div  class="support scene" bs-scroll-to-top ng-controller="SupportController"> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"support" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div> </div>  </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <div class="float orange common-button" ng-click="showOpenSupportCaseForm()"> <div class="text">{{"support_case_action_open" | i18n }}</div> </div> <div class="float"> <div class="cases-type-selection"> <label class="radio-inline" ng-repeat="caseTypeSelection in caseTypeSelections"> <input ng-model="filter.casesType" type="radio" name="caseTypeFilter"  value="{{caseTypeSelection}}" ng-change="loadSupportCases()"> {{getCaseTypeFilterName(caseTypeSelection) | i18n }} </label> <div class="clearfix"></div> </div> <br> <div class="text-center"> <div class="form-inline"> <input class="form-control" ng-model="searchToken" bs-enter-key-action="loadSupportCases()"> <div class="btn btn-default"  ng-click="loadSupportCases()">{{"search" | i18n}}	</div> <div class="btn btn-link" ng-click="clearSearch()" ng-show="searchToken"> {{"search_clear" | i18n}} </div> </div> </div> </div>   <div class="opposite float checkbox"> <label> <input type="checkbox" ng-model="filter.nonClosedOnly" ng-change="loadSupportCases()">  {{"support_show_unclosed_only" | i18n}}  </label> </div>  <div class="clearfix"></div> <div class="opposite float  btn btn-default" ng-click="loadSupportCases()">{{"refresh" | i18n }}</div> <div class="clearfix"></div>   <bs-content-loader loaded="supportDataLoaded"></bs-content-loader>  <div ng-if="supportDataLoaded">  <label ng-if="filter.nonClosedOnly && !cases.length"> {{"support_no_open_cases" | i18n}} </label>  <bs-pagination	pages-data="pagesData"	 on-current-page-change="onPageChange()"> </bs-pagination>  <table class="table table-hover " ng-if="cases.length">  <tr> <th></th> <th>{{"support_case_number" | i18n}}</th> <th class=\'clickable\' ng-click="setSortField(\'openTime\')" > <span ng-class="{\'sort-field\':filter.sortField==\'openTime\',desc:filter.isDescSort}"></span> {{"support_open_time" | i18n}}</th>  <th class="visible-lg">{{"support_case_type" | i18n}}</th> <th>{{"subject" | i18n}}</th> <th class="visible-lg">{{"description" | i18n}}</th>  <th class="visible-lg">{{"support_assignee" | i18n}}</th>  <th class=\'clickable\' ng-click="setSortField(\'lastUpdate\')" ><span ng-class="{\'sort-field\':filter.sortField==\'lastUpdate\',desc:filter.isDescSort}"></span> {{"last_update" | i18n}}</th> <th>{{"status" | i18n}}</th> </tr>  <tr class="clickable" ng-repeat="supportCase in cases"  ng-click="displaySupportCase(supportCase)" ng-class="{\'text-muted\':supportCase.status==\'CLOSED\',\'bold\':!supportCase.handledByAssignee}" bs-scroll-on="supportCase.id==scrollTo"> <td ng-click="toggleStarred(supportCase); $event.stopPropagation();" ><div class="star" ng-class="{on:supportCase.starred}"  </div> </td> <td> {{supportCase.caseNumber}}</td> <td > {{supportCase.openTime | date:\'dd/MM/yy HH:mm\'}} <div ng-bind-html="supportCase.openerDisplay"> </div></td>  <td class="visible-lg"> {{("support_case_type_"+supportCase.caseType.toLowerCase()) | i18n}}</td> <td> {{supportCase.subject | trim:25}}</td> <td class="visible-lg">  <pre class="description"  bs-text-direction lang="{{supportCase.lang}}">{{getSupportCaseDescrition(supportCase)}}</pre> </td> <td class="visible-lg" ng-bind-html="supportCase.assigneeDisplay"> </td>   <td> {{supportCase.lastUpdate | date:\'dd/MM/yy HH:mm\'}}<div ng-bind-html="supportCase.lastUserDisplay"></div></td>  <td>{{("support_status_"+supportCase.status) | i18n}}<div ng-bind-html="supportCase.lastAction.notes"></td> </tr>  </table>  <bs-pagination	pages-data="pagesData"	 on-current-page-change="onPageChange()"> </bs-pagination>  </div> </div> </div> '), 
-        $templateCache.put("/portal/templates/support/supportCase.html?1.1950", '<div class="support scene support-case" bs-text-direction  ng-controller="SupportCaseController" bs-scroll-to-top >   <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"support" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div>  </div> </div>    <div class="content"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <h4 class="float" ng-if="supportCase"> {{"support_case_number_title" | i18n:supportCase }} <span ng-if="supportCase.subject"> - {{supportCase.subject}}</span> &nbsp;<span>({{("support_case_type_"+supportCase.caseType.toLowerCase()) | i18n}})</span> </h4>   <div class="opposite float btn btn-link" ui-sref="app.support"> {{"support_back_to_list" | i18n}}</div>   <div class="clearfix"></div>  <bs-content-loader loaded="supportCase"></bs-content-loader>  <div ng-if="supportCase"> <div> <label>{{"support_case_opener" | i18n}}:</label> <a class="btn btn-link" ng-href="(\'/searchSupport/\'+supportCase.openerEmail) | uiHref"  ng-bind-html="supportCase.openerDisplay"></a> </div> <div ng-if="supportCase.openerState"> <label>{{"country" | i18n}}:</label> <span ng-bind-html="supportCase.openerState"></span> </div> <div ng-if="supportCase.openerPhone"> <label>{{"phone" | i18n}}:</label> <span ng-bind-html="supportCase.openerPhone"></span> </div> <div ng-if="lastVisitedLot" class="float last-visited-lot">  <label>{{"support_last_visited_lot" | i18n}}:</label> <span ng-if="lastVisitedLot.auction"> <a ng-href="{{lastVisitedLot | lotHref:\'auction\'}}" >{{lastVisitedLot.itemIndex}}: {{lastVisitedLot | lotText:50 | stripTags }}</a> {{"auction_label_number_public" | i18n:{number:lastVisitedLot.auction.number} }}, <b>{{lastVisitedLot.house.details.name | langField}}</b> </span> <span ng-if="lastVisitedLot.shop"> <a ng-href="{{lastVisitedLot | lotHref:\'shop\'}}" >{{lastVisitedLot.ownerKey+"-"+lastVisitedLot.idInApp}}: {{lastVisitedLot | lotText:50 | stripTags }}</a> , {{"shop_info_title" | i18n:{houseName:(shop.house.details.name | langField)} }} </span> </div>  <div class="opposite float  btn btn-default" ng-click="loadSupportCase()">{{"refresh" | i18n }}</div>  <div class="clearfix"></div> <br><br>   <table class="table table-hover" > <tr> <th>{{"time" | i18n}}</th> <th class="visible-lg">{{"support_action" | i18n}}</th> <th>{{"support_action_user" | i18n}}</th> <th>{{"description" | i18n}}</th> <th class="visible-lg">{{"support_case_recipients" | i18n}}</th> <th class="visible-lg">{{"support_assignee" | i18n}}</th> <th class="visible-lg">{{"notes" | i18n}}</th> <th class="visible-lg">{{"support_case_attachements" | i18n}}</th> </tr> <tr ng-repeat="action in supportCase.actions" ng-click="showActionForm(action)" class="clickable"> <td> {{action.actionTime | date:\'dd/MM HH:mm\'}}</td> <td class="visible-lg"> {{("support_case_action_"+action.actionType.toLowerCase()) | i18n}}</td> <td ng-bind-html="action.userDisplay"> </td>  <td> <pre class="description" ng-show="action.description" ng-bind-html="action.displayText" bs-text-direction lang="{{supportCase.lang}}"> </pre>  </td> <td>{{action.recipients}}</td> <td class="visible-lg"> {{action.assignee.firstName ? action.assignee.firstName +" "+ action.assignee.lastName : ""}}  </td> <td class="visible-lg" ng-bind-html="action.notes"></td> <td class="visible-lg attachments"> <a class="attachment"  ng-repeat="attachment in action.attachments"  style="background-image:{{(attachment  | isImage) ? \'url(\'+attachment+\')\'  : \'none\'}}" ng-href="{{attachment}}" ng-mouseover="action.imagePreviewUrl = attachment" ng-mouseout="action.imagePreviewUrl = null" target="_blank" >  <div ng-if="!(attachment | isImage) " > {{attachment  | fileNameFromUrl | shortFileName}} </div>  </a>  <div class="preview" bs-text-direction ng-show="action.imagePreviewUrl" style="background-image:url({{action.imagePreviewUrl}})"></div> </td> </tr>  </table> <br> <div class="btn-toolbar">  <div class="float btn btn-primary" ng-click="addAction(\'SEND_EMAIL\')"> {{"support_case_action_send_email" | i18n}}   </div>  <div class="float btn btn-warning"  ng-click="addAction(\'FORWARD_TO_AUCTION_HOUSE\')"> {{"support_case_action_forward_to_auction_house" | i18n}}   </div>  <div class="float btn btn-default"  ng-click="addAction(\'ASSIGN\')"> {{"support_case_action_assign" | i18n}}   </div>    <div class="float btn btn-default"  ng-click="addAction(\'NOTE\')"> {{"support_case_action_note" | i18n}}   </div>   <div class="float btn btn-success"  ng-click="addAction(\'CLOSE\')"> {{"support_case_action_close" | i18n}}   </div>  <bs-async-button  action-fn="removeSupportCase()"  button-class="\'opposite float btn btn-danger  \'+currentLang"  label="\'support_delete_case\'">  </bs-async-button>  <div class="clearfix"></div>  </div>  </div>  </div>     </div>  '), 
-        $templateCache.put("/portal/templates/support/supportCaseAction.html?1.1950", '<div class="support-edit-action-popup" bs-text-direction ng-controller="SupportCaseActionController"  >  <div  class="modal-header" bs-draggable parents="2"> <div class="float modal-title" > <h4> <span ng-if="data.supportCase.caseNumber"> {{"support_case_number_title" | i18n:{caseNumber:data.supportCase.caseNumber} }}  - </span> {{("support_case_action_"+data.action.actionType.toLowerCase()) | i18n}} <span ng-if="data.action.isDraft && data.action.id">[{{"draft" | i18n}}]</span> </td>   </h4> </div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>   <div class="modal-body"  stop-event="touchend">  <div ng-if="editMode" class="form">  <div ng-if="data.sourceAction || data.supportCase.originalAction"> <label>{{"support_case_original_message" | i18n}}:</label> <div ng-repeat="action in historyToShow"> <b>{{action.actionTime | date:\'dd/MM/yyyy HH:mm:ss\'}} - </b> <span ng-bind-html="action.userDisplay"></span> <p ng-bind-html="action.description"></p> <br> </div> <div ng-if="!data.sourceAction && actionsHistory.length>1 && historyToShow.length<2" ng-click="showAllHistory()" class="btn-link">{{"support_case_show_actions_history" | i18n}}</div> <hr> </div>  <div class="form-group" ng-show="data.action.actionType==\'OPEN\'"> <label>{{"subject" | i18n}}:</label> <input class="form-control" ng-model="data.action.subject">  </div>  <div class="form-group" ng-show="data.action.actionType==\'OPEN\' || data.action.actionType==\'ASSIGN\'"> <label>{{"support_case_type" | i18n}}:</label> <select class="form-control" ng-model="data.action.newCaseType"> <option ng-repeat="caseType in CASE_TYPES" value="{{caseType}}"> {{ ("support_case_type_"+caseType) | i18n }}  </option> </select> </div>   <div ng-show="data.action.actionType==\'FORWARD_TO_AUCTION_HOUSE\'"> <div class="form-group" > <label class="float">{{"support_select_house" | i18n}}:</label> <houses-dropdown  max-length="40" class="float" disable-all-houses="true" on-house-selected="onHouseSelected" initial-house-code="{{guessedHouseCode}}"> </houses-dropdown> <div class="clearfix"></div> </div> <div class="checkbox" ng-show="data.supportCase.lastVisitedLot && !data.action.forwardAsUserEmail"> <label> <input type="checkbox" ng-model="data.action.sendLotInquiry" ng-change="handleForwardMessage()">  {{"support_forward_as_lot_inquiry" | i18n:{itemName:(data.supportCase.lastVisitedLot | lotText:50 | stripTags)} }}  </label> </div>   <div class="checkbox" ng-show="!data.action.sendLotInquiry"> <label> <input type="checkbox" ng-model="data.action.forwardAsUserEmail" ng-change="handleForwardMessage()">  {{"support_forward_as_user_message" | i18n}}  </label> </div>  <div class="checkbox" ng-show="!descriptionHidden"> <label> <input type="checkbox" ng-model="data.includeUserContactInfo" ng-change="handleForwardMessage()">  {{"support_forward_include_user_contact_info" | i18n}}  </label> </div>   </div>   <div class="form-group" ng-show="!descriptionHidden"  bs-focus-on="focusOnDesc"> <label>{{descriptionLabel | i18n}}:</label> <div class="description-box" text-angular ta-toolbar="[ [\'bold\'],[\'insertLink\']]" class="form-control" ng-model="data.action.description"></div> </div>  <div class="form-group" ng-show="assignees && (data.action.actionType==\'ASSIGN\' || data.action.actionType==\'OPEN\')"> <label>{{"support_assignee" | i18n}}:</label> <select class="form-control" ng-model="data.action.assigneeEmail"> <option ng-repeat="assignee in assignees" value="{{assignee.email}}"> {{assignee.firstName}} {{assignee.lastName}}  </option> </select> </div>   <div class="checkbox" ng-show="data.action.actionType == \'NOTE\'  || data.action.actionType==\'ASSIGN\'"> <label> <input type="checkbox" ng-model="data.sendEmail" ng-change="handleSendEmailChanged()" >  {{"support_case_action_send_email" | i18n}}  </label> </div>   <div ng-show="data.sendEmail || data.action.actionType == \'SEND_EMAIL\'"> <div class="form-group" > <label>{{"support_case_recipients" | i18n}}:</label> <input class="form-control" ng-model="data.action.recipients">  <div class="btn btn-link" ng-show="!adminRecipients" ng-click="showAdminRecipientss()"> {{"support_select_admin_recipient" | i18n}} </div>  <div class="form-inline" ng-show="adminRecipients">  <select class="form-control" ng-model="data.newAdminRecipient" ng-change="addAdminRecipients()"> <option value=""> {{"support_select_admin_recipient" | i18n }} </option> <option ng-repeat="recipient in adminRecipients" value="{{recipient.email}}"> {{recipient.firstName}} {{recipient.lastName}}  </option> </select> </div>  </div>  </div>   <div class="checkbox" ng-show="data.action.actionType==\'FORWARD_TO_AUCTION_HOUSE\'"> <label> <input type="checkbox" ng-model="data.action.closeSupportCase">  {{"support_case_action_close" | i18n}} </label> </div>  <div class="attachments" ng-show="!attachmentsHidden">  <div ng-repeat="attachment in uploadedAttachments" class="float attachment" ng-class="{pending:attachment.pending}"> <div class="frame"  style="background-image:{{getAttachmentImageUrl(attachment)}}"> <div ng-if="!attachment.pending && !(attachment.url | isImage) " > {{attachment.url | fileNameFromUrl | shortFileName}} </div>  </div> <div class="btn btn-link" ng-click="removeAttachment(attachment)">{{"remove" |i18n}}</div> </div>  <div class="btn btn-default btn-upload float" upload-button  url="{{\'/resources/uploadFilesToS3\' | formActionPath}}" multiple="{{allowMultiple}}"  on-success="addAttachmentFromResponse(response)" on-error="handleError(response)" on-upload = "addPendingAttachment(files)" >{{\'support_add_attachment\'  | i18n}}</div> <div class="clearfix"></div> </div>   </div>  <div ng-if="!editMode"> <div class="form-group"> <label>{{"time" | i18n}}:</label>  {{data.action.actionTime | date:\'dd/MM/yyyy HH:mm:ss\'}} </div>  <div class="form-group"> <label>{{"support_action_user" | i18n}}:</label>  <span ng-bind-html="data.action.userDisplay"></span> </div>  <div class="form-group"> <label>{{"support_action" | i18n}}:</label>  {{("support_case_action_"+data.action.actionType.toLowerCase()) | i18n}} </div>  <div class="form-group" ng-if="data.action.subject"> <label>{{"subject" | i18n}}:</label>  {{data.action.subject}} </div> <div class="form-group" ng-if="data.action.assigneeEmail"> <label>{{"support_assignee" | i18n}}:</label>  {{data.action.assigneeEmail}} </div> <div class="form-group" ng-if="data.action.description"> <label>{{"description" | i18n}}:</label>  <p ng-bind-html="data.descriptionView"></p> </div> <div class="form-group" ng-if="data.action.recipients"> <label>{{"support_case_recipients" | i18n}}:</label>  {{data.action.recipients}} </div>   <div class="form-group" ng-if="data.action.notes"> <label>{{"notes" | i18n}}:</label>  <p ng-bind-html="data.action.notes"></p> </div> <div class="form-group" class="attachments">{{action.attachments}}  <a class="attachment"  ng-repeat="attachment in data.action.attachments" ng-href="{{attachment}}" target="_blank" > <div class="frame"  style="background-image:{{getAttachmentImageUrl({url:attachment})}}"> <div ng-if="!(attachment | isImage) " > {{attachment  | fileNameFromUrl | shortFileName}} </div> </div>  </a> </div>  </div> </div>   <div class="modal-footer">  <bs-async-button name="saveSupportAction" ng-show="editMode"  class="float" action-fn="save()"  button-class="\'btn-primary common-button \'+currentLang"  label="saveLabel" > </bs-async-button>  <bs-async-button name="deletSupportAction" ng-show="data.action.isDraft && data.action.id"  class="float" action-fn="removeAction()"  button-class="\'btn-danger common-button \'+currentLang" label="\'support_case_delete_draft\'" > </bs-async-button>  <div class="btn btn-link opposite float"  ng-show="!editMode" ng-click="$close()">{{"close" | i18n}}</div>  <div class="btn btn-warning  float"  ng-show="!editMode" ng-click="addAction(\'FORWARD_TO_AUCTION_HOUSE\')">{{"support_case_action_forward_to_auction_house" | i18n}}</div>  <div class="btn btn-default  float"  ng-show="!editMode" ng-click="addAction(\'ASSIGN\')">{{"support_case_action_assign" | i18n}}</div>  <div class="btn btn-default  float"  ng-show="!editMode" ng-click="addAction(\'NOTE\')">{{"support_case_action_note" | i18n}}</div>  <div class="float btn btn-primary" ng-show="!editMode" ng-click="addAction(\'SEND_EMAIL\')"> {{"support_case_action_send_email" | i18n}}   </div>      <div class="opposite float saving-draft visible-lg" ng-if="savingDraft"> <div class="loader-animation"></div> <div class="text-info">{{"support_case_saving_draft" | i18n}}</div> </div>   </div> </div>  '), 
-        $templateCache.put("/portal/templates/shops/shopsMain.html?1.1950", '<div ng-controller="ShopsMainController" class="shops scene" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"shops" | i18nWithRegion  }}</h1> <div class="short-separator"></div> <h4 ng-bind-html="\'shops_message\' | i18nWithRegion"></h4> </div> </div> </div> <div class="content">  <bs-upper-space-holders> </bs-upper-space-holders>  <bs-shops-list shops="shops" > </bs-shops-list> </div>   </div> '), 
-        $templateCache.put("/portal/templates/shops/catalog/shopCatalog.html?1.1950", '<div ng-controller="CatalogListController" >  <div ng-controller="ShopCatalogController" > <div class="catalog scene"> <div class="content col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders>  <div class="catalog-navigation-panel" bs-text-direction>   <bs-shop-info ng-if="shop" shop="shop" ></bs-shop-info>  <div class="catalog-actions viewport_{{viewPort.viewPortWidth}}" bs-text-direction ng-class="{\'no-categories\':filterData.categories.length==0}" > <bs-catalog-list-filter ng-if="shop && data.items"></bs-catalog-list-filter> </div>  <div class="clearfix"></div>   <div ng-if="pagesData.pageItems.length>0">  <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'upper\'" href-pages="true" ></bs-catalog-list-pagination> <div  bs-scroll-on watched-value="scrollToPagination" offset="-200"></div> </div> </div>  <div ng-if="pagesData.pageItems.length>0"> <div ng-if="!displayeItemsLoader"  ng-include src="\'catalogs/list/catalogItems\' | appTemplate"  ></div> <bs-content-loader loaded="!displayeItemsLoader"></bs-content-loader> <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'lower\'" href-pages="true"></bs-catalog-list-pagination> <bs-content-loader loaded="pagesData.pageItems!=null"></bs-content-loader> </div> </div>   </div> </div> </div>  '), 
-        $templateCache.put("/portal/templates/shops/list/shopEntryNarrow.html?1.1950", '<div class="frame viewport_{{viewPort.viewPortWidth}} " >   <div class="float image"  bs-cloudinary-bg="{{::(shop.resources[\'topItem\'] || shop.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:\'400x400\'}"> </div>  <div class="opposite float texts" >  <h2> {{::shop.house.details.name | langField}}  </h2>  <div class="text" > {{::shop.sentence | langField}}  </div>  <div class="clearfix"></div>  <div class="float orange common-button" > <div class="text"> <a  ng-href="{{(\'/catalog/shop/\'+shop.intKey + \'/1\') | uiHref}}">{{\'shop_to_catalog\' | i18n}}</a> </div> </div>  <div class="clearfix"></div>  </div>  <div class="clearfix"></div>    </div> '), 
-        $templateCache.put("/portal/templates/shops/list/shopEntryWide.html?1.1950", '<div class="frame" >   <div class="image"  bs-cloudinary-bg="{{::(shop.resources[\'topItem\'] || shop.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:\'400x400\'}"> </div>   <div class="texts"> <h2> <span >{{:: shop.house.details.name | langField}}</span> </h2>  <div class="text" > {{::shop.sentence | langField}} </div>    </div>   <div class="center-block  common-button" ng-class="size==\'small\' ? \'yellow\' : \'orange\'" > <div class="text"> <a  ng-href="{{(\'/catalog/shop/\'+shop.intKey+\'/1\') | uiHref}}">{{\'shop_to_catalog\' | i18n}}</a> </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/shops/list/shopsList.html?1.1950", '<div class="row text-center {{:: screenView}} shops-list"> <div  class="shop-entry default-align"  bs-text-direction ui-sref="app.shopCatalog({catalogKey:shop.intKey,page:1})" ng-repeat="shop in shops" ng-if="(devMode  || !shop.hidden)  && shop.orderInd>0"  > <div  ng-if="screenView==\'wide\'" ng-include src="\'shops/list/shopEntryWide\' | appTemplate" > </div>  <div  ng-if="screenView==\'narrow\'" ng-include src="\'shops/list/shopEntryNarrow\' | appTemplate" > </div> </div> </div> '), 
-        $templateCache.put("/portal/templates/alerts/manage/userAlertsMain.html?1.1950", '<div ng-controller="UserAlertsController" class="userAlerts scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"alerts" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <uib-accordion ng-if="currentUser" class="col-lg-8 col-md-9 col-sm-10 col-xs-12 center-block">  <div uib-accordion-group is-open="opened[\'catalogs\']" class="catalogs panel-default noselect">  <ng-include src="\'alerts/manage/newCatalogsSection\' | appTemplate"></ng-include>  </div>  <div uib-accordion-group is-open="opened[\'auctionsStart\']" class="auctions-start panel-default noselect"  bs-text-direction> <ng-include src="\'alerts/manage/auctionsStartSection\' | appTemplate"></ng-include> </div>  <div uib-accordion-group is-open="opened[\'itemAlerts\']" class="item-alerts panel-default noselect"  bs-text-direction ng-if="enableAlerts"> <ng-include src="\'alerts/manage/itemAlertsSection\' | appTemplate"></ng-include> </div>   </uib-accordion>   </div>   </div> '), 
-        $templateCache.put("/portal/templates/alerts/manage/itemAlertsSection.html?1.1950", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_item_alerts_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'itemAlerts\']" >{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-alerts" ng-if="itemsWithAlerts.length==0">{{"user_alerts_item_alerts_none" | i18n}}</div> <div class="item-alert-entry" ng-repeat="item in itemsWithAlerts"> <bs-lot-image lot="item" size="100x100" as-bg="true"  class="float lot-pic"></bs-lot-image>  <div class="float info" ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"> <div class="item-index"> {{"lot_number" | i18n}}: {{item.itemIndex}}</div>  <div class="lot-text" ng-bind-html="item | lotText:100 "></div>   <bs-lot-price lot="item"  single-row="true" break-on-row="true"></bs-lot-price>  </div>  <bs-lot-alert-flag  lot="item"></bs-lot-alert-flag>  <bs-lot-badge lot="item" ></bs-lot-badge>  <div class="newLine"></div> </div> </div> '), 
-        $templateCache.put("/portal/templates/alerts/manage/auctionsStartSection.html?1.1950", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_auctions_start_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'auctionsStart\']" >{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-auctions" ng-if="auctions.length==0">{{"auction_start_alert_no_auctions" | i18n}}</div> <div class="auction-entry" ng-repeat="auction in auctions"> <div class="float image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:\'100x100\'} "> </div> <div class="float texts col-xs-10"> <div class="name"> {{auction.house.details.name | langField}} - <span ng-if= "auction.number"> {{"auction_label_number" | i18n:{number:auction.number} }}&nbsp;</span> <span ng-if= "!auction.number"> {{auction.name | langField}} <span class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span>  </div>  <div class="time" > {{auction | auctionTime}}  </div> <div class="description"> <div ng-if= "auction.number" ng-bind-html="auction.name | langField"></div> <!-- If there is no number the name is in the title... --> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button> <div class="newLine"></div> </div> </div> '), 
-        $templateCache.put("/portal/templates/alerts/manage/newCatalogsSection.html?1.1950", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-sm-8  float">{{"user_alerts_new_catalogs_title" | i18n}}</div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[\'catalogs\']">{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div ng-if="!saved"> <h4>{{"user_alerts_new_catalogs_message" | i18n}}</h4> <div class="alerts-choice-form" > <div class="form-group" ng-click="setChoice(\'ALL_HOUSES_FOR_REGION_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="ALL_HOUSES_FOR_REGION_ALERTS"/> <label ><span></span>{{"user_alerts_all_houses" | i18nWithRegion }}</label>  </div> <div ng-show="false" class="form-group" ng-click="setChoice(\'SOME_HOUSES_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="SOME_HOUSES_ALERTS"/>  <label><span></span>{{"user_alerts_some_houses" | i18n }}</label>  <div class="housesList" ng-show="housesListVisible"> <div class="caption">{{"user_alerts_choose_houses" | i18n }} </div>  <div class="float house" ng-repeat="house in houses" check-on-click="true"  > <input type="checkbox" bs-checklist-model="data.housesToAlert" checklist-value="house.code" > {{house.details.name | langField}} </div> <div class="clearfix"></div>  </div> </div> <div class="form-group" ng-click="setChoice(\'NO_HOUSES_ALERTS\')"> <input type="radio"  ng-model="data.housesAlertChoice" value="NO_HOUSES_ALERTS"/> <label><span></span>{{"user_alerts_no_houses" | i18n }}</label>  </div> <div class="clearfix"></div> </div> <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"   action-fn="save()" label="\'save\'" > </bs-async-button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <div ng-click="closeAll()" class="cancel btn btn-link">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </div>  <div ng-if="saved"> <h4>{{"user_alerts_saved" | i18n}}</h4> <br><br> <div ng-click="closeAll()" class="btn btn-link btn-lg">{{"close" | i18n}}</div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/alerts/popups/confirmUnsubscriptionPopup.html?1.1950", '<div bs-text-direction > <div class="modal-header"> <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body" > <div class="message" ng-if="!removed" ng-bind-html="\'alrets_unsubscription_message\' | i18n:{name:name}"></div> <div class="message" ng-if="removed" ng-bind-html="\'alrets_unsubscription_removed\' | i18n:{name:name}"></div> </div>  <div class="modal-footer"> <div class="text-center" ng-if="!removed"> <button class="btn btn-link text-warning" ng-click="$close()">{{"cancel" | i18n}}</button>  <button class="btn btn-primary" ng-click="onConfirm()">{{"alrets_unsubscription_confirm" | i18n}}</button> </div>   <div class="text-center" ng-if="removed"> <button class="btn btn-primary" ng-click="$close()">{{"close" | i18n}}</button> </div>   </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/popups/itemAlertPopup.html?1.1950", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"notice" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-bind-html="itemAlertMessage"></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="$close()">{{"close" | i18n}}</button> </div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/popups/installAppPopup.html?1.1950", '<div class="install-app-popup"> <div class="alert-icon"></div> <div class="message-title default-align" ng-bind-html="options.messageTitle|i18n"></div> <div class="message default-align" ng-bind-html="options.message | i18n"></div> <br> <div ng-if="!options.mobileDevice"> <div class="col-xs-4 search-app">{{"app_install_search_app" | i18n }}</div> <div class="col-xs-4 install-app-qr-code"></div> <dic class="col-xs-4"></dic> <div class="clearfix"></div> </div> <div class="app-links"> <install-app-button ng-repeat="platform in options.platforms" platform="platform"></install-app-button> </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/popups/confirmFirstAlertPopup.html?1.1950", '<div bs-text-direction > <div class="modal-header"> <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body" > <div class="alert-icon"></div>  <div class="message" ng-bind-html="messageKey | i18n"></div> </div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-link text-warning" ng-click="$close()">{{"cancel" | i18n}}</button>  <button class="btn btn-primary" ng-click="onConfirm()">{{"first_auction_alert_confirm" | i18n}}</button> </div>    </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/popups/auctionStartPopup.html?1.1950", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"notice" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="dismiss()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-bind-html="message | i18n:{house:(auction.house | houseName:\'full\' ),url:auction.house.website} "></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="dismiss()">{{"close" | i18n}}</button> </div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/alerts/common/alertFlag.html?1.1950", '<div   class="alert-flag flag-button "   ng-click="toggleAlert()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()"  >  <div  class="ng-hide toast"  ></div>   </div> '), 
-        $templateCache.put("/portal/templates/portalMain.html?1.1950", '   <div ng-include src="\'components/navigation/upperNavigation\' | appTemplate"></div>   <div  ng-show="!mobileMenuOn" class="page-body" ui-view dir="{{dir}}" ng-show="dataState==\'loaded\'" style="min-height:{{viewPort.innerHeight-300+\'px\'}}"></div>  <bs-content-loader loaded="dataState==\'loaded\'"></bs-content-loader>   <bs-page-footer dir="{{dir}}" ng-show="!mobileMenuOn"></bs-page-footer>   '), 
-        $templateCache.put("/portal/templates/ads/banner.html?1.1950", '<div class="home-banner" ng-class="bannerCode"  ng-show="banner && banner.image"  ng-click="onClick()" > <img class="center-block" ng-src="{{banner.image}}"> </div> '), 
-        $templateCache.put("/portal/templates/ads/promotionInstance.html?1.1950", '<div class="promotion-instance" ng-class="[(promotionInfo.position | underscoreToDashed),(promotionInfo.promotionType | underscoreToDashed)]" bs-text-direction> <div ng-if="promotionInfo"  ng-click="onClick()"> <div ng-if="promotionType==\'HOUSE_PROMOTION\'" >  <img class="float pic" ng-src="{{promotionInfo.imagePath | cloudinary}}">  <div class="float info"> <div class="title">{{promotionInfo.title | langField }}</div> <div class="text"> {{promotionInfo.text  | langField }}</div> </div>  <div class="clearfix"></div> </div>  <div ng-if="promotionType==\'MOBILE_APP_PROMOTION\'" > <div class="float pic install-app-qr-code"></div>  <div class="float info"> <div class="title">	{{\'home_mobile_app_title\' | i18n }}</div> <div class="text">  {{ \'home_mobile_app_text\' | i18n }}</div> </div>  <div class="clearfix"></div> </div>  <div ng-if="promotionType==\'IMAGE_AND_TEXT_AD\'" >  <img class="float pic" ng-src="{{promotionInfo.resources.image | cloudinary}}">  <div class="float info"> <div class="title">{{promotionInfo.title | langField }}</div> <div class="text"> {{promotionInfo.text  | langField }}</div> </div>  <div class="clearfix"></div> </div>  <div ng-if="promotionType==\'BANNER\'" > <img class="pic" ng-src="{{promotionInfo.imagePath | cloudinary}}"> </div>  </div> </div>   '), 
-        $templateCache.put("/portal/templates/ads/homeMobilePromotion.html?1.1950", '<div class="home-mobile-promotion frame" ng-click="showInstallPopup()">  <div class="float install-app-qr-code"></div>  <div class="float texts"> <div class="title"> {{\'home_mobile_app_title\'|i18n}} </div>  <div class="text"> {{\'home_mobile_app_text\'|i18n}} </div> </div>  <div class="clearfix"></div>  </div> '), 
-        $templateCache.put("/portal/templates/catalogs/list/catalogItemWide.html?1.1950", ' <div >  <bs-lot-image lot="::lot" size="220x220" as-bg="true" image-mode="\'fit\'"> </bs-lot-image>  <div  ng-if="::lot.viewOnly && auction.state==\'READY\'"  ng-include src="\'catalogs/elements/auction/lotViewOnlyOverlay\' | appTemplate"  class="lot-view-only-overlay"> </div>  <meta itemprop="image" content="{{::lot | lotImage:\'220x220\'}}"></meta>   <bs-lot-badge lot="::lot" ></bs-lot-badge> <div class="search-score" ng-if="lot.searchScore && devMode">{{lot.searchScore}}</div>  <div class="item-bottom-part">  <div class="above-separator"> <span class="lot-number" itemprop="sku" ng-if="lot.itemIndex"> {{"lot" | i18n}} {{::lot.itemIndex}}: </span> <span class=\'overseas-icon\' ng-if=":: lot.extraInfo==\'overseas\'"> </span> <span itemprop="name" ng-bind-html=":: lot | lotText:70 "></span>  </div>  <div class="short-separator"></div>  <div class="below-separator" bs-text-direction> <div class="not-published" ng-if="lot.published==false"> {{\'lot_unpublished_from_shop\' | i18n }}  </div> <div ng-if="lot.purchase || !lot.leadingBid || (lot.leadingBid.underReserved && lot.auction.state==\'ENDED\')"> <bs-lot-price lot="::lot" max-width="125" single-row="true" break-on-row="false"></bs-lot-price>  <a class="orange common-button {{::currentLang}}" ng-href="{{::lot | lotHref : (catalogSource || \'catalog\')}}" ng-hide="lot.published==false"> <div class="text"> {{"view_lot" | i18n }} </div> </a> </div>  <leading-bid ng-if="lot.leadingBid" lot="lot" source="catalogSource" ></leading-bid>  <bs-lot-view-only ng-if="::lot.viewOnly" lot="lot" > </bs-lot-view-only>  <past-lot-absentee lot="lot"> </past-lot-absentee> </div>  </div>  </div>    '), 
-        $templateCache.put("/portal/templates/catalogs/list/catalogItems.html?1.1950", '<div class="list" ng-class="{\'mobile-list\':!viewPort.isWideDevice}">  <div class="row"> <div class="item" itemscope itemtype="http://schema.org/Product" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="::{\'pc-item\':viewPort.isWideDevice,\'mobile-item\':!viewPort.isWideDevice} " ng-style="{width:itemWidth}"; ng-hide="postSaleMode && !lot.startPrice && !lot.purchase" bs-scroll-on="::lot.idInApp == scrollTo" offset="-200" >  <div  itemprop="url"  class="item-link" ng-click="gotoLot(lot, \'catalog\')" > <div  ng-if="::viewPort.isWideDevice"     ng-include src="\'catalogs/list/catalogItemWide\' | appTemplate" class="frame"> </div> <div  ng-if="::!viewPort.isWideDevice" ng-include src="\'catalogs/list/catalogItemNarrow\' | appTemplate"> </div> </div> <bs-lot-favorite-flag lot="::lot"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="::lot"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/list/catalogListFilter.html?1.1950", '<div class="filter-panel" >  <div class="float section" > <form name=\'searchForm\' novalidate bs-form  bs-submit="search()" class="search-form"  dir="{{dir}}" > <bs-form-group field-name="phrase"> <input  placeholder="{{(shop ? \'shop_search_placeholder\' : \'search_in_catalog\') | i18n}}" name="phrase"  class="form-control"  ng-model="filterData.phrase"  bs-enter-key-action="doSearch()" ng-focus="onInputFocus()" /> <div class="button " ng-click="doSearch()">  </div> </bs-form-group> </form> <div class="result" >{{resultMessage}} <span class="clear-link" ng-if="filterData.phrase" ng-click="clearSearch()">{{"search_clear" | i18n}}</span></div> <div class="sold-state" ng-if="showSoldState"> <select  ng-model="filterData.soldState" ng-change="applySoldStateFilter()"  ng-options="getSoldStateLabel(soldState) for soldState  in [\'all\',\'sold\',\'unsold\']"> </select> </div> </div>  <div class="opposite float section"> <div class="categories" ng-class="{invisible:filterData.categories.length==0}"> <select  ng-model="filterData.category" ng-change="onCategoryChanged()">  <option ng-repeat="category in filterData.categories" value="{{category.value}}" dir="{{category.name | guessDirection}}" class="default-align">{{category.name}}</option>  </select> </div>  <div class="sort-order" ng-class="{invisible:contentType!=\'ART\'}"> <span class="sort-label">{{"sort_by" | i18n }}:</span> <select  ng-model="filterData.selectedSortOrder" ng-change="updateSortOrder()" ng-options="sortOrder.value as sortOrder.text for sortOrder in filterData.sortOrders"> </select> </div>   </div>      <div class="clearfix"></div>  </div> '), 
-        $templateCache.put("/portal/templates/catalogs/list/catalogItemNarrow.html?1.1950", '<div class="lot-row" >  <bs-lot-badge lot="::lot"  ng-style="::{width:mobileElementsDimensions.infoWidth+\'px\'}"></bs-lot-badge>  <bs-lot-image lot="::lot" size="260x176" as-bg="true" image-mode="\'fit\'" class="lot-pic"></bs-lot-image>  <div class="info" ng-style="::{width:mobileElementsDimensions.infoWidth+\'px\'}" bs-current-lang> <div class="item-index" ng-if="lot.itemIndex"> {{"lot" | i18n}} {{::lot.itemIndex}}  <span class=\'overseas-icon\' ng-if=":: lot.extraInfo==\'overseas\'"> </span> </div>  <div class="lot-text" ng-bind-html="::lot | lotText:(lot.leadingBid ? 100 : 120) "></div>  <bs-lot-price ng-if="lot.purchase || !lot.leadingBid " lot="lot"  single-row="{{true}}" break-on-row="{{true}}"></bs-lot-price>  </div>  <leading-bid ng-if="lot.leadingBid" lot="::lot"  source="catalogSource" ng-style="::{width:mobileElementsDimensions.infoWidth+\'px\'}"></leading-bid>  <bs-lot-view-only ng-if="::lot.viewOnly" lot="lot" > </bs-lot-view-only>  <past-lot-absentee lot="lot"> </past-lot-absentee>  </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/list/catalogPagination.html?1.1950", ' <div class="catalog-pagination text-center" ng-class="[currentLang, positionInPage, {\'lifted\':data.lifted}]" bs-text-direction  >  <bs-pagination  ng-if="data.availableWidth" pages-data="pagesData"  href-pages="hrefPages" on-current-page-change="onCurrentPageChange()"  available-width="data.availableWidth"  >  </bs-pagination>   </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/search/searchInput.html?1.1950", '<input  type="text" uib-typeahead="suggestion for suggestion in getSuggestions($viewValue)"  typeahead-on-select = "onSuggestionSelect($item)" typeahead-min-length="0" placeholder="{{\'catalog_search_all\' | i18n}}"  class="form-control"  debug="true"   ng-model="data.searchToken"  /> '), 
-        $templateCache.put("/portal/templates/catalogs/search/tagsScene.html?1.1950", '<div ng-controller="TagsSceneController" bs-scroll-to-top > <div class="tags scene" > <div class="content" ng-class="{\'hello-space\':currentUser}">  <div class="main-tags" ng-if="displayState==\'mainTags\'"> <div ng-repeat="tag in mainTags" class="menu-row" ng-click="onMainTagClick(tag)"> <div class="text" > {{("tag_"+tag.trim()) | i18n }} </div> </div>  <div ng-if="!mainTags" class="no-tags-space">  </div>  <div ng-show="shopsVisible" class="yellow menu-row" ui-sref="app.shops"> <div class="text"> {{"shops" | i18n }} </div> </div>  <div ng-repeat="portalScene in otherPortalScenes" class="yellow menu-row" ng-click="gotoPortalScene(portalScene)">  <div class="text"> {{ linkText(portalScene) }} </div> </div>   </div>   <div class="secondary-tags" ng-if="displayState==\'secondaryTags\'">  <div ng-repeat="tag in secondaryTags" class="menu-row" ng-click="gotoTagPage(tag)"> <div class="text"> {{("tag_"+tag.trim()) | i18n }} </div> </div>  <div class="text-center"> <div  class="yellow menu-row back-to-main" ng-click="showMainTags()"> <div class="text"> {{"tags_back_to_main" | i18n }} </div> </div>  </div>   </div>  </div> </div> </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/search/searchItems.html?1.1950", ' <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row">  <div class="item with-house-badge" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia}" ng-click="gotoLot(lot)">  <div class="item-link"  bs-scroll-on="lot.id == scrollTo" > <div ng-if="viewPort.pcMedia"     ng-include src="\'catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div>  <bs-lot-favorite-flag lot="::lot"> </bs-lot-favorite-flag>  <bs-lot-alert-flag class="float" lot="::lot"></bs-lot-alert-flag>  </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/search/searchMain.html?1.1950", '<div ng-controller="SearchController" > <div class="catalog search scene"> <div class="content col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders>  <form name=\'searchForm\' novalidate  class="float global-search-form" bs-text-direction bs-enter-key-action="doSearch()"> <bs-form-group field-name="phrase" label="catalog_search_all" class="phrase">  <bs-search-input></bs-search-input>  </bs-form-group> <div class="button noselect" ng-click="doSearch()"> <div class="icon"> </div> </div> <div class="clearfix"></div> </form>  <div class="opposite float"> <div class="home btn-link" ui-sref="app.home">{{"home_back_to" | i18n }}</div> <br> </div>   <div class="clearfix"></div>  <div class="result" ng-class="{invisible:!data.searchedToken && !data.tag}" >  <span ng-if="searching">{{"search_searching" | i18n}}</span> <span ng-if="!searching && resultMessage"> {{resultMessage}} </span>  </div>  <div class="time-form" > <div class="radio" ng-click="setSearchTime(\'FUTURE\')"> <label> <input type="radio"  ng-model="data.searchTime" value="FUTURE"> {{"search_future" | i18n }} </label> </div> <div clas="clearfix"></div> <div class="radio" ng-click="setSearchTime(\'PAST\')"> <label> <input type="radio"   ng-model="data.searchTime" value="PAST"> {{"search_past" | i18n }} </label> </div> </div>  <div class="sort-order" ng-show="contentType==\'ART\'"> <div class="float text">{{"sort_by" | i18n }}:&nbsp;</div> <select class="float" ng-change="updateSortOrder()" ng-model="data.selectedSortOrder"> <option ng-repeat="code in data.sortOrderCodes" value="{{code}}">{{getSortOrderName(code)}}</option> </select> <div class="clearfix"></div> </div> <div class="tags-selection" bs-text-direction  > <select	ng-if="tags.length>0" ng-model="data.tag" ng-change="doSearch()" bs-text-direction> <option value="">{{"tags_all"|i18n}}</option> <optgroup ng-repeat="mainTag in tags" ng-if="mainTag.entries.length>1"  label="{{(\'tag_\'+mainTag.key) |i18n }}"> <option ng-repeat="subTag in mainTag.entries" value="{{subTag}}">{{(\'tag_\'+mainTag.key) |i18n }} > {{(\'tag_\'+subTag) |i18n }}</option> </optgroup> <option ng-repeat="mainTag in tags" ng-if="mainTag.entries.length<=1" value="{{mainTag.key}}" >{{(\'tag_\'+mainTag.key) |i18n }}  </option> </select> </div>  <div class="house-selection" bs-text-direction > <houses-dropdown on-house-selected="setHouseFilter" initial-house-code="{{data.houseCode}}"> </houses-dropdown> </div>  <div class="clearfix"></div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="currentLang==\'ru\' ? \'\' : \'upper\'" on-current-page-change="onPageChange()" ></bs-catalog-list-pagination> <div ng-if="loadState==\'loaded\'" bs-scroll-on watched-value="scrollToPagination"   offset="-200"></div> <div ng-if="loadState==\'loaded\'"> <br> <div  ng-include src="\'catalogs/search/searchItems\' | appTemplate"  ></div> </div>   <div ng-if="loadState==\'loading\'"> <bs-content-loader > </bs-content-loader> </div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="\'lower\'" on-current-page-change="onPageChange()"></bs-catalog-list-pagination>   </div> </div> </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/lotPageMain.html?1.1950", '<div ng-controller="LotPageController" > <div class="catalog  scene lotPage">  <div class="content col-xs-12" >  <bs-upper-space-holders> </bs-upper-space-holders> <div ng-if="data.item "> <div ng-include src="\'catalogs/lotPage/pc/lotPagePc\' | appTemplate" ng-if="viewPort.pcMedia"></div> <div ng-include src="\'catalogs/lotPage/mobile/lotPageMobile\' | appTemplate" ng-if="viewPort.mobileMedia"></div> </div> <bs-content-loader loaded="data.item!=null"></bs-content-loader> <div class="clearfix"></div>  </div> </div> </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/pc/lotPagePc.html?1.1950", '<div  itemscope itemtype="http://schema.org/Product"> <bs-auction-info auction="data.catalogOwner" lot="data.item" ng-if="data.item.auctionId && data.catalogOwner" ></bs-auction-info> <bs-shop-info shop="data.catalogOwner" ng-if="data.item.shopId && data.catalogOwner" minimal-view="true" ></bs-shop-info>   <table> <tr> <td class="info-td"> <div ng-include src="\'catalogs/lotPage/common/lotNumber\' | appTemplate" ></div>  <div class="upper-title" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}" > <h2 class="lot-name"  itemprop="name" ng-bind-html="data.shortTitle" > </h2>  <div ng-if="showMore" dir="{{textDirection}}" class="btn btn-link more-link" ng-click="scrollToDescription()">  <span bs-text-direction> {{"more" | i18n }}... </span> </div> <div ng-include src="\'catalogs/lotPage/common/overseas\' | appTemplate" ></div> </div>  </td>   <td class="float actions-td"> <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </td> </tr> <tr>  <td class="info-td">  <div  ng-if="data.item.videoUrl" ng-include src="\'catalogs/lotPage/common/videoLink\' | appTemplate" ></div> <bs-lot-page-images lot="data.item"></bs-lot-page-images> </td> <td class="float actions-td">  <bs-lot-bid-form ng-if="data.item.auction"  lot="data.item" ></bs-lot-bid-form>  <div class="car-info-section" itemprop="description" ng-if="contentType==\'CARS\'" bs-scroll-on watched-value="scrollToDescriptionFlag"  > <br> <div ng-if="data.item.carInfo" class="car-info" ng-include src="\'catalogs/lotPage/common/carInfo\' | appTemplate" ></div> <h4 ng-if="!data.item.carInfo"  class="description-text" ng-bind-html="data.lotDesc" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}"></h4> <br> </div>  <div class="real-estate-info-section" itemprop="description" ng-if="contentType==\'REAL_ESTATE\'" bs-scroll-on watched-value="scrollToDescriptionFlag"  > <br> <div  class="real-estate-info" ng-include src="\'catalogs/lotPage/common/realEstateInfo\' | appTemplate" ></div> <br> </div>    <bs-shop-purchase-form ng-if="data.item.shop"  lot="data.item"></bs-shop-purchase-form> <bs-lot-share-buttons class="opposite float" lot="data.item" text="data.shortTitle" ng-if="contentType!=\'CARS\'"></bs-lot-share-buttons> <div class="clearfix"></div>  <div ng-include src="\'catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>  <bs-lot-tags lot="data.item"></bs-lot-tags>    <div class="clearfix"></div> <br> </td>  </tr>  </table>   <div class="lot-description-section" itemprop="description" ng-if="data.lotDesc && contentType!=\'CARS\'" bs-scroll-on watched-value="scrollToDescriptionFlag" > <h4 class="description-text" ng-bind-html="data.lotDesc" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}"></h4> </div>  <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/pc/lotZoomModal.html?1.1950", '<div class="zoom-image noselect"> <div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button>  <bs-lot-page-zoom lot="data.item" initial-image-ind="data.imageInd"> </bs-lot-page-zoom> </div>  </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/mobile/lotZoomSubScene.html?1.1950", '<div class="lot-sub-scene zoom" ng-style="{height:viewPort.clientHeight-150}" bs-scroll-to-top>  <a class="btn btn-link back" ui-sref="^">{{"lot_back" | i18n : {number:data.item.itemIndex} }}</a> <bs-lot-page-zoom lot="data.item"> </bs-lot-page-zoom>  </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/mobile/lotPageMobile.html?1.1950", '<div> {{data.auction.id}} <div ng-show="(\'app.lotPage\' | isState) || (\'app.lotPageWithDesc\' | isState)">  <bs-auction-info auction="data.item.auction" lot="data.item" ng-if="data.item.auction && ($stateParams.source==\'search\' || data.item.auction.house.auctionBasedUserApproval)" ></bs-auction-info>  <div class="first-row"> <bs-lot-page-navigation lot="data.item" class="opposite float"></bs-lot-page-navigation> <div class="float flags" ng-class="source" bs-text-direction> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div>  <div class="second-row">  <div ng-include src="\'catalogs/lotPage/common/lotNumber\' | appTemplate" ></div>  <div class="clearfix"></div> </div>  <div class="upper-title" dir="{{textDirection}}"> <h2 class="lot-name" ng-bind-html="data.showFullText ? data.fullTitle : data.shortTitle" > </h2>  <div ng-include src="\'catalogs/lotPage/common/overseas\' | appTemplate" ></div> <div ng-if="showMore && !data.showFullText" class="btn btn-link more-link" ng-click="showFullText()"> {{"more" | i18n }}... </div>  <bs-lot-badge lot="data.item" ></bs-lot-badge>  </div>  <div class="lot-description-section" ng-show="data.showFullText" dir="{{textDirection}}"> <div class="description-text" ng-bind-html="data.lotDesc"></div>  </div>  <div  ng-if="data.item.videoUrl" ng-include src="\'catalogs/lotPage/common/videoLink\' | appTemplate" ></div>  <bs-lot-page-images lot="data.item"></bs-lot-page-images>   <bs-lot-share-buttons lot="data.item" text="data.shortTitle"></bs-lot-share-buttons>   <bs-lot-bid-form ng-if="data.item.auction" lot="data.item" ></bs-lot-bid-form>  <bs-shop-purchase-form ng-if="data.item.shop"  lot="data.item"></bs-shop-purchase-form>  <div ng-if="data.item.carInfo" class="car-info-section" ng-include src="\'catalogs/lotPage/common/carInfo\' | appTemplate" ></div>  <div ng-if="data.item.realEstateInfo" class="real-estate-info-section" ng-include src="\'catalogs/lotPage/common/realEstateInfo\' | appTemplate" ></div>  <div ng-include src="\'catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>  <bs-lot-tags lot="data.item"></bs-lot-tags>  <div class="clearfix"></div> <br><br> <div class="opposite float">  <bs-lot-page-navigation lot="data.item"  ></bs-lot-page-navigation> </div>  <div class="clearfix"></div> </div>   <div ui-view > </div>   </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/videoLink.html?1.1950", '<a ng-href="{{data.item.videoUrl}}" class="video-link" target="_blank">{{"lot_click_car_video_url" | i18n}}</a> '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/images/lotPageImages.html?1.1950", '<div class="lot-images-section"> <div class="big-image zoom-in-cursor" > <bs-lot-image lot="lot" size="{{mainImagewidth}}x" image-ind="0" ng-click="zoomImage(lot, 0)" ></bs-lot-image> </div>   <div class="thumbs" ng-if="lot.imagesList.length>1"> <div ng-repeat = "imageName in lot.imagesList" class="float thumb zoom-in-cursor" ng-click="zoomImage(lot, $index)" ng-if="!$first"> <bs-lot-image   lot="lot" size="x80" image-ind="$index"> </bs-lot-image> </div> <div class="clearfix"></div> </div>  </div>    '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/images/lotPageZoom.html?1.1950", '<div> <div class="lot-page-zoom-image-navigation" ng-if="lot.imagesList.length>1" dir="ltr"> <div class="prev link " ng-click="prevImage()"><div class="text">◀</div></div>  <div class="thumbs" ng-style="{\'max-width\':options.maxThumbsWidth}"> <div ng-repeat = "imageName in lot.imagesList"  class="thumb"  thumb-ind="$index" ng-click="setZoomImage($index)" ng-class="{selected:selectedImageInd == $index}"> <bs-lot-image   lot="lot" size="x50" image-ind="$index"> </bs-lot-image> </div> </div> <div class="prev link noselect" ng-click="nextImage()"><div class="text">▶</div></div> <div class="clearfix"></div> </div>  <div class="big-image" ng-class="cursorZoomClass"> <bs-lot-image  lot="lot" image-ind="selectedImageInd" watchable="true" enable-magnifier="{{options.enableMagnifier}}"  size="{{options.size}}" move-in-frame="options.moveInFrame"  as-bg="options.asBg"  image-mode="options.imageMode" debug="true"   loaded-image-info="loadedImageInfo"> </bs-lot-image> </div>   </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/increments.html?1.1950", '<div class="increments-table">  <table class="table table-striped table-bordered table-hover" dir="{{dir}}"> <tr> <th class="default-align">{{"increment_price" | i18n}}</th> <th class="default-align">{{"increment_step" | i18n}}</th> </tr> <tr ng-repeat="step in options.data.steps"> <td class="default-align">{{step.price | sumInCurrency:options.data.currency}}</th> <td class="default-align">{{step.increment | sumInCurrency:options.data.currency}}</th> </tr> </table>  </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/realEstateInfo.html?1.1950", '<table> <tbody> <tr ng-if="realEstateInfo.propertyType"> <th>{{"property_type" | i18n}}</th> <td>{{realEstateInfo.propertyType}}</td> </tr>  <tr ng-if="realEstateInfo.city"> <th>{{"city" | i18n}}</th> <td>{{realEstateInfo.city}}</td> </tr>   <tr ng-if="realEstateInfo.neighborhood"> <th>{{"neighborhood" | i18n}}</th> <td>{{realEstateInfo.neighborhood}}</td> </tr>  <tr ng-if="realEstateInfo.address"> <th>{{"address" | i18n}}</th> <td>{{realEstateInfo.address}}</td> </tr>   <tr ng-if="realEstateInfo.appraiserEstimate"> <th>{{"appraiser_estimate" | i18n}}</th> <td>{{realEstateInfo.appraiserEstimate | sumInCurrency:data.item.auction.catalogInfo.currency}}</td> </tr>  <tr ng-if="realEstateInfo.minBidPrice && data.item.auction.state!=\'ENDED\'"> <th>{{"min_bid_price" | i18n}}</th> <td>{{realEstateInfo.minBidPrice | sumInCurrency:data.item.auction.catalogInfo.currency}}</td> </tr>  <tr ng-if="realEstateInfo.lastDateForBids"> <th>{{"last_date_for_bids" | i18n}}</th> <td>{{realEstateInfo.lastDateForBids}}</td> </tr>   <tr ng-if="realEstateInfo.block"> <th>{{"property_block" | i18n}}</th> <td>{{realEstateInfo.block}}</td> </tr>  <tr ng-if="realEstateInfo.plot"> <th>{{"property_plot" | i18n}}</th> <td>{{realEstateInfo.plot}}</td> </tr>  <tr ng-if="realEstateInfo.subPlot"> <th>{{"property_sub_plot" | i18n}}</th> <td>{{realEstateInfo.subPlot}}</td> </tr>      <tr ng-if="realEstateInfo.rooms"> <th>{{"rooms" | i18n}}</th> <td>{{realEstateInfo.rooms}}</td> </tr>  <tr ng-if="realEstateInfo.balconies"> <th>{{"balconies" | i18n}}</th> <td>{{realEstateInfo.balconies}}</td> </tr>  <tr ng-if="realEstateInfo.size"> <th>{{"size" | i18n}}</th> <td>{{realEstateInfo.size | readableNumber}} {{"unit_square_meter" | i18n}}</td> </tr>  <tr ng-if="realEstateInfo.floor"> <th>{{"building_floor" | i18n}}</th> <td> {{realEstateInfo.floor}} <span ng-if="realEstateInfo.floorsInBuilding" >{{(\'of_floors\' | i18n : {floors:realEstateInfo.floorsInBuilding}) }}</span></td>  </tr>  <tr ng-if="realEstateInfo.propertyCondition"> <th>{{"property_condition" | i18n}}</th> <td>{{realEstateInfo.propertyCondition}}</td> </tr>  <tr ng-if="realEstateInfo.parking"> <th>{{"parking" | i18n}}</th> <td>{{realEstateInfo.parking}}</td> </tr>  <tr ng-if="realEstateInfo.mamad"> <th>{{"mamad" | i18n}}</th> <td>{{realEstateInfo.mamad}}</td> </tr>  <tr ng-if="realEstateInfo.elevator"> <th>{{"elevator" | i18n}}</th> <td>{{realEstateInfo.elevator}}</td> </tr>  <tr ng-if="realEstateInfo.grate"> <th>{{"grate" | i18n}}</th> <td>{{realEstateInfo.grate}}</td> </tr>  <tr ng-if="realEstateInfo.disabledAccess"> <th>{{"disabled_access" | i18n}}</th> <td>{{realEstateInfo.disabledAccess}}</td> </tr>  <tr ng-if="realEstateInfo.airCondition"> <th>{{"air_condition" | i18n}}</th> <td>{{realEstateInfo.airCondition}}</td> </tr>  <tr ng-if="realEstateInfo.storeroom"> <th>{{"storeroom" | i18n}}</th> <td>{{realEstateInfo.storeroom}}</td> </tr>  <tr ng-if="realEstateInfo.notes"> <th>{{"notes" | i18n}}</th> <td ng-bind-html="realEstateInfo.notes | brLines"></td> </tr>     </tbody> </table>  <div ng-if="documents.length>0 && data.item.auction.state!=\'ENDED\'"> <div class="documents-title">{{"documents" | i18n}}:</div> <table> <tbody> <tr ng-repeat="doc in documents" ng-if="doc.link"> <th >{{doc.label}}</th> <td><label class=\'btn btn-link\' ng-click="openWindow(doc.link | documentUrl)" >{{"download" | i18n}}</label> </td> </tr> </tbody> </table> </div> '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/overseas.html?1.1950", '<div class=\'extrainfo-overseas\' ng-if="data.item.extraInfo==\'overseas\'"> <div class="float icon"></div> <div class="float text">{{"lot_from_overseas" | i18n }}</div> <div class="clearfix"></div> </div> '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/lotPageInfoLinks.html?1.1950", '<div bs-text-direction> <div class="info-link default-align" ng-click="toggleFavorite()"> <span ng-if="!data.item.isFavorite"> <span class="btn btn-link">{{"add_to_favorites" | i18n }}</span> </span>  <span ng-if="data.item.isFavorite" class="btn btn-link">{{"remove_from_favorites" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:favoriteToastMessage,off:!favoriteToastMessage}">{{favoriteToastMessage | i18n}}</span> </div>  <div class="info-link default-align" ng-if="itemAlertsEnabled" ng-click="toggleItemAlert()"> <span ng-if="!data.item.itemAlertOn"> <span class="btn btn-link">{{"item_alert_add" | i18n }}</span> </span> <span ng-if="data.item.itemAlertOn" class="btn btn-link">{{"item_alert_remove" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:itemAlertToastMessage,off:!itemAlertToastMessage}">{{itemAlertToastMessage | i18n}}</span> </div>  <div ng-if="data.item.house.hasTerms" class="btn btn-link info-link default-align" ng-click="openAuctionHouseTerms()" >  {{ (contentType==\'ART\' ? "house_terms" : "terms_of_sale") | i18n:{house:(data.item.house.details.name | langField)} }} </div>  <div class="btn btn-link info-link default-align" ng-if="data.auction && data.auction.state!=\'ENDED\'" ng-click="showIncrements()" > {{"price_increments" | i18n }}</div>  <div class="info-link default-align" ng-click="showInquiryForm()"  > <span class="btn btn-link">  {{"lot_page_inquiry" | i18n }} </span>  <span class="fade-in-out fade toast" ng-animate  ng-class="{on:showInquiryToast,off:!showInquiryToast}">{{"lot_page_inquiry_sent" | i18n}}</span> </div>  <div class="info-link default-align" ng-if="data.item.auction.lotPageLink"  > <a class="btn btn-link" target="_blank" ng-href="{{data.item.auction.lotPageLink}}">  {{"lot_page_external_link" | i18n :{houseName:(data.item.house.details.name | langField)} }} </a>  </div>     <a ng-show="shortLink" ng-href="{{shortLink}}" class="no-break dev" target="_blank">{{shortLink}}</a>  </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/inquiry/inquiryForm.html?1.1950", '<div class="inquiry-form" ng-controller="InquiryFormController"  ng-init="init()">  <p> <label>{{"inquiry_form_to" | i18n }}:&nbsp;</label>{{"house_full_name_art" | i18n:{house:options.data.house} }} </p>  <br> <p> <label>{{"subject" | i18n }}:&nbsp;</label><span ng-bind-html="inquiryData.subject"></span> </p>  <br>  <form name=\'inquiryForm\'  novalidate bs-form  bs-submit="sendInquiry()"> <bs-form-group field-name="content" label="inquiry_form_content"> <label></label> <bs-form-validation-message  ></bs-form-validation-message> <textarea  rows="7"  class="form-control"  required name="content" ng-model="inquiryData.content"> </textarea>  </bs-form-group>  </form>     </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/carInfo.html?1.1950", ' <table> <tbody> <tr ng-if="carInfo.manufacturer"> <th>{{"manufacturer" | i18n}}</th> <td>{{carInfo.manufacturer}}</td> </tr>  <tr ng-if="carInfo.model"> <th>{{"model" | i18n}}</th> <td>{{carInfo.model}}</td> </tr> <tr ng-if="carInfo.finish"> <th>{{"car_finish" | i18n}}</th> <td>{{carInfo.finish}}</td> </tr>  <tr ng-if="carInfo.modelYear"> <th>{{"model_year" | i18n}}</th> <td>{{carInfo.modelYear}}</td> </tr> <tr ng-if="carInfo.dateOnRoad"> <th>{{"date_on_road" | i18n}}</th> <td> <span dir=\'ltr\'> <span ng-if="carInfo.dateOnRoad.split(\'-\')[1]">{{carInfo.dateOnRoad.split(\'-\')[1]}} / </span> {{carInfo.dateOnRoad.split(\'-\')[0]}} </span> </td> </tr>  <tr ng-if="carInfo.carNumber"> <th>{{"car_number" | i18n}}</th> <td>{{carInfo.carNumber}}</td> </tr>  <tr ng-if="carInfo.vin"> <th>{{"car_vin" | i18n}}</th> <td>{{carInfo.vin}}</td> </tr>  <tr ng-if="carInfo.certificate"> <th>{{"car_certificate" | i18n}}</th> <td>{{carInfo.certificate}}</td> </tr>    <tr ng-if="carInfo.tariffPrice"> <th>{{"tariff_price" | i18n}}</th> <td>{{carInfo.tariffPrice | sumInCurrency:data.item.auction.catalogInfo.currency}}</td> </tr>   <tr ng-if="carInfo.mileage"> <th>{{"mileage" | i18n}}</th> <td>{{carInfo.mileage | readableNumber}} {{"unit_km" | i18n}}</td> </tr>  <tr ng-if="carInfo.carType"> <th>{{"car_type" | i18n}}</th> <td>{{carInfo.carType}}</td> </tr>  <tr ng-if="carInfo.gear"> <th>{{"gear" | i18n}}</th> <td>{{carInfo.gear}}</td> </tr> <tr ng-if="carInfo.color"> <th>{{"color" | i18n}}</th> <td>{{carInfo.color}}</td> </tr> <tr ng-if="carInfo.engine"> <th>{{"engine" | i18n}}</th> <td>{{carInfo.engine}}</td> </tr> <tr ng-if="carInfo.engineVolumeCc"> <th>{{"engine_volume" | i18n}}</th> <td>{{carInfo.engineVolumeCc  | valueWithUnits:"cc":data.item.house }}</td> </tr> <tr ng-if="carInfo.drive"> <th>{{"drive" | i18n}}</th> <td>{{carInfo.drive}}</td> </tr> <tr ng-if="carInfo.horsePower"> <th>{{"horse_power" | i18n}}</th> <td>{{carInfo.horsePower | valueWithUnits:"hp":data.item.house }}</td> </tr>   <tr ng-if="carInfo.vehicleClass"> <th>{{"vehicle_class" | i18n}}</th> <td>{{carInfo.vehicleClass}}</td> </tr>  <tr ng-if="carInfo.doors"> <th>{{"doors" | i18n}}</th> <td>{{carInfo.doors}}</td> </tr>  <tr ng-if="carInfo.country"> <th>{{"country" | i18n}}</th> <td>{{carInfo.country}}</td> </tr>  <tr ng-if="carInfo.wheel"> <th>{{"wheel" | i18n}}</th> <td>{{carInfo.wheel}}</td> </tr>  <tr ng-if="carInfo.customs"> <th>{{"customs" | i18n}}</th> <td>{{carInfo.customs}}</td> </tr>     <tr ng-if="carInfo.hand"> <th>{{"hand" | i18n}}</th> <td>{{carInfo.hand}}</td> </tr> <tr ng-if="carInfo.ownership"> <th>{{"current_ownership" | i18n}}</th> <td>{{carInfo.ownership}}</td> </tr> <tr ng-if="carInfo.previousOwnership"> <th>{{"previous_ownership" | i18n}}</th> <td>{{carInfo.previousOwnership}}</td> </tr>    <tr ng-if="carInfo.numberOfOwners"> <th>{{"number_of_owners" | i18n}}</th> <td>{{carInfo.numberOfOwners}}</td> </tr>  <tr ng-if="carInfo.ownershipYears"> <th>{{"ownership_years" | i18n}}</th> <td>{{carInfo.ownershipYears}}</td> </tr>   <tr ng-if="carInfo.hasKeys"> <th>{{"has_keys" | i18n}}</th> <td>{{carInfo.hasKeys}}</td> </tr>  <tr ng-if="carInfo.additions"> <th>{{"additions" | i18n}}</th> <td>{{carInfo.additions}}</td> </tr> <tr ng-if="carInfo.overview"> <th>{{"overview" | i18n}}</th> <td>{{carInfo.overview}}</td> </tr>  <tr ng-if="carInfo.location"> <th>{{"car_location" | i18n}}</th> <td>{{carInfo.location}}<div class="recommend-view-car">{{"recommend_view_car" | i18n}}</div></td> </tr>  <tr ng-if="data.carInfoNotes"> <th>{{"notes" | i18n}}</th> <td ng-bind-html="data.carInfoNotes | brLines"></td> </tr> </tbody> </table> <div ng-if="documents.length>0 && (data.item.auction.state!=\'ENDED\' || devMode)"> <div class="documents-title">{{"documents" | i18n}}:</div> <table> <tbody> <tr ng-repeat="doc in documents" ng-if="doc.link"> <th >{{doc.label}}</th>  <td><label class=\'btn btn-link\' ng-click="openWindow(doc.link | documentUrl)" >{{"download" | i18n}}</label></td> </tr> </tbody> </table> </div> '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/navigation/lotPageNavLink.html?1.1950", '<div class="float">  <div ng-if="name==\'previous\'"> <div class="float arrow {{lang}}" ng-class="{\'point-left\':direction==\'ltr\', \'point-right\':direction==\'rtl\'}"></div> <div class="float text" ng-if="showText">&nbsp; {{"to_previous_lot" | i18n  }}</div> </div>  <div ng-if="name==\'next\'"> <div class="float text" ng-if="showText">{{"to_next_lot" | i18n  }}&nbsp;</div> <div class="float arrow {{lang}}" ng-class="{\'point-right\':direction==\'ltr\', \'point-left\':direction==\'rtl\'}"></div> </div>    </div>     '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/navigation/lotPageNavigation.html?1.1950", '<div class="opposite float lot-page-navigation" ng-hide="lot.auction.singleItemIdInApp" bs-text-direction >  <div ng-switch="source">  <span ng-switch-when="catalog"> <a class="float btn " ng-href="{{catalogLink}}"> {{(lot.shop ? "shop_to_catalog" : "to_catalog") | i18n  }} </a> <a  ng-if="previousLot" class="float btn btn-link" ng-href="{{::previousLot | lotHref : \'catalog\'}}" > <div> <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  </a> <div ng-if="!previousLot" class="disabled btn float" > <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  <a ng-if="nextLot" class="float btn btn-link"  ng-href="{{::nextLot | lotHref : \'catalog\'}}" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </a>  <div ng-if="!nextLot" class="disabled btn float" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </div>  <div class="clearfix"></div> </span>  <span ng-switch-when="absenteeBids">  <div class="float btn btn-link" ng-click="backToList()"> {{"my_account_back_to_absentee" | i18n  }} </div>  <a class="float btn "   ng-href="{{catalogLink}}" ng-hide="lot.auction.hidden" > {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>  <span ng-switch-when="purchases">  <div class="float btn btn-link" ng-click="backToList()"> {{"my_account_back_to_won" | i18n  }} </div>  <a class="float btn "   ng-href="{{catalogLink}}" ng-if="!lot.auction.hidden" > {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>     <span ng-switch-when="search">  <a class="float btn btn-link" ng-click="backToList()"> {{"search_back_to" | i18n  }} </a> <a class="float btn btn-link"   ng-href="{{catalogLink}}"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>  <span ng-switch-when="favorites">  <a class="float btn" ng-click="backToList()"> {{"favorites_back_to" | i18n  }} </a> <a class="float btn "   ng-href="{{catalogLink}}" ng-if="!lot.auction.hidden" > {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>   </div> </div> '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/navigation/lotTags.html?1.1950", '<div class="lot-tags" ng-show="tags.length"> <span class="label">{{"tags" | i18n}}:</span> <a ng-repeat="tag in tags" class="btn btn-default" ng-href="{{(\'searchWithTags/\'+tag) | uiHref}}"> {{"tag_"+tag | i18n}} </a>  </div>     '), 
-        $templateCache.put("/portal/templates/catalogs/lotPage/common/lotNumber.html?1.1950", '<div > <div class="lot-index-in-auction" ng-if="data.item.auctionId && !data.item.auction.singleItemIdInApp" itemprop="sku" >  {{"lot" | i18n}} {{data.item.itemIndex}}: </div>  <div class="lot-number-in-shop" ng-if="data.item.shopId" itemprop="sku">  {{"lot_shop_number" | i18n:{number:data.item.ownerKey+"-"+data.item.idInApp} }} </div> </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/elements/lotImage.html?1.1950", '<div class="lot-image" ng-class="::{\'narrow-height\':narrowHeight}"> <div class="state-info"  bs-text-direction></div> <img ng-if="::!enableMagnifier && !asBg" ng-src="{{::loadedImageSrc}}" > <div ng-if="::enableMagnifier"> <div  ng-if="loadedImageSrc && !stateInfo"  data-ng-magnify magnify-ratio="2.5"  image-src="{{loadedImageSrc}}"  data-glass-width="250" data-glass-height="250" ></div> </div>   </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/lotExpiration.html?1.1950", '<div class="lot-expiration" ng-class="expirationState" > {{text}} </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/shop/confirmShopPurchase.html?1.1950", '<div class="confirm-shop-purchase" ng-controller="ConfirmShopPurchaseController"  ng-init="init()" > <div ng-if="!purchaseRejected">  <div ng-if="!purchaseAccepted"> <label>{{"confirm_purchase_message" | i18n}}:</label> <table class="default-align"> <tr> <td class="pic-columm" rowspan="{{viewPort.mobileMedia?1:3}}"> <bs-lot-image lot="lot" size="120x120" image-ind="0"  image-mode="\'fit\'"> </bs-lot-image> </td> <td class="caption"> {{"lot_number" | i18n}}: </td> <td class="value"> {{lot.ownerKey+"-"+lot.idInApp}} </td>  </tr>  <tr> <td class="caption"> {{"lot_description" | i18n}}: </td> <td class="value" ng-bind-html="lot | lotText:60" colspan="{{viewPort.mobileMedia?2:1}}"> </td> </tr> <tr> <td class="caption"> {{"price" | i18n}}: </td> <td class="price value"> {{lot.shopPrice | sumInCurrency:lot.shop.catalogInfo.currency}} </td> </tr>  </table>  <div class="clearFix"></div>  <div class="terms-message default-align"> <bs-linkable-text options="{ textKey:\'confirm_bid_terms_message\', textParams:{houseName:(lot.house.details.name | langField)}, onLinkClick:showTerms  }" > </bs-linkable-text>  </div> </div>   <div ng-if="purchaseAccepted">  <h4 ng-bind-html="\'shop_purchase_accepted\' | i18n:{houseName:(lot.house.details.name | langField)} "> </h4>  <bs-house-contact-info house="lot.house" hide-website="true"> </bs-house-contact-info> </div>  </div> <div ng-if="purchaseRejected"> <br> <div class="text-danger" ng-bind-html="\'shop_purchase_rejected\' | i18n:{houseName:(lot.house.details.name | langField)} ">  </div> <br><br>  <bs-house-contact-info house="lot.house" hide-website="true"> </bs-house-contact-info> </div>  </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/elements/shop/shopPurchaseForm.html?1.1950", '  <div class="shop-purchase-form" bs-text-direction > <div ng-if="scrollToForm" bs-scroll-on="scrollToForm" offset="-200" class="scroll-anchor">&nbsp;</div>   <div class="sold-info" ng-if="lot.purchase" ng-class="{\'self-sold\':selfSold}" >  <div class="highlight-area"> <span class=\'bid-label\'>{{soldLabel | i18n}}:&nbsp;{{lot.purchase.actionPrice | sumInCurrency:lot.catalogInfo.currency}}</span> </div> </div>   <div ng-if="lot.published"> <div ng-if="!lot.purchase" class="form"> <div class="float price"> <div class="float lot-price-label">{{"price" | i18n}}:&nbsp;&nbsp;</div> <div class="float lot-price-value">{{lot.shopPrice | sumInCurrency:lot.shop.catalogInfo.currency}}&nbsp;&nbsp;&nbsp;</div> <div class="clearfix"></div> </div>  <bs-async-button button-class="\'float orange common-button buy-now \'+currentLang" action-fn="showPurchaseConfirmation()" bs-current-lang label="\'catalog_buy_now\'" ></bs-async-button>  <div class="clearfix"></div>  <div class="commission-text" ng-bind-html="\'lot_commission_included\' | i18n"> </div> </div>   <div class="not-published" ng-if="!lot.published"> {{\'lot_unpublished_from_shop\' | i18n }}  </div>   </div>  <div class="sold-lot-message" ng-if="lot.soldPrice"> <bs-linkable-text options="{ textKey:\'lot_sold_in_shop_info\', textParams:{house:(lot.shop.house.details.name | langField), date:(lot.purchaseTime | date:\'dd/MM/yyyy\')}, onLinkClick:gotoHousePage  }" > </bs-linkable-text> </div>    </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/elements/shop/shopInfo.html?1.1950", '<div class="shop-info center-block" > <div class="float shop-texts"> <h3 class="shop-name" id="shopInfo" ng-click="onNameClick()">  <span> {{"shop_info_title" | i18n:{houseName:(shop.house.details.name | langField)} }} </span> </h3>  <div class="location">  <span ng-if="::shop.house.details.address | langField"> {{::shop.house.details.address | langField}} </span>  </div>   </div> <div class="opposite float logo" ui-sref="app.house({houseCode:shop.house.code,showUpcomingAuctions:false})" bs-cloudinary-bg="{{::(shop.house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div> <div class="clearfix"></div>  <div ng-if="!minimalView">  <div class="shop-description" ng-if="::shop.description | langField"  ng-bind-html="shop.description | langField"> </div> </div>  <span ng-if="shop.house.hasTerms"> <span class="terms btn-link" ng-click="showHouseTerms()">{{"terms_of_sale" | i18n}}</span>  </span> <span class="btn-link" ng-click="showHouseContantInfo()">{{"contact_us" | i18n}}</span>    </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/leadingBid.html?1.1950", '<div class="leading-bid" ng-hide="leadingBidHidden"> <div class="message"></div> <div class="highlighted-area"> <div class="lead-type"></div> <div class="price"></div> <a class="lot-link"  ng-href="{{::lot | lotHref : (source || \'catalog\')}}"  > {{::"view_lot" | i18n }} </a> </div>  </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/commissionInfo.html?1.1950", '<div ng-if="lot.carInfo"> <div class="lot-price-row lot-vat-info" ng-if="lot.carInfo.priceDoesNotIncludeVat" > {{"car_price_without_vat" | i18n }} </div> <div class="lot-price-row comission" ng-if="!lot.auction.commissionFee && lot.auction.state!=\'ENDED\'"> {{"car_info_no_commission" | i18n }} </div> </div>   <div ng-if="lot.realEstateInfo"> <div class="lot-price-row comission" ng-if="!lot.auction.commissionFee && lot.auction.state!=\'ENDED\'"> {{"car_info_no_commission" | i18n }} </div> </div>   <div ng-if="!lot.carInfo && !lot.realEstateInfo"> <div class="lot-price-row comission" ng-if="lot.auction.commissionFee || lot.auction.commissionFee===0"> {{"auction_house_commission" | i18n}}: <span dir="ltr" >{{lot.auction.commissionFee}}%</span> <span class="btn btn-link" ng-click="showCommissionText()"  ng-if="lot.auction.commissionText | langField:{currentLangOnly:true} | stripTags"> {{"more_details" | i18n}}</span> </div>   <div class="lot-price-row lot-vat-info" ng-if="lot.auction.region!=\'RU\' && !lot.house.noVat">  <span ng-if="lot.auction.itemsPriceIncludesVat"> {{"bid_form_vat_included" | i18n}} </span> <span ng-if="!lot.auction.itemsPriceIncludesVat"> {{"vat" | i18n}}: <span ng-if="lot.fullPriceVat">{{"bid_form_full_vat" | i18n}} </span> <span ng-if="!lot.fullPriceVat">{{"bid_form_commission_vat" | i18n}} </span> </span> </div> </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/lotViewOnlyInfo.html?1.1950", '<div ng-show="visible" class="lot-view-only"  ng-bind-html="message">   </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/confirmBid.html?1.1950", '<div class="confirm-bid" ng-controller="ConfirmBidController"  ng-init="init()" ng-class="{\'with-terms\':displayTerms}"> <div ng-if="!showBidRequestInfo"> <label ng-if="postSaleMode">{{"confirm_purchase_message" | i18n}}:</label> <table class="default-align"> <tr> <td class="pic-columm" rowspan="{{viewPort.mobileMedia?1:3}}"> <bs-lot-image lot="lot" size="120x120" image-ind="0"  image-mode="\'fit\'"> </bs-lot-image> </td> <td class="itemIndex caption"> {{"lot_number" | i18n}}: </td> <td class="itemIndex value"> {{lot.itemIndex}} </td>  </tr>  <tr> <td class="caption"> {{"lot_description" | i18n}}: </td> <td class="value" ng-bind-html="lot | lotText:60" colspan="{{viewPort.mobileMedia?2:1}}"> </td> </tr> <tr> <td class="caption"> {{postSaleMode ? "price" : "bid_price" | i18n}}: </td> <td class="value" colspan=2> <div class="price value"> {{bidPrice | sumInCurrency:lot.auction.catalogInfo.currency}} </div>  <div  ng-include src="\'catalogs/elements/auction/commissionInfo\' | appTemplate" > </div>    </td> </tr>  <tr class="send-alert" ng-show="alertEnabled"> <td ng-if="!viewPort.mobileMedia">&nbsp;</td> <td ng-if="!viewPort.mobileMedia && displayTerms" >&nbsp;</td> <td colspan="{{viewPort.mobileMedia ? 3 : 2}}" > <table> <tr> <td> <input  type="checkbox" class="float" name="sendAlert" ng-model="sendAlert" /> <bs-checkbox class="float"  bs-model="itemAlertData.on"></bs-checkbox> </td> <td valign="middle">  {{"confirm_bid_send_alert" | i18n}} </td>  </table>  </td> </tr> </table>  <div class="clearFix"></div>  <div ng-if="displayTerms"> <br> <label >{{ termsTitle }}:</label>  <div class="terms-container default-align" ng-bind-html="termsHtml">  </div> </div>  <div class="terms-message default-align" ng-class="{\'hide-links\':showTermsInContainer}"> <bs-linkable-text options="{ textKey:\'confirm_bid_terms_message\', textParams:{houseName:(lot.house | houseName:\'full\')}, onLinkClick:showTerms  }" > </bs-linkable-text> </div>  <div ng-if="lot.auction.showLeadingBids" class="leading-bid-warning" ng-bind-html="\'confirm_bid_leading_bid_warning\' | i18n"></div> </div>  <div ng-if="showBidRequestInfo"> <bs-bid-request-info lot="lot" ></bs-bid-request-info> </div>   </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/auctionParticipationInfo.html?1.1950", '<div class="auction-participation-info" ng-show="loaded" > <div bs-scroll-on="scrollToParticipationInfo" offset="-200"></div> <div ng-if="!approvedToParticipate && lot"> <div ng-if="!auctionParticipationRequested"> <div class="button-container"> <div class = "common-button light-blue" ng-click="requestParticipation()"> <div class="text">{{"click_to_get_approved" | i18n}}</div> </div> </div> </div> <div ng-if="auctionParticipationRequested"> <label class="text-danger"> {{"promotion_pending_cars" | i18n:{houseName:(auction.house | houseName:\'full\')} }}. <span ng-if=\'auction.documents.registration\'>{{"auction_participation_actions_needed" | i18n}}</span> </label> <div class="button-container"> <div class = "common-button orange" ng-click="showParticipationInstructions()"> <div class="text">{{"click_for_details" | i18n}}</div> </div> </div> </div> </div>  <div ng-if="approvedToParticipate" class="approved-message"> {{"promotion_approved_for_auction" | i18n}} </div>  </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/lotViewOnlyOverlay.html?1.1950", '<div> <div class="upper-text"> {{"bidding_only_from_hall" | i18n }} </div>   <div class="lower-text"> {{("lot_view_only_location_"+lot.house.code.split("-")[0]) | i18n }} </div>  </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/participationInstructions.html?1.1950", '<div ng-controller="ParticipationInstructionsController" class="participation-instructions default-align" ng-init="init()">  <div class="status" ng-if="lot.bidRequest"> {{"bid_request_pending_status" | i18n}} <br><br> </div>  <div ng-if="documentPath"> <p>{{\'bid_request_needed_actions\' | i18n:{houseName:houseName} }}:</p> <p> <ol> <li>{{"bid_request_form_download" | i18n}}</li> <li ng-bind-html="\'bid_request_form_send\' | i18n:{faxNumber:fax, houseEmail:houseEmail}"</li>  <li ng-if="houseDetails.bidInstructions | langField | stripTags"> {{"bid_request_additional_instructions" | i18n}} - <div ng-bind-html="houseDetails.bidInstructions | langField"></div> </li> </ol> </p> </div>  <div ng-if="(houseDetails.bidInstructions  | langField | stripTags) && !documentPath" ng-bind-html="houseDetails.bidInstructions | langField"> </div>  <div ng-if="contactPerson"> <br> <p ng-bind-html="\'contact_house_support\' | i18n:{housePhone:housePhone,houseName:houseName,contactPerson:contactPerson}">  </div>   <div class="download" ng-if="documentPath"> <div class="orange common-button" ng-click="downloadDocument()"> <div class="text"> {{"download_registration_form" | i18n}} </div> </div>  </div> </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/confirmTerms.html?1.1950", '<div class="confirm-terms" ng-controller="ConfirmTermsController"  ng-init="init()" ng-class="{\'with-terms\':displayTerms}">   <div class="terms-container default-align" ng-bind-html="termsHtml">  </div>   </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/setAuctionCreditCard.html?1.1950", '<div class="set-auction-credit-card" ng-controller="SetAuctionCreditCardController"  ng-init="init()" bs-text-direction> <div class="default-align">  <div ng-show="!formData.houseTermsConfirmed" > <div ng-if="!(house.details.bidInstructions | langField | stripTags)" class="sentence"  ng-bind-html="\'participation_request_credit_card_terms\' | i18n:{house:houseName} " > {{"participation_request_credit_card_terms" | i18n :{house:houseName} }} </div> <div class="sentence" ng-if="house.details.bidInstructions | langField | stripTags"> <div ng-bind-html="house.details.bidInstructions | langField"></div> </div> </div>  <div class="terms-row"> <input  class="float" type="checkbox"  ng-model="formData.houseTermsConfirmed"> <bs-checkbox class="float"  bs-model="formData.houseTermsConfirmed"></bs-checkbox> <bs-linkable-text class="float" options="{ textKey:\'house_terms_agree\', textParams:{house:houseName}, onLinkClick:showHouseTerms }" > </bs-linkable-text>  <div class="clearfix"></div> </div>  <div ng-if="showCardSelection"> <form ng-if="creditCardsInfo.length>0"> <div class="sentence"> {{"selectc_credit_card" | i18n }} </div> <div class="radio" ng-repeat="cardInfo in creditCardsInfo" > <label> <input type="radio" name="selectedCard" ng-model="formData.selectedCard" value="{{cardInfo.id}}"> {{"card_selection_entry" | i18n:{lastDigits:cardInfo.lastCardDigits, cardName:(("credit_card_type_"+cardInfo.cardCompany.toLowerCase()) | i18n)} }} </label> </div> <div class="radio"  > <label> <input type="radio" name="selectedCard" ng-model="formData.selectedCard" value="another"> {{"card_selection_other" | i18n:{} }} </label> </div> </form> <bs-edit-credit-card-details auction-id="auction.id" ng-if="showCardForm"> </bs-edit-credit-card-details> </div> </div>    </div>   '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/registrationPromotion.html?1.1950", '<div class="registration-promotion"> <div ng-if="auction "> <div ng-if="auction.state==\'ENDED\' && !postSaleMode"> <span class="text" > {{\'auction_ended\' | i18n}}</span> </div> <div ng-if="auction.state!=\'ENDED\' || postSaleMode"> <div ng-if="auction.catalogOnly">  <span class="text" > {{\'promotion_catalog_only\' | i18n:houseParams}}</span> </div> <div ng-if="!auction.catalogOnly">  <div ng-if="auction.state==\'RUNNING\'" > <div class="float button" ng-click="openAuctionSite()"> <div class="text">{{text(\'promotion_live_auction\')}}</div> </div> <div class="clearfix"></div>  </div>  <div ng-if="auction.state==\'READY\' || postSaleMode"> <div ng-if="userState==\'NOT_LOGGED_IN\'"> {{text(\'promotion_not_logged_in_auction\')}}&nbsp;-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'registeration\' | i18n}}</span></span> <span class="clearfix"></span> </span>  </div> <div ng-if="userState!=\'NOT_LOGGED_IN\'">  <div ng-if="auction.house.auctionBasedUserApproval">  <span ng-if="approvedToParticipateInAuction" class="text">  {{\'promotion_approved_for_auction\' | i18n}} </span>  <div ng-if="!approvedToParticipateInAuction "> <div ng-if="auction.house.bidRequestPerItem"> <div ng-if="lot.selfAbsenteeBid"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div>  <div ng-if="!lot.selfAbsenteeBid"> <span class="text" >  <span ng-if="bidRequests.length>0"> {{\'bid_request_pending_status\' | i18n}} </span> <span ng-if="!bidRequests || bidRequests.length==0"> {{\'bid_form_place_bid_to_participate\' | i18n}} <span class="btn btn-link show-popup" ng-click="showHelpPopup(\'auction_explanation\')">{{"auction_explanation" | i18n}}</span> </span> </span> </div> </div>  <bs-auction-participation-info ng-if="!auction.house.bidRequestPerItem" auction="auction" ></bs-auction-participation-info>  </div> </div>  <div ng-if="!auction.house.auctionBasedUserApproval"> <div ng-if="userState==\'NOT_REGISTERED\' || userState==\'NEW_SHOP_USER\'" > <span class="float text"> {{text(\'promotion_not_registered_to_auction\')}}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'click_to_get_approval\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-if="userState==\'PENDING\'"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-if="userState==\'INCOMPLETE_PROFILE\'"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-if="userState==\'APPROVED\'"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div> </div> </div> </div>  <div ng-if="!auction && house">  <div ng-switch="userState"> <div ng-switch-when="NOT_LOGGED_IN"> {{\'promotion_not_logged_in_house\' | i18n:{house:(house.details.name | langField)} }}&nbsp-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'registeration\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div> <div ng-switch-when="NOT_REGISTERED"> <span class="float text"> {{\'promotion_not_registered_to_house\' | i18n }}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'click_to_get_approval\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-switch-when="PENDING"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="INCOMPLETE_PROFILE"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="APPROVED"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div>    '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/auctionInfo.html?1.1950", '<div class="auction-info center-block" > <div class="float auction-texts"> <h3 class="auction-name" id="auctionInfo" ui-sref="app.auctionCatalog({catalogKey:auction.intKey})">  <span ng-if="::auction.number"> {{::"auction_label_number_public" | i18n:{number:auction.number} }} <span ng-if="auction.part"> {{::("auction_part_"+auction.part) | i18n}}  </span> </span>  <span> {{::auction.name | langField}} </span> </h3> <h2 class="house-name"> <a ng-href="{{::(\'/houses/\'+auction.house.code+\',false\') | uiHref}}" class="btn-link" ng-if="::auction.house.orderInd">{{"catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</a> <span ng-if="::!auction.house.orderInd">{{:: "catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</span>  </h2>   <div class="time-and-location"> <span>{{::auction | auctionTime}}</span> <span ng-if="::auction.address | langField"> , {{::auction.address | langField}} </span>  </div> <div class="links"> <span ng-if="auction.house.hasTerms"> <span class="terms btn-link" ng-click="showHouseTerms()">{{"terms_of_sale" | i18n}}</span>  &nbsp;&nbsp;&nbsp;&nbsp; </span>  <span ng-repeat="(docKey, docLink)  in auction.documents" ng-if="docLink"> <a class="doc btn-link"  ng-click="openWindow(docLink | documentUrl)" >{{"auction_doc_"+docKey | i18n}}</a>  &nbsp;&nbsp;&nbsp;&nbsp; </span>   <span ng-if="shouldShowDisplayHours"> <span class="display-hours btn-link" ng-click="showDisplayHours()">{{::displayHoursKey | i18n}}</span> &nbsp;&nbsp;&nbsp;&nbsp; </span>   <span ng-if="shouldShowCollectionHours"> <span class="display-hours btn-link" ng-click="showCollectionHours()">{{::"catalog_collection_hours" | i18n}}</span> &nbsp;&nbsp;&nbsp;&nbsp; </span>  <span ng-if="shouldShowDemoLink"> <span class="demo btn-link" ng-click="openDemoWindow()">{{::"view_demo" | i18n}}</span> &nbsp;&nbsp;&nbsp;&nbsp; </span>  </div>  </div> <div class="opposite float logo" ui-sref="app.house({houseCode:auction.house.code,showUpcomingAuctions:false})" bs-cloudinary-bg="{{::(auction.house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div> <div class="clearfix"></div>  <div class="long-details" ng-if="details" style="color:{{auction.textColors.details}}" ng-bind-html="\'<BR>\'+details"> </div>  <bs-lot-view-only ng-if="lot.viewOnly" lot="lot" full-message="true" one-line="true" > </bs-lot-view-only>   <div ng-if="!auction.showLeadingBids && auction.state!=\'ENDED\' && auction.catalogContentType==\'ART\'"> <br> <bs-linkable-text  options="{ textKey:\'auction_hidden_leading_bids_message\', onLinkClick:gotoAbsenteeBidsFaq }" > </bs-linkable-text> </div>    <bs-house-regisration-promotion ng-if="shouldShowRegistrationPromotion" auction="::auction" lot="lot" > </bs-house-regisration-promotion>   <hr>  <bs-auction-structured-data auction="::auction"></bs-auction-structured-data>   </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/elements/auction/bidForm.html?1.1950", '  <div class="bid-form" bs-text-direction > <div ng-if="scrollToForm" bs-scroll-on="scrollToForm" offset="-200" class="scroll-anchor">&nbsp;</div>  <div class="bid-info" ng-if="bidLabel" ng-class="bidInfoClass" >  <div class="highlight-area"> <span class=\'bid-label\'>{{bidLabel.text}}<span ng-if="bidLabel.price" ng-class="{dev:bidLabel.priceVisibleToAdmin}">:&nbsp;{{bidLabel.price}}</span></span> <div class="bid-label-second-message"  ng-show="leadingBidMessage" >{{leadingBidMessage}}</div> <div class="bid-label-second-message" ng-if="absenteeBidLabelForPastLot && !leadingBidMessage "  > {{absenteeBidLabelForPastLot}}  </div> </div> </div>  <table> <tr ng-if="mode==\'existing\' && !lot.house.auctionBasedUserApproval" > <td></td> <td class=\'bid-label-space\'></td> <td> <div class="links"> <div class="float btn-link"  ng-click="setEditMode({focus:true})">{{"edit" | i18n}}</div> <div class="float bid-link-space"></div> <bs-async-button button-class="\'left btn-link\'" action-fn="removeBidIfConfirmed()" label="\'remove_bid\'" ></bs-async-button> <div class="clearfix"></div> </div> </td> </tr> </table>  <label class="time-left-label" ng-show="timeLeft">{{timeLeft}}</label>  <bs-auction-participation-info auction="lot.auction" lot="lot" ng-if="mode==\'auctionParticipation\' || mode==\'bidRequest\'"></bs-auction-participation-info>  <bs-lot-view-only ng-if="mode==\'viewOnly\'" lot="lot" full-message="true" > </bs-lot-view-only>   <div class="edit-mode" ng-if="mode==\'edit\' || mode==\'new\' "> <div ng-if="!bidsDiabledOnHolyDay"> <label> {{editLabel | i18n }}:</label> <form> <div class="float noselect" ng-if="allowedBidPrices" ng-include src="\'catalogs/elements/bidPriceDropDown\' | appTemplate" > </div>   <bs-async-button button-class="\'float orange common-button \'+currentLang" action-fn="tryToPlaceBid()" bs-current-lang label="\'absentee_bid_button_text\'" ></bs-async-button>  <div class="clearfix"></div> <div ng-if="mode==\'edit\' && !lot.auction.showLeadingBids" class="cancel btn btn-link lowercase" ng-click="cancelEdit()">{{"cancel" | i18n}}</div> <div class="bid-limit" ng-if="bidLimitMessage"> {{bidLimitMessage}}</div>  </form> <div class="clearfix"></div> </div> <label class="bids-disabled-on-holyday" ng-if="bidsDiabledOnHolyDay"> {{"bids_disabled_for_holy_day" | i18n:(lot.house | houseName:\'short\')}} </label> </div>    <div class="direct-bid" ng-if="mode==\'direct\'  && model.selectedBidPrice"> <label> {{"lot_post_sale_bid" | i18n }}:</label> <form>  <div class="float direct-price"> <div class="float lot-price-label">{{"price" | i18n}}:&nbsp;&nbsp;</div> <div class="float lot-price-value">{{model.selectedBidPrice | sumInCurrency:lot.auction.catalogInfo.currency}}&nbsp;&nbsp;&nbsp;</div> <div class="clearfix"></div> </div>  <bs-async-button button-class="\'float orange common-button buy-now \'+currentLang" action-fn="tryToPlaceBid()" bs-current-lang label="\'catalog_buy_now\'" ></bs-async-button>  <div class="clearfix"></div>  <div class="bid-limit" ng-if="bidLimitMessage"> {{bidLimitMessage}}</div>  </form> <div class="clearfix"></div> </div>   <div class="bid-info disabled-mode" ng-if="mode==\'disabled\'"> <label ng-bind-html="getDisabledMessage()"></label> </div>  <div class="bid-info ended-mode" ng-if="mode==\'ended\'"> <label ng-if="!lot.purchase"> {{"not_sold" | i18n }} </label> </div>  <div class="bid-info running-mode" ng-if="mode==\'running\'"> <label>{{"auction_running" | i18n }}</label> <div class="center-block common-button live darkBlue" ng-click="openAuctionSite()"> <div class="text"> {{"home_auction_enter" | i18n }} </div> </div> </div>  <bs-lot-price  lot="lot"  single-row="{{false}}"  break-on-row="{{true}}"  only-estimated="{{mode==\'direct\'}}">  </bs-lot-price>  <div  ng-include src="\'catalogs/elements/auction/commissionInfo\' | appTemplate" > </div>  <div class="leading-bid-info" ng-if="leadingBidLine" ng-class="leadingBidType"> <div class="leading-bid-line">{{leadingBidLine}}</div> <div class="high-bidder-message">{{leadingBidMessage}}</div> </div>   <div class="past-lot" ng-if="lot.auction.state==\'ENDED\' && lot.house.orderInd"> <bs-linkable-text options="{ textKey:\'lot_past_info\', textParams:{house:(lot.house | houseName), date:(lot.auction.date | date:\'dd/MM/yyyy\')}, onLinkClick:gotoHousePage  }" > </bs-linkable-text> </div> </div>  '), 
-        $templateCache.put("/portal/templates/catalogs/elements/lotPrice.html?1.1950", '<div class="lot-price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">  <div class="lot-price-row" ng-if="::showExactPrice"> <div class="lot-price-label exact-price">{{::exactPriceLabel | i18n}}:</div> <div class="lot-price-value" bs-auto-font-size="{grow:false,minSize:11,maxWidth:maxWidth}" ng-bind-html="::exactPrice"></div> <div class="clearfix" ng-if="::breakOnRow"></div>  </div>  <div class="lot-price-row" ng-if="::showNoPrice"> <div class="lot-price-label no-price" itemprop="price">{{"lot_no_price" | i18n}}</div> <div class="clearfix" ng-if="::breakOnRow"></div>  </div> <div class="lot-price-row" ng-if="::showEstimatedPrice"> <div class="lot-price-label estimated-price"  >{{"estimated_price" | i18n}}:</div> <div class="lot-price-value" dir="ltr" bs-auto-font-size="{grow:false,minSize:11,maxWidth:maxWidth}" max-width="maxWidth" ><div ng-bind-html="::estimatedPrice"></div></div> <div class="clearfix" ng-if="::breakOnRow"></div> </div>    </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/lotBadge.html?1.1950", '<div class="lot-badge"  > <div class="text" ></div> </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/lotFavoriteFlag.html?1.1950", '<div  class="favorite-flag flag-button"   ng-click="toggleFavorite()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()" >  </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/bidPriceDropDown.html?1.1950", '<div class="bid-prices-dropdown" > <select ng-model="model.selectedBidPrice"  bs-text-direction  ng-options="price | sumInCurrency:lot.auction.catalogInfo.currency for price in allowedBidPrices"> </select>  </div> '), 
-        $templateCache.put("/portal/templates/catalogs/elements/shareButtons.html?1.1950", '  <div class="share-buttons" > <div ng-repeat="button in [\'fb\',\'twitter\',\'google\',\'pinterest\',\'email\']" class="float button" ng-class="button"  ng-click="share(button)" title="{{buttonName(button)}}"></div> <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/components/carousel/housesCarousel.html?1.1950", '<div class="houses-carousel-container" ng-class="{mobile:isMobile}"> <div  ng-if="!animationOn" class="houses-carousel" ng-style="{backgroundImage:\'url(\'+bgPics[currentPicInd]+\')\'}" >  </div>  <div ng-if="animationOn" class="houses-carousel"> <div ng-include dir="{{dir}}" src="\'components/carousel/slider\' | appTemplate"></div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/components/carousel/slider.html?1.1950", '<wallop-slider data-images="bgPics" data-animation="scale" data-current-item-index="_ind" data-next-item-index="currentPicInd"> </wallop-slider> '), 
-        $templateCache.put("/portal/templates/components/contentLoader.html?1.1950", '<div class="content-loader" ng-show="!loaded"> <img  class="center-block" ng-src="{{\'system/pagePreLoader.gif\' | commonImage}}"> </div> '), 
-        $templateCache.put("/portal/templates/components/popups/popupAsScene.html?1.1950", '<div class="info-popup scene popup-scene-{{options.code}}" dir="{{dir}}" ng-controller="PopupAsSceneController" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-10 col-xs-12"> <button class="upper btn btn-primary" ng-if="options.backText" bs-back-button >{{options.backText | i18n}}</button>  <div class="clearfix"></div> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col-xs-11" > <H3>{{options.title}}</H3> <div class="short-separator"></div> </div> <div ng-include src="\'components/popups/popupBody\' | appTemplate" ></div>   <ul class="list-inline"> <li  ng-repeat="button in options.buttons"> <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}" bs-back-button  >{{(button.text) | i18n}} </button> <button ng-if="button.action" ng-disabled = "button.disabled" ng-show="!button.hidden" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>  </div> </div> '), 
-        $templateCache.put("/portal/templates/components/popups/popupBody.html?1.1950", '<div dir="{{dir}}"> <iframe ng-if="options.contentUrl" width="100%" height="500px" name="about" ng-src="{{options.contentUrl}}" frameborder=0 ALLOWTRANSPARENCY="true"></iframe> <div    ng-if=\'options.contentHtml\'    class="info-popup-content" ng-class="options.bodyClass" ng-bind-html="options.contentHtml"></div> <div    ng-if=\'options.contentInclude\' class="info-popup-content" ng-class="options.bodyClass"  ng-include src="options.contentInclude | appTemplate"></div>  </div> '), 
-        $templateCache.put("/portal/templates/components/popups/popupModal.html?1.1950", '<div dir="{{dir}}" ng-keyup="onKeyup()" class="popup-modal-{{options.code}}">  <div  class="modal-header"> <h4  class="float modal-title" ng-if="options.titleKey">{{options.titleKey | i18n}}</h4>  <h4  class="float modal-title" ng-if="!options.titleKey">{{options.title}}</h4> <button type="button" class="opposite float close" ng-if="!options.unclosable" ng-click="closePopup()">&times;</button> <div class="clearfix"></div>  </div>  <div class="modal-body"> <div ng-include src="\'components/popups/popupBody\' | appTemplate" ></div> </div>  <div class="modal-footer" ng-class="options.data.footerClass"> <ul class="list-inline"> <li  ng-repeat="button in options.buttons">  <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}"  ng-click="closePopup()">{{(button.text) | i18n}} </button> <button ng-if="button.action" ng-disabled = "button.disabled" ng-show="!button.hidden" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>   </div> </div> '), 
-        $templateCache.put("/portal/templates/components/upperSpaceHolders.html?1.1950", '<div> <div class="upper-navigation-space"></div> <div class="upper-scene-part-space"></div> </div>  '), 
-        $templateCache.put("/portal/templates/components/housesDropdown.html?1.1950", '<div class="houses-dropdown">  <select	ng-model="data.selectedHouseCode" ng-change="onDropDownChange()" bs-text-direction> <option value="all" ng-if="!disableAllHouses">{{allHousesLabel | i18n }}</option> <option ng-repeat="house in houses" value="{{house.code}}"  ng-selected="house.code == selectedHouseCode"> {{house | houseName : \'short\' | trim:maxLength  }} </option> </select>  </div> '), 
-        $templateCache.put("/portal/templates/components/navigation/upperNavigationSearch.html?1.1950", ' <form name=\'searchForm\' novalidate bs-enter-key-action="doSearch()"  ng-click="gotoSearchIfMobile()" class="global-search-form"  ng-class="currentLang" bs-text-direction ng-show="state.current.url!=\'search\'"> <bs-form-group field-name="phrase" label="catalog_search_all" > <bs-search-input></bs-search-input>  </bs-form-group> <div class="button noselect" ng-click="doSearch()"> </div> <div class="clearfix"></div> </form>     '), 
-        $templateCache.put("/portal/templates/components/navigation/mobileLangSelection.html?1.1950", '<div class="lang-selection"  ng-if="data.langs.length>1"> <div class="selected entry" slide-toggle="#{{langMenuName}}" ng-click="onLanguageClick()" > {{currentLang | langName:"english"}} <span class="caret {{dir}}" ></span> </div> <ul id="{{langMenuName}}" class="slideable" duration="0.25s"> <li class="sub needsclick entry" ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)">{{lang | langName}}</li> </ul> </div> '), 
-        $templateCache.put("/portal/templates/components/navigation/upperNavigation.html?1.1950", '<div class="upper-navigation"  ng-class="{ \'has-warning\':ie8WarningVisible, \'logged-in\':currentUser!=null, \'no-fixed\':mobileMenuOn, \'mobile\':isMobileApp || viewPort.clientWidth<1200, \'pc\':!isMobileApp &&  viewPort.clientWidth>=1200 }"  ng-controller="UpperNavigationController"  dir="{{dir}}" >   <div class="mobile-only" ng-if="data.showContainer"> <div ng-if="!data.hideMenus" class="icon-button {{button}}" ng-repeat="button in data.mobileButtons"  ng-click="handleMobileButtonClick(button)"  bs-touched-class="\'touched\'"></div> <div ng-include src="\'components/navigation/mobileMenu\' | appTemplate"></div> <div class="clearfix"></div> <div ng-if="data.hideMenus"  class="logo"></div> </div> <div ng-if="langMenuAtBottom" ng-include src="\'components/navigation/mobileLangSelection\' | appTemplate"></div>   <div class="pc-only"  > <div class="container" ng-if="data.showContainer"> <div class="first-line">   <nav class="navbar navbar-default {{currentLang}}" bs-text-direction> <div class="container-fluid">  <div class="navbar-header"> <a class="float clickable logo " ng-href="{{(data.hideMenus ? \'\' : \'/home/\') | uiHref}}" ng-class="[currentRegion,{judaica:judaicaOnly, cars:contentType==\'CARS\',\'real-estate\':contentType==\'REAL_ESTATE\'}]"></a> </div>   <div class="collapse navbar-collapse" >  <ul  class="nav navbar-nav auth" ng-controller="AuthUpperNavigationController"  ng-class="{\'navbar-right\':currentLang==\'he\'}"  ng-include src="\'auth/authUpperNavigation\' | appTemplate"  ng-if="!data.hideMenus"> </ul>   <div class="searchFormContainer" ng-class="currentLang" ng-include src="\'components/navigation/upperNavigationSearch\' | appTemplate" ng-if="!data.hideMenus && $state.current.name!=\'app.support\'"></div>  <ul class="nav navbar-nav" ng-class="{\'navbar-right\':currentLang!=\'he\'}">  <li class="white dropdown" ng-class="{open:data.langsVisible}" ng-if="data.langs.length>1" ng-click="data.langsVisible = !data.langsVisible  "> <a class="dropdown-toggle"> {{currentLang | langName:"english"}} <span class="caret" ></span> </a> <ul class="dropdown-menu" > <li ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)"> <a>{{lang | langName}}</a> </li> </ul> </li> </ul>  </div>  </div> </nav>  </div>  <div class="second-line" ng-if="!data.hideMenus"> <nav class="navbar navbar-default {{currentLang}}" bs-text-direction> <div class="container-fluid"> <div class="collapse navbar-collapse"> <ul class="nav navbar-nav" ng-controller="AuctionsMenuController" ng-class="{\'navbar-right\':currentLang==\'he\'}">  <upper-navigation-menu  name="auctions"  links="links" arrow-position = "{{currentLang==\'he\' ? \'right\' : \'left\'}}"  handle-link-click="handleLinkClick(link)"></upper-navigation-menu>  <li ng-if="shopsVisible"><a href="{{\'/shops\' | uiHref}}">{{"shops" | i18n}}</a></li> <li ng-repeat="portalScene in otherPortalScenes"><a ng-href="{{portalScene | portalUrl}}">{{linkText(portalScene) }}</a></li>  <li ng-if="tagsMenus" > <div class="divider"></div> </li>  <upper-navigation-menu  class="tag-menu"  ng-repeat="tagsMenu in tagsMenus"  name="{{tagsMenu.header}}"  links="tagsMenu.entries" arrow-position = "{{currentLang==\'he\' ? \'right\' : \'left\'}}" link-href-prefix="/searchWithTags/"  header-href="{{tagsMenu.headerHref}}"  text-prefix="tag_"></upper-navigation-menu>    </ul> <ul class="nav navbar-nav" ng-class="{\'navbar-right\':currentLang!=\'he\'}"  ng-controller="HelpMenuController"> <upper-navigation-menu  name="help"  links="links"  text-prefix="" arrow-position = "{{currentLang==\'he\' ? \'left\' : \'right\'}}"  handle-link-click="handleLinkClick(link)"></upper-navigation-menu>  </ul>     </div>  </div> </nav>   </div>  </div>  </div>   <div class="mobile-only hello-bar" ng-if="currentUser && data.showContainer && !hideHeloBar"> <div class="text">{{\'hello_user\' | i18n:{userName:currentUser.firstName} }} </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/components/navigation/installAppButton.html?1.1950", ' <a class="install-app-button"  ng-show="platform" target="linkTarget"  ng-href="{{href}}" ng-click="logAppPageLink(platform)"  ng-class="platform"> </a>   '), 
-        $templateCache.put("/portal/templates/components/navigation/reload.html?1.1950", '<div class="refresh scene" ng-controller="ReloadController">  </div> '), 
-        $templateCache.put("/portal/templates/components/navigation/mobileMenu.html?1.1950", '<div ng-controller="MobileMenuController" > <div> <div  class="menu icon-button needsclick" ng-click="toggleMenu()" ng-class="{touched:menuTouched}"></div> <div class="clearfix"></div> <div class="arrow" ng-show="mobileMenuOn" ></div> <div class="clearfix"></div> </div> <div id="linksMenu" class="mobile-menu" ng-if="mobileMenuOn" > <div class="bg">  <div ng-if="!data.hideMenus">  <div ng-if="!langMenuAtBottom" ng-include src="\'components/navigation/mobileLangSelection\' | appTemplate"></div>  <a class="orange entry needsclick"  ng-if="currentUser && currentUser.registrationStage!=\'COMPLETE\'" ng-click="nextRegistrationStep()" ng-class="currentLang" >{{(\'complete_registration\') | i18n}}</a>  <a class="needsclick entry" ng-if="!mobileApp && currentUser && (!currentUser.userDevices || currentUser.userDevices.length==0)" ng-class="[currentLang,{orange:currentUser.registrationStage==\'COMPLETE\'}]" ng-click="installApp()" ng-click="installApp()"  >{{(\'get_bidspirit_app\') | i18n}}</a>   <a class="needsclick entry"  ng-if="!currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.auth\',{authScene:authLink})" ng-repeat="authLink in [\'login\',\'register\']">{{linkText(authLink)}}</a>  <a class="needsclick orange entry" ng-if="!mobileApp && !currentUser " ng-class="currentLang" ng-click="installApp()"  >{{(\'get_bidspirit_app\') | i18n}}</a>  <a class="needsclick entry"   ng-repeat="portalScene in otherPortalScenes" ng-class="currentLang" ng-click="gotoPortalScene(portalScene)">{{ linkText(portalScene) }}</a>  <div class="slide-menu" ng-controller="AuctionsMenuController" > <div class="selected entry" slide-toggle="#auctionsMenu"  > {{"the_auctions" | i18n}} <span class="caret {{dir}}" ></span> </div> <ul id="auctionsMenu" class="slideable" duration="0.25s"> <li ng-repeat="link in links"> <a class="btn-link sub entry"  ng-show="!hiddenLinks[link]" ng-click="handleLinkClick(link)">{{linkText(link)}}</a> </li> </ul> </div>  <a class="needsclick entry"   ng-if="shopsVisible" ng-class="currentLang" ng-click="gotoScene(\'app.shops\')">{{\'shops\' | i18n}}</a>   <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.accountActions\',{actionType:\'absenteeBids\'})" >{{\'absentee_bids\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.accountActions\',{actionType:\'purchases\'})" >{{\'purchases\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.accountActions\',{actionType:\'favorites\'})">{{\'favorites\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.alerts\')">{{\'alerts\' | i18n}}</a>  <div class="slide-menu" ng-controller="HelpMenuController" > <div class="selected entry" slide-toggle="#helpMenu"  > {{"help" | i18n}} <span class="caret {{dir}}" ></span> </div> <ul id="helpMenu" class="slideable" duration="0.25s"> <li ng-repeat="link in links"><a class="btn-link sub entry"  ng-click="handleLinkClick(link)">{{linkText(link)}}</a></li> </ul> </div>   <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.userDetails\')">{{\'update_details\' | i18n}}</a>    <a class="needsclick entry" ng-if="currentUser " ng-class="currentLang" ng-click="logout()" ng-href="{{\'/home/\' | uiHref}}" >{{(\'logout\') | i18n}}</a> </div>  <div ng-if="langMenuAtBottom || data.hideMenus" ng-include src="\'components/navigation/mobileLangSelection\' | appTemplate"></div> </div>   <div class="bottom-space"></div>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/components/navigation/choosePortal.html?1.1950", '<div  class="choose-portal scene" ng-controller="ChoosePortalController"> <div class="upper-space"></div> <div class="common-button  darkBlue" ng-click="gotoPortalScene(\'ART\')" > <div class="text"> {{"link_art" | i18n}} </div> </div>  <div class="common-button  darkBlue" ng-click="gotoPortalScene(\'CARS\')" > <div class="text"> {{"link_cars"| i18n}}  </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/components/navigation/upperNavigationMenu.html?1.1950", '<li class="white dropdown {{name}}" ng-class="{open:menuVisible}" > <a  class="dropdown-toggle" ng-click="onHeaderClick()"  ng-mouseenter="showMenu()"  ng-mouseleave="hideMenuAfterDelay()"  ng-href="{{headerHref}}" ng-class="currentLang">  {{linkText(textPrefix+name) }} </a> <ul class="dropdown-menu {{currentLang}}" ng-if="links.length>1" ng-class="menuAdditionalClass" ng-mouseenter="showMenu()"  ng-mouseleave="hideMenuAfterDelay()" > <li ng-repeat="link in links"><a class="btn-link"  ng-href="{{linkHrefPrefix ? ((linkHrefPrefix+link) | uiHref) : \'\'}}"  ng-show="!hiddenLinks[link]"  ng-click="onLinkClick(link)">{{linkText(textPrefix+link)}}</a></li> </ul> </li>     '), 
-        $templateCache.put("/portal/templates/components/pageFooter.html?1.1950", ' <div class="page-footer" ng-if="visible" > <div class="container col-md-7 col-xs-12 center-block"> <div class="arrow"></div> <div class="row">  <div class="info-part col-xs-6"> <div class="logo" ></div> <div class="text-line" ng-show="BidspiritInfo.emailLink" ng-bind-html="\'home_footer_info_email\' | i18n:{email:BidspiritInfo.emailLink}"></div> <div ng-if="BidspiritInfo.phone" class="hidden-xs hidden-sm text-line" ng-bind-html="\'home_footer_info_phone\' | i18n:{phone:BidspiritInfo.phoneLink}"></div> </div>  <div class="float vertical-separator" ng-class="{invisible:shouldHideContactUs}"></div> <div class="contact-us-part info-part col-xs-5" > <div class="pc-message hidden-xs hidden-sm" ng-class="{invisible:shouldHideContactUs}"> <div class="message"> {{"home_footer_contact_text" | i18n }} </div> <div class="orange common-button center-block"  ui-sref="app.contact"> <div class="text">{{"home_footer_contact_button" | i18n }}</div> </div> </div>  <div class="mobile-links hidden-md hidden-lg"> <a class="btn-link" ng-href="{{\'/contact\' | uiHref}}">{{"contact_us" | i18n}}</a> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"terms_of_use" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"privacy_policy" | i18n}}</a> <a class="btn-link" ng-href="{{\'/about\' | uiHref}}">{{"about" | i18n}}</a> <a class="btn-link" ng-href="{{\'/product\' | uiHref}}">{{"product" | i18n}}</a>  </div> </div>  <div class="clearfix"></div> <div ng-if="BidspiritInfo.phone" class="hidden-md hidden-lg text-line text-center" ng-bind-html="\'home_footer_info_phone\' | i18n:{phone:BidspiritInfo.phoneLink}"></div> </div>   <div class="horizontal-separator"></div>  <div class="second-line" > <div class="sell float col-xs-6" > <div class="float text" >{{sellText | i18n }}&nbsp;</div>  <div class="float contact"> <bs-linkable-text  options="{ textKey:\'home_footer_sell_contact\',  onLinkClick:gotoContactForSale }" > </bs-linkable-text> </div>  <div class="clearfix"></div> </div>  <div class="float col-xs-6 social" > <div class="text">{{"follow_us" | i18n }}</div> <div class="icons"> <a class="button twitter" target="{{linkTarget}}" href="https://www.twitter.com/{{twitterPage}}"></a> <a class="button fb" target="{{linkTarget}}" href="https://www.facebook.com/{{fbPage}}"></a> </div> </div> <div class="clearfix"></div> </div>   <div> <div class="horizontal-separator" ng-if="contentType==\'ART\'"></div> <div class="hidden-xs hidden-sm">  <div class="bottom-links"> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"terms_of_service" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"privacy_policy" | i18n}}</a> <a class="btn-link" ng-href="{{\'/about\' | uiHref}}">{{"about" | i18n}}</a> <a class="btn-link" ng-href="{{\'/product\' | uiHref}}">{{"product" | i18n}}</a>  <a ng-if="contentType==\'ART\'" class="btn-link" ng-href="{{\'/houses\' | uiHref}}">{{"auction_houses" | i18n}}</a>  </div> <div class="horizontal-separator"></div> </div>  <div class="rights-line">	{{"all_rights_reserved" | i18n }}	</div>  </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div> '), 
-        $templateCache.put("/portal/templates/nudges/modal/housesAlertsModal.html?1.1950", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>    <div class="action orange common-button"  ng-click="options.showRegisterForm()"> <div class="text">{{\'registeration\' | i18n}}</div></div>  '), 
-        $templateCache.put("/portal/templates/nudges/modal/nudgeModalPopup.html?1.1950", '<div class="nudge-modal-popup" ng-class="nudgeType" bs-text-direction> <div class="content" ng-include src="(\'nudges/modal/\'+options.data.nudgeType+\'Modal\') | appTemplate" ng-class="nudgeType"> </div>  </div> '), 
-        $templateCache.put("/portal/templates/nudges/navbar/nudgeNavbarPopup.html?1.1950", '<div class="nudge-navbar-popup" ng-show="isVisible" ng-class="nudgeType" ng-click="onClick()" bs-text-direction> <div class="close button">x</div> <div class="content" ng-if="isVisible" ng-include src="(\'nudges/navbar/\'+nudgeType+\'NavBar\') | appTemplate" ng-class="nudgeType">  </div>   </div> '), 
-        $templateCache.put("/portal/templates/nudges/navbar/housesAlertsNavBar.html?1.1950", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>   <div class="action orange common-button"  ui-sref="app.alerts"> <div class="text">{{\'alerts_promotion_configure_command\' | i18n}}</div></div>  '), 
-        $templateCache.put("/portal/templates/nudges/scenes/installApp.html?1.1950", '<div class="install-app-nudge scene" ng-controller="InstallAppNudgeController" bs-scroll-to-top> <div class="content container"> <div class="logo-icon"></div>  <div class="message default-align" ng-bind-html="\'app_install_nudge_message\' | i18n"></div> <br>  <div class="orange common-button center-block" ng-click="gotoStorePage()"> <div class="text">{{"app_install_nudge_download" | i18n }}</div> </div>  <div class="no-install" ng-click="continueOnBrowser()"> {{"app_install_nudge_continue" | i18n }} </div> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/auctions/results/auctionsResults.html?1.1950", '<div ng-controller="AuctionsResultsController" class="auctions-results scene"> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{ (showPastAuctionsResult  ? \'auction_results_title\' : \'ended_auctions\') | i18n }}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <div class="house-selection" > <div class="space hidden-sm"> </div> <h3 class="caption"> {{(contentType==\'ART\' ?  \'auctions_results_select_house\' : \'filter\' ) | i18n}}</h3> <houses-dropdown houses="houses" on-house-selected="showHouseAuctions" max-length="40" initial-house-code="{{data.selectedHouseCode}}"> </houses-dropdown> <div class="short-separator"></div> </div>    <bs-pagination	pages-data="pagesData"	href-pages="true"> </bs-pagination>  <div class="clearfix"></div>  <bs-content-loader loaded="!displayeAuctionsLoader"></bs-content-loader>  <div class="auctions-lists-group"> <div>  <bs-auctions-list auctions="pageAuctions" view="\'recent\'"  ></bs-auctions-list> </div>  </div>   <bs-pagination	pages-data="pagesData"	href-pages="true" ng-show="!displayeAuctionsLoader"> </bs-pagination>  </div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/home/homeMain.html?1.1950", '<div ng-controller="HomeController"> <div class="home scene"> <div class="upper-part"  ng-class="[screenHeightClass]" ng-if="!inIframe"> <bs-houses-carousel ></bs-houses-carousel>  <div class="overlay" >  <div class="message" > <div class="logo-icon" ></div>  <h1  class="{{contentType | lowercase}}"  ng-bind-html="upperMessage"></h1>  <h4 class="features with-links" ng-if="featuresAsLinks && contentType==\'ART\'" >  <a ng-href="{{\'/help/search\' | uiHref}}"> {{\'home_upper_feature_search\' | i18n}}</a> <span class="bullet"></span> <a href="{{\'/help/live\' | uiHref}}">{{\'home_upper_feature_live\' | i18n}}</a> <span class="bullet"></span> <a href="{{\'/help/bids\' | uiHref}}">{{\'home_upper_feature_bid\' | i18n}}</a> </h4>  <h4 class="features" ng-if="!featuresAsLinks && contentType==\'ART\'" >  {{\'home_upper_feature_search\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_live\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_bid\' | i18n}} </h4>  <div class="demo-video-button" ng-click="showDemoVideo()" ng-if="shouldDisplayVideoLink" > {{"demo_video" | i18n }} </div> </div>  <div class="home-promotions" ng-if="viewPort.pcMedia && !judaicaOnly  && adsInfoLoaded"> <div class="inner"> <promotion-instance position="HOME_HEADER_FIRST"></promotion-instance> <promotion-instance position="HOME_HEADER_SECOND"></promotion-instance> <promotion-instance position="HOME_HEADER_THIRD"></promotion-instance> </div> </div>   <div class="clearfix"></div>  </div>  </div>  <div class="content" ng-class="[screenHeightClass]"> <bs-upper-space-holders> </bs-upper-space-holders>  <div> <form name=\'searchForm\' novalidate bs-form  bs-submit="doSearch()" class="global-search-form {{currentLang}}" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <bs-search-input></bs-search-input> </bs-form-group> <div class="button" ng-click="doSearch()"></div> <div class="clearfix"></div> </form>  <div bs-scroll-on="auctionsToScrollTo[\'coming_auctions\']" watched-value="auctionsToScrollTo[\'coming_auctions\']" offset="auctionScrollOffset"> </div>  <promotion-instance class="home-header" position="HOME_HEADER_FIRST" ng-if="viewPort.mobileMedia && !judaicaOnly"></promotion-instance>    <div class="auctions-lists-group">  <div class="title" > <div class="space hidden-xs" ng-if="data.nextAuctions.length && !judaicaOnly && contentType==\'ART\'  && !inIframe "> </div> <h3 class="caption" ng-if="data.nextAuctions.length"> {{:: \'next_auctions\' | i18n}}</h3> <div uib-dropdown class="region-selection btn-group" ng-class="currentLang"  is-open="status.isopen" ng-if="!judaicaOnly && !inIframe && contentType==\'ART\'" > <div type="button" class="default-align selected entry" uib-dropdown-toggle > <div class="float icon {{:: currentRegion | lowercase}}"></div> <div class="float text">{{:: ("region_"+currentRegion) | i18n }}</div> <div class="opposite float caret {{dir}}" ></div> <div class="clearfix"></div> </div> <ul uib-dropdown-menu role="menu"> <li ng-repeat="region in regions" ng-if="region!=currentRegion"> <a class="default-align entry" ng-href="{{regionLink(region)}}" ng-click="onRegionClick(region)"> <div class="float icon {{region | lowercase}}"></div> <div class="float text">{{:: ("region_"+region) | i18n}}</div> <div class="clearfix"></div> </a> </li> </ul>  </div> </div>  <div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.nextAuctions" view="\'next\'" ></bs-auctions-list> </div>  <div ng-if="data.additionalAuctions.length"> <div class="title"> <h3 class="caption">{{\'auctions_list_additional\'  | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.additionalAuctions" view="\'additional\'" ></bs-auctions-list> </div>  <promotion-instance class="home-banner" position="HOME_BANNER_FIRST" ng-if="!judaicaOnly"></promotion-instance>  <div ng-if="autoScrollEnabled" bs-scroll-on="auctionsToScrollTo[\'direct_sale\']" watched-value="auctionsToScrollTo[\'direct_sale\']" offset="auctionScrollOffset"> </div>  <div ng-if="data.postSaleAuctions.length"> <div class="title"> <h3 class="caption">{{\'auctions_list_post_sale\'  | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.postSaleAuctions" view="\'post_sale\'" ></bs-auctions-list> </div>   <div ng-if="data.shops.length"> <div ng-if="viewPort.pcMedia"> <div class="title"> <h3 class="caption">{{\'home_shops_title\'  | i18n}}</h3> </div>  <div class="short-separator"></div>  <bs-shops-list shops="data.shops" > </bs-shops-list> </div>  <div ng-if="viewPort.mobileMedia"> <a href="{{\'/shops\' | uiHref}}"  class="results orange common-button col-lg-4 col-xs-10 {{currentLang}}"> <div class="text"> {{(\'home_shops_title\') | i18n}} </div>  </a> </div> </div>   <div ng-if="recentAuctionsVisible" > <div class="title"> <h3 class="caption">{{(showPastAuctionsResult ? \'auctions_list_recent\' : \'ended_auctions\') | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.recentAuctions" view="\'recent\'"  ></bs-auctions-list> </div>    <promotion-instance class="home-banner" position="HOME_BANNER_SECOND" ng-if="!judaicaOnly"></promotion-instance>  <div ng-if="resultsButtonVisible"> <a href="{{\'/results/all/\' | uiHref}}"  class="results orange common-button col-lg-4 col-xs-10 {{currentLang}}" > <div class="text"> {{(showPastAuctionsResult ? \'home_auctions_results\' : \'ended_auctions_all\') | i18n}} </div>  </a> </div>  <div ng-if="futureAuctionsButtonVisible"> <button class="future orange common-button col-lg-4 col-xs-10" ng-click="showFutureAuctions()"> <div class="text">{{\'auctions_list_show_future\' | i18n}}</div> </button> </div>   <div ng-if="futureAuctionsVisible" bs-scroll-on watched-value="scrollToFutureAuctions" debug-key="future">  <div class="title"> <h3 class="caption">{{\'future_auctions\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.futureAuctions" house-name-as-link="true" view="\'future\'" ></bs-auctions-list>  <div class="center-block future-auctions btn-link" ng-click="showAllFutureAuctions()">{{"all_future_auctions" | i18n}}</div> </div>     </div> </div>  </div> </div> </div>   '), 
-        $templateCache.put("/portal/templates/auctions/catalog/auctionCatalog.html?1.1950", '<div ng-controller="CatalogListController" > <div ng-controller="AuctionCatalogController" > <div class="catalog scene">  <div class="content col-xs-12" >  <div class="catalog-navigation-panel" bs-text-direction> <bs-upper-space-holders> </bs-upper-space-holders>  <bs-auction-info ng-if="auction" auction="auction" auction-lots="data.items"></bs-auction-info>  <div class="catalog-actions viewport_{{viewPort.viewPortWidth}}" bs-text-direction ng-class="{\'no-categories\':filterData.categories.length==0}" > <bs-catalog-list-filter items="data.items" ng-if="auction && data.items"></bs-catalog-list-filter> <bs-auction-start-alert-button  auction="auction" ng-if="auction && viewPort.mobileMedia && pagesData.pageItems.length>0"></bs-auction-start-alert-button> </div>  <div ng-if="pagesData.pageItems.length>0">   <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'upper\'" href-pages="true" ></bs-catalog-list-pagination>  <div  bs-scroll-on watched-value="scrollToPagination" offset="-200"></div>  </div> <bs-content-loader loaded="pagesData.pageItems!=null"></bs-content-loader> </div> <div ng-if="pagesData.pageItems.length>0">  <div ng-if="!displayeItemsLoader"  ng-include src="\'catalogs/list/catalogItems\' | appTemplate"  ></div> <bs-content-loader loaded="!displayeItemsLoader"></bs-content-loader> <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'lower\'" href-pages="true"></bs-catalog-list-pagination>  <bs-house-regisration-promotion ng-show="!displayeItemsLoader && (houseApprovalState!=\'APPROVED\' || auction.house.auctionBasedUserApproval)" auction="auction" class="promotion-bottom"> </bs-house-regisration-promotion> <bs-mailing-list-promotion house="::auction.house" class="promotion-bottom"> </bs-mailing-list-promotion>  </div>  </div> </div> </div> </div>  '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionEntryNarrow.html?1.1950", '<div class="frame viewport_{{viewPort.viewPortWidth}} " >  <!--  {{auction.hoursTillAuction}} -->  <auction-badge auction="::auction" is-today="::auction.date==today"></auction-badge>   <div class="float image"  bs-cloudinary-bg="{{::(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:imageSize} "> </div>  <div class="opposite float texts" >  <h2> {{::auction.house.details.name | langField}}  </h2> <div class="number" ng-if="::auction.number"> {{::"auction_label_number" | i18n:{number:auction.number} }}&nbsp; <span class="part" ng-if="::auction.part"> {{::("auction_part_"+auction.part) | i18n}}  </span> </div>  <div class="time" > {{::auction | auctionTime}}  </div>  <div class="name"> <div ng-bind-html="::auction.name | langField : {currentLangOnly:true}"></div> <div ng-if="::auction.shortDetails | langField : {currentLangOnly:true}" style="color:{{::auction.textColors.details}}" ng-bind-html="::auction.shortDetails | langField"></div> </div>  <button class="float common-button {{currentLang}}"   ng-class="auction.displayInfo.buttonClass" ng-if="::auction.state!=\'PENDING\'">  <div class="text"> {{auction.displayInfo.buttonText | i18n}} </div> </button>  <bs-auction-start-alert-button class="opposite float" auction="::auction" ></bs-auction-start-alert-button>  <div ng-if="auction.state==\'PENDING\'" class="pending-label"  ng-if="::view!=\'future\'" ng-class="{blink:auction.clickedRecently}"> <div class="text"> {{auction.displayInfo.buttonText | i18n}} </div> </div>   <div class="clearfix"></div>  </div>  <div class="clearfix"></div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionsList.html?1.1950", '<div class="list" ng-class="[screenView,view]">  <div class="row {{:: screenView}}" bs-text-direction >    <div class="auction-entry col-md-3 col-xs-12"  ng-repeat="auction in auctions" ng-click="onAuctionClick(auction)" bs-log-click="auction-{{:: auction.house.code}}-{{:: (auction.date | date :\'dd.MM.yy\') }}", ng-animate ng-class="{clickable:isAuctionClickable(auction)}" bs-scroll-on="auction.intKey == scrollTo" >   <div  ng-if="screenView==\'wide\'"     ng-include src="\'auctions/lists/auctionEntryWide\' | appTemplate" class="frame"> </div> <div  ng-if="screenView==\'narrow\'"     ng-include src="\'auctions/lists/auctionEntryNarrow\' | appTemplate" class="frame"> </div> </div>   </div>  </div> '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionBadge.html?1.1950", ' <div class="badge-frame" ng-show="shouldShow" > <div class="text">{{:: text}}</div> </div>      '), 
-        $templateCache.put("/portal/templates/auctions/lists/auctionEntryWide.html?1.1950", '<div class="frame" >  <!--  {{::auction.hoursTillAuction}} -->   <div class="image"  bs-cloudinary-bg="{{::(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:imageSize} "> <auction-badge auction="::auction" is-today="::auction.date==today"></auction-badge> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button>   <div class="texts"> <h2> <a class="btn-link" ng-href="{{::(\'/houses/\'+auction.house.code+\',false\') | uiHref" ng-if="isAuctionHouseLink(auction)">{{:: auction.house.details.name | langField}}</a> <span ng-if="!isAuctionHouseLink(auction)">{{:: auction.house.details.name | langField}}</span> <span ng-if="auction.number">- {{::"auction_label_number" | i18n:{number:auction.number} }}</span> </h2> <div class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </div>  <div class="time" minutes_till_start="{{::auction.minutesUntilStart}}"> {{::auction | auctionTime}} </div> <div class="short-separator"></div> <div class="name"> <div ng-bind-html="::auction.name | langField : {currentLangOnly:true}"></div> <div ng-if="::auction.shortDetails | langField : {currentLangOnly:true}" style="color:{{::auction.textColors.details}}" ng-bind-html=":: auction.shortDetails | langField"></div> </div> <bs-auction-structured-data auction="auction"></bs-auction-structured-data> </div>   <div class="center-block common-button {{currentLang}}"   ng-class="auction.displayInfo.buttonClass" ng-if="view!=\'future\'"> <div class="text"> <a ng-if="isLinkbutton(auction)" ng-href="{{auction | auctionHref}}">{{auction.displayInfo.buttonText | i18n}}</a> <span  ng-if="!isLinkbutton(auction)" >{{auction.displayInfo.buttonText | i18n}}</span> </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/userDetails/houseApprovalScene.html?1.1950", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{"notice" | i18n}}</H3> <div class="short-separator"></div> </div> <bs-house-approval house-id="$stateParams.houseId"></bs-house-approval>  </div> </div>     '), 
-        $templateCache.put("/portal/templates/userDetails/userDetailsMain.html?1.1950", '<div ng-controller="UserDetailsController" class="userDetails scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"user_details_title" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <h4>{{"user_details_message" | i18n}}</h4> <br>  <uib-accordion ng-if="currentUser" > <div uib-accordion-group class="panel-default noselect" ng-repeat="section in sections" is-open="opened[section]" ng-class="section"> <uib-accordion-heading> <div> <div class="section-name    col-sm-4  float">{{sectionNameKey(section) | i18n}}</div> <div class="section-summary col-sm-5 float" ng-bind-html="getSectionSummary(section)"> </div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[section]">{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content col-lg-6 col-md-7 col-sm-8 col-xs-12" ng-class="section"> <div  ng-include src="(\'userDetails/sections/\'+section +\'Section\') | appTemplate" ng-if="opened[section]"> </div> </div> </div> </uib-accordion> </div>   </div> '), 
-        $templateCache.put("/portal/templates/userDetails/sections/nameSection.html?1.1950", '<div class="name-section" >  <form name=\'nameUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'name\')">   <bs-form-group field-name="firstName" label="first_name"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="firstName" class="form-control" ng-model="data.user.firstName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/>  </bs-form-group>  <bs-form-group field-name="lastName" label="last_name"> <label  class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="lastName" class="form-control" ng-model="data.user.lastName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/> </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="nameUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'name\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/shippingSection.html?1.1950", '<div class="shipping-section" >  <div class="form-group checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="data.userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> <div class="clearfix"></div> </div>   <form name=\'shippingUpdateForm\'  novalidate bs-form  bs-submit="updateShippingAddress()"  > <bs-user-details-address address="data.userDetails.shippingAddress" ng-show="!data.userDetails.shippingAddress.residenceIsShipping"></bs-user-details-address> <div class="buttons-row" > <bs-async-button  button-class="\'float orange common-button\'"  bs-form-controller="shippingUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'shipping\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form>       </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/companySection.html?1.1950", '<div class="company-section" >  <form name=\'companyUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'company\')">   <bs-form-group field-name="company" label="company"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="data.user.company"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="companyUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'company\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/residenceSection.html?1.1950", '<div class="residence-section" >  <form name=\'residenceUpdateForm\'  novalidate bs-form  bs-submit="updateResidenceAddress()">  <bs-user-details-address address="data.userDetails.residenceAddress" ></bs-user-details-address>  <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="residenceUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'residence\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div> </form>   </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/englishSection.html?1.1950", "<div> <bs-edit-eng-details close-fn=\"onUpdateDone('english')\"></bs-edit-eng-details>  </div> "), 
-        $templateCache.put("/portal/templates/userDetails/sections/phoneSection.html?1.1950", '<div class="phone-section" >  <form name=\'phoneUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'phone\')">   <bs-form-group field-name="phone" label="phone"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" name="phone" class="form-control" ng-model="data.user.phone" required ng-minlength="8" ng-pattern="bsValidationPatterns.phone"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="phoneUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'phone\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/emailSection.html?1.1950", "<div> <bs-edit-email></bs-edit-email> </div> "), 
-        $templateCache.put("/portal/templates/userDetails/sections/billingSection.html?1.1950", '<div class="billing-section" ng-controller="BillingInfoController"> <div ng-if="data.billingInfoInfoLoaded"> <div ng-if="data.creditCardsInfo.length>0" class="card-details"> <table class="table"> <tr> <th>{{"credit_card_type" | i18n}}</th> <th>{{"number" | i18n}}</th> <th>{{"credit_card_valid_until" | i18n}}</th> <th>{{"credit_card_owner" | i18n}}</th> <th></th> </tr> <tr ng-repeat="creditCardInfo in data.creditCardsInfo"> <td>{{("credit_card_type_"+creditCardInfo.cardCompany.toLowerCase()) | i18n}}</td> <td ><span dir="ltr">{{"************"+creditCardInfo.lastCardDigits}}</span></td> <td>{{creditCardInfo.expiration}}</td> <td>{{creditCardInfo.cardOwnerName}}</td> <td> <div  class="btn-link" ng-click="deleteCreditCardInfo(creditCardInfo.id)" > {{\'user_details_credit_card_remove\' | i18n}} </div> </td>  </tr> </table> </div>  <div ng-if="display.showCreditCardForm"> <bs-edit-credit-card-details></bs-edit-credit-card-details>  </div>  <div class="text-success" ng-if="display.showCreditCardSaved"> {{"user_details_credit_card_saved" | i18n}} </div>  <div class="buttons-row"> <div ng-show="!display.showCreditCardForm  && !display.showCreditCardSaved"  class="btn submit orange" ng-click="showCreditCardForm()" > <div class="text">{{\'user_details_credit_card_add\' | i18n}}</div> </div>    <div class="btn btn-link" ng-click="onUpdateDone(\'billing\')">{{"close" | i18n}}</div>  <div class="clearfix"></div> </div>  </div> <bs-content-loader loaded="data.billingInfoInfoLoaded"></bs-content-loader>  </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/sections/passwordSection.html?1.1950", '<div class="password-section" ng-controller="PasswordUpdateController"> <form name=\'passwordUpdateForm\'  novalidate bs-form  bs-submit="updatePassword()" >  <bs-form-group field-name="existingsPassword" label="user_details_existing_password"> <label class="float"></label> <bs-form-validation-message css-class="float" wrong="wrong_password"  ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="existingsPassword" class="form-control"  ng-model="data.existingPassword" required bs-validate="{wrong : \'!wrongPassword($value)\' }" bs-validate-watch="\'wrongPasswords\'"/>  </bs-form-group>  <bs-form-group field-name="newPassword" label="new_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" minlength="error_bad_password_short" pattern="error_bad_password_pattern" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="newPassword" class="form-control" ng-model="data.newPassword" required ng-minlength="6" ng-pattern="bsValidationPatterns.nonHebrew"/>  </bs-form-group>  <bs-form-group field-name="passwordConfirm" label="confirm_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" match="error_password_mismatch" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password"  name="passwordConfirm" class="form-control"  ng-model="data.passwordConfirm"  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'data\'"/>  </bs-form-group>    <div class="buttons-row">  <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="passwordUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="updateDone()">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/engDetails/requestEngDetails.html?1.1950", '<div class="default-align"> <div class="text" ng-bind-html="\'user_details_request_in_eng\' | i18n : {house:(options.data.house.details.name | langField), lang:(options.data.user.detailsLang | langName) } "></div>  <br>  <bs-edit-eng-details deferred="options.data.deferred" in-popup="true" close-fn="closePopup()"></bs-edit-eng-details> </div> '), 
-        $templateCache.put("/portal/templates/userDetails/reusableElements/editEmail.html?1.1950", '<div class="edit-email {{currentLang}}">   <div ng-show="stage==\'edit\'" > <label>{{"please_edit_your_mail" | i18n}}:</label> <form novalidate> <div class="form-group" field-name="email" label="email"> <input  dir="ltr"  name="email" class="form-control" ng-model="data.email" ng-click="clearError()"/> </div> <div class="form-error text-danger"> <div class="error-message blinkable" ng-bind-html="errorMessage | capitalize"></div> </div>  <div class="buttons-row"> <bs-async-button  button-class="\'float orange common-button\'"  action-fn="updateEmail()"  name="\'changeEmail\'" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="cancelEdit()">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form> </div> <div ng-show="stage==\'not_confirmed\'" > <div class="title">{{notConfirmedTitle | i18n}}.</div> <div class="line" ng-bind-html="\'email_not_confirmed_line_1\' | i18n:{email: getEmail()}"></div> <div class="line">{{"email_not_confirmed_line_2" | i18n}}</div>  <div class="links"> <div class="float"> <div class="btn-link" ng-click="sendEmailConfirmationAgain()" ng-class="{waiting:sendingConfirmationAgain}"> {{"send_again" | i18n}} </div> </div>  <div class="opposite float btn-link" ng-click="stage=\'edit\'">{{"change_email" | i18n}}</div>  <div class="clearfix"></div> <div class="float resent-message" ng-show="sentConfirmationAgain"> {{"another_message_sent" | i18n }} </div> </div>  <div class="sent-message" ng-show="anotherSent"> {{"another_message_sent" | i18n}}</div>  </div>  </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/reusableElements/editCreditCardDetails.html?1.1950", '<div class="credit-card-details" > <bs-content-loader loaded="data.iframeLoaded"></bs-content-loader>  <iframe nf-if="data.iframeUrl"  allowfullscreen=""  style="border:0; overflow-y: hidden;  overflow-x: hidden;"  webkitallowfullscreen="" scrolling="no" frameBorder="0" width="{{data.iframeWidth}}"  ng-visible="data.iframeLoaded" width="data.iframeWidth"  height="{{data.iframeLoaded ? data.iframeHeight : 0}}"  ng-src="{{data.iframeUrl}}"></iframe> <div class="footer-notes" ng-bind-html="\'credit_card_footer_notes\' | i18n"></div>  </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/reusableElements/address.html?1.1950", '<div class="address" >  <div class="row">  <bs-form-group field-name="country" label="country" css-class="col-xs-12  float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  debug="true" css-class="float" minlength="error_mandatory" pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  debug="true" name="country" class="form-control" ng-model="address.country" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>   <div class="row">  <bs-form-group field-name="city" label="city" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"  pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  name="city" class="form-control" ng-model="address.city" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="address" label="address" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"></bs-form-validation-message> <div class="clearfix"></div> <input  name="address" class="form-control" ng-model="address.address" ng-minlength="2" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>    <div class="row">  <bs-form-group field-name="state" label="state_of_country" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="state" class="form-control" ng-model="address.state" ng-pattern="bsValidationPatterns.alpha" /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="zip" label="zip_code" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="zip" class="form-control" ng-model="address.zipCode"  /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/userDetails/reusableElements/editEngDetails.html?1.1950", '<div class="edit-eng-details {{currentLang}}">  <div class="col-lg-5 col-sm-10"> <div class="form-group" > <label>{{"user_details_eng_first_name" | i18n }}</label> <input dir="ltr" class="form-control" ng-model="data.engFirstName" /> <div class="text-danger">{{error.engFirstName}}&nbsp;</div> </div> </div>  <div class="clearfix"></div> <div class="col-lg-5 col-sm-10"> <div class="form-group" > <label>{{"user_details_eng_last_name" | i18n }}</label> <input dir="ltr" class="form-control" ng-model="data.engLastName" /> <div class="text-danger">{{error.engLastName}}&nbsp;</div> </div> </div>  <div class="clearfix"></div> <div class="col-lg-5 col-sm-10"> <div class="form-group" > <label>{{"user_details_eng_shipping_address" | i18n }}</label> <textarea dir="ltr" rows="3" class="form-control" ng-model="data.engShippingAddress" /> <div class="text-danger">{{error.engShippingAddress}}&nbsp;</div> </div> </div>  <div class="clearfix"></div> <div class="float btn-toolbar"> <div class="btn submit orange" ng-click="submit()">{{"ok" | i18n}}</div> <div class="btn btn-link" ng-click="cancel()">{{"cancel" | i18n}}</div> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/account/mailingList/mailingListPromotion.html?1.1950", '<div class="mailing-list-promotion" ng-show="visible"> <span class="text" ng-bind-html="\'mailing_list_promotion\' | i18n:{house:(house.details.name | langField)}"> </span> <div class="button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="confirm()"> <div class="text"> {{\'i_agree\' | i18n}} </div> </div> </div>    '), 
-        $templateCache.put("/portal/templates/account/mailingList/confirmMailingList.html?1.1950", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title"></div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>   <div class="modal-body"> <div ng-bind-html="message | i18n:{house:house} "></div> </div>   <div class="modal-footer">  <button class="btn btn-primary"  ng-click="confirm()">{{"i_agree" | i18n}}</button>  <button class="btn btn-default" ng-click="$close()">{{"i_dont_agree" | i18n}}</button>  </div> </div>  '), 
-        $templateCache.put("/portal/templates/account/bidApproval/bidApprovalScene.html?1.1950", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{title | i18n}}</H3> <div class="short-separator"></div> </div>  <bs-bid-approval  lot="lot" ></bs-bid-approval>  </div> </div>     '), 
-        $templateCache.put("/portal/templates/account/bidApproval/bidApprovalPopup.html?1.1950", '<div class="approval-popup" bs-text-direction >  <div  class="modal-header"> <label  class="float modal-title">{{title | i18n}}</label>  <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body"> <bs-bid-approval lot="lot" in-popup="true"></bs-bid-approval> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/account/bidApproval/bidApproval.html?1.1950", ' <div  class="approval-message"> <p ng-if="confirmText"> <bs-linkable-text  options="{ textKey:confirmText, textParams:{house:(house.details.name | langField)}, onLinkClick:showHouseTerms }" >  </bs-linkable-text> </p>  <div > <div class="buttons text-center"> <a class="btn btn-link cancel" ng-click="dismiss()">{{"cancel" | i18n}}</a> <bs-async-button ng-if="!requireCreditCard" action-fn="requestBidApproval()"  button-class="\'btn-primary	 common-button \'+currentLang"  label="\'ok\'" > </bs-async-button> </div>  </div> </div> '), 
-        $templateCache.put("/portal/templates/account/accountActions/accountActionsItems.html?1.1950", '<div class="not-found-message" ng-if="noItems">{{notFoundMessage | i18n}} </div>  <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row"> <div  ng-repeat="lot in pagesData.pageItems" bs-text-direction class="item with-house-badge" bs-scroll-on="lot.id == scrollTo"  ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia}"> <div>  <div class="item-link" ng-click="gotoLot(lot)"  > <div ng-if="viewPort.pcMedia"      ng-include src="\'catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div> <bs-lot-favorite-flag lot="lot"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="::lot"></bs-lot-alert-flag>  </div> </div>   <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
-        $templateCache.put("/portal/templates/account/accountActions/accountActionsMain.html?1.1950", '<div ng-controller="AccountActionsController" >  <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 xs-12"> <h1>{{sceneTitle | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>    <div class="catalog accountActions {{stateParams.actionType}} scene"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <div class="content col-xs-12" >  <div class="install-app-promotion" ng-if="showInstallAppPromostion"> <div ng-if="viewPort.mobileMedia"> <div class="message" ng-bind-html="\'install_app_account_message\' | i18n"></div> <install-app-button ></install-app-button> </div> <div ng-if="viewPort.pcMedia"> <div class="float message" ng-bind-html="\'install_app_account_message\' | i18n"></div>  <div  class="float orange common-button center-block" ng-click="showInstallPopup()">  <div class="text">{{"get_bidspirit_app" | i18n }}</div> </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div>  <div class="filter-row"> <div class="float section"> <form name=\'searchForm\' novalidate  class="global-search-form" bs-text-direction bs-enter-key-action="doSearch()">  <input class="form-control"  ng-model="data.sceneInfo.token" placeholder="{{searchMessage | i18n}}">  <div class="button noselect" ng-click="doSearch()"> </div>  <div class="clearfix"></div>  <div class="result" >{{resultMessage}} <span class="clear-link" ng-if="showClearSearch" ng-click="clearSearch()">{{"search_clear" | i18n}}</span></div>  <div class="clearfix"></div>  </form>    <div class="time-form" ng-if="timeFormVisible"> <div class="radio" ng-click="setSearchTime(\'FUTURE\')"> <label> <input type="radio"  ng-model="data.sceneInfo.time" value="FUTURE"> {{"future_auctions" | i18n }} </label> </div> <div clas="clearfix"></div> <div class="radio" ng-click="setSearchTime(\'PAST\')"> <label> <input type="radio"   ng-model="data.sceneInfo.time" value="PAST"> {{"ended_auctions" | i18n }} </label> </div> </div> </div>     <div class="opposite float house-selection" bs-text-direction ng-if="data.sceneInfo.relevantHouses.length>1"> <houses-dropdown houses="data.sceneInfo.relevantHouses" on-house-selected="onHouseSelected" initial-house-code="{{data.sceneInfo.house.code}}"> </houses-dropdown> </div>  <div class="clearfix"></div> </div>    <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  <div bs-scroll-on watched-value="scrollToPagination" offset="-200"></div>      <div ng-if="loadState!=\'loading\'" ng-include src="\'account/accountActions/accountActionsItems\' | appTemplate"  ></div>   <bs-content-loader loaded="loadState!=\'loading\'"></bs-content-loader>    <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  </div>    </div> </div>   '), 
-        $templateCache.put("/portal/templates/account/houseApproval/houseApprovalPopup.html?1.1950", '<div class="approval-popup" bs-text-direction >  <div  class="modal-header"> <label  class="float modal-title">{{"notice" | i18n}}</label>  <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body"> <bs-house-approval house-id="houseId" in-popup="true"></bs-house-approval> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/account/houseApproval/houseApprovalScene.html?1.1950", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{"notice" | i18n}}</H3> <div class="short-separator"></div> </div> <bs-house-approval house-id="$stateParams.houseId"></bs-house-approval>  </div> </div>     '), 
-        $templateCache.put("/portal/templates/account/houseApproval/houseApproval.html?1.1950", ' <div  class="approval-message">  <p ng-bind-html="firstParagraph"></p> <p ng-bind-html="secondParagraph"></p>  <div ng-if="approvalState==\'NOT_REGISTERED\'">  <div class="user-id-request" ng-if="requireStateId"> <p><div class="caption">	{{"house_needs_your_id" | i18n : {house:(house | houseName :"full") } }}</div></p>  <form name=\'requestUserIdForm\'  novalidate bs-form  > <bs-form-group field-name="userStateId" label="approval_request_user_id_label"> <label></label> <input name="userStateId" class="form-control" ng-model="formData.userStateId" />  <bs-form-validation-message></bs-form-validation-message>  </bs-form-group> </form> </div>    <div class="error-message text-danger" ng-if="formData.error">  <p>{{formData.error}}</p> </div>  <div class="clearfix"></div>  <bs-async-button  class="float" ng-if="!requireCreditCard" action-fn="requestApproval()"  button-class="\'btn-primary common-button \'+currentLang"  label="\'request_approval\'" > </bs-async-button>  <button ng-if="!inPopup" class="opposite float back btn btn-link text-danger" bs-back-button ng-class="currentLang"> {{("cancel") | i18n}}</button> <div class="clearfix"></div> </div>   <div  ng-if="(approvalState==\'PENDING\' || approvalState==\'INCOMPLETE_PROFILE\'  || formData.error)" > <br><br> <button ng-if = "inPopup" class="center-block btn btn-primary"  ng-click="dismiss()">{{"close" | i18n}} </button>  <button ng-if = "!inPopup && showOkButton" class="center-block ok btn btn-primary"  ng-click="dismiss()">{{"ok" | i18n}} </button> </div>    </div> '), 
-        $templateCache.put("/portal/templates/houses/housesList.html?1.1950", '<div ng-controller="HousesListController" class="houses scene {{contentType | lowercase}}" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{titleKey | i18nWithRegion  }}</h1> <div class="short-separator"></div>  </div> </div> </div> <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders> <h4 ng-bind-html="messageKey | i18nWithRegion"></h4> <br> <input class="form-control search-box" ng-keyup="updateFilter()" ng-model="token" placeholder="{{\'auction_houses_search\' | i18n}}">  <div class="container-fluid"> <div class="row text-center"> <div  class="col-xs-12 house-item default-align"  bs-text-direction ng-repeat="house in visibleHouses" ng-if="(devMode  || (!house.hidden))  && house.orderInd>0"  > <div class="house-frame"  ui-sref="app.houseNoComa({houseCode:house.code})">  <div class="frame-top" ng-style="{\'background-color\':(house.details.brandColor || \'#aaa\')}"> <div class="float name"> <h2>{{house.details.name | langField}}</h2> </div>  <div class="opposite float logo" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"> </div> <div class="clearfix"></div>  </div> </div>  </div> </div>  </div>  </div>   </div> '), 
-        $templateCache.put("/portal/templates/houses/houseContactInfo.html?1.1950", '<div class="house-contact-info">  <div class="caption" ng-if="caption">{{caption | i18n}}</div>  <div class="table"> <div class="labels table-cell"> <div class="contact-label" ng-if="houseTextParams.phone">{{\'phone\' | i18n}}</div>  <div class="contact-label" ng-if="houseTextParams.secondaryPhone">&nbsp;</div> <div class="contact-label" ng-if="houseTextParams.email">{{\'email\' | i18n}}</div> <div class="contact-label" ng-if="houseTextParams.secondaryEmail">&nbsp;</div> <div class="contact-label" ng-if="(house.details.address | langField)  && !hideAddress">{{\'address\' | i18n}}</div> <div class="contact-label" ng-if="houseTextParams.link && !hideWebsite">{{\'auction_house_website\' | i18n}}</div> </div> <div class="separator table-cell"></div> <div class="values table-cell"> <div class="contact-value" ng-if="houseTextParams.phone" dir="ltr" ng-bind-html="houseTextParams.phone"></div> <div class="contact-value" ng-if="houseTextParams.secondaryPhone	" dir="ltr" ng-bind-html="houseTextParams.secondaryPhone	"></div>  <div class="contact-value" ng-if="houseTextParams.email" dir="ltr" ng-bind-html="houseTextParams.email"></div> <div class="contact-value" ng-if="houseTextParams.secondaryEmail" dir="ltr" ng-bind-html="houseTextParams.secondaryEmail"></div> <div class="contact-value" ng-if="house.details.address  && !hideAddress" dir="ltr" ng-bind-html="house.details.address | langField"></div> <div class="contact-value" ng-if="houseTextParams.link && !hideWebsite" dir="ltr" ng-bind-html="houseTextParams.link"></div>  </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/houses/housePage.html?1.1950", '<div ng-controller="HousePageController" class="house-page scene" > <div ng-if="housePic" class="house-page-image" bs-cloudinary-bg="{{housePic}}"> </div> <div ng-if="!housePic" class="house-page-image-space"> </div> <div class="content container">  <div class="house-info"> <div class="house-info-upper"> <div class="float texts"  style="max-width:{{viewPort.contentWidth-280}}px"> <h2 class="house-name"> {{house.details.name | langField}} </h2> <div ng-bind-html="houseTextParams.link"></div>  <div class="address">{{house.details.address | langField}}</div>  </div>   <div class="opposite float logo" bs-cloudinary-bg="{{(house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div>  <div class="clearfix"></div>  </div>  <bs-mailing-list-promotion house="house" > </bs-mailing-list-promotion>  <hr>  <div class="house-info-lower"> <div class="text" ng-bind-html="house.details.info | langField"> </div> <bs-house-contact-info house = "house" hide-address="true"  caption="contactKey"> </bs-house-contact-info>  <br>  <div class="btn btn-link terms" ng-if="house.hasTerms" ng-click="openTerms()" bs-scroll-on="scrollToUpcomingAuctions" >  {{termsTitle}} </div> </div>    <bs-house-alerts-promotion house="house" > </bs-house-alerts-promotion> </div>   <div class="auctions-lists-group">  <div ng-if="data.nextAuctions.length"> <div class="title"> <h3 class="caption">{{\'next_auctions\'  | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.nextAuctions" view="\'next\'" ></bs-auctions-list> </div>  <div ng-if="shop"> <div class="title"> <h3 class="caption">{{\'shop_info_title\'  | i18n:{houseName:(house.details.name | langField)} }}</h3> </div> <div class="short-separator"></div> <div class="next list" ng-class="[screenView]"> <div class="row"  ng-class="[screenView]"> <div class="shop-entry default-align"  bs-text-direction ui-sref="app.shopCatalog({catalogKey:shop.intKey,page:1})" > <div  ng-if="screenView==\'wide\'" ng-include src="\'shops/list/shopEntryWide\' | appTemplate" > </div>  <div  ng-if="screenView==\'narrow\'" ng-include src="\'shops/list/shopEntryNarrow\' | appTemplate" > </div> </div> </div> </div>  </div>   <div ng-if="data.futureAuctions.length"> <div class="title"> <h3 class="caption">{{\'future_auctions\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.futureAuctions" view="\'future\'" ></bs-auctions-list>  </div>  <div ng-if="data.recentAuctions.length"> <div class="title"> <h3 class="caption">{{\'ended_auctions\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.recentAuctions" view="\'recent\'" ></bs-auctions-list>  </div> </div>   </div> </div> '), 
-        $templateCache.put("/portal/templates/houses/houseAlertsPromotion.html?1.1950", '<div class="house-alerts-promotion" ng-show="shouldDisplay"> {{promostionMessageKey | i18n:{house:(house.details.name | langField)} }}&nbsp <span class="no-break"> <span><span class="orange common-button" ui-sref="app.alerts"> <span class="text">{{\'alerts_promotion_configure_command\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div>    '), 
-        $templateCache.put("/portal/templates/auth/authScene.html?1.1950", '<div  class="auth scene" ng-controller="AuthSceneController" ng-class="{\'logged-in\':currentUser!=null}" >  <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1 >{{titleKey() | i18n}}</H1> <div class="short-separator"></div> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" >  <bs-upper-space-holders class="narrow"> </bs-upper-space-holders> <div  bs-text-direction class="auth-view" ng-class="authDisplayInfo.authScene"  ng-if="!isIe8" ng-include 	src="\'auth/elements/\'+authDisplayInfo.authSubScene | appTemplate"> </div> </div>   </div> '), 
-        $templateCache.put("/portal/templates/auth/authModalPopup.html?1.1950", '<div  ng-controller="AuthModalPopupController" bs-text-direction>  <div  class="modal-header">  <label  class="float modal-title">{{ titleKey() | i18n}}</label> <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body">  <div class="auth-view"  ng-if= "!isIe8" ng-include  src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div> </div>  </div>  '), 
-        $templateCache.put("/portal/templates/auth/legalApproval/legalApprovalRequired.html?1.1950", '<div class="legal-approval-required"> <bs-linkable-text options="{ textKey:options.legalApprovalMessage, onLinkClick:options.showLegalDoc }" > </bs-linkable-text> </div>  '), 
-        $templateCache.put("/portal/templates/auth/legalApproval/legalTermsRejected.html?1.1950", '<div> <p ng-bind-html="\'legal_reapproval_rejected\' | i18n"></p>  <br><br> <div class="text-danger"	ng-bind-html="\'legal_reapproval_support\' | i18n:{email:BidspiritInfo.emailLink}"> </div>   </div>  '), 
-        $templateCache.put("/portal/templates/auth/authNavBarPopup.html?1.1950", '<div> <div class="close btn-link" ng-click="hidePopup()">x</div>  <div  class="auth-view"   ng-if= "!isIe8"" ng-include 	src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div>   </div> '), 
-        $templateCache.put("/portal/templates/auth/authUpperNavigation.html?1.1950", '   <li ng-repeat="link in [\'login\',\'register\']"  class="btn-link non-logged-in" ng-if="!currentUser"   ng-click="togglePopupView(link)"  ng-class="[currentLang,link]"> <a class="text"> {{ linkText(link) }} </a>  <div class="up-arrow" ng-show="authDisplayInfo.popupScene==link"></div>  </div>    <li ng-if="currentUser" class="white dropdown user-actions" ng-class="{open:authDisplayInfo.menuVisible}"> <div class="float hazard btn-link"  ng-if="currentUser.registrationStage!=\'COMPLETE\'" ng-click="togglePopupView(\'warning\')"> <div class="icon" ng-class="{on:authDisplayInfo.popupScene==\'warning\'}"></div> <div class="up-arrow" ng-show="authDisplayInfo.popupScene==\'warning\'"></div> </div>  <a class="dropdown-toggle"  ng-mouseenter="setMenuVisiblity(true)" ng-mouseleave="hideMenuAfterDelay()"> {{\'hello_user\' | i18n:{userName:currentUser.firstName} }}&nbsp;<span class="caret"></span> </a> <ul class="dropdown-menu"  ng-mouseenter="setMenuVisiblity(true)"  ng-mouseleave="hideMenuAfterDelay()" bs-text-direction> <li><a  ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.accountActions({actionType:\'absenteeBids\'})" >{{\'absentee_bids\' | i18n}}</a></li> <li><a  ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.accountActions({actionType:\'purchases\'})" >{{\'purchases\' | i18n}}</a></li> <li><a  ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.accountActions({actionType:\'favorites\'})">{{\'favorites\' | i18n}}</a></li> <li><a  ui-sref="app.alerts">{{\'alerts\' | i18n}}</a></li> <li><a  ui-sref="app.userDetails">{{\'update_details\' | i18n}}</a></li> <li><a  ng-click="logout()">{{\'logout\' | i18n | capitalize}}</a></li> </ul>  <bs-nudge-navbar-popup></bs-nudge-navbar-popup>  </li>  <div class="auth-navbar-popup" ng-class="[authDisplayInfo.popupScene, currentLang]"  ng-include src="\'auth/authNavBarPopup\' | appTemplate"  ng-if="authDisplayInfo.popupScene!=null">  </div>   '), 
-        $templateCache.put("/portal/templates/auth/elements/recoverPassword.html?1.1950", '<div class="recover-password sub-scene" ng-controller="RecoverPasswordController"> <div class="title"> {{\'recover_password\' | i18n}}</div> <div class="separator"></div>  <div ng-if="stage==1"> <br> <div class="message"> {{\'recover_password_message\' | i18n}}:</div> <br> <form name=\'recoverForm\'  novalidate bs-form  bs-submit="sendPassword()" >  <bs-form-group field-name="email" label="email"> <input type="email" name="email" class="form-control" ng-model="info.email" required ng-change="data.emailUnknown=false" bs-validate="{unknown : \'!data.emailUnknown\' }"  bs-validate-watch="\'data.emailUnknown\'" /> <bs-form-validation-message hidden="true" unknown="error_email_not_exists"> </bs-form-validation-message>  </bs-form-group>  <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error>{{bsFormFirstErrorMessage()}}</div> </div>  <div class="orange common-button opposite float" ng-click="recoverForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div>  <div class="cancel btn-link opposite float" ng-click="setAuthSubScene(\'login\')">{{\'cancel\' | i18n}}</div>  <div class="clearfix"></div>   </form>  </div>  <br><br>  <div ng-if="stage==2"> <div class="message"> {{\'recover_password_success\' | i18n :{email:info.email} }}</div>  <div class="orange finish common-button opposite float"  ng-click="setAuthSubScene(\'login\')" > <div class="text">{{"done" | i18n }}</div> </div>  <div class="clearfix"></div>  </div>  </div> '), 
-        $templateCache.put("/portal/templates/auth/elements/warning.html?1.1950", '<div  class="warning sub-scene {{currentLang}}" >  <bs-edit-email ng-if="currentUser.registrationStage==\'UNCONFIRMED_EMAIL\'"></bs-edit-email>    <div class="incompleteProfile" ng-if="currentUser.registrationStage==\'INCOMPLETE_PROFILE\'"> <div class="message">{{"incomplete_details_message" | i18n}}</div>  <div class="orange common-button" ui-sref="app.auth({authScene:\'postRegistrationDetails\',authSubScene:\'\',args:\'\'})"  > <div class="text">{{"incomplete_details_update" | i18n }}</div> </div> </div>  </div> '), 
-        $templateCache.put("/portal/templates/auth/elements/postRegistrationDetails.html?1.1950", '<div ng-controller="PostRegistrationDetailsController"> <div ng-show="!formSubmitted" class="before-submit" ng-if="userDataLoaded">  <div class="register-success" ng-if="currentUser.justConfirmed">{{"register_success" | i18n}}</div>  <div class="message">{{"post_registration_message" | i18n}}</div> <div class="clearfix"></div> <form name=\'completeRegistrationForm\'  novalidate bs-form  bs-submit="save()" > <div class="form-half-page"> <h4 class="default-align">{{"personal_details" | i18n}}</h4>  <div class="row">  <bs-form-group field-name="phone" label="phone" css-class="col-xs-12 float" debug="true"> <label class="float"></label> <span class="float star">*</span> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div>  <input  name="phone" class="form-control" dir="ltr" ng-model="userDetails.phone"  required  ng-pattern="bsValidationPatterns.phone" ng-minlength="8"/>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="company" label="company" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="userDetails.company" />  </bs-form-group>  </div>  <h4>{{"residence_address" | i18n}}</h4> <div ng-if="true"> <!--  crazy, but without this line validation stops to work... couldn\'t figure out why --> <ng-form bs-form name="residence"> <bs-user-details-address address="userDetails.residenceAddress" ></bs-user-details-address> </ng-form>  </div>  </div>  <div class="clearfix"></div>  <bs-form-group field-name="residenceIsShipping" css-class="col-xs-12 float checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> </bs-form-group>  <div class="form-half-page">  <div ng-if="!userDetails.shippingAddress.residenceIsShipping" > <h4>{{"shipping_address" | i18n}}</h4> <ng-form bs-form name="shipping"> <bs-user-details-address  address="userDetails.shippingAddress"></bs-user-details-address> </ng-form>  </div> </div>  <div class="clearfix"></div>  <div class="form-error"> <div class="form-input error-message text-danger" bs-blink-on-form-error ng-show="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> </div>   <div class="orange common-button float" ng-click="completeRegistrationForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div>   </form> </div>  <div class="clearfix"></div>  <div ng-show="formSubmitted" class="post-submit"> <div class="row"> <div class="title">{{"post_registration_details_success" | i18n }}</div> </div> <div class="row"> <div class="message col-xs-9">{{"post_registration_details_success_message" | i18n }}</div> </div>  <div class="row"> <div class="orange common-button  float" ui-sref="app.home" > <div class="text">{{"done" | i18n }}</div> </div>  </div>  </div>  <br><br> </div>  '), 
-        $templateCache.put("/portal/templates/auth/elements/register.html?1.1950", ' <div class="register sub-scene" ng-controller="RegisterController">  <div class="message" bs-scroll-on watched-value="scrollToFisrtLine" debug-key="register"> {{"register_message_line_1"  | i18n }} <br> {{"please_fill_in_the_following_details"  | i18n }} <br>  </div>  <form name=\'registerForm\'  novalidate bs-form  bs-submit="register()" >  <bs-form-group field-name="firstName" label="first_name" css-class="float"> <label></label> <input name="firstName" class="form-control" ng-model="registrationInfo.firstName"  required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" />  <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="lastName" label="last_name" css-class="float"> <label></label> <input name="lastName" class="form-control" ng-model="registrationInfo.lastName" required  ng-pattern="bsValidationPatterns.alpha" ng-minlength="2"/> <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="email" label="email"> <label></label> <input dir="ltr" class="email form-control"  type="email" name="email"  ng-model="registrationInfo.email" ng-pattern="bsValidationPatterns.email"  required  bs-validate="{exists : \'!emailExists($value)\' }" bs-validate-watch="\'existingEmails\'" /> <bs-form-validation-message hidden="true" exists="error_email_exists" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="password" label="password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="password" class="form-control" ng-model="registrationInfo.password" required ng-minlength="6"  ng-pattern="bsValidationPatterns.nonHebrew" /> <bs-form-validation-message  css-class="float" minlength="error_bad_password_short" pattern="error_bad_password_pattern" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="passwordConfirm" label="confirm_password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="passwordConfirm" class="form-control"  ng-model="registrationInfo.passwordConfirm" required  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'registrationInfo\'"/> <div class="clearfix"></div>  <bs-form-validation-message hidden="true" match="error_password_mismatch" ></bs-form-validation-message> </bs-form-group>   <bs-form-group field-name="over18" css-class="checkbox-row"> <input  type="checkbox" class="float" name="over18" ng-model="registrationInfo.over18" required/> <bs-checkbox class="float"  bs-model="registrationInfo.over18"></bs-checkbox> <label class="float">{{\'register_over18\' | i18n}}</label> <div class="clearfix"></div> <bs-form-validation-message hidden="true" required="error_over18"></bs-form-validation-message> </bs-form-group>  <div class="clearfix"></div>   <bs-form-group field-name="terms" css-class="checkbox-row"> <input  type="checkbox" name="terms" ng-model="registrationInfo.terms" required/> <bs-checkbox class="float"  bs-model="registrationInfo.terms"></bs-checkbox> <label> <bs-linkable-text  options="{ textKey:\'register_terms_accept\', onLinkClick:showTerms }" >  </bs-linkable-text> </label>  <bs-form-validation-message hidden="true" required="error_accept_terms"></bs-form-validation-message> <div class="clearfix"></div>  </bs-form-group>    <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error >{{bsFormFirstErrorMessage()}}</div>  <div class="login link" ng-show="displayLoginLink()" ng-click="setAuthScene(\'login\')" >{{\'login_with_mail\' | i18n}}</div>  <div class="clearfix"></div> </div>    <bs-async-button button-class="\'opposite float orange common-button\'"  bs-form-controller="registerForm"  label="\'send\'" ></bs-async-button>   <div class="clearfix"></div>  </form> </div>  '), 
-        $templateCache.put("/portal/templates/auth/elements/login.html?1.1950", '<div class="login sub-scene" ng-controller="PortalLoginController"> <div class="message" ng-if="authDisplayInfo.args.message">{{ authDisplayInfo.args.message | i18n}}</div> <form name=\'loginForm\'  novalidate bs-form  bs-submit="login()" >  <bs-form-group field-name="email" label="email"> <label></label> <input dir="ltr" type="email" name="email" class="form-control" debug="true" ng-model="loginInfo.email" required  ng-change="hideLoginError()"/>  <bs-form-validation-message hidden="true"  ></bs-form-validation-message>  </bs-form-group>  <bs-form-group field-name="password" label="password" class="password"> <label></label> <div dir="ltr"> <input id="loginPasswordInput" bs-focus-on="focusOnPassword" type="{{passwordVisible ? \'text\' : \'password\'}}" name="password" autocorrect="off" autocapitalize="none" class="form-control" ng-model="loginInfo.password" required ng-change="hideLoginError()"/> </div> <bs-form-validation-message hidden="true" ></bs-form-validation-message> <div id="loginPasswordIcon" class="showPassword" ng-click="togglePasswordVisible()"></div>  </bs-form-group>   <div class="form-error text-danger"> <div class="form-input error-message  bs-blink-on-form-error" ng-if="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> <div class="login error-message" ng-if="loginErrorVisible">{{"error_login" | i18n }}.</div> </div>  <bs-form-group field-name="remember" css-class="checkbox-row"> <input type="checkbox" class="float" name="remember" ng-model="loginInfo.remember"/> <bs-checkbox class="float"  bs-model="loginInfo.remember"></bs-checkbox> <label class="float" ng-click="loginInfo.remember=!loginInfo.remember">{{\'remember_me\' | i18n}}</label> <div class="clearfix"></div>  </bs-form-group>     <div class="forgot-password btn-link" ng-click="setAuthSubScene(\'recoverPassword\')">{{"forgot_password" | i18n }}</div>  <div class="orange common-button opposite" ng-click="loginForm.submit()" > <div class="text">{{"login" | i18n | capitalize}}</div> </div>  <div class="goto-register btn-link" ng-click="setAuthScene(\'register\')">{{"login_goto_register" | i18n }}</div>    </form> </div> ');
+        $templateCache.put("/common/templates/forms/asyncButton.html?1.1966", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
+        $templateCache.put("/common/templates/forms/monthPicker.html?1.1966", '<div class="col-md-3 form-group"> <label>{{(label || \'reports_select_month\') | i18n}}</label>  <p class="input-group"> <input type="text"  name="date" placeholder="{{\'reports_select_month\' | i18n}}" class="form-control" ng-model="selectedDate" uib-datepicker-popup="MM/yyyy" is-open="monthPopupVisible" ng-click="monthPopupVisible = true" datepicker-options="{minMode: \'month\'}" datepicker-mode="\'month\'" close-text="{{\'command_close\' | i18n}}"  > </p> <div class="newLine"></div> </div>    '), 
+        $templateCache.put("/common/templates/forms/formGroup.html?1.1966", '<div class="form-group {{cssClass}}"> <div> <div ng-transclude></div> </div>  </div> '), 
+        $templateCache.put("/common/templates/dialogs/scopeAlert.html?1.1966", "<div style=\"display:{{alert.message?'block':'none'}}\"> <div uib-alert  ng-class=\"'alert-' + (alert.type)\"   type=\"{{alert.type || 'info'}}\" close=\"hideScopeAlert()\"> {{alert.message | i18n}} </div> </div> "), 
+        $templateCache.put("/common/templates/dialogs/alert.html?1.1966", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title"><h4>{{((dialogData.title || "notice") | i18n) | capitalize}}</h4></div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.ok || "ok") | i18n}}</button> </div> </div>  '), 
+        $templateCache.put("/common/templates/dialogs/image.html?1.1966", '<div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button> <h4 class="modal-title">{{dialogData.imageName}}</h4> </div>  <div class="modal-body"><img ng-src="{{dialogData.imagePath | cloudinary}}" class="img-responsive"> </ </div>  <div class="modal-footer"> <button class="btn btn-primary" ng-click="close()">{{(dialogData.close || "close") | i18n}}</button> </div> '), 
+        $templateCache.put("/common/templates/dialogs/confirm.html?1.1966", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title"><h4>{{(dialogData.title) | i18n}}</h4></div>  </div>  <div class="modal-body" ng-bind-html="dialogData.message"></div>  <div class="modal-footer"> <button class="btn btn-danger" ng-click="ok()">{{(dialogData.ok || "ok") | i18n}}</button> <button class="btn btn-warning" ng-click="close()">{{(dialogData.cancel || "cancel") | i18n}}</button> </div> </div>  '), 
+        $templateCache.put("/common/templates/elements/pagination.html?1.1966", '<div class="bs-pagination" dir="ltr">  <a class="link" ng-repeat="link in links" ng-href="{{baseHref && link.page && !link.isCurrent ? ((baseHref+link.page) | uiHref) : \'\'}}"  ng-click="onLinkClick(link)" ng-bind-html="link.html" ng-class="{ current:link.isCurrent, disabled:!link.page, enabled:link.page && !link.isCurrent, needsclick:link.isPrev || link.isNext,  prev:link.isPrev,  next:link.isNext}"> </a>   </div>   '), 
+        $templateCache.put("/portal/templates/info/allFutureAuctions.html?1.1966", '<div class="all-future-auctions"> <table class="table table-striped default-align" bs-text-direction> <tr> <th>{{"auction_house" | i18n}}</th> <th>{{"time" | i18n}}</th> <th>{{"auction_name" | i18n}}</th> </tr> <tr ng-repeat="auction in options.data.auctions" class="clickable" ng-click="options.data.onAuctionClick(auction)"> <td>{{auction.house.details.name | langField}}</td> <td>{{auction| auctionTime}}</td> <td> <span ng-if="::auction.number"> {{::"auction_label_number_public" | i18n:{number:auction.number} }} <span ng-if="auction.part"> {{::("auction_part_"+auction.part) | i18n}}  </span> </span>  <span ng-if="::auction.number && auction.name | langField"> - </span>  <span> {{::auction.name | langField}} </span> </td> </tr>  </table> </div>  '), 
+        $templateCache.put("/portal/templates/info/demoVideo.html?1.1966", '<div class="demo-video-popup" bs-text-direction> <div class="modal-header"> <div class="modal-title"> <h4 class="float">Bidspirit - {{"demo_video" | i18n}}</h4> <button type="button" class="opposite float close" ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  </div>  <div class="modal-body" >  <iframe class="center-block" width="800" height="450" ng-src="{{demoVideoUrl}}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>  </div>  <div class="modal-footer"> <button class="btn btn-default" ng-click="$close()">{{"close" | i18n}}</button>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/info/contact.html?1.1966", '<div  class="contact scene" ng-controller="ContactController" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1>{{\'contact_us\' | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{\'contact_message_line_1\' | i18n}}</h4> <h4 class="message-line">{{\'contact_message_line_2\' | i18n}}</h4>  <bs-linkable-text  ng-if="contentType==\'ART\'" class="sell-message" options="{ textKey:\'contact_message_sell\',  onLinkClick:gotoContactForSale }" > </bs-linkable-text> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders> <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="$state.current.name!=\'app.contact.thanks\'"> <div class="row"> <bs-form-group field-name="name" label="name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="phone" css-class="col-md-5  col-xs-11 float"> <label></label> <input dir="ltr"   name="phone" class="form-control" ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="country" css-class="col-md-5 col-xs-11 float"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>   </div> <div class="row">  <bs-form-group field-name="message" label="contact_message_body" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="sendDebugInfo() || contactForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div>   </div> </form> <div class="thanks .container animate-show" ng-show="$state.current.name==\'app.contact.thanks\'"> {{"contact_thanks" | i18n }} </div> </div>  <div class="direct-contact"> <div class="text" ng-bind-html=\'(BidspiritInfo.phoneLink ?  "contact_direct" : "contact_direct_no_phone") | i18n:{phone:BidspiritInfo.phoneLink, email:BidspiritInfo.emailLink}\'>  </div> </div> </div> '), 
+        $templateCache.put("/portal/templates/info/downForHolyDay.html?1.1966", '<div  class="down-for-holy-day scene" bs-scroll-to-top> <div class="content container col-lg-5 col-md-7  col-xs-12" > <div class="image"> </div> <div class="text" ng-bind-html="\'down_for_holy_day_1\' | i18n"></div> <div class="text" ng-bind-html="\'down_for_holy_day_2\' | i18n "></div> </div> </div> '), 
+        $templateCache.put("/portal/templates/info/product/productMain.html?1.1966", '<div ng-controller="ProductController" bs-scroll-to-top> <div class="product scene"> <div class="upper-part">  <div class="dark overlay"> </div> </div>  <div class="main center-block "> <h1 class="center-block col-md-5 col-xs-12" ng-bind-html="mainFeature.title | langField"></h1>  <div class="short-separator"></div> <div class="image center-block  col-md-7 col-xs-12" ng-if="mainFeature.resources!=null" bs-cloudinary-bg="{{mainFeature.resources[\'productsPagePic\']}}"  >  </div> <div class="info center-block  col-md-9 col-lg-7 col-xs-12" ng-bind-html="mainFeature.info | langField">  </div> <div class="orange contact-us common-button center-block center-block"  ui-sref="app.contact"> <div class="text">{{"contact_us" | i18n }}</div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div> </div>  <div class="features"> <h3 class="section-title">{{\'product_features\' | i18n}}</h3> <div class="short-separator"></div> <div ng-include src="\'info/product/productFeatures\' | appTemplate"></div> </div>  <div class="gray-separator col-md-9 col-lg-7 col-xs-12 center-block"></div>  <div class="contact"> <div class="container col-lg-4 col-md-5 col-sm-6 col xs-10 center-block"> <h3 class="caption">{{\'product_contact_caption\' | i18n}}</h3> <div class="short-separator"></div> <div class="message-line">{{\'product_contact\' | i18n}}</div> <div class="orange contact-us common-button center-block" ui-sref="app.contact"> <div class="text">{{"contact_us" | i18n }}</div> </div> </div>  </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/info/product/productFeatures.html?1.1966", '<div class="list container-fluid"> <div class="row"> <div class="item col-md-3 col-xs-10"  ng-repeat="feature in features" ng-if  = "feature.code!=\'main\'"> <div class="frame" ng-class="[feature.code,currentLang]"> <div class="image"  bs-cloudinary-bg="{{feature.resources[\'productsPagePic\']}}"  params=" {imageMode:\'fill\',size:\'360x226\'} ">  </div>  <div class="texts"> <h2 class="caption"> {{feature.title | langField}} </h2>   <div class="short-separator"></div> <div class="info" ng-bind-html="feature.info | langField"> </div>  </div> <div ng-if="feature.code==\'bidder\'"> <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> </div>  <div ng-if="feature.code==\'virtualAuctioneer\' && !isMobile">  <div class="orange  common-button center-block" ng-click="showDemo(\'virtualAuctioneer\')" >  <div class="text"> {{\'product_demo_virtual_auctioneer\' | i18n}}  </div> </div> </div>  </div>  </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/info/contactForSale.html?1.1966", '<div  class="contact scene" ng-controller="ContactForSaleController" bs-scroll-to-top>  <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1 class="for-sale">{{titleTextKey | i18n}}</H1> <div class="short-separator"></div> <h4 class="message-line">{{ line1Key  | i18n}}</h4> <h4 class="message-line">{{\'contact_for_sale_message_line_2\' | i18n}}</h4> </div> </div> </div>  <div class="content container col-lg-5 col-md-7  col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders> <form name=\'contactForm\' novalidate bs-form  bs-submit="send()" ng-show="!showThanks"> <div class="row"> <bs-form-group field-name="name" label="name" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div>  <bs-form-validation-message required="error_name_mandatory" css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  name="name" class="form-control" ng-model="contact.name" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="email" label="email" css-class="col-md-5 col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" type="email" name="email" class="form-control" ng-model="contact.email" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div> <div class="row"> <bs-form-group field-name="phone" label="phone" css-class="col-md-5  col-xs-11 float"> <label class="float"></label> <span class="float star">*</span><input dir="ltr"   name="phone" class="form-control" required ng-model="contact.phone" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  <div class="col-md-2 float col-xs-0"></div> <bs-form-group field-name="state" label="country" css-class="col-md-5 col-xs-11 float" ng-show="contentType==\'ART\'"> <label></label> <input  name="state" class="form-control" ng-model="contact.state" /><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float"> </bs-form-validation-message> </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="message" label="{{descriptionKey}}" css-class="col-md-12 col-xs-11 float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message css-class="float" required="error_message_mandatory"> </bs-form-validation-message> <div class="clearfix"></div> <textarea  name="message" class="form-control" ng-model="contact.message" required ></textarea><div><!-- this empty div is needed for ie8 --></div> </bs-form-group>  </div> <div class="float images"> <div ng-repeat="image in upladedImagesInfo" class="float attachment" ng-class="{pending:image.pending}">  <img src="{{image.url ? image.url : (\'system/pagePreLoader.gif\' | commonImage) }}">    <div class="clearfix"></div> <div class="btn btn-link" ng-click="removeImage(image)">{{"remove" |i18n}}</div> </div> <div class="btn btn-default btn-upload float" upload-button accept="{{\'image/*\'}}" url="{{\'/resources/uploadFilesToS3\' | formActionPath}}" multiple="{{allowMultiple}}"  on-success="addPicFromResponse(response)" on-error="handleError(response)" on-upload = "addPendingPic(files)" >{{\'contact_for_sale_add_pic\'  | i18n}}</div> </div>  <div class="clearfix"></div>  <div class="row"> <div class="orange common-button col-sm-3 float" ng-click="sendDebugInfo() || contactForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div> </div> </form> <div class="thanks .container animate-show" ng-show="showThanks"> {{"contact_thanks" | i18n }} </div> </div> </div> '), 
+        $templateCache.put("/portal/templates/info/helpScreen.html?1.1966", '<div class="help-screen scene" ng-controller="HelpScreensController" bs-scroll-to-top> <div class="content container">  <div class="float texts" ng-class="[currentLang,helpScreen.code]"> <h2 class="caption"> {{helpScreen.title | langField}} </h2> <div class="info" ng-bind-html="helpScreen.info | langField">  </div>   <div ng-switch="helpScreen.code" > <div ng-switch-when="screen_live">  <div class="orange  common-button pull-left"  ng-click="showDemo(\'classic\')">  <div class="text"> {{\'product_demo_classic\' | i18n}}  </div> </div> <div class="orange  common-button pull-right" ng-click="showDemo(\'unique\')" >  <div class="text"> {{\'product_demo_unique\' | i18n}}  </div> </div> <div class="clearfix"></div> </div> <div ng-switch-when="screen_bids"> <div class="orange common-button center-block" ng-click="showRegistration()" ng-if="!currentUser">  <div class="text"> {{\'help_register\' | i18n}}  </div> </div>  </div> <div ng-switch-when="screen_search"> <form name=\'searchForm\' novalidate bs-form  bs-submit="doSearch()" class="global-search-form center-block" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <bs-search-input></bs-search-input> </bs-form-group> <div class="button" ng-click="doSearch()"></div> <div class="clearfix"></div> </form> </div> </div> </div>   <div class="opposite float screenshot" bs-cloudinary-bg="{{sceenshot}}"></div> <div class="clearfix"></div> <div class="btn home btn-link center-block" ui-sref="app.home"> {{"home_back_to" | i18n }} </div> </div>   </div> '), 
+        $templateCache.put("/portal/templates/info/faq.html?1.1966", '<div class="faq scene" ng-controller="FaqController" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"faq" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders> <div class="faq-group" ng-repeat="(code,questions) in data.groups"> <div class="title"> {{"faq_"+code | i18n}} </div> <div class="item" ng-repeat="question in questions"> <div class="question"  bs-right-click="openInNewWindow(question)" ng-click="data.answerVisible[question.code]  = !data.answerVisible[question.code] " bs-scroll-on="question.code == data.scrollTo" > {{question.title | langField}} </div> <div class="answer" ng-show="data.answerVisible[question.code]" ng-bind-html="question.info | langField">  </div> </div>  </div>    <div class="btn home btn-link center-block" ui-sref="app.home"> {{"home_back_to" | i18n }} </div> </div>   </div> '), 
+        $templateCache.put("/portal/templates/info/downForMaintenance.html?1.1966", '<div  class="down-for-maintenance scene" bs-scroll-to-top> <div class="content container col-lg-5 col-md-7  col-xs-12" > <div class="image"> </div> <div class="text" ng-bind-html="\'down_for_maintenance\' | i18n"></div> </div> </div> '), 
+        $templateCache.put("/portal/templates/info/about.html?1.1966", '<div  class="about scene" bs-scroll-to-top ng-controller="AboutController"> <div class="wide upper-part" >  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <H1>{{\'about_upper_caption\' | i18n}}</H1> <div class="short-separator"></div> <h2 class="text">{{contentAwareText(\'about_upper_text\')}}</h2> </div> </div> </div> <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <bs-upper-space-holders> </bs-upper-space-holders> <div class="portal-info"> <div class="line">{{contentAwareText(\'about_portal_info_line_1\')}}</div> <div class="line">{{contentAwareText(\'about_portal_info_line_2\')}}</div> </div>  <div class="short-separator"></div>  <div class="company-info"> <div class="line">{{contentAwareText(\'about_company_info\')}}</div> </div> </div> <div class="contact"> <div class="container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div class="caption">{{\'about_contact_caption\' | i18n}}</div> <div class="short-separator"></div> <div class="message-line">{{\'contact_message_line_1\' | i18n}}</div> <div class="message-line">{{\'contact_message_line_2\' | i18n}}</div> <div class="orange common-button center-block" ui-sref="app.contact"> <div class="text">{{"contact_us" | i18n }}</div> </div> </div>  </div> <div ng-if="versionInfo" class="version-info" dir="ltr">{{versionInfo}}</div> </div> '), 
+        $templateCache.put("/portal/templates/info/upgradeRequired.html?1.1966", '<div bs-text-direction> <div class="modal-header"> <div class="modal-title">{{"notice" | i18n}}</div>  </div>  <div class="modal-body" ng-bind-html="\'upgrade_required_message\' | i18n"></div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-primary" ng-click="redirectToUpgrade()">{{"update" | i18n}}</button> </div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/support/support.html?1.1966", '<div  class="support scene" bs-scroll-to-top ng-controller="SupportController"> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"support" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div> </div>  </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <div class="float orange common-button" ng-click="showOpenSupportCaseForm()"> <div class="text">{{"support_case_action_open" | i18n }}</div> </div> <div class="float"> <div class="cases-type-selection"> <label class="radio-inline" ng-repeat="caseTypeSelection in caseTypeSelections"> <input ng-model="filter.casesType" type="radio" name="caseTypeFilter"  value="{{caseTypeSelection}}" ng-change="loadSupportCases()"> {{getCaseTypeFilterName(caseTypeSelection) | i18n }} </label> <div class="clearfix"></div> </div> <br> <div class="text-center"> <div class="form-inline"> <input class="form-control" ng-model="searchToken" bs-enter-key-action="loadSupportCases()"> <div class="btn btn-default"  ng-click="loadSupportCases()">{{"search" | i18n}}	</div> <div class="btn btn-link" ng-click="clearSearch()" ng-show="searchToken"> {{"search_clear" | i18n}} </div> </div> </div> </div>   <div class="opposite float checkbox"> <label> <input type="checkbox" ng-model="filter.nonClosedOnly" ng-change="loadSupportCases()">  {{"support_show_unclosed_only" | i18n}}  </label> </div>  <div class="clearfix"></div> <div class="opposite float  btn btn-default" ng-click="loadSupportCases()">{{"refresh" | i18n }}</div> <div class="clearfix"></div>   <bs-content-loader loaded="supportDataLoaded"></bs-content-loader>  <div ng-if="supportDataLoaded">  <label ng-if="filter.nonClosedOnly && !cases.length"> {{"support_no_open_cases" | i18n}} </label>  <bs-pagination	pages-data="pagesData"	 on-current-page-change="onPageChange()"> </bs-pagination>  <table class="table table-hover " ng-if="cases.length">  <tr> <th></th> <th>{{"support_case_number" | i18n}}</th> <th class=\'clickable\' ng-click="setSortField(\'openTime\')" > <span ng-class="{\'sort-field\':filter.sortField==\'openTime\',desc:filter.isDescSort}"></span> {{"support_open_time" | i18n}}</th>  <th class="visible-lg">{{"support_case_type" | i18n}}</th> <th>{{"subject" | i18n}}</th> <th class="visible-lg">{{"description" | i18n}}</th>  <th class="visible-lg">{{"support_assignee" | i18n}}</th>  <th class=\'clickable\' ng-click="setSortField(\'lastUpdate\')" ><span ng-class="{\'sort-field\':filter.sortField==\'lastUpdate\',desc:filter.isDescSort}"></span> {{"last_update" | i18n}}</th> <th>{{"status" | i18n}}</th> </tr>  <tr class="clickable" ng-repeat="supportCase in cases"  ng-click="displaySupportCase(supportCase)" ng-class="{\'text-muted\':supportCase.status==\'CLOSED\',\'bold\':!supportCase.handledByAssignee}" bs-scroll-on="supportCase.id==scrollTo"> <td ng-click="toggleStarred(supportCase); $event.stopPropagation();" ><div class="star" ng-class="{on:supportCase.starred}"  </div> </td> <td> {{supportCase.caseNumber}}</td> <td > {{supportCase.openTime | date:\'dd/MM/yy HH:mm\'}} <div ng-bind-html="supportCase.openerDisplay"> </div></td>  <td class="visible-lg"> {{("support_case_type_"+supportCase.caseType.toLowerCase()) | i18n}}</td> <td> {{supportCase.subject | trim:25}}</td> <td class="visible-lg">  <pre class="description"  bs-text-direction lang="{{supportCase.lang}}">{{getSupportCaseDescrition(supportCase)}}</pre> </td> <td class="visible-lg" ng-bind-html="supportCase.assigneeDisplay"> </td>   <td> {{supportCase.lastUpdate | date:\'dd/MM/yy HH:mm\'}}<div ng-bind-html="supportCase.lastUserDisplay"></div></td>  <td>{{("support_status_"+supportCase.status) | i18n}}<div ng-bind-html="supportCase.lastAction.notes"></td> </tr>  </table>  <bs-pagination	pages-data="pagesData"	 on-current-page-change="onPageChange()"> </bs-pagination>  </div> </div> </div> '), 
+        $templateCache.put("/portal/templates/support/supportCase.html?1.1966", '<div class="support scene support-case" bs-text-direction  ng-controller="SupportCaseController" bs-scroll-to-top >   <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"support" | i18nWithRegion  }}</h1> <div class="short-separator"></div> </div>  </div> </div>    <div class="content"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <h4 class="float" ng-if="supportCase"> {{"support_case_number_title" | i18n:supportCase }} <span ng-if="supportCase.subject"> - {{supportCase.subject}}</span> &nbsp;<span>({{("support_case_type_"+supportCase.caseType.toLowerCase()) | i18n}})</span> </h4>   <div class="opposite float btn btn-link" ui-sref="app.support"> {{"support_back_to_list" | i18n}}</div>   <div class="clearfix"></div>  <bs-content-loader loaded="supportCase"></bs-content-loader>  <div ng-if="supportCase"> <div> <label>{{"support_case_opener" | i18n}}:</label> <a class="btn btn-link" ng-href="(\'/searchSupport/\'+supportCase.openerEmail) | uiHref"  ng-bind-html="supportCase.openerDisplay"></a> </div> <div ng-if="supportCase.openerState"> <label>{{"country" | i18n}}:</label> <span ng-bind-html="supportCase.openerState"></span> </div> <div ng-if="supportCase.openerPhone"> <label>{{"phone" | i18n}}:</label> <span ng-bind-html="supportCase.openerPhone"></span> </div> <div ng-if="lastVisitedLot" class="float last-visited-lot">  <label>{{"support_last_visited_lot" | i18n}}:</label> <span ng-if="lastVisitedLot.auction"> <a ng-href="{{lastVisitedLot | lotHref:\'auction\'}}" >{{lastVisitedLot.itemIndex}}: {{lastVisitedLot | lotText:50 | stripTags }}</a> {{"auction_label_number_public" | i18n:{number:lastVisitedLot.auction.number} }}, <b>{{lastVisitedLot.house.details.name | langField}}</b> </span> <span ng-if="lastVisitedLot.shop"> <a ng-href="{{lastVisitedLot | lotHref:\'shop\'}}" >{{lastVisitedLot.ownerKey+"-"+lastVisitedLot.idInApp}}: {{lastVisitedLot | lotText:50 | stripTags }}</a> , {{"shop_info_title" | i18n:{houseName:(shop.house.details.name | langField)} }} </span> </div>  <div class="opposite float  btn btn-default" ng-click="loadSupportCase()">{{"refresh" | i18n }}</div>  <div class="clearfix"></div> <br><br>   <table class="table table-hover" > <tr> <th>{{"time" | i18n}}</th> <th class="visible-lg">{{"support_action" | i18n}}</th> <th>{{"support_action_user" | i18n}}</th> <th>{{"description" | i18n}}</th> <th class="visible-lg">{{"support_case_recipients" | i18n}}</th> <th class="visible-lg">{{"support_assignee" | i18n}}</th> <th class="visible-lg">{{"notes" | i18n}}</th> <th class="visible-lg">{{"support_case_attachements" | i18n}}</th> </tr> <tr ng-repeat="action in supportCase.actions" ng-click="showActionForm(action)" class="clickable"> <td> {{action.actionTime | date:\'dd/MM HH:mm\'}}</td> <td class="visible-lg"> {{("support_case_action_"+action.actionType.toLowerCase()) | i18n}}</td> <td ng-bind-html="action.userDisplay"> </td>  <td> <pre class="description" ng-show="action.description" ng-bind-html="action.displayText" bs-text-direction lang="{{supportCase.lang}}"> </pre>  </td> <td>{{action.recipients}}</td> <td class="visible-lg"> {{action.assignee.firstName ? action.assignee.firstName +" "+ action.assignee.lastName : ""}}  </td> <td class="visible-lg" ng-bind-html="action.notes"></td> <td class="visible-lg attachments"> <a class="attachment"  ng-repeat="attachment in action.attachments"  style="background-image:{{(attachment  | isImage) ? \'url(\'+attachment+\')\'  : \'none\'}}" ng-href="{{attachment}}" ng-mouseover="action.imagePreviewUrl = attachment" ng-mouseout="action.imagePreviewUrl = null" target="_blank" >  <div ng-if="!(attachment | isImage) " > {{attachment  | fileNameFromUrl | shortFileName}} </div>  </a>  <div class="preview" bs-text-direction ng-show="action.imagePreviewUrl" style="background-image:url({{action.imagePreviewUrl}})"></div> </td> </tr>  </table> <br> <div class="btn-toolbar">  <div class="float btn btn-primary" ng-click="addAction(\'SEND_EMAIL\')"> {{"support_case_action_send_email" | i18n}}   </div>  <div class="float btn btn-warning"  ng-click="addAction(\'FORWARD_TO_AUCTION_HOUSE\')"> {{"support_case_action_forward_to_auction_house" | i18n}}   </div>  <div class="float btn btn-default"  ng-click="addAction(\'ASSIGN\')"> {{"support_case_action_assign" | i18n}}   </div>    <div class="float btn btn-default"  ng-click="addAction(\'NOTE\')"> {{"support_case_action_note" | i18n}}   </div>   <div class="float btn btn-success"  ng-click="addAction(\'CLOSE\')"> {{"support_case_action_close" | i18n}}   </div>  <bs-async-button  action-fn="removeSupportCase()"  button-class="\'opposite float btn btn-danger  \'+currentLang"  label="\'support_delete_case\'">  </bs-async-button>  <div class="clearfix"></div>  </div>  </div>  </div>     </div>  '), 
+        $templateCache.put("/portal/templates/support/supportCaseAction.html?1.1966", '<div class="support-edit-action-popup" bs-text-direction ng-controller="SupportCaseActionController"  >  <div  class="modal-header" bs-draggable parents="2"> <div class="float modal-title" > <h4> <span ng-if="data.supportCase.caseNumber"> {{"support_case_number_title" | i18n:{caseNumber:data.supportCase.caseNumber} }}  - </span> {{("support_case_action_"+data.action.actionType.toLowerCase()) | i18n}} <span ng-if="data.action.isDraft && data.action.id">[{{"draft" | i18n}}]</span> </td>   </h4> </div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>   <div class="modal-body"  stop-event="touchend">  <div ng-if="editMode" class="form">  <div ng-if="data.sourceAction || data.supportCase.originalAction"> <label>{{"support_case_original_message" | i18n}}:</label> <div ng-repeat="action in historyToShow"> <b>{{action.actionTime | date:\'dd/MM/yyyy HH:mm:ss\'}} - </b> <span ng-bind-html="action.userDisplay"></span> <p ng-bind-html="action.description"></p> <br> </div> <div ng-if="!data.sourceAction && actionsHistory.length>1 && historyToShow.length<2" ng-click="showAllHistory()" class="btn-link">{{"support_case_show_actions_history" | i18n}}</div> <hr> </div>  <div class="form-group" ng-show="data.action.actionType==\'OPEN\'"> <label>{{"subject" | i18n}}:</label> <input class="form-control" ng-model="data.action.subject">  </div>  <div class="form-group" ng-show="data.action.actionType==\'OPEN\' || data.action.actionType==\'ASSIGN\'"> <label>{{"support_case_type" | i18n}}:</label> <select class="form-control" ng-model="data.action.newCaseType"> <option ng-repeat="caseType in CASE_TYPES" value="{{caseType}}"> {{ ("support_case_type_"+caseType) | i18n }}  </option> </select> </div>   <div ng-show="data.action.actionType==\'FORWARD_TO_AUCTION_HOUSE\'"> <div class="form-group" > <label class="float">{{"support_select_house" | i18n}}:</label> <houses-dropdown  max-length="40" class="float" disable-all-houses="true" on-house-selected="onHouseSelected" initial-house-code="{{guessedHouseCode}}"> </houses-dropdown> <div class="clearfix"></div> </div> <div class="checkbox" ng-show="data.supportCase.lastVisitedLot && !data.action.forwardAsUserEmail"> <label> <input type="checkbox" ng-model="data.action.sendLotInquiry" ng-change="handleForwardMessage()">  {{"support_forward_as_lot_inquiry" | i18n:{itemName:(data.supportCase.lastVisitedLot | lotText:50 | stripTags)} }}  </label> </div>   <div class="checkbox" ng-show="!data.action.sendLotInquiry"> <label> <input type="checkbox" ng-model="data.action.forwardAsUserEmail" ng-change="handleForwardMessage()">  {{"support_forward_as_user_message" | i18n}}  </label> </div>  <div class="checkbox" ng-show="!descriptionHidden"> <label> <input type="checkbox" ng-model="data.includeUserContactInfo" ng-change="handleForwardMessage()">  {{"support_forward_include_user_contact_info" | i18n}}  </label> </div>   </div>   <div class="form-group" ng-show="!descriptionHidden"  bs-focus-on="focusOnDesc"> <label>{{descriptionLabel | i18n}}:</label> <div class="description-box" text-angular ta-toolbar="[ [\'bold\'],[\'insertLink\']]" class="form-control" ng-model="data.action.description"></div> </div>  <div class="form-group" ng-show="assignees && (data.action.actionType==\'ASSIGN\' || data.action.actionType==\'OPEN\')"> <label>{{"support_assignee" | i18n}}:</label> <select class="form-control" ng-model="data.action.assigneeEmail"> <option ng-repeat="assignee in assignees" value="{{assignee.email}}"> {{assignee.firstName}} {{assignee.lastName}}  </option> </select> </div>   <div class="checkbox" ng-show="data.action.actionType == \'NOTE\'  || data.action.actionType==\'ASSIGN\'"> <label> <input type="checkbox" ng-model="data.sendEmail" ng-change="handleSendEmailChanged()" >  {{"support_case_action_send_email" | i18n}}  </label> </div>   <div ng-show="data.sendEmail || data.action.actionType == \'SEND_EMAIL\'"> <div class="form-group" > <label>{{"support_case_recipients" | i18n}}:</label> <input class="form-control" ng-model="data.action.recipients">  <div class="btn btn-link" ng-show="!adminRecipients" ng-click="showAdminRecipientss()"> {{"support_select_admin_recipient" | i18n}} </div>  <div class="form-inline" ng-show="adminRecipients">  <select class="form-control" ng-model="data.newAdminRecipient" ng-change="addAdminRecipients()"> <option value=""> {{"support_select_admin_recipient" | i18n }} </option> <option ng-repeat="recipient in adminRecipients" value="{{recipient.email}}"> {{recipient.firstName}} {{recipient.lastName}}  </option> </select> </div>  </div>  </div>   <div class="checkbox" ng-show="data.action.actionType==\'FORWARD_TO_AUCTION_HOUSE\'"> <label> <input type="checkbox" ng-model="data.action.closeSupportCase">  {{"support_case_action_close" | i18n}} </label> </div>  <div class="attachments" ng-show="!attachmentsHidden">  <div ng-repeat="attachment in uploadedAttachments" class="float attachment" ng-class="{pending:attachment.pending}"> <div class="frame"  style="background-image:{{getAttachmentImageUrl(attachment)}}"> <div ng-if="!attachment.pending && !(attachment.url | isImage) " > {{attachment.url | fileNameFromUrl | shortFileName}} </div>  </div> <div class="btn btn-link" ng-click="removeAttachment(attachment)">{{"remove" |i18n}}</div> </div>  <div class="btn btn-default btn-upload float" upload-button  url="{{\'/resources/uploadFilesToS3\' | formActionPath}}" multiple="{{allowMultiple}}"  on-success="addAttachmentFromResponse(response)" on-error="handleError(response)" on-upload = "addPendingAttachment(files)" >{{\'support_add_attachment\'  | i18n}}</div> <div class="clearfix"></div> </div>   </div>  <div ng-if="!editMode"> <div class="form-group"> <label>{{"time" | i18n}}:</label>  {{data.action.actionTime | date:\'dd/MM/yyyy HH:mm:ss\'}} </div>  <div class="form-group"> <label>{{"support_action_user" | i18n}}:</label>  <span ng-bind-html="data.action.userDisplay"></span> </div>  <div class="form-group"> <label>{{"support_action" | i18n}}:</label>  {{("support_case_action_"+data.action.actionType.toLowerCase()) | i18n}} </div>  <div class="form-group" ng-if="data.action.subject"> <label>{{"subject" | i18n}}:</label>  {{data.action.subject}} </div> <div class="form-group" ng-if="data.action.assigneeEmail"> <label>{{"support_assignee" | i18n}}:</label>  {{data.action.assigneeEmail}} </div> <div class="form-group" ng-if="data.action.description"> <label>{{"description" | i18n}}:</label>  <p ng-bind-html="data.descriptionView"></p> </div> <div class="form-group" ng-if="data.action.recipients"> <label>{{"support_case_recipients" | i18n}}:</label>  {{data.action.recipients}} </div>   <div class="form-group" ng-if="data.action.notes"> <label>{{"notes" | i18n}}:</label>  <p ng-bind-html="data.action.notes"></p> </div> <div class="form-group" class="attachments">{{action.attachments}}  <a class="attachment"  ng-repeat="attachment in data.action.attachments" ng-href="{{attachment}}" target="_blank" > <div class="frame"  style="background-image:{{getAttachmentImageUrl({url:attachment})}}"> <div ng-if="!(attachment | isImage) " > {{attachment  | fileNameFromUrl | shortFileName}} </div> </div>  </a> </div>  </div> </div>   <div class="modal-footer">  <bs-async-button name="saveSupportAction" ng-show="editMode"  class="float" action-fn="save()"  button-class="\'btn-primary common-button \'+currentLang"  label="saveLabel" > </bs-async-button>  <bs-async-button name="deletSupportAction" ng-show="data.action.isDraft && data.action.id"  class="float" action-fn="removeAction()"  button-class="\'btn-danger common-button \'+currentLang" label="\'support_case_delete_draft\'" > </bs-async-button>  <div class="btn btn-link opposite float"  ng-show="!editMode" ng-click="$close()">{{"close" | i18n}}</div>  <div class="btn btn-warning  float"  ng-show="!editMode" ng-click="addAction(\'FORWARD_TO_AUCTION_HOUSE\')">{{"support_case_action_forward_to_auction_house" | i18n}}</div>  <div class="btn btn-default  float"  ng-show="!editMode" ng-click="addAction(\'ASSIGN\')">{{"support_case_action_assign" | i18n}}</div>  <div class="btn btn-default  float"  ng-show="!editMode" ng-click="addAction(\'NOTE\')">{{"support_case_action_note" | i18n}}</div>  <div class="float btn btn-primary" ng-show="!editMode" ng-click="addAction(\'SEND_EMAIL\')"> {{"support_case_action_send_email" | i18n}}   </div>      <div class="opposite float saving-draft visible-lg" ng-if="savingDraft"> <div class="loader-animation"></div> <div class="text-info">{{"support_case_saving_draft" | i18n}}</div> </div>   </div> </div>  '), 
+        $templateCache.put("/portal/templates/shops/shopsMain.html?1.1966", '<div ng-controller="ShopsMainController" class="shops scene" bs-scroll-to-top> <div class="upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"shops" | i18nWithRegion  }}</h1> <div class="short-separator"></div> <h4 ng-bind-html="\'shops_message\' | i18nWithRegion"></h4> </div> </div> </div> <div class="content">  <bs-upper-space-holders> </bs-upper-space-holders>  <bs-shops-list shops="shops" > </bs-shops-list> </div>   </div> '), 
+        $templateCache.put("/portal/templates/shops/catalog/shopCatalog.html?1.1966", '<div ng-controller="CatalogListController" >  <div ng-controller="ShopCatalogController" > <div class="catalog scene"> <div class="content col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders>  <div class="catalog-navigation-panel" bs-text-direction>   <bs-shop-info ng-if="shop" shop="shop" ></bs-shop-info>  <div class="catalog-actions viewport_{{viewPort.viewPortWidth}}" bs-text-direction ng-class="{\'no-categories\':filterData.categories.length==0}" > <bs-catalog-list-filter ng-if="shop && data.items"></bs-catalog-list-filter> </div>  <div class="clearfix"></div>   <div ng-if="pagesData.pageItems.length>0">  <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'upper\'" href-pages="true" ></bs-catalog-list-pagination> <div  bs-scroll-on watched-value="scrollToPagination" offset="-200"></div> </div> </div>  <div ng-if="pagesData.pageItems.length>0"> <div ng-if="!displayeItemsLoader"  ng-include src="\'catalogs/list/catalogItems\' | appTemplate"  ></div> <bs-content-loader loaded="!displayeItemsLoader"></bs-content-loader> <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'lower\'" href-pages="true"></bs-catalog-list-pagination> <bs-content-loader loaded="pagesData.pageItems!=null"></bs-content-loader> </div> </div>   </div> </div> </div>  '), 
+        $templateCache.put("/portal/templates/shops/list/shopEntryNarrow.html?1.1966", '<div class="frame viewport_{{viewPort.viewPortWidth}} " >   <div class="float image"  bs-cloudinary-bg="{{::(shop.resources[\'topItem\'] || shop.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:\'400x400\'}"> </div>  <div class="opposite float texts" >  <h2> {{::shop.house.details.name | langField}}  </h2>  <div class="text" > {{::shop.sentence | langField}}  </div>  <div class="clearfix"></div>  <div class="float orange common-button" > <div class="text"> <a  ng-href="{{(\'/catalog/shop/\'+shop.intKey + \'/1\') | uiHref}}">{{\'shop_to_catalog\' | i18n}}</a> </div> </div>  <div class="clearfix"></div>  </div>  <div class="clearfix"></div>    </div> '), 
+        $templateCache.put("/portal/templates/shops/list/shopEntryWide.html?1.1966", '<div class="frame" >   <div class="image"  bs-cloudinary-bg="{{::(shop.resources[\'topItem\'] || shop.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:\'400x400\'}"> </div>   <div class="texts"> <h2> <span >{{:: shop.house.details.name | langField}}</span> </h2>  <div class="text" > {{::shop.sentence | langField}} </div>    </div>   <div class="center-block  common-button" ng-class="size==\'small\' ? \'yellow\' : \'orange\'" > <div class="text"> <a  ng-href="{{(\'/catalog/shop/\'+shop.intKey+\'/1\') | uiHref}}">{{\'shop_to_catalog\' | i18n}}</a> </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/shops/list/shopsList.html?1.1966", '<div class="row text-center {{:: screenView}} shops-list"> <div  class="shop-entry default-align"  bs-text-direction ui-sref="app.shopCatalog({catalogKey:shop.intKey,page:1})" ng-repeat="shop in shops" ng-if="(devMode  || !shop.hidden)  && shop.orderInd>0"  > <div  ng-if="screenView==\'wide\'" ng-include src="\'shops/list/shopEntryWide\' | appTemplate" > </div>  <div  ng-if="screenView==\'narrow\'" ng-include src="\'shops/list/shopEntryNarrow\' | appTemplate" > </div> </div> </div> '), 
+        $templateCache.put("/portal/templates/alerts/manage/userAlertsMain.html?1.1966", '<div ng-controller="UserAlertsController" class="userAlerts scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"alerts" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <uib-accordion ng-if="currentUser" class="col-lg-8 col-md-9 col-sm-10 col-xs-12 center-block">  <div uib-accordion-group is-open="opened[\'catalogs\']" class="catalogs panel-default noselect">  <ng-include src="\'alerts/manage/newCatalogsSection\' | appTemplate"></ng-include>  </div>  <div uib-accordion-group is-open="opened[\'auctionsStart\']" class="auctions-start panel-default noselect"  bs-text-direction> <ng-include src="\'alerts/manage/auctionsStartSection\' | appTemplate"></ng-include> </div>  <div uib-accordion-group is-open="opened[\'itemAlerts\']" class="item-alerts panel-default noselect"  bs-text-direction ng-if="enableAlerts"> <ng-include src="\'alerts/manage/itemAlertsSection\' | appTemplate"></ng-include> </div>   </uib-accordion>   </div>   </div> '), 
+        $templateCache.put("/portal/templates/alerts/manage/itemAlertsSection.html?1.1966", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_item_alerts_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'itemAlerts\']" >{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-alerts" ng-if="itemsWithAlerts.length==0">{{"user_alerts_item_alerts_none" | i18n}}</div> <div class="item-alert-entry" ng-repeat="item in itemsWithAlerts"> <bs-lot-image lot="item" size="100x100" as-bg="true"  class="float lot-pic"></bs-lot-image>  <div class="float info" ng-style="{width:mobileElementsDimensions.infoWidth+\'px\'}"> <div class="item-index"> {{"lot_number" | i18n}}: {{item.itemIndex}}</div>  <div class="lot-text" ng-bind-html="item | lotText:100 "></div>   <bs-lot-price lot="item"  single-row="true" break-on-row="true"></bs-lot-price>  </div>  <bs-lot-alert-flag  lot="item"></bs-lot-alert-flag>  <bs-lot-badge lot="item" ></bs-lot-badge>  <div class="newLine"></div> </div> </div> '), 
+        $templateCache.put("/portal/templates/alerts/manage/auctionsStartSection.html?1.1966", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-xs-10  float">{{"user_alerts_auctions_start_title" | i18n}}</div> <div class="edit btn-link   col-xs-2  opposite float opposite-align" ng-show="!opened[\'auctionsStart\']" >{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div class="no-auctions" ng-if="auctions.length==0">{{"auction_start_alert_no_auctions" | i18n}}</div> <div class="auction-entry" ng-repeat="auction in auctions"> <div class="float image"  bs-cloudinary-bg="{{(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="{contain:auction.resources[\'topItem\']!=null}"  params="{size:\'100x100\'} "> </div> <div class="float texts col-xs-10"> <div class="name"> {{auction.house.details.name | langField}} - <span ng-if= "auction.number"> {{"auction_label_number" | i18n:{number:auction.number} }}&nbsp;</span> <span ng-if= "!auction.number"> {{auction.name | langField}} <span class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </span>  </div>  <div class="time" > {{auction | auctionTime}}  </div> <div class="description"> <div ng-if= "auction.number" ng-bind-html="auction.name | langField"></div> <!-- If there is no number the name is in the title... --> <div ng-if="auction.shortDetails | langField" style="color:{{auction.textColors.details}}" ng-bind-html="auction.shortDetails | langField"></div> </div> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button> <div class="newLine"></div> </div> </div> '), 
+        $templateCache.put("/portal/templates/alerts/manage/newCatalogsSection.html?1.1966", '<uib-accordion-heading> <div ng-class="currentLang"> <div class="section-name    col-sm-8  float">{{"user_alerts_new_catalogs_title" | i18n}}</div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[\'catalogs\']">{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content" ng-class="section"> <div ng-if="!saved"> <h4>{{"user_alerts_new_catalogs_message" | i18n}}</h4> <div class="alerts-choice-form" > <div class="form-group" ng-click="setChoice(\'ALL_HOUSES_FOR_REGION_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="ALL_HOUSES_FOR_REGION_ALERTS"/> <label ><span></span>{{"user_alerts_all_houses" | i18nWithRegion }}</label>  </div> <div ng-show="false" class="form-group" ng-click="setChoice(\'SOME_HOUSES_ALERTS\')"> <input  type="radio"  ng-model="data.housesAlertChoice" value="SOME_HOUSES_ALERTS"/>  <label><span></span>{{"user_alerts_some_houses" | i18n }}</label>  <div class="housesList" ng-show="housesListVisible"> <div class="caption">{{"user_alerts_choose_houses" | i18n }} </div>  <div class="float house" ng-repeat="house in houses" check-on-click="true"  > <input type="checkbox" bs-checklist-model="data.housesToAlert" checklist-value="house.code" > {{house.details.name | langField}} </div> <div class="clearfix"></div>  </div> </div> <div class="form-group" ng-click="setChoice(\'NO_HOUSES_ALERTS\')"> <input type="radio"  ng-model="data.housesAlertChoice" value="NO_HOUSES_ALERTS"/> <label><span></span>{{"user_alerts_no_houses" | i18n }}</label>  </div> <div class="clearfix"></div> </div> <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"   action-fn="save()" label="\'save\'" > </bs-async-button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <div ng-click="closeAll()" class="cancel btn btn-link">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </div>  <div ng-if="saved"> <h4>{{"user_alerts_saved" | i18n}}</h4> <br><br> <div ng-click="closeAll()" class="btn btn-link btn-lg">{{"close" | i18n}}</div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/alerts/popups/confirmUnsubscriptionPopup.html?1.1966", '<div bs-text-direction > <div class="modal-header"> <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body" > <div class="message" ng-if="!removed" ng-bind-html="\'alrets_unsubscription_message\' | i18n:{name:name}"></div> <div class="message" ng-if="removed" ng-bind-html="\'alrets_unsubscription_removed\' | i18n:{name:name}"></div> </div>  <div class="modal-footer"> <div class="text-center" ng-if="!removed"> <button class="btn btn-link text-warning" ng-click="$close()">{{"cancel" | i18n}}</button>  <button class="btn btn-primary" ng-click="onConfirm()">{{"alrets_unsubscription_confirm" | i18n}}</button> </div>   <div class="text-center" ng-if="removed"> <button class="btn btn-primary" ng-click="$close()">{{"close" | i18n}}</button> </div>   </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/popups/itemAlertPopup.html?1.1966", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"notice" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-bind-html="itemAlertMessage"></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="$close()">{{"close" | i18n}}</button> </div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/popups/installAppPopup.html?1.1966", '<div class="install-app-popup"> <div class="alert-icon"></div> <div class="message-title default-align" ng-bind-html="options.messageTitle|i18n"></div> <div class="message default-align" ng-bind-html="options.message | i18n"></div> <br> <div ng-if="!options.mobileDevice"> <div class="col-xs-4 search-app">{{"app_install_search_app" | i18n }}</div> <div class="col-xs-4 install-app-qr-code"></div> <dic class="col-xs-4"></dic> <div class="clearfix"></div> </div> <div class="app-links"> <install-app-button ng-repeat="platform in options.platforms" platform="platform"></install-app-button> </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/popups/confirmFirstAlertPopup.html?1.1966", '<div bs-text-direction > <div class="modal-header"> <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body" > <div class="alert-icon"></div>  <div class="message" ng-bind-html="messageKey | i18n"></div> </div>  <div class="modal-footer"> <div class="text-center"> <button class="btn btn-link text-warning" ng-click="$close()">{{"cancel" | i18n}}</button>  <button class="btn btn-primary" ng-click="onConfirm()">{{"first_auction_alert_confirm" | i18n}}</button> </div>    </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/popups/auctionStartPopup.html?1.1966", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title">{{"notice" | i18n}}</div>  <button type="button" class="opposite float close"  ng-click="dismiss()">&times;</button> <div class="clearfix"></div> </div>  <div class="modal-body"> <div ng-bind-html="message | i18n:{house:(auction.house | houseName:\'full\' ),url:auction.house.website} "></div> </div>   <div class="modal-footer"> <div class="text-center"> <button ng-if="!auction.catalogOnly && !auction.absenteeBidsOnly" class="btn btn-primary" ng-click="openAuctionSite()">{{"home_auction_enter" | i18n}}</button> <button class="btn btn-link text-warning" ng-click="dismiss()">{{"close" | i18n}}</button> </div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/alerts/common/alertFlag.html?1.1966", '<div   class="alert-flag flag-button "   ng-click="toggleAlert()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()"  >  <div  class="ng-hide toast"  ></div>   </div> '), 
+        $templateCache.put("/portal/templates/portalMain.html?1.1966", '   <div ng-include src="\'components/navigation/upperNavigation\' | appTemplate"></div>   <div  ng-show="!mobileMenuOn" class="page-body" ui-view dir="{{dir}}" ng-show="dataState==\'loaded\'" style="min-height:{{viewPort.innerHeight-300+\'px\'}}"></div>  <bs-content-loader loaded="dataState==\'loaded\'"></bs-content-loader>   <bs-page-footer dir="{{dir}}" ng-show="!mobileMenuOn"></bs-page-footer>   '), 
+        $templateCache.put("/portal/templates/ads/banner.html?1.1966", '<div class="home-banner" ng-class="bannerCode"  ng-show="banner && banner.image"  ng-click="onClick()" > <img class="center-block" ng-src="{{banner.image}}"> </div> '), 
+        $templateCache.put("/portal/templates/ads/promotionInstance.html?1.1966", '<div class="promotion-instance" ng-class="[(promotionInfo.position | underscoreToDashed),(promotionInfo.promotionType | underscoreToDashed)]" bs-text-direction> <div ng-if="promotionInfo"  ng-click="onClick()"> <div ng-if="promotionType==\'HOUSE_PROMOTION\'" >  <img class="float pic" ng-src="{{promotionInfo.imagePath | cloudinary}}">  <div class="float info"> <div class="title">{{promotionInfo.title | langField }}</div> <div class="text"> {{promotionInfo.text  | langField }}</div> </div>  <div class="clearfix"></div> </div>  <div ng-if="promotionType==\'MOBILE_APP_PROMOTION\'" > <div class="float pic install-app-qr-code"></div>  <div class="float info"> <div class="title">	{{\'home_mobile_app_title\' | i18n }}</div> <div class="text">  {{ \'home_mobile_app_text\' | i18n }}</div> </div>  <div class="clearfix"></div> </div>  <div ng-if="promotionType==\'IMAGE_AND_TEXT_AD\'" >  <img class="float pic" ng-src="{{promotionInfo.resources.image | cloudinary}}">  <div class="float info"> <div class="title">{{promotionInfo.title | langField }}</div> <div class="text"> {{promotionInfo.text  | langField }}</div> </div>  <div class="clearfix"></div> </div>  <div ng-if="promotionType==\'BANNER\'" > <img class="pic" ng-src="{{promotionInfo.imagePath | cloudinary}}"> </div>  </div> </div>   '), 
+        $templateCache.put("/portal/templates/ads/homeMobilePromotion.html?1.1966", '<div class="home-mobile-promotion frame" ng-click="showInstallPopup()">  <div class="float install-app-qr-code"></div>  <div class="float texts"> <div class="title"> {{\'home_mobile_app_title\'|i18n}} </div>  <div class="text"> {{\'home_mobile_app_text\'|i18n}} </div> </div>  <div class="clearfix"></div>  </div> '), 
+        $templateCache.put("/portal/templates/catalogs/list/catalogItemWide.html?1.1966", ' <div >  <bs-lot-image lot="::lot" size="220x220" as-bg="true" image-mode="\'fit\'"> </bs-lot-image>  <div  ng-if="::lot.viewOnly && auction.state==\'READY\'"  ng-include src="\'catalogs/elements/auction/lotViewOnlyOverlay\' | appTemplate"  class="lot-view-only-overlay"> </div>  <meta itemprop="image" content="{{::lot | lotImage:\'220x220\'}}"></meta>   <bs-lot-badge lot="::lot" ></bs-lot-badge> <div class="search-score" ng-if="lot.searchScore && devMode">{{lot.searchScore}}</div>  <div class="item-bottom-part">  <div class="above-separator"> <span class="lot-number" itemprop="sku" ng-if="lot.itemIndex"> {{"lot" | i18n}} {{::lot.itemIndex}}: </span> <span class=\'overseas-icon\' ng-if=":: lot.extraInfo==\'overseas\'"> </span> <span itemprop="name" ng-bind-html=":: lot | lotText:70 "></span>  </div>  <div class="short-separator"></div>  <div class="below-separator" bs-text-direction> <div class="not-published" ng-if="lot.published==false"> {{\'lot_unpublished_from_shop\' | i18n }}  </div> <div ng-if="lot.purchase || !lot.leadingBid || (lot.leadingBid.underReserved && lot.auction.state==\'ENDED\')"> <bs-lot-price lot="::lot" max-width="125" single-row="true" break-on-row="false"></bs-lot-price>  <a class="orange common-button {{::currentLang}}" ng-href="{{::lot | lotHref : (catalogSource || \'catalog\')}}" ng-hide="lot.published==false"> <div class="text"> {{"view_lot" | i18n }} </div> </a> </div>  <leading-bid ng-if="lot.leadingBid" lot="lot" source="catalogSource" ></leading-bid>  <bs-lot-view-only ng-if="::lot.viewOnly" lot="lot" > </bs-lot-view-only>  <past-lot-absentee lot="lot"> </past-lot-absentee> </div>  </div>  </div>    '), 
+        $templateCache.put("/portal/templates/catalogs/list/catalogItems.html?1.1966", '<div class="list" ng-class="{\'mobile-list\':!viewPort.isWideDevice}">  <div class="row"> <div class="item" itemscope itemtype="http://schema.org/Product" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="::{\'pc-item\':viewPort.isWideDevice,\'mobile-item\':!viewPort.isWideDevice} " ng-style="{width:itemWidth}"; ng-hide="postSaleMode && !lot.startPrice && !lot.purchase" bs-scroll-on="::lot.idInApp == scrollTo" offset="-200" >  <div  itemprop="url"  class="item-link" ng-click="gotoLot(lot, \'catalog\')" > <div  ng-if="::viewPort.isWideDevice"     ng-include src="\'catalogs/list/catalogItemWide\' | appTemplate" class="frame"> </div> <div  ng-if="::!viewPort.isWideDevice" ng-include src="\'catalogs/list/catalogItemNarrow\' | appTemplate"> </div> </div> <bs-lot-favorite-flag lot="::lot"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="::lot"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/list/catalogListFilter.html?1.1966", '<div class="filter-panel" >  <div class="float section" > <form name=\'searchForm\' novalidate bs-form  bs-submit="search()" class="search-form"  dir="{{dir}}" > <bs-form-group field-name="phrase"> <input  placeholder="{{(shop ? \'shop_search_placeholder\' : \'search_in_catalog\') | i18n}}" name="phrase"  class="form-control"  ng-model="filterData.phrase"  bs-enter-key-action="doSearch()" ng-focus="onInputFocus()" /> <div class="button " ng-click="doSearch()">  </div> </bs-form-group> </form> <div class="result" >{{resultMessage}} <span class="clear-link" ng-if="filterData.phrase" ng-click="clearSearch()">{{"search_clear" | i18n}}</span></div> <div class="sold-state" ng-if="showSoldState"> <select  ng-model="filterData.soldState" ng-change="applySoldStateFilter()"  ng-options="getSoldStateLabel(soldState) for soldState  in [\'all\',\'sold\',\'unsold\']"> </select> </div> </div>  <div class="opposite float section"> <div class="categories" ng-class="{invisible:filterData.categories.length==0}"> <select  ng-model="filterData.category" ng-change="onCategoryChanged()">  <option ng-repeat="category in filterData.categories" value="{{category.value}}" dir="{{category.name | guessDirection}}" class="default-align">{{category.name}}</option>  </select> </div>  <div class="sort-order" ng-class="{invisible:contentType!=\'ART\'}"> <span class="sort-label">{{"sort_by" | i18n }}:</span> <select  ng-model="filterData.selectedSortOrder" ng-change="updateSortOrder()" ng-options="sortOrder.value as sortOrder.text for sortOrder in filterData.sortOrders"> </select> </div>   </div>      <div class="clearfix"></div>  </div> '), 
+        $templateCache.put("/portal/templates/catalogs/list/catalogItemNarrow.html?1.1966", '<div class="lot-row" >  <bs-lot-badge lot="::lot"  ng-style="::{width:mobileElementsDimensions.infoWidth+\'px\'}"></bs-lot-badge>  <bs-lot-image lot="::lot" size="260x176" as-bg="true" image-mode="\'fit\'" class="lot-pic"></bs-lot-image>  <div class="info" ng-style="::{width:mobileElementsDimensions.infoWidth+\'px\'}" bs-current-lang> <div class="item-index" ng-if="lot.itemIndex"> {{"lot" | i18n}} {{::lot.itemIndex}}  <span class=\'overseas-icon\' ng-if=":: lot.extraInfo==\'overseas\'"> </span> </div>  <div class="lot-text" ng-bind-html="::lot | lotText:(lot.leadingBid ? 100 : 120) "></div>  <bs-lot-price ng-if="lot.purchase || !lot.leadingBid " lot="lot"  single-row="{{true}}" break-on-row="{{true}}"></bs-lot-price>  </div>  <leading-bid ng-if="lot.leadingBid" lot="::lot"  source="catalogSource" ng-style="::{width:mobileElementsDimensions.infoWidth+\'px\'}"></leading-bid>  <bs-lot-view-only ng-if="::lot.viewOnly" lot="lot" > </bs-lot-view-only>  <past-lot-absentee lot="lot"> </past-lot-absentee>  </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/list/catalogPagination.html?1.1966", ' <div class="catalog-pagination text-center" ng-class="[currentLang, positionInPage, {\'lifted\':data.lifted}]" bs-text-direction  >  <bs-pagination  ng-if="data.availableWidth" pages-data="pagesData"  href-pages="hrefPages" on-current-page-change="onCurrentPageChange()"  available-width="data.availableWidth"  >  </bs-pagination>   </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/search/searchInput.html?1.1966", '<input  type="text" uib-typeahead="suggestion for suggestion in getSuggestions($viewValue)"  typeahead-on-select = "onSuggestionSelect($item)" typeahead-min-length="0" placeholder="{{\'catalog_search_all\' | i18n}}"  class="form-control"  debug="true"   ng-model="data.searchToken"  /> '), 
+        $templateCache.put("/portal/templates/catalogs/search/tagsScene.html?1.1966", '<div ng-controller="TagsSceneController" bs-scroll-to-top > <div class="tags scene" > <div class="content" ng-class="{\'hello-space\':currentUser}">  <div class="main-tags" ng-if="displayState==\'mainTags\'"> <div ng-repeat="tag in mainTags" class="menu-row" ng-click="onMainTagClick(tag)"> <div class="text" > {{("tag_"+tag.trim()) | i18n }} </div> </div>  <div ng-if="!mainTags" class="no-tags-space">  </div>  <div ng-show="shopsVisible" class="yellow menu-row" ui-sref="app.shops"> <div class="text"> {{"shops" | i18n }} </div> </div>  <div ng-repeat="portalScene in otherPortalScenes" class="yellow menu-row" ng-click="gotoPortalScene(portalScene)">  <div class="text"> {{ linkText(portalScene) }} </div> </div>   </div>   <div class="secondary-tags" ng-if="displayState==\'secondaryTags\'">  <div ng-repeat="tag in secondaryTags" class="menu-row" ng-click="gotoTagPage(tag)"> <div class="text"> {{("tag_"+tag.trim()) | i18n }} </div> </div>  <div class="text-center"> <div  class="yellow menu-row back-to-main" ng-click="showMainTags()"> <div class="text"> {{"tags_back_to_main" | i18n }} </div> </div>  </div>   </div>  </div> </div> </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/search/searchItems.html?1.1966", ' <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row">  <div class="item with-house-badge" bs-text-direction ng-repeat="lot in pagesData.pageItems" ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia}" ng-click="gotoLot(lot)">  <div class="item-link"  bs-scroll-on="lot.id == scrollTo" > <div ng-if="viewPort.pcMedia"     ng-include src="\'catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div>  <bs-lot-favorite-flag lot="::lot"> </bs-lot-favorite-flag>  <bs-lot-alert-flag class="float" lot="::lot"></bs-lot-alert-flag>  </div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/search/searchMain.html?1.1966", '<div ng-controller="SearchController" > <div class="catalog search scene"> <div class="content col-xs-12" > <bs-upper-space-holders> </bs-upper-space-holders>  <form name=\'searchForm\' novalidate  class="float global-search-form" bs-text-direction bs-enter-key-action="doSearch()"> <bs-form-group field-name="phrase" label="catalog_search_all" class="phrase">  <bs-search-input></bs-search-input>  </bs-form-group> <div class="button noselect" ng-click="doSearch()"> <div class="icon"> </div> </div> <div class="clearfix"></div> </form>  <div class="opposite float"> <div class="home btn-link" ui-sref="app.home">{{"home_back_to" | i18n }}</div> <br> </div>   <div class="clearfix"></div>  <div class="result" ng-class="{invisible:!data.searchedToken && !data.tag}" >  <span ng-if="searching">{{"search_searching" | i18n}}</span> <span ng-if="!searching && resultMessage"> {{resultMessage}} </span>  </div>  <div class="time-form" > <div class="radio" ng-click="setSearchTime(\'FUTURE\')"> <label> <input type="radio"  ng-model="data.searchTime" value="FUTURE"> {{"search_future" | i18n }} </label> </div> <div clas="clearfix"></div> <div class="radio" ng-click="setSearchTime(\'PAST\')"> <label> <input type="radio"   ng-model="data.searchTime" value="PAST"> {{"search_past" | i18n }} </label> </div> </div>  <div class="sort-order" ng-show="contentType==\'ART\'"> <div class="float text">{{"sort_by" | i18n }}:&nbsp;</div> <select class="float" ng-change="updateSortOrder()" ng-model="data.selectedSortOrder"> <option ng-repeat="code in data.sortOrderCodes" value="{{code}}">{{getSortOrderName(code)}}</option> </select> <div class="clearfix"></div> </div> <div class="tags-selection" bs-text-direction  > <select	ng-if="tags.length>0" ng-model="data.tag" ng-change="doSearch()" bs-text-direction> <option value="">{{"tags_all"|i18n}}</option> <optgroup ng-repeat="mainTag in tags" ng-if="mainTag.entries.length>1"  label="{{(\'tag_\'+mainTag.key) |i18n }}"> <option ng-repeat="subTag in mainTag.entries" value="{{subTag}}">{{(\'tag_\'+mainTag.key) |i18n }} > {{(\'tag_\'+subTag) |i18n }}</option> </optgroup> <option ng-repeat="mainTag in tags" ng-if="mainTag.entries.length<=1" value="{{mainTag.key}}" >{{(\'tag_\'+mainTag.key) |i18n }}  </option> </select> </div>  <div class="house-selection" bs-text-direction > <houses-dropdown on-house-selected="setHouseFilter" initial-house-code="{{data.houseCode}}"> </houses-dropdown> </div>  <div class="clearfix"></div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="currentLang==\'ru\' ? \'\' : \'upper\'" on-current-page-change="onPageChange()" ></bs-catalog-list-pagination> <div ng-if="loadState==\'loaded\'" bs-scroll-on watched-value="scrollToPagination"   offset="-200"></div> <div ng-if="loadState==\'loaded\'"> <br> <div  ng-include src="\'catalogs/search/searchItems\' | appTemplate"  ></div> </div>   <div ng-if="loadState==\'loading\'"> <bs-content-loader > </bs-content-loader> </div>  <bs-catalog-list-pagination data="data" pages-data="pagesData"  position-in-page="\'lower\'" on-current-page-change="onPageChange()"></bs-catalog-list-pagination>   </div> </div> </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/lotPageMain.html?1.1966", '<div ng-controller="LotPageController" > <div class="catalog  scene lotPage">  <div class="content col-xs-12" >  <bs-upper-space-holders> </bs-upper-space-holders> <div ng-if="data.item "> <div ng-include src="\'catalogs/lotPage/pc/lotPagePc\' | appTemplate" ng-if="viewPort.pcMedia"></div> <div ng-include src="\'catalogs/lotPage/mobile/lotPageMobile\' | appTemplate" ng-if="viewPort.mobileMedia"></div> </div> <bs-content-loader loaded="data.item!=null"></bs-content-loader> <div class="clearfix"></div>  </div> </div> </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/pc/lotPagePc.html?1.1966", '<div  itemscope itemtype="http://schema.org/Product"> <bs-auction-info auction="data.catalogOwner" lot="data.item" ng-if="data.item.auctionId && data.catalogOwner" ></bs-auction-info> <bs-shop-info shop="data.catalogOwner" ng-if="data.item.shopId && data.catalogOwner" minimal-view="true" ></bs-shop-info>   <table> <tr> <td class="info-td"> <div ng-include src="\'catalogs/lotPage/common/lotNumber\' | appTemplate" ></div>  <div class="upper-title" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}" > <h2 class="lot-name"  itemprop="name" ng-bind-html="data.shortTitle" > </h2>  <div ng-if="showMore" dir="{{textDirection}}" class="btn btn-link more-link" ng-click="scrollToDescription()">  <span bs-text-direction> {{"more" | i18n }}... </span> </div> <div ng-include src="\'catalogs/lotPage/common/overseas\' | appTemplate" ></div> </div>  </td>   <td class="float actions-td"> <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </td> </tr> <tr>  <td class="info-td">  <div  ng-if="data.item.videoUrl" ng-include src="\'catalogs/lotPage/common/videoLink\' | appTemplate" ></div> <bs-lot-page-images lot="data.item"></bs-lot-page-images> </td> <td class="float actions-td">  <bs-lot-bid-form ng-if="data.item.auction"  lot="data.item" ></bs-lot-bid-form>  <div class="car-info-section" itemprop="description" ng-if="contentType==\'CARS\'" bs-scroll-on watched-value="scrollToDescriptionFlag"  > <br> <div ng-if="data.item.carInfo" class="car-info" ng-include src="\'catalogs/lotPage/common/carInfo\' | appTemplate" ></div> <h4 ng-if="!data.item.carInfo"  class="description-text" ng-bind-html="data.lotDesc" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}"></h4> <br> </div>  <div class="real-estate-info-section" itemprop="description" ng-if="contentType==\'REAL_ESTATE\'" bs-scroll-on watched-value="scrollToDescriptionFlag"  > <br> <div  class="real-estate-info" ng-include src="\'catalogs/lotPage/common/realEstateInfo\' | appTemplate" ></div> <br> </div>    <bs-shop-purchase-form ng-if="data.item.shop"  lot="data.item"></bs-shop-purchase-form> <bs-lot-share-buttons class="opposite float" lot="data.item" text="data.shortTitle" ng-if="contentType!=\'CARS\'"></bs-lot-share-buttons> <div class="clearfix"></div>  <div ng-include src="\'catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>  <bs-lot-tags lot="data.item"></bs-lot-tags>    <div class="clearfix"></div> <br> </td>  </tr>  </table>   <div class="lot-description-section" itemprop="description" ng-if="data.lotDesc && contentType!=\'CARS\'" bs-scroll-on watched-value="scrollToDescriptionFlag" > <h4 class="description-text" ng-bind-html="data.lotDesc" dir="{{textDirection}}" ng-class="{\'forced-direction\':forcedDirection}"></h4> </div>  <bs-lot-page-navigation lot="data.item"></bs-lot-page-navigation> </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/pc/lotZoomModal.html?1.1966", '<div class="zoom-image noselect"> <div class="modal-header"> <button type="button" class="close" ng-click="$close()">&times;</button>  <bs-lot-page-zoom lot="data.item" initial-image-ind="data.imageInd"> </bs-lot-page-zoom> </div>  </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/mobile/lotZoomSubScene.html?1.1966", '<div class="lot-sub-scene zoom" ng-style="{height:viewPort.clientHeight-150}" bs-scroll-to-top>  <a class="btn btn-link back" ui-sref="^">{{"lot_back" | i18n : {number:data.item.itemIndex} }}</a> <bs-lot-page-zoom lot="data.item"> </bs-lot-page-zoom>  </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/mobile/lotPageMobile.html?1.1966", '<div> {{data.auction.id}} <div ng-show="(\'app.lotPage\' | isState) || (\'app.lotPageWithDesc\' | isState)">  <bs-auction-info auction="data.item.auction" lot="data.item" ng-if="data.item.auction && ($stateParams.source==\'search\' || data.item.auction.house.auctionBasedUserApproval)" ></bs-auction-info>  <div class="first-row"> <bs-lot-page-navigation lot="data.item" class="opposite float"></bs-lot-page-navigation> <div class="float flags" ng-class="source" bs-text-direction> <bs-lot-favorite-flag class="float" lot="data.item"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="data.item"></bs-lot-alert-flag> </div> <div class="clearfix"></div> </div>  <div class="second-row">  <div ng-include src="\'catalogs/lotPage/common/lotNumber\' | appTemplate" ></div>  <div class="clearfix"></div> </div>  <div class="upper-title" dir="{{textDirection}}"> <h2 class="lot-name" ng-bind-html="data.showFullText ? data.fullTitle : data.shortTitle" > </h2>  <div ng-include src="\'catalogs/lotPage/common/overseas\' | appTemplate" ></div> <div ng-if="showMore && !data.showFullText" class="btn btn-link more-link" ng-click="showFullText()"> {{"more" | i18n }}... </div>  <bs-lot-badge lot="data.item" ></bs-lot-badge>  </div>  <div class="lot-description-section" ng-show="data.showFullText" dir="{{textDirection}}"> <div class="description-text" ng-bind-html="data.lotDesc"></div>  </div>  <div  ng-if="data.item.videoUrl" ng-include src="\'catalogs/lotPage/common/videoLink\' | appTemplate" ></div>  <bs-lot-page-images lot="data.item"></bs-lot-page-images>   <bs-lot-share-buttons lot="data.item" text="data.shortTitle"></bs-lot-share-buttons>   <bs-lot-bid-form ng-if="data.item.auction" lot="data.item" ></bs-lot-bid-form>  <bs-shop-purchase-form ng-if="data.item.shop"  lot="data.item"></bs-shop-purchase-form>  <div ng-if="data.item.carInfo" class="car-info-section" ng-include src="\'catalogs/lotPage/common/carInfo\' | appTemplate" ></div>  <div ng-if="data.item.realEstateInfo" class="real-estate-info-section" ng-include src="\'catalogs/lotPage/common/realEstateInfo\' | appTemplate" ></div>  <div ng-include src="\'catalogs/lotPage/common/lotPageInfoLinks\' | appTemplate" ></div>  <bs-lot-tags lot="data.item"></bs-lot-tags>  <div class="clearfix"></div> <br><br> <div class="opposite float">  <bs-lot-page-navigation lot="data.item"  ></bs-lot-page-navigation> </div>  <div class="clearfix"></div> </div>   <div ui-view > </div>   </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/videoLink.html?1.1966", '<a ng-href="{{data.item.videoUrl}}" class="video-link" target="_blank">{{"lot_click_car_video_url" | i18n}}</a> '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/images/lotPageImages.html?1.1966", '<div class="lot-images-section"> <div class="big-image zoom-in-cursor" > <bs-lot-image lot="lot" size="{{mainImagewidth}}x" image-ind="0" ng-click="zoomImage(lot, 0)" ></bs-lot-image> </div>   <div class="thumbs" ng-if="lot.imagesList.length>1"> <div ng-repeat = "imageName in lot.imagesList" class="float thumb zoom-in-cursor" ng-click="zoomImage(lot, $index)" ng-if="!$first"> <bs-lot-image   lot="lot" size="x80" image-ind="$index"> </bs-lot-image> </div> <div class="clearfix"></div> </div>  </div>    '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/images/lotPageZoom.html?1.1966", '<div> <div class="lot-page-zoom-image-navigation" ng-if="lot.imagesList.length>1" dir="ltr"> <div class="prev link " ng-click="prevImage()"><div class="text">◀</div></div>  <div class="thumbs" ng-style="{\'max-width\':options.maxThumbsWidth}"> <div ng-repeat = "imageName in lot.imagesList"  class="thumb"  thumb-ind="$index" ng-click="setZoomImage($index)" ng-class="{selected:selectedImageInd == $index}"> <bs-lot-image   lot="lot" size="x50" image-ind="$index"> </bs-lot-image> </div> </div> <div class="prev link noselect" ng-click="nextImage()"><div class="text">▶</div></div> <div class="clearfix"></div> </div>  <div class="big-image" ng-class="cursorZoomClass"> <bs-lot-image  lot="lot" image-ind="selectedImageInd" watchable="true" enable-magnifier="{{options.enableMagnifier}}"  size="{{options.size}}" move-in-frame="options.moveInFrame"  as-bg="options.asBg"  image-mode="options.imageMode" debug="true"   loaded-image-info="loadedImageInfo"> </bs-lot-image> </div>   </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/increments.html?1.1966", '<div class="increments-table">  <table class="table table-striped table-bordered table-hover" dir="{{dir}}"> <tr> <th class="default-align">{{"increment_price" | i18n}}</th> <th class="default-align">{{"increment_step" | i18n}}</th> </tr> <tr ng-repeat="step in options.data.steps"> <td class="default-align">{{step.price | sumInCurrency:options.data.currency}}</th> <td class="default-align">{{step.increment | sumInCurrency:options.data.currency}}</th> </tr> </table>  </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/realEstateInfo.html?1.1966", '<table> <tbody> <tr ng-if="realEstateInfo.propertyType"> <th>{{"property_type" | i18n}}</th> <td>{{realEstateInfo.propertyType}}</td> </tr>  <tr ng-if="realEstateInfo.city"> <th>{{"city" | i18n}}</th> <td>{{realEstateInfo.city}}</td> </tr>   <tr ng-if="realEstateInfo.neighborhood"> <th>{{"neighborhood" | i18n}}</th> <td>{{realEstateInfo.neighborhood}}</td> </tr>  <tr ng-if="realEstateInfo.address"> <th>{{"address" | i18n}}</th> <td>{{realEstateInfo.address}}</td> </tr>   <tr ng-if="realEstateInfo.appraiserEstimate"> <th>{{"appraiser_estimate" | i18n}}</th> <td>{{realEstateInfo.appraiserEstimate | sumInCurrency:data.item.auction.catalogInfo.currency}}</td> </tr>  <tr ng-if="realEstateInfo.minBidPrice && data.item.auction.state!=\'ENDED\'"> <th>{{"min_bid_price" | i18n}}</th> <td>{{realEstateInfo.minBidPrice | sumInCurrency:data.item.auction.catalogInfo.currency}}</td> </tr>  <tr ng-if="realEstateInfo.lastDateForBids"> <th>{{"last_date_for_bids" | i18n}}</th> <td>{{realEstateInfo.lastDateForBids}}</td> </tr>   <tr ng-if="realEstateInfo.block"> <th>{{"property_block" | i18n}}</th> <td>{{realEstateInfo.block}}</td> </tr>  <tr ng-if="realEstateInfo.plot"> <th>{{"property_plot" | i18n}}</th> <td>{{realEstateInfo.plot}}</td> </tr>  <tr ng-if="realEstateInfo.subPlot"> <th>{{"property_sub_plot" | i18n}}</th> <td>{{realEstateInfo.subPlot}}</td> </tr>      <tr ng-if="realEstateInfo.rooms"> <th>{{"rooms" | i18n}}</th> <td>{{realEstateInfo.rooms}}</td> </tr>  <tr ng-if="realEstateInfo.balconies"> <th>{{"balconies" | i18n}}</th> <td>{{realEstateInfo.balconies}}</td> </tr>  <tr ng-if="realEstateInfo.size"> <th>{{"size" | i18n}}</th> <td>{{realEstateInfo.size | readableNumber}} {{"unit_square_meter" | i18n}}</td> </tr>  <tr ng-if="realEstateInfo.floor"> <th>{{"building_floor" | i18n}}</th> <td> {{realEstateInfo.floor}} <span ng-if="realEstateInfo.floorsInBuilding" >{{(\'of_floors\' | i18n : {floors:realEstateInfo.floorsInBuilding}) }}</span></td>  </tr>  <tr ng-if="realEstateInfo.propertyCondition"> <th>{{"property_condition" | i18n}}</th> <td>{{realEstateInfo.propertyCondition}}</td> </tr>  <tr ng-if="realEstateInfo.parking"> <th>{{"parking" | i18n}}</th> <td>{{realEstateInfo.parking}}</td> </tr>  <tr ng-if="realEstateInfo.mamad"> <th>{{"mamad" | i18n}}</th> <td>{{realEstateInfo.mamad}}</td> </tr>  <tr ng-if="realEstateInfo.elevator"> <th>{{"elevator" | i18n}}</th> <td>{{realEstateInfo.elevator}}</td> </tr>  <tr ng-if="realEstateInfo.grate"> <th>{{"grate" | i18n}}</th> <td>{{realEstateInfo.grate}}</td> </tr>  <tr ng-if="realEstateInfo.disabledAccess"> <th>{{"disabled_access" | i18n}}</th> <td>{{realEstateInfo.disabledAccess}}</td> </tr>  <tr ng-if="realEstateInfo.airCondition"> <th>{{"air_condition" | i18n}}</th> <td>{{realEstateInfo.airCondition}}</td> </tr>  <tr ng-if="realEstateInfo.storeroom"> <th>{{"storeroom" | i18n}}</th> <td>{{realEstateInfo.storeroom}}</td> </tr>  <tr ng-if="realEstateInfo.notes"> <th>{{"notes" | i18n}}</th> <td ng-bind-html="realEstateInfo.notes | brLines"></td> </tr>     </tbody> </table>  <div ng-if="documents.length>0 && data.item.auction.state!=\'ENDED\'"> <div class="documents-title">{{"documents" | i18n}}:</div> <table> <tbody> <tr ng-repeat="doc in documents" ng-if="doc.link"> <th >{{doc.label}}</th> <td><label class=\'btn btn-link\' ng-click="openWindow(doc.link | documentUrl)" >{{"download" | i18n}}</label> </td> </tr> </tbody> </table> </div> '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/overseas.html?1.1966", '<div class=\'extrainfo-overseas\' ng-if="data.item.extraInfo==\'overseas\'"> <div class="float icon"></div> <div class="float text">{{"lot_from_overseas" | i18n }}</div> <div class="clearfix"></div> </div> '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/lotPageInfoLinks.html?1.1966", '<div bs-text-direction> <div class="info-link default-align" ng-click="toggleFavorite()"> <span ng-if="!data.item.isFavorite"> <span class="btn btn-link">{{"add_to_favorites" | i18n }}</span> </span>  <span ng-if="data.item.isFavorite" class="btn btn-link">{{"remove_from_favorites" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:favoriteToastMessage,off:!favoriteToastMessage}">{{favoriteToastMessage | i18n}}</span> </div>  <div class="info-link default-align" ng-if="itemAlertsEnabled" ng-click="toggleItemAlert()"> <span ng-if="!data.item.itemAlertOn"> <span class="btn btn-link">{{"item_alert_add" | i18n }}</span> </span> <span ng-if="data.item.itemAlertOn" class="btn btn-link">{{"item_alert_remove" | i18n }}</span> <span class="fade-in-out fade toast" ng-animate  ng-class="{on:itemAlertToastMessage,off:!itemAlertToastMessage}">{{itemAlertToastMessage | i18n}}</span> </div>  <div ng-if="data.item.house.hasTerms" class="btn btn-link info-link default-align" ng-click="openAuctionHouseTerms()" >  {{ (contentType==\'ART\' ? "house_terms" : "terms_of_sale") | i18n:{house:(data.item.house.details.name | langField)} }} </div>  <div class="btn btn-link info-link default-align" ng-if="data.auction && data.auction.state!=\'ENDED\'" ng-click="showIncrements()" > {{"price_increments" | i18n }}</div>  <div class="info-link default-align" ng-click="showInquiryForm()"  > <span class="btn btn-link">  {{"lot_page_inquiry" | i18n }} </span>  <span class="fade-in-out fade toast" ng-animate  ng-class="{on:showInquiryToast,off:!showInquiryToast}">{{"lot_page_inquiry_sent" | i18n}}</span> </div>  <div class="info-link default-align" ng-if="data.item.auction.lotPageLink"  > <a class="btn btn-link" target="_blank" ng-href="{{data.item.auction.lotPageLink}}">  {{"lot_page_external_link" | i18n :{houseName:(data.item.house.details.name | langField)} }} </a>  </div>     <a ng-show="shortLink" ng-href="{{shortLink}}" class="no-break dev" target="_blank">{{shortLink}}</a>  </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/inquiry/inquiryForm.html?1.1966", '<div class="inquiry-form" ng-controller="InquiryFormController"  ng-init="init()">  <p> <label>{{"inquiry_form_to" | i18n }}:&nbsp;</label>{{"house_full_name_art" | i18n:{house:options.data.house} }} </p>  <br> <p> <label>{{"subject" | i18n }}:&nbsp;</label><span ng-bind-html="inquiryData.subject"></span> </p>  <br>  <form name=\'inquiryForm\'  novalidate bs-form  bs-submit="sendInquiry()"> <bs-form-group field-name="content" label="inquiry_form_content"> <label></label> <bs-form-validation-message  ></bs-form-validation-message> <textarea  rows="7"  class="form-control"  required name="content" ng-model="inquiryData.content"> </textarea>  </bs-form-group>  </form>     </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/carInfo.html?1.1966", ' <table> <tbody> <tr ng-if="carInfo.manufacturer"> <th>{{"manufacturer" | i18n}}</th> <td>{{carInfo.manufacturer}}</td> </tr>  <tr ng-if="carInfo.model"> <th>{{"model" | i18n}}</th> <td>{{carInfo.model}}</td> </tr> <tr ng-if="carInfo.finish"> <th>{{"car_finish" | i18n}}</th> <td>{{carInfo.finish}}</td> </tr>  <tr ng-if="carInfo.modelYear"> <th>{{"model_year" | i18n}}</th> <td>{{carInfo.modelYear}}</td> </tr> <tr ng-if="carInfo.dateOnRoad"> <th>{{"date_on_road" | i18n}}</th> <td> <span dir=\'ltr\'> <span ng-if="carInfo.dateOnRoad.split(\'-\')[1]">{{carInfo.dateOnRoad.split(\'-\')[1]}} / </span> {{carInfo.dateOnRoad.split(\'-\')[0]}} </span> </td> </tr>  <tr ng-if="carInfo.carNumber"> <th>{{"car_number" | i18n}}</th> <td>{{carInfo.carNumber}}</td> </tr>  <tr ng-if="carInfo.vin"> <th>{{"car_vin" | i18n}}</th> <td>{{carInfo.vin}}</td> </tr>  <tr ng-if="carInfo.certificate"> <th>{{"car_certificate" | i18n}}</th> <td>{{carInfo.certificate}}</td> </tr>    <tr ng-if="carInfo.tariffPrice"> <th>{{"tariff_price" | i18n}}</th> <td>{{carInfo.tariffPrice | sumInCurrency:data.item.auction.catalogInfo.currency}}</td> </tr>   <tr ng-if="carInfo.mileage"> <th>{{"mileage" | i18n}}</th> <td>{{carInfo.mileage | readableNumber}} {{"unit_km" | i18n}}</td> </tr>  <tr ng-if="carInfo.carType"> <th>{{"car_type" | i18n}}</th> <td>{{carInfo.carType}}</td> </tr>  <tr ng-if="carInfo.gear"> <th>{{"gear" | i18n}}</th> <td>{{carInfo.gear}}</td> </tr> <tr ng-if="carInfo.color"> <th>{{"color" | i18n}}</th> <td>{{carInfo.color}}</td> </tr> <tr ng-if="carInfo.engine"> <th>{{"engine" | i18n}}</th> <td>{{carInfo.engine}}</td> </tr> <tr ng-if="carInfo.engineVolumeCc"> <th>{{"engine_volume" | i18n}}</th> <td>{{carInfo.engineVolumeCc  | valueWithUnits:"cc":data.item.house }}</td> </tr> <tr ng-if="carInfo.drive"> <th>{{"drive" | i18n}}</th> <td>{{carInfo.drive}}</td> </tr> <tr ng-if="carInfo.horsePower"> <th>{{"horse_power" | i18n}}</th> <td>{{carInfo.horsePower | valueWithUnits:"hp":data.item.house }}</td> </tr>   <tr ng-if="carInfo.vehicleClass"> <th>{{"vehicle_class" | i18n}}</th> <td>{{carInfo.vehicleClass}}</td> </tr>  <tr ng-if="carInfo.doors"> <th>{{"doors" | i18n}}</th> <td>{{carInfo.doors}}</td> </tr>  <tr ng-if="carInfo.country"> <th>{{"country" | i18n}}</th> <td>{{carInfo.country}}</td> </tr>  <tr ng-if="carInfo.wheel"> <th>{{"wheel" | i18n}}</th> <td>{{carInfo.wheel}}</td> </tr>  <tr ng-if="carInfo.customs"> <th>{{"customs" | i18n}}</th> <td>{{carInfo.customs}}</td> </tr>     <tr ng-if="carInfo.hand"> <th>{{"hand" | i18n}}</th> <td>{{carInfo.hand}}</td> </tr> <tr ng-if="carInfo.ownership"> <th>{{"current_ownership" | i18n}}</th> <td>{{carInfo.ownership}}</td> </tr> <tr ng-if="carInfo.previousOwnership"> <th>{{"previous_ownership" | i18n}}</th> <td>{{carInfo.previousOwnership}}</td> </tr>    <tr ng-if="carInfo.numberOfOwners"> <th>{{"number_of_owners" | i18n}}</th> <td>{{carInfo.numberOfOwners}}</td> </tr>  <tr ng-if="carInfo.ownershipYears"> <th>{{"ownership_years" | i18n}}</th> <td>{{carInfo.ownershipYears}}</td> </tr>   <tr ng-if="carInfo.hasKeys"> <th>{{"has_keys" | i18n}}</th> <td>{{carInfo.hasKeys}}</td> </tr>  <tr ng-if="carInfo.additions"> <th>{{"additions" | i18n}}</th> <td>{{carInfo.additions}}</td> </tr> <tr ng-if="carInfo.overview"> <th>{{"overview" | i18n}}</th> <td>{{carInfo.overview}}</td> </tr>  <tr ng-if="carInfo.location"> <th>{{"car_location" | i18n}}</th> <td>{{carInfo.location}}<div class="recommend-view-car">{{"recommend_view_car" | i18n}}</div></td> </tr>  <tr ng-if="data.carInfoNotes"> <th>{{"notes" | i18n}}</th> <td ng-bind-html="data.carInfoNotes | brLines"></td> </tr> </tbody> </table> <div ng-if="documents.length>0 && (data.item.auction.state!=\'ENDED\' || devMode)"> <div class="documents-title">{{"documents" | i18n}}:</div> <table> <tbody> <tr ng-repeat="doc in documents" ng-if="doc.link"> <th >{{doc.label}}</th>  <td><label class=\'btn btn-link\' ng-click="openWindow(doc.link | documentUrl)" >{{"download" | i18n}}</label></td> </tr> </tbody> </table> </div> '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/navigation/lotPageNavLink.html?1.1966", '<div class="float">  <div ng-if="name==\'previous\'"> <div class="float arrow {{lang}}" ng-class="{\'point-left\':direction==\'ltr\', \'point-right\':direction==\'rtl\'}"></div> <div class="float text" ng-if="showText">&nbsp; {{"to_previous_lot" | i18n  }}</div> </div>  <div ng-if="name==\'next\'"> <div class="float text" ng-if="showText">{{"to_next_lot" | i18n  }}&nbsp;</div> <div class="float arrow {{lang}}" ng-class="{\'point-right\':direction==\'ltr\', \'point-left\':direction==\'rtl\'}"></div> </div>    </div>     '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/navigation/lotPageNavigation.html?1.1966", '<div class="opposite float lot-page-navigation" ng-hide="lot.auction.singleItemIdInApp" bs-text-direction >  <div ng-switch="source">  <span ng-switch-when="catalog"> <a class="float btn " ng-href="{{catalogLink}}"> {{(lot.shop ? "shop_to_catalog" : "to_catalog") | i18n  }} </a> <a  ng-if="previousLot" class="float btn btn-link" ng-href="{{::previousLot | lotHref : \'catalog\'}}" > <div> <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  </a> <div ng-if="!previousLot" class="disabled btn float" > <bs-lot-page-nav-link name="\'previous\'"> </bs-lot-page-nav-link> </div>  <a ng-if="nextLot" class="float btn btn-link"  ng-href="{{::nextLot | lotHref : \'catalog\'}}" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </a>  <div ng-if="!nextLot" class="disabled btn float" > <bs-lot-page-nav-link name="\'next\'"> </bs-lot-page-nav-link> </div>  <div class="clearfix"></div> </span>  <span ng-switch-when="absenteeBids">  <div class="float btn btn-link" ng-click="backToList()"> {{"my_account_back_to_absentee" | i18n  }} </div>  <a class="float btn "   ng-href="{{catalogLink}}" ng-hide="lot.auction.hidden" > {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>  <span ng-switch-when="purchases">  <div class="float btn btn-link" ng-click="backToList()"> {{"my_account_back_to_won" | i18n  }} </div>  <a class="float btn "   ng-href="{{catalogLink}}" ng-if="!lot.auction.hidden" > {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>     <span ng-switch-when="search">  <a class="float btn btn-link" ng-click="backToList()"> {{"search_back_to" | i18n  }} </a> <a class="float btn btn-link"   ng-href="{{catalogLink}}"> {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>  <span ng-switch-when="favorites">  <a class="float btn" ng-click="backToList()"> {{"favorites_back_to" | i18n  }} </a> <a class="float btn "   ng-href="{{catalogLink}}" ng-if="!lot.auction.hidden" > {{"catalog_nav_full_catalog" | i18n  }} </a>  </span>   </div> </div> '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/navigation/lotTags.html?1.1966", '<div class="lot-tags" ng-show="tags.length"> <span class="label">{{"tags" | i18n}}:</span> <a ng-repeat="tag in tags" class="btn btn-default" ng-href="{{(\'searchWithTags/\'+tag) | uiHref}}"> {{"tag_"+tag | i18n}} </a>  </div>     '), 
+        $templateCache.put("/portal/templates/catalogs/lotPage/common/lotNumber.html?1.1966", '<div > <div class="lot-index-in-auction" ng-if="data.item.auctionId && !data.item.auction.singleItemIdInApp" itemprop="sku" >  {{"lot" | i18n}} {{data.item.itemIndex}}: </div>  <div class="lot-number-in-shop" ng-if="data.item.shopId" itemprop="sku">  {{"lot_shop_number" | i18n:{number:data.item.ownerKey+"-"+data.item.idInApp} }} </div> </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/elements/lotImage.html?1.1966", '<div class="lot-image" ng-class="::{\'narrow-height\':narrowHeight}"> <div class="state-info"  bs-text-direction></div> <img ng-if="::!enableMagnifier && !asBg" ng-src="{{::loadedImageSrc}}" > <div ng-if="::enableMagnifier"> <div  ng-if="loadedImageSrc && !stateInfo"  data-ng-magnify magnify-ratio="2.5"  image-src="{{loadedImageSrc}}"  data-glass-width="250" data-glass-height="250" ></div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/lotExpiration.html?1.1966", '<div class="lot-expiration" ng-class="expirationState" > {{text}} </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/shop/confirmShopPurchase.html?1.1966", '<div class="confirm-shop-purchase" ng-controller="ConfirmShopPurchaseController"  ng-init="init()" > <div ng-if="!purchaseRejected">  <div ng-if="!purchaseAccepted"> <label>{{"confirm_purchase_message" | i18n}}:</label> <table class="default-align"> <tr> <td class="pic-columm" rowspan="{{viewPort.mobileMedia?1:3}}"> <bs-lot-image lot="lot" size="120x120" image-ind="0"  image-mode="\'fit\'"> </bs-lot-image> </td> <td class="caption"> {{"lot_number" | i18n}}: </td> <td class="value"> {{lot.ownerKey+"-"+lot.idInApp}} </td>  </tr>  <tr> <td class="caption"> {{"lot_description" | i18n}}: </td> <td class="value" ng-bind-html="lot | lotText:60" colspan="{{viewPort.mobileMedia?2:1}}"> </td> </tr> <tr> <td class="caption"> {{"price" | i18n}}: </td> <td class="price value"> {{lot.shopPrice | sumInCurrency:lot.shop.catalogInfo.currency}} </td> </tr>  </table>  <div class="clearFix"></div>  <div class="terms-message default-align"> <bs-linkable-text options="{ textKey:\'confirm_bid_terms_message\', textParams:{houseName:(lot.house.details.name | langField)}, onLinkClick:showTerms  }" > </bs-linkable-text>  </div> </div>   <div ng-if="purchaseAccepted">  <h4 ng-bind-html="\'shop_purchase_accepted\' | i18n:{houseName:(lot.house.details.name | langField)} "> </h4>  <bs-house-contact-info house="lot.house" hide-website="true"> </bs-house-contact-info> </div>  </div> <div ng-if="purchaseRejected"> <br> <div class="text-danger" ng-bind-html="\'shop_purchase_rejected\' | i18n:{houseName:(lot.house.details.name | langField)} ">  </div> <br><br>  <bs-house-contact-info house="lot.house" hide-website="true"> </bs-house-contact-info> </div>  </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/elements/shop/shopPurchaseForm.html?1.1966", '  <div class="shop-purchase-form" bs-text-direction > <div ng-if="scrollToForm" bs-scroll-on="scrollToForm" offset="-200" class="scroll-anchor">&nbsp;</div>   <div class="sold-info" ng-if="lot.purchase" ng-class="{\'self-sold\':selfSold}" >  <div class="highlight-area"> <span class=\'bid-label\'>{{soldLabel | i18n}}:&nbsp;{{lot.purchase.actionPrice | sumInCurrency:lot.catalogInfo.currency}}</span> </div> </div>   <div ng-if="lot.published"> <div ng-if="!lot.purchase" class="form"> <div class="float price"> <div class="float lot-price-label">{{"price" | i18n}}:&nbsp;&nbsp;</div> <div class="float lot-price-value">{{lot.shopPrice | sumInCurrency:lot.shop.catalogInfo.currency}}&nbsp;&nbsp;&nbsp;</div> <div class="clearfix"></div> </div>  <bs-async-button button-class="\'float orange common-button buy-now \'+currentLang" action-fn="showPurchaseConfirmation()" bs-current-lang label="\'catalog_buy_now\'" ></bs-async-button>  <div class="clearfix"></div>  <div class="commission-text" ng-bind-html="\'lot_commission_included\' | i18n"> </div> </div>   <div class="not-published" ng-if="!lot.published"> {{\'lot_unpublished_from_shop\' | i18n }}  </div>   </div>  <div class="sold-lot-message" ng-if="lot.soldPrice"> <bs-linkable-text options="{ textKey:\'lot_sold_in_shop_info\', textParams:{house:(lot.shop.house.details.name | langField), date:(lot.purchaseTime | date:\'dd/MM/yyyy\')}, onLinkClick:gotoHousePage  }" > </bs-linkable-text> </div>    </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/elements/shop/shopInfo.html?1.1966", '<div class="shop-info center-block" > <div class="float shop-texts"> <h3 class="shop-name" id="shopInfo" ng-click="onNameClick()">  <span> {{"shop_info_title" | i18n:{houseName:(shop.house.details.name | langField)} }} </span> </h3>  <div class="location">  <span ng-if="::shop.house.details.address | langField"> {{::shop.house.details.address | langField}} </span>  </div>   </div> <div class="opposite float logo" ui-sref="app.house({houseCode:shop.house.code,showUpcomingAuctions:false})" bs-cloudinary-bg="{{::(shop.house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div> <div class="clearfix"></div>  <div ng-if="!minimalView">  <div class="shop-description" ng-if="::shop.description | langField"  ng-bind-html="shop.description | langField"> </div> </div>  <span ng-if="shop.house.hasTerms"> <span class="terms btn-link" ng-click="showHouseTerms()">{{"terms_of_sale" | i18n}}</span>  </span> <span class="btn-link" ng-click="showHouseContantInfo()">{{"contact_us" | i18n}}</span>    </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/leadingBid.html?1.1966", '<div class="leading-bid" ng-hide="leadingBidHidden"> <div class="message"></div> <div class="highlighted-area"> <div class="lead-type"></div> <div class="price"></div> <a class="lot-link"  ng-href="{{::lot | lotHref : (source || \'catalog\')}}"  > {{::"view_lot" | i18n }} </a> </div>  </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/commissionInfo.html?1.1966", '<div ng-if="lot.carInfo"> <div class="lot-price-row lot-vat-info" ng-if="lot.carInfo.priceDoesNotIncludeVat" > {{"car_price_without_vat" | i18n }} </div> <div class="lot-price-row comission" ng-if="!lot.auction.commissionFee && lot.auction.state!=\'ENDED\'"> {{"car_info_no_commission" | i18n }} </div> </div>   <div ng-if="lot.realEstateInfo"> <div class="lot-price-row comission" ng-if="!lot.auction.commissionFee && lot.auction.state!=\'ENDED\'"> {{"car_info_no_commission" | i18n }} </div> </div>   <div ng-if="!lot.carInfo && !lot.realEstateInfo"> <div class="lot-price-row comission" ng-if="lot.auction.commissionFee || lot.auction.commissionFee===0"> {{"auction_house_commission" | i18n}}: <span dir="ltr" >{{lot.auction.commissionFee}}%</span> <span class="btn btn-link" ng-click="showCommissionText()"  ng-if="lot.auction.commissionText | langField:{currentLangOnly:true} | stripTags"> {{"more_details" | i18n}}</span> </div>   <div class="lot-price-row lot-vat-info" ng-if="lot.auction.region!=\'RU\' && !lot.house.noVat">  <span ng-if="lot.auction.itemsPriceIncludesVat"> {{"bid_form_vat_included" | i18n}} </span> <span ng-if="!lot.auction.itemsPriceIncludesVat"> {{"vat" | i18n}}: <span ng-if="lot.fullPriceVat">{{"bid_form_full_vat" | i18n}} </span> <span ng-if="!lot.fullPriceVat">{{"bid_form_commission_vat" | i18n}} </span> </span> </div> </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/lotViewOnlyInfo.html?1.1966", '<div ng-show="visible" class="lot-view-only"  ng-bind-html="message">   </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/confirmBid.html?1.1966", '<div class="confirm-bid" ng-controller="ConfirmBidController"  ng-init="init()" ng-class="{\'with-terms\':displayTerms}"> <div ng-if="!showBidRequestInfo"> <label ng-if="postSaleMode">{{"confirm_purchase_message" | i18n}}:</label> <table class="default-align"> <tr> <td class="pic-columm" rowspan="{{viewPort.mobileMedia?1:3}}"> <bs-lot-image lot="lot" size="120x120" image-ind="0"  image-mode="\'fit\'"> </bs-lot-image> </td> <td class="itemIndex caption"> {{"lot_number" | i18n}}: </td> <td class="itemIndex value"> {{lot.itemIndex}} </td>  </tr>  <tr> <td class="caption"> {{"lot_description" | i18n}}: </td> <td class="value" ng-bind-html="lot | lotText:60" colspan="{{viewPort.mobileMedia?2:1}}"> </td> </tr> <tr> <td class="caption"> {{postSaleMode ? "price" : "bid_price" | i18n}}: </td> <td class="value" colspan=2> <div class="price value"> {{bidPrice | sumInCurrency:lot.auction.catalogInfo.currency}} </div>  <div  ng-include src="\'catalogs/elements/auction/commissionInfo\' | appTemplate" > </div>    </td> </tr>  <tr class="send-alert" ng-show="alertEnabled"> <td ng-if="!viewPort.mobileMedia">&nbsp;</td> <td ng-if="!viewPort.mobileMedia && displayTerms" >&nbsp;</td> <td colspan="{{viewPort.mobileMedia ? 3 : 2}}" > <table> <tr> <td> <input  type="checkbox" class="float" name="sendAlert" ng-model="sendAlert" /> <bs-checkbox class="float"  bs-model="itemAlertData.on"></bs-checkbox> </td> <td valign="middle">  {{"confirm_bid_send_alert" | i18n}} </td>  </table>  </td> </tr> </table>  <div class="clearFix"></div>  <div ng-if="displayTerms"> <br> <label >{{ termsTitle }}:</label>  <div class="terms-container default-align" ng-bind-html="termsHtml">  </div> </div>  <div class="terms-message default-align" ng-class="{\'hide-links\':showTermsInContainer}"> <bs-linkable-text options="{ textKey:\'confirm_bid_terms_message\', textParams:{houseName:(lot.house | houseName:\'full\')}, onLinkClick:showTerms  }" > </bs-linkable-text> </div>  <div ng-if="lot.auction.showLeadingBids" class="leading-bid-warning" ng-bind-html="\'confirm_bid_leading_bid_warning\' | i18n"></div> </div>  <div ng-if="showBidRequestInfo"> <bs-bid-request-info lot="lot" ></bs-bid-request-info> </div>   </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/auctionParticipationInfo.html?1.1966", '<div class="auction-participation-info" ng-show="loaded" > <div bs-scroll-on="scrollToParticipationInfo" offset="-200"></div> <div ng-if="!approvedToParticipate && lot"> <div ng-if="!auctionParticipationRequested"> <div class="button-container"> <div class = "common-button light-blue" ng-click="requestParticipation()"> <div class="text">{{"click_to_get_approved" | i18n}}</div> </div> </div> </div> <div ng-if="auctionParticipationRequested"> <label class="text-danger"> {{"promotion_pending_cars" | i18n:{houseName:(auction.house | houseName:\'full\')} }}. <span ng-if=\'auction.documents.registration\'>{{"auction_participation_actions_needed" | i18n}}</span> </label> <div class="button-container"> <div class = "common-button orange" ng-click="showParticipationInstructions()"> <div class="text">{{"click_for_details" | i18n}}</div> </div> </div> </div> </div>  <div ng-if="approvedToParticipate" class="approved-message"> {{"promotion_approved_for_auction" | i18n}} </div>  </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/lotViewOnlyOverlay.html?1.1966", '<div> <div class="upper-text"> {{"bidding_only_from_hall" | i18n }} </div>   <div class="lower-text"> {{("lot_view_only_location_"+lot.house.code.split("-")[0]) | i18n }} </div>  </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/participationInstructions.html?1.1966", '<div ng-controller="ParticipationInstructionsController" class="participation-instructions default-align" ng-init="init()">  <div class="status" ng-if="lot.bidRequest"> {{"bid_request_pending_status" | i18n}} <br><br> </div>  <div ng-if="documentPath"> <p>{{\'bid_request_needed_actions\' | i18n:{houseName:houseName} }}:</p> <p> <ol> <li>{{"bid_request_form_download" | i18n}}</li> <li ng-bind-html="\'bid_request_form_send\' | i18n:{faxNumber:fax, houseEmail:houseEmail}"</li>  <li ng-if="houseDetails.bidInstructions | langField | stripTags"> {{"bid_request_additional_instructions" | i18n}} - <div ng-bind-html="houseDetails.bidInstructions | langField"></div> </li> </ol> </p> </div>  <div ng-if="(houseDetails.bidInstructions  | langField | stripTags) && !documentPath" ng-bind-html="houseDetails.bidInstructions | langField"> </div>  <div ng-if="contactPerson"> <br> <p ng-bind-html="\'contact_house_support\' | i18n:{housePhone:housePhone,houseName:houseName,contactPerson:contactPerson}">  </div>   <div class="download" ng-if="documentPath"> <div class="orange common-button" ng-click="downloadDocument()"> <div class="text"> {{"download_registration_form" | i18n}} </div> </div>  </div> </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/confirmTerms.html?1.1966", '<div class="confirm-terms" ng-controller="ConfirmTermsController"  ng-init="init()" ng-class="{\'with-terms\':displayTerms}">   <div class="terms-container default-align" ng-bind-html="termsHtml">  </div>   </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/setAuctionCreditCard.html?1.1966", '<div class="set-auction-credit-card" ng-controller="SetAuctionCreditCardController"  ng-init="init()" bs-text-direction> <div class="default-align">  <div ng-show="!formData.houseTermsConfirmed" > <div ng-if="!(house.details.bidInstructions | langField | stripTags)" class="sentence"  ng-bind-html="\'participation_request_credit_card_terms\' | i18n:{house:houseName} " > {{"participation_request_credit_card_terms" | i18n :{house:houseName} }} </div> <div class="sentence" ng-if="house.details.bidInstructions | langField | stripTags"> <div ng-bind-html="house.details.bidInstructions | langField"></div> </div> </div>  <div class="terms-row"> <input  class="float" type="checkbox"  ng-model="formData.houseTermsConfirmed"> <bs-checkbox class="float"  bs-model="formData.houseTermsConfirmed"></bs-checkbox> <bs-linkable-text class="float" options="{ textKey:\'house_terms_agree\', textParams:{house:houseName}, onLinkClick:showHouseTerms }" > </bs-linkable-text>  <div class="clearfix"></div> </div>  <div ng-if="showCardSelection"> <form ng-if="creditCardsInfo.length>0"> <div class="sentence"> {{"selectc_credit_card" | i18n }} </div> <div class="radio" ng-repeat="cardInfo in creditCardsInfo" > <label> <input type="radio" name="selectedCard" ng-model="formData.selectedCard" value="{{cardInfo.id}}"> {{"card_selection_entry" | i18n:{lastDigits:cardInfo.lastCardDigits, cardName:(("credit_card_type_"+cardInfo.cardCompany.toLowerCase()) | i18n)} }} </label> </div> <div class="radio"  > <label> <input type="radio" name="selectedCard" ng-model="formData.selectedCard" value="another"> {{"card_selection_other" | i18n:{} }} </label> </div> </form> <bs-edit-credit-card-details auction-id="auction.id" ng-if="showCardForm"> </bs-edit-credit-card-details> </div> </div>    </div>   '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/registrationPromotion.html?1.1966", '<div class="registration-promotion"> <div ng-if="auction "> <div ng-if="auction.state==\'ENDED\' && !postSaleMode"> <span class="text" > {{\'auction_ended\' | i18n}}</span> </div> <div ng-if="auction.state!=\'ENDED\' || postSaleMode"> <div ng-if="auction.catalogOnly">  <span class="text" > {{\'promotion_catalog_only\' | i18n:houseParams}}</span> </div> <div ng-if="!auction.catalogOnly">  <div ng-if="auction.state==\'RUNNING\'" > <div class="float button" ng-click="openAuctionSite()"> <div class="text">{{text(\'promotion_live_auction\')}}</div> </div> <div class="clearfix"></div>  </div>  <div ng-if="auction.state==\'READY\' || postSaleMode"> <div ng-if="userState==\'NOT_LOGGED_IN\'"> {{text(\'promotion_not_logged_in_auction\')}}&nbsp;-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'registeration\' | i18n}}</span></span> <span class="clearfix"></span> </span>  </div> <div ng-if="userState!=\'NOT_LOGGED_IN\'">  <div ng-if="auction.house.auctionBasedUserApproval">  <span ng-if="approvedToParticipateInAuction" class="text">  {{\'promotion_approved_for_auction\' | i18n}} </span>  <div ng-if="!approvedToParticipateInAuction "> <div ng-if="auction.house.bidRequestPerItem"> <div ng-if="lot.selfAbsenteeBid"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div>  <div ng-if="!lot.selfAbsenteeBid"> <span class="text" >  <span ng-if="bidRequests.length>0"> {{\'bid_request_pending_status\' | i18n}} </span> <span ng-if="!bidRequests || bidRequests.length==0"> {{\'bid_form_place_bid_to_participate\' | i18n}} <span class="btn btn-link show-popup" ng-click="showHelpPopup(\'auction_explanation\')">{{"auction_explanation" | i18n}}</span> </span> </span> </div> </div>  <bs-auction-participation-info ng-if="!auction.house.bidRequestPerItem" auction="auction" ></bs-auction-participation-info>  </div> </div>  <div ng-if="!auction.house.auctionBasedUserApproval"> <div ng-if="userState==\'NOT_REGISTERED\' || userState==\'NEW_SHOP_USER\'" > <span class="float text"> {{text(\'promotion_not_registered_to_auction\')}}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'click_to_get_approval\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-if="userState==\'PENDING\'"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-if="userState==\'INCOMPLETE_PROFILE\'"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-if="userState==\'APPROVED\'"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div> </div> </div> </div>  <div ng-if="!auction && house">  <div ng-switch="userState"> <div ng-switch-when="NOT_LOGGED_IN"> {{\'promotion_not_logged_in_house\' | i18n:{house:(house.details.name | langField)} }}&nbsp-&nbsp; <span class="no-break"> <span><span class="button" ng-click="setAuthScene(\'login\')"> <span class="text">{{\'login\' | i18n}}</span></span>  <span class="">&nbsp;/&nbsp;</span>  <span class="button" ng-click="setAuthScene(\'register\')"> <span class="text"> {{\'registeration\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div> <div ng-switch-when="NOT_REGISTERED"> <span class="float text"> {{\'promotion_not_registered_to_house\' | i18n }}&nbsp-&nbsp;</span> <div class="float button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="requestApproval()"> <div class="text">  {{\'click_to_get_approval\' | i18n}} </div>  </div> <span class="clearfix"></span> </div> <div ng-switch-when="PENDING"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="INCOMPLETE_PROFILE"> <span class="text">  {{\'promotion_pending\' | i18n}}</span> </div>  <div ng-switch-when="APPROVED"> <span class="text" > {{text(\'promotion_approved\')}}</span> </div> </div> </div> </div>    '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/auctionInfo.html?1.1966", '<div class="auction-info center-block" > <div class="float auction-texts"> <h3 class="auction-name" id="auctionInfo" ui-sref="app.auctionCatalog({catalogKey:auction.intKey})">  <span ng-if="::auction.number"> {{::"auction_label_number_public" | i18n:{number:auction.number} }} <span ng-if="auction.part"> {{::("auction_part_"+auction.part) | i18n}}  </span> </span>  <span> {{::auction.name | langField}} </span> </h3> <h2 class="house-name"> <a ng-href="{{::(\'/houses/\'+auction.house.code+\',false\') | uiHref}}" class="btn-link" ng-if="::auction.house.orderInd">{{"catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</a> <span ng-if="::!auction.house.orderInd">{{:: "catalog_house_name" | i18n:{name:(auction.house.details.name | langField)} }}</span>  </h2>   <div class="time-and-location"> <span>{{::auction | auctionTime}}</span> <span ng-if="::auction.address | langField"> , {{::auction.address | langField}} </span>  </div> <div class="links"> <span ng-if="auction.house.hasTerms"> <span class="terms btn-link" ng-click="showHouseTerms()">{{"terms_of_sale" | i18n}}</span>  &nbsp;&nbsp;&nbsp;&nbsp; </span>  <span ng-repeat="(docKey, docLink)  in auction.documents" ng-if="docLink"> <a class="doc btn-link"  ng-click="openWindow(docLink | documentUrl)" >{{"auction_doc_"+docKey | i18n}}</a>  &nbsp;&nbsp;&nbsp;&nbsp; </span>   <span ng-if="shouldShowDisplayHours"> <span class="display-hours btn-link" ng-click="showDisplayHours()">{{::displayHoursKey | i18n}}</span> &nbsp;&nbsp;&nbsp;&nbsp; </span>   <span ng-if="shouldShowCollectionHours"> <span class="display-hours btn-link" ng-click="showCollectionHours()">{{::"catalog_collection_hours" | i18n}}</span> &nbsp;&nbsp;&nbsp;&nbsp; </span>  <span ng-if="shouldShowDemoLink"> <span class="demo btn-link" ng-click="openDemoWindow()">{{::"view_demo" | i18n}}</span> &nbsp;&nbsp;&nbsp;&nbsp; </span>  </div>  </div> <div class="opposite float logo" ui-sref="app.house({houseCode:auction.house.code,showUpcomingAuctions:false})" bs-cloudinary-bg="{{::(auction.house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div> <div class="clearfix"></div>  <div class="long-details" ng-if="details" style="color:{{auction.textColors.details}}" ng-bind-html="\'<BR>\'+details"> </div>  <bs-lot-view-only ng-if="lot.viewOnly" lot="lot" full-message="true" one-line="true" > </bs-lot-view-only>   <div ng-if="!auction.showLeadingBids && auction.state!=\'ENDED\' && auction.catalogContentType==\'ART\'"> <br> <bs-linkable-text  options="{ textKey:\'auction_hidden_leading_bids_message\', onLinkClick:gotoAbsenteeBidsFaq }" > </bs-linkable-text> </div>    <bs-house-regisration-promotion ng-if="shouldShowRegistrationPromotion" auction="::auction" lot="lot" > </bs-house-regisration-promotion>   <hr>  <bs-auction-structured-data auction="::auction"></bs-auction-structured-data>   </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/elements/auction/bidForm.html?1.1966", '  <div class="bid-form" bs-text-direction > <div ng-if="scrollToForm" bs-scroll-on="scrollToForm" offset="-200" class="scroll-anchor">&nbsp;</div>  <div class="bid-info" ng-if="bidLabel" ng-class="bidInfoClass" >  <div class="highlight-area"> <span class=\'bid-label\'>{{bidLabel.text}}<span ng-if="bidLabel.price" ng-class="{dev:bidLabel.priceVisibleToAdmin}">:&nbsp;{{bidLabel.price}}</span></span> <div class="bid-label-second-message"  ng-show="leadingBidMessage" >{{leadingBidMessage}}</div> <div class="bid-label-second-message" ng-if="absenteeBidLabelForPastLot && !leadingBidMessage "  > {{absenteeBidLabelForPastLot}}  </div> </div> </div>  <table> <tr ng-if="mode==\'existing\' && !lot.house.auctionBasedUserApproval" > <td></td> <td class=\'bid-label-space\'></td> <td> <div class="links"> <div class="float btn-link"  ng-click="setEditMode({focus:true})">{{"edit" | i18n}}</div> <div class="float bid-link-space"></div> <bs-async-button button-class="\'left btn-link\'" action-fn="removeBidIfConfirmed()" label="\'remove_bid\'" ></bs-async-button> <div class="clearfix"></div> </div> </td> </tr> </table>  <label class="time-left-label" ng-show="timeLeft">{{timeLeft}}</label>  <bs-auction-participation-info auction="lot.auction" lot="lot" ng-if="mode==\'auctionParticipation\' || mode==\'bidRequest\'"></bs-auction-participation-info>  <bs-lot-view-only ng-if="mode==\'viewOnly\'" lot="lot" full-message="true" > </bs-lot-view-only>   <div class="edit-mode" ng-if="mode==\'edit\' || mode==\'new\' "> <div ng-if="!bidsDiabledOnHolyDay"> <label> {{editLabel | i18n }}:</label> <form> <div class="float noselect" ng-if="allowedBidPrices" ng-include src="\'catalogs/elements/bidPriceDropDown\' | appTemplate" > </div>   <bs-async-button button-class="\'float orange common-button \'+currentLang" action-fn="tryToPlaceBid()" bs-current-lang label="\'absentee_bid_button_text\'" ></bs-async-button>  <div class="clearfix"></div> <div ng-if="mode==\'edit\' && !lot.auction.showLeadingBids" class="cancel btn btn-link lowercase" ng-click="cancelEdit()">{{"cancel" | i18n}}</div> <div class="bid-limit" ng-if="bidLimitMessage"> {{bidLimitMessage}}</div>  </form> <div class="clearfix"></div> </div> <label class="bids-disabled-on-holyday" ng-if="bidsDiabledOnHolyDay"> {{"bids_disabled_for_holy_day" | i18n:(lot.house | houseName:\'short\')}} </label> </div>    <div class="direct-bid" ng-if="mode==\'direct\'  && model.selectedBidPrice"> <label> {{"lot_post_sale_bid" | i18n }}:</label> <form>  <div class="float direct-price"> <div class="float lot-price-label">{{"price" | i18n}}:&nbsp;&nbsp;</div> <div class="float lot-price-value">{{model.selectedBidPrice | sumInCurrency:lot.auction.catalogInfo.currency}}&nbsp;&nbsp;&nbsp;</div> <div class="clearfix"></div> </div>  <bs-async-button button-class="\'float orange common-button buy-now \'+currentLang" action-fn="tryToPlaceBid()" bs-current-lang label="\'catalog_buy_now\'" ></bs-async-button>  <div class="clearfix"></div>  <div class="bid-limit" ng-if="bidLimitMessage"> {{bidLimitMessage}}</div>  </form> <div class="clearfix"></div> </div>   <div class="bid-info disabled-mode" ng-if="mode==\'disabled\'"> <label ng-bind-html="getDisabledMessage()"></label> </div>  <div class="bid-info ended-mode" ng-if="mode==\'ended\'"> <label ng-if="!lot.purchase"> {{"not_sold" | i18n }} </label> </div>  <div class="bid-info running-mode" ng-if="mode==\'running\'"> <label>{{"auction_running" | i18n }}</label> <div class="center-block common-button live darkBlue" ng-click="openAuctionSite()"> <div class="text"> {{"home_auction_enter" | i18n }} </div> </div> </div>  <bs-lot-price  lot="lot"  single-row="{{false}}"  break-on-row="{{true}}"  only-estimated="{{mode==\'direct\'}}">  </bs-lot-price>  <div  ng-include src="\'catalogs/elements/auction/commissionInfo\' | appTemplate" > </div>  <div class="leading-bid-info" ng-if="leadingBidLine" ng-class="leadingBidType"> <div class="leading-bid-line">{{leadingBidLine}}</div> <div class="high-bidder-message">{{leadingBidMessage}}</div> </div>   <div class="past-lot" ng-if="lot.auction.state==\'ENDED\' && lot.house.orderInd"> <bs-linkable-text options="{ textKey:\'lot_past_info\', textParams:{house:(lot.house | houseName), date:(lot.auction.date | date:\'dd/MM/yyyy\')}, onLinkClick:gotoHousePage  }" > </bs-linkable-text> </div> </div>  '), 
+        $templateCache.put("/portal/templates/catalogs/elements/lotPrice.html?1.1966", '<div class="lot-price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">  <div class="lot-price-row" ng-if="::showExactPrice"> <div class="lot-price-label exact-price">{{::exactPriceLabel | i18n}}:</div> <div class="lot-price-value" bs-auto-font-size="{grow:false,minSize:11,maxWidth:maxWidth}" ng-bind-html="::exactPrice"></div> <div class="clearfix" ng-if="::breakOnRow"></div>  </div>  <div class="lot-price-row" ng-if="::showNoPrice"> <div class="lot-price-label no-price" itemprop="price">{{"lot_no_price" | i18n}}</div> <div class="clearfix" ng-if="::breakOnRow"></div>  </div> <div class="lot-price-row" ng-if="::showEstimatedPrice"> <div class="lot-price-label estimated-price"  >{{"estimated_price" | i18n}}:</div> <div class="lot-price-value" dir="ltr" bs-auto-font-size="{grow:false,minSize:11,maxWidth:maxWidth}" max-width="maxWidth" ><div ng-bind-html="::estimatedPrice"></div></div> <div class="clearfix" ng-if="::breakOnRow"></div> </div>    </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/lotBadge.html?1.1966", '<div class="lot-badge"  > <div class="text" ></div> </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/lotFavoriteFlag.html?1.1966", '<div  class="favorite-flag flag-button"   ng-click="toggleFavorite()"   ng-mouseout="onMouseOut()" ng-mouseover="onMouseOver()" >  </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/bidPriceDropDown.html?1.1966", '<div class="bid-prices-dropdown" > <select ng-model="model.selectedBidPrice"  bs-text-direction  ng-options="price | sumInCurrency:lot.auction.catalogInfo.currency for price in allowedBidPrices"> </select>  </div> '), 
+        $templateCache.put("/portal/templates/catalogs/elements/shareButtons.html?1.1966", '  <div class="share-buttons" > <div ng-repeat="button in [\'fb\',\'twitter\',\'google\',\'pinterest\',\'email\']" class="float button" ng-class="button"  ng-click="share(button)" title="{{buttonName(button)}}"></div> <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/components/carousel/housesCarousel.html?1.1966", '<div class="houses-carousel-container" ng-class="{mobile:isMobile}"> <div  ng-if="!animationOn" class="houses-carousel" ng-style="{backgroundImage:\'url(\'+bgPics[currentPicInd]+\')\'}" >  </div>  <div ng-if="animationOn" class="houses-carousel"> <div ng-include dir="{{dir}}" src="\'components/carousel/slider\' | appTemplate"></div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/components/carousel/slider.html?1.1966", '<wallop-slider data-images="bgPics" data-animation="scale" data-current-item-index="_ind" data-next-item-index="currentPicInd"> </wallop-slider> '), 
+        $templateCache.put("/portal/templates/components/contentLoader.html?1.1966", '<div class="content-loader" ng-show="!loaded"> <img  class="center-block" ng-src="{{\'system/pagePreLoader.gif\' | commonImage}}"> </div> '), 
+        $templateCache.put("/portal/templates/components/popups/popupAsScene.html?1.1966", '<div class="info-popup scene popup-scene-{{options.code}}" dir="{{dir}}" ng-controller="PopupAsSceneController" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-10 col-xs-12"> <button class="upper btn btn-primary" ng-if="options.backText" bs-back-button >{{options.backText | i18n}}</button>  <div class="clearfix"></div> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col-xs-11" > <H3>{{options.title}}</H3> <div class="short-separator"></div> </div> <div ng-include src="\'components/popups/popupBody\' | appTemplate" ></div>   <ul class="list-inline"> <li  ng-repeat="button in options.buttons"> <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}" bs-back-button  >{{(button.text) | i18n}} </button> <button ng-if="button.action" ng-disabled = "button.disabled" ng-show="!button.hidden" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>  </div> </div> '), 
+        $templateCache.put("/portal/templates/components/popups/popupBody.html?1.1966", '<div dir="{{dir}}"> <iframe ng-if="options.contentUrl" width="100%" height="500px" name="about" ng-src="{{options.contentUrl}}" frameborder=0 ALLOWTRANSPARENCY="true"></iframe> <div    ng-if=\'options.contentHtml\'    class="info-popup-content" ng-class="options.bodyClass" ng-bind-html="options.contentHtml"></div> <div    ng-if=\'options.contentInclude\' class="info-popup-content" ng-class="options.bodyClass"  ng-include src="options.contentInclude | appTemplate"></div>  </div> '), 
+        $templateCache.put("/portal/templates/components/popups/popupModal.html?1.1966", '<div dir="{{dir}}" ng-keyup="onKeyup()" class="popup-modal-{{options.code}}">  <div  class="modal-header"> <h4  class="float modal-title" ng-if="options.titleKey">{{options.titleKey | i18n}}</h4>  <h4  class="float modal-title" ng-if="!options.titleKey">{{options.title}}</h4> <button type="button" class="opposite float close" ng-if="!options.unclosable" ng-click="closePopup()">&times;</button> <div class="clearfix"></div>  </div>  <div class="modal-body"> <div ng-include src="\'components/popups/popupBody\' | appTemplate" ></div> </div>  <div class="modal-footer" ng-class="options.data.footerClass"> <ul class="list-inline"> <li  ng-repeat="button in options.buttons">  <button ng-if="button.isCloseButton" class="btn btn-{{button.type||\'primary\'}}"  ng-click="closePopup()">{{(button.text) | i18n}} </button> <button ng-if="button.action" ng-disabled = "button.disabled" ng-show="!button.hidden" class="btn btn-{{button.type||\'primary\'}}"  ng-click="button.action()">{{(button.text) | i18n}} </button>  </li>  </ul>   </div> </div> '), 
+        $templateCache.put("/portal/templates/components/upperSpaceHolders.html?1.1966", '<div> <div class="upper-navigation-space"></div> <div class="upper-scene-part-space"></div> </div>  '), 
+        $templateCache.put("/portal/templates/components/housesDropdown.html?1.1966", '<div class="houses-dropdown">  <select	ng-model="data.selectedHouseCode" ng-change="onDropDownChange()" bs-text-direction> <option value="all" ng-if="!disableAllHouses">{{allHousesLabel | i18n }}</option> <option ng-repeat="house in houses" value="{{house.code}}"  ng-selected="house.code == selectedHouseCode"> {{house | houseName : \'short\' | trim:maxLength  }} </option> </select>  </div> '), 
+        $templateCache.put("/portal/templates/components/navigation/upperNavigationSearch.html?1.1966", ' <form name=\'searchForm\' novalidate bs-enter-key-action="doSearch()"  ng-click="gotoSearchIfMobile()" class="global-search-form"  ng-class="currentLang" bs-text-direction ng-show="state.current.url!=\'search\'"> <bs-form-group field-name="phrase" label="catalog_search_all" > <bs-search-input></bs-search-input>  </bs-form-group> <div class="button noselect" ng-click="doSearch()"> </div> <div class="clearfix"></div> </form>     '), 
+        $templateCache.put("/portal/templates/components/navigation/mobileLangSelection.html?1.1966", '<div class="lang-selection"  ng-if="data.langs.length>1"> <div class="selected entry" slide-toggle="#{{langMenuName}}" ng-click="onLanguageClick()" > {{currentLang | langName:"english"}} <span class="caret {{dir}}" ></span> </div> <ul id="{{langMenuName}}" class="slideable" duration="0.25s"> <li class="sub needsclick entry" ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)">{{lang | langName}}</li> </ul> </div> '), 
+        $templateCache.put("/portal/templates/components/navigation/upperNavigation.html?1.1966", '<div class="upper-navigation"  ng-class="{ \'has-warning\':ie8WarningVisible, \'logged-in\':currentUser!=null, \'no-fixed\':mobileMenuOn, \'mobile\':isMobileApp || viewPort.clientWidth<1200, \'pc\':!isMobileApp &&  viewPort.clientWidth>=1200 }"  ng-controller="UpperNavigationController"  dir="{{dir}}" >   <div class="mobile-only" ng-if="data.showContainer"> <div ng-if="!data.hideMenus" class="icon-button {{button}}" ng-repeat="button in data.mobileButtons"  ng-click="handleMobileButtonClick(button)"  bs-touched-class="\'touched\'"></div> <div ng-include src="\'components/navigation/mobileMenu\' | appTemplate"></div> <div class="clearfix"></div> <div ng-if="data.hideMenus"  class="logo"></div> </div> <div ng-if="langMenuAtBottom" ng-include src="\'components/navigation/mobileLangSelection\' | appTemplate"></div>   <div class="pc-only"  > <div class="container" ng-if="data.showContainer"> <div class="first-line">   <nav class="navbar navbar-default {{currentLang}}" bs-text-direction> <div class="container-fluid">  <div class="navbar-header"> <a class="float clickable logo " ng-href="{{(data.hideMenus ? \'\' : \'/home/\') | uiHref}}" ng-class="[currentRegion,{judaica:judaicaOnly, cars:contentType==\'CARS\',\'real-estate\':contentType==\'REAL_ESTATE\'}]"></a> </div>   <div class="collapse navbar-collapse" >  <ul  class="nav navbar-nav auth" ng-controller="AuthUpperNavigationController"  ng-class="{\'navbar-right\':currentLang==\'he\'}"  ng-include src="\'auth/authUpperNavigation\' | appTemplate"  ng-if="!data.hideMenus"> </ul>   <div class="searchFormContainer" ng-class="currentLang" ng-include src="\'components/navigation/upperNavigationSearch\' | appTemplate" ng-if="!data.hideMenus && $state.current.name!=\'app.support\'"></div>  <ul class="nav navbar-nav" ng-class="{\'navbar-right\':currentLang!=\'he\'}">  <li class="white dropdown" ng-class="{open:data.langsVisible}" ng-if="data.langs.length>1" ng-click="data.langsVisible = !data.langsVisible  "> <a class="dropdown-toggle"> {{currentLang | langName:"english"}} <span class="caret" ></span> </a> <ul class="dropdown-menu" > <li ng-repeat="lang in data.langs" ng-if="lang!=currentLang" ng-click="setLanguage(lang)"> <a>{{lang | langName}}</a> </li> </ul> </li> </ul>  </div>  </div> </nav>  </div>  <div class="second-line" ng-if="!data.hideMenus"> <nav class="navbar navbar-default {{currentLang}}" bs-text-direction> <div class="container-fluid"> <div class="collapse navbar-collapse"> <ul class="nav navbar-nav" ng-controller="AuctionsMenuController" ng-class="{\'navbar-right\':currentLang==\'he\'}">  <upper-navigation-menu  name="auctions"  links="links" arrow-position = "{{currentLang==\'he\' ? \'right\' : \'left\'}}"  handle-link-click="handleLinkClick(link)"></upper-navigation-menu>  <li ng-if="shopsVisible"><a href="{{\'/shops\' | uiHref}}">{{"shops" | i18n}}</a></li> <li ng-repeat="portalScene in otherPortalScenes"><a ng-href="{{portalScene | portalUrl}}">{{linkText(portalScene) }}</a></li>  <li ng-if="tagsMenus" > <div class="divider"></div> </li>  <upper-navigation-menu  class="tag-menu"  ng-repeat="tagsMenu in tagsMenus"  name="{{tagsMenu.header}}"  links="tagsMenu.entries" arrow-position = "{{currentLang==\'he\' ? \'right\' : \'left\'}}" link-href-prefix="/searchWithTags/"  header-href="{{tagsMenu.headerHref}}"  text-prefix="tag_"></upper-navigation-menu>    </ul> <ul class="nav navbar-nav" ng-class="{\'navbar-right\':currentLang!=\'he\'}"  ng-controller="HelpMenuController"> <upper-navigation-menu  name="help"  links="links"  text-prefix="" arrow-position = "{{currentLang==\'he\' ? \'left\' : \'right\'}}"  handle-link-click="handleLinkClick(link)"></upper-navigation-menu>  </ul>     </div>  </div> </nav>   </div>  </div>  </div>   <div class="mobile-only hello-bar" ng-if="currentUser && data.showContainer && !hideHeloBar"> <div class="text">{{\'hello_user\' | i18n:{userName:currentUser.firstName} }} </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/components/navigation/installAppButton.html?1.1966", ' <a class="install-app-button"  ng-show="platform" target="linkTarget"  ng-href="{{href}}" ng-click="logAppPageLink(platform)"  ng-class="platform"> </a>   '), 
+        $templateCache.put("/portal/templates/components/navigation/reload.html?1.1966", '<div class="refresh scene" ng-controller="ReloadController">  </div> '), 
+        $templateCache.put("/portal/templates/components/navigation/mobileMenu.html?1.1966", '<div ng-controller="MobileMenuController" > <div> <div  class="menu icon-button needsclick" ng-click="toggleMenu()" ng-class="{touched:menuTouched}"></div> <div class="clearfix"></div> <div class="arrow" ng-show="mobileMenuOn" ></div> <div class="clearfix"></div> </div> <div id="linksMenu" class="mobile-menu" ng-if="mobileMenuOn" > <div class="bg">  <div ng-if="!data.hideMenus">  <div ng-if="!langMenuAtBottom" ng-include src="\'components/navigation/mobileLangSelection\' | appTemplate"></div>  <a class="orange entry needsclick"  ng-if="currentUser && currentUser.registrationStage!=\'COMPLETE\'" ng-click="nextRegistrationStep()" ng-class="currentLang" >{{(\'complete_registration\') | i18n}}</a>  <a class="needsclick entry" ng-if="!mobileApp && currentUser && (!currentUser.userDevices || currentUser.userDevices.length==0)" ng-class="[currentLang,{orange:currentUser.registrationStage==\'COMPLETE\'}]" ng-click="installApp()" ng-click="installApp()"  >{{(\'get_bidspirit_app\') | i18n}}</a>   <a class="needsclick entry"  ng-if="!currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.auth\',{authScene:authLink})" ng-repeat="authLink in [\'login\',\'register\']">{{linkText(authLink)}}</a>  <a class="needsclick orange entry" ng-if="!mobileApp && !currentUser " ng-class="currentLang" ng-click="installApp()"  >{{(\'get_bidspirit_app\') | i18n}}</a>  <a class="needsclick entry"   ng-repeat="portalScene in otherPortalScenes" ng-class="currentLang" ng-click="gotoPortalScene(portalScene)">{{ linkText(portalScene) }}</a>  <div class="slide-menu" ng-controller="AuctionsMenuController" > <div class="selected entry" slide-toggle="#auctionsMenu"  > {{"the_auctions" | i18n}} <span class="caret {{dir}}" ></span> </div> <ul id="auctionsMenu" class="slideable" duration="0.25s"> <li ng-repeat="link in links"> <a class="btn-link sub entry"  ng-show="!hiddenLinks[link]" ng-click="handleLinkClick(link)">{{linkText(link)}}</a> </li> </ul> </div>  <a class="needsclick entry"   ng-if="shopsVisible" ng-class="currentLang" ng-click="gotoScene(\'app.shops\')">{{\'shops\' | i18n}}</a>   <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.accountActions\',{actionType:\'absenteeBids\'})" >{{\'absentee_bids\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser "   ng-click="gotoScene(\'app.accountActions\',{actionType:\'purchases\'})" >{{\'purchases\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.accountActions\',{actionType:\'favorites\'})">{{\'favorites\' | i18n}}</a>  <a class="needsclick entry"   ng-if="currentUser" ng-class="currentLang" ng-click="gotoScene(\'app.alerts\')">{{\'alerts\' | i18n}}</a>  <div class="slide-menu" ng-controller="HelpMenuController" > <div class="selected entry" slide-toggle="#helpMenu"  > {{"help" | i18n}} <span class="caret {{dir}}" ></span> </div> <ul id="helpMenu" class="slideable" duration="0.25s"> <li ng-repeat="link in links"><a class="btn-link sub entry"  ng-click="handleLinkClick(link)">{{linkText(link)}}</a></li> </ul> </div>   <a class="needsclick entry"   ng-if="currentUser " ng-class="currentLang" ng-click="gotoScene(\'app.userDetails\')">{{\'update_details\' | i18n}}</a>    <a class="needsclick entry" ng-if="currentUser " ng-class="currentLang" ng-click="logout()" ng-href="{{\'/home/\' | uiHref}}" >{{(\'logout\') | i18n}}</a> </div>  <div ng-if="langMenuAtBottom || data.hideMenus" ng-include src="\'components/navigation/mobileLangSelection\' | appTemplate"></div> </div>   <div class="bottom-space"></div>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/components/navigation/choosePortal.html?1.1966", '<div  class="choose-portal scene" ng-controller="ChoosePortalController"> <div class="upper-space"></div> <div class="common-button  darkBlue" ng-click="gotoPortalScene(\'ART\')" > <div class="text"> {{"link_art" | i18n}} </div> </div>  <div class="common-button  darkBlue" ng-click="gotoPortalScene(\'CARS\')" > <div class="text"> {{"link_cars"| i18n}}  </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/components/navigation/upperNavigationMenu.html?1.1966", '<li class="white dropdown {{name}}" ng-class="{open:menuVisible}" > <a  class="dropdown-toggle" ng-click="onHeaderClick()"  ng-mouseenter="showMenu()"  ng-mouseleave="hideMenuAfterDelay()"  ng-href="{{headerHref}}" ng-class="currentLang">  {{linkText(textPrefix+name) }} </a> <ul class="dropdown-menu {{currentLang}}" ng-if="links.length>1" ng-class="menuAdditionalClass" ng-mouseenter="showMenu()"  ng-mouseleave="hideMenuAfterDelay()" > <li ng-repeat="link in links"><a class="btn-link"  ng-href="{{linkHrefPrefix ? ((linkHrefPrefix+link) | uiHref) : \'\'}}"  ng-show="!hiddenLinks[link]"  ng-click="onLinkClick(link)">{{linkText(textPrefix+link)}}</a></li> </ul> </li>     '), 
+        $templateCache.put("/portal/templates/components/pageFooter.html?1.1966", ' <div class="page-footer" ng-if="visible" > <div class="container col-md-7 col-xs-12 center-block"> <div class="arrow"></div> <div class="row">  <div class="info-part col-xs-6"> <div class="logo" ></div> <div class="text-line" ng-show="BidspiritInfo.emailLink" ng-bind-html="\'home_footer_info_email\' | i18n:{email:BidspiritInfo.emailLink}"></div> <div ng-if="BidspiritInfo.phone" class="hidden-xs hidden-sm text-line" ng-bind-html="\'home_footer_info_phone\' | i18n:{phone:BidspiritInfo.phoneLink}"></div> </div>  <div class="float vertical-separator" ng-class="{invisible:shouldHideContactUs}"></div> <div class="contact-us-part info-part col-xs-5" > <div class="pc-message hidden-xs hidden-sm" ng-class="{invisible:shouldHideContactUs}"> <div class="message"> {{"home_footer_contact_text" | i18n }} </div> <div class="orange common-button center-block"  ui-sref="app.contact"> <div class="text">{{"home_footer_contact_button" | i18n }}</div> </div> </div>  <div class="mobile-links hidden-md hidden-lg"> <a class="btn-link" ng-href="{{\'/contact\' | uiHref}}">{{"contact_us" | i18n}}</a> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"terms_of_use" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"privacy_policy" | i18n}}</a> <a class="btn-link" ng-href="{{\'/about\' | uiHref}}">{{"about" | i18n}}</a> <a class="btn-link" ng-href="{{\'/product\' | uiHref}}">{{"product" | i18n}}</a>  </div> </div>  <div class="clearfix"></div> <div ng-if="BidspiritInfo.phone" class="hidden-md hidden-lg text-line text-center" ng-bind-html="\'home_footer_info_phone\' | i18n:{phone:BidspiritInfo.phoneLink}"></div> </div>   <div class="horizontal-separator"></div>  <div class="second-line" > <div class="sell float col-xs-6" > <div class="float text" >{{sellText | i18n }}&nbsp;</div>  <div class="float contact"> <bs-linkable-text  options="{ textKey:\'home_footer_sell_contact\',  onLinkClick:gotoContactForSale }" > </bs-linkable-text> </div>  <div class="clearfix"></div> </div>  <div class="float col-xs-6 social" > <div class="text">{{"follow_us" | i18n }}</div> <div class="icons"> <a class="button twitter" target="{{linkTarget}}" href="https://www.twitter.com/{{twitterPage}}"></a> <a class="button fb" target="{{linkTarget}}" href="https://www.facebook.com/{{fbPage}}"></a> </div> </div> <div class="clearfix"></div> </div>   <div> <div class="horizontal-separator" ng-if="contentType==\'ART\'"></div> <div class="hidden-xs hidden-sm">  <div class="bottom-links"> <a class="btn-link" ng-click="showInfoPopup(\'terms\')">{{"terms_of_service" | i18n}}</a>  <a class="btn-link" ng-click="showInfoPopup(\'privacy\')">{{"privacy_policy" | i18n}}</a> <a class="btn-link" ng-href="{{\'/about\' | uiHref}}">{{"about" | i18n}}</a> <a class="btn-link" ng-href="{{\'/product\' | uiHref}}">{{"product" | i18n}}</a>  <a ng-if="contentType==\'ART\'" class="btn-link" ng-href="{{\'/houses\' | uiHref}}">{{"auction_houses" | i18n}}</a>  </div> <div class="horizontal-separator"></div> </div>  <div class="rights-line">	{{"all_rights_reserved" | i18n }}	</div>  </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div> '), 
+        $templateCache.put("/portal/templates/nudges/modal/housesAlertsModal.html?1.1966", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>    <div class="action orange common-button"  ng-click="options.showRegisterForm()"> <div class="text">{{\'registeration\' | i18n}}</div></div>  '), 
+        $templateCache.put("/portal/templates/nudges/modal/nudgeModalPopup.html?1.1966", '<div class="nudge-modal-popup" ng-class="nudgeType" bs-text-direction> <div class="content" ng-include src="(\'nudges/modal/\'+options.data.nudgeType+\'Modal\') | appTemplate" ng-class="nudgeType"> </div>  </div> '), 
+        $templateCache.put("/portal/templates/nudges/navbar/nudgeNavbarPopup.html?1.1966", '<div class="nudge-navbar-popup" ng-show="isVisible" ng-class="nudgeType" ng-click="onClick()" bs-text-direction> <div class="close button">x</div> <div class="content" ng-if="isVisible" ng-include src="(\'nudges/navbar/\'+nudgeType+\'NavBar\') | appTemplate" ng-class="nudgeType">  </div>   </div> '), 
+        $templateCache.put("/portal/templates/nudges/navbar/housesAlertsNavBar.html?1.1966", '<div class="title">{{\'nudges_houses_alert_catalog_title\' | i18n}}</div>   <div class="action orange common-button"  ui-sref="app.alerts"> <div class="text">{{\'alerts_promotion_configure_command\' | i18n}}</div></div>  '), 
+        $templateCache.put("/portal/templates/nudges/scenes/installApp.html?1.1966", '<div class="install-app-nudge scene" ng-controller="InstallAppNudgeController" bs-scroll-to-top> <div class="content container"> <div class="logo-icon"></div>  <div class="message default-align" ng-bind-html="\'app_install_nudge_message\' | i18n"></div> <br>  <div class="orange common-button center-block" ng-click="gotoStorePage()"> <div class="text">{{"app_install_nudge_download" | i18n }}</div> </div>  <div class="no-install" ng-click="continueOnBrowser()"> {{"app_install_nudge_continue" | i18n }} </div> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/auctions/results/auctionsResults.html?1.1966", '<div ng-controller="AuctionsResultsController" class="auctions-results scene"> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{ (showPastAuctionsResult  ? \'auction_results_title\' : \'ended_auctions\') | i18n }}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <div class="house-selection" > <div class="space hidden-sm"> </div> <h3 class="caption"> {{(contentType==\'ART\' ?  \'auctions_results_select_house\' : \'filter\' ) | i18n}}</h3> <houses-dropdown houses="houses" on-house-selected="showHouseAuctions" max-length="40" initial-house-code="{{data.selectedHouseCode}}"> </houses-dropdown> <div class="short-separator"></div> </div>    <bs-pagination	pages-data="pagesData"	href-pages="true"> </bs-pagination>  <div class="clearfix"></div>  <bs-content-loader loaded="!displayeAuctionsLoader"></bs-content-loader>  <div class="auctions-lists-group"> <div>  <bs-auctions-list auctions="pageAuctions" view="\'recent\'"  ></bs-auctions-list> </div>  </div>   <bs-pagination	pages-data="pagesData"	href-pages="true" ng-show="!displayeAuctionsLoader"> </bs-pagination>  </div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/home/homeMain.html?1.1966", '<div ng-controller="HomeController"> <div class="home scene"> <div class="upper-part"  ng-class="[screenHeightClass]" ng-if="!inIframe"> <bs-houses-carousel ></bs-houses-carousel>  <div class="overlay" >  <div class="message" > <div class="logo-icon" ></div>  <h1  class="{{contentType | lowercase}}"  ng-bind-html="upperMessage"></h1>  <h4 class="features with-links" ng-if="featuresAsLinks && contentType==\'ART\'" >  <a ng-href="{{\'/help/search\' | uiHref}}"> {{\'home_upper_feature_search\' | i18n}}</a> <span class="bullet"></span> <a href="{{\'/help/live\' | uiHref}}">{{\'home_upper_feature_live\' | i18n}}</a> <span class="bullet"></span> <a href="{{\'/help/bids\' | uiHref}}">{{\'home_upper_feature_bid\' | i18n}}</a> </h4>  <h4 class="features" ng-if="!featuresAsLinks && contentType==\'ART\'" >  {{\'home_upper_feature_search\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_live\' | i18n}} <span class="bullet"></span> {{\'home_upper_feature_bid\' | i18n}} </h4>  <div class="demo-video-button" ng-click="showDemoVideo()" ng-if="shouldDisplayVideoLink" > {{"demo_video" | i18n }} </div> </div>  <div class="home-promotions" ng-if="viewPort.pcMedia && !judaicaOnly  && adsInfoLoaded"> <div class="inner"> <promotion-instance position="HOME_HEADER_FIRST"></promotion-instance> <promotion-instance position="HOME_HEADER_SECOND"></promotion-instance> <promotion-instance position="HOME_HEADER_THIRD"></promotion-instance> </div> </div>   <div class="clearfix"></div>  </div>  </div>  <div class="content" ng-class="[screenHeightClass]"> <bs-upper-space-holders> </bs-upper-space-holders>  <div> <form name=\'searchForm\' novalidate bs-form  bs-submit="doSearch()" class="global-search-form {{currentLang}}" bs-text-direction> <bs-form-group field-name="phrase" label="catalog_search_all" > <bs-search-input></bs-search-input> </bs-form-group> <div class="button" ng-click="doSearch()"></div> <div class="clearfix"></div> </form>  <div bs-scroll-on="auctionsToScrollTo[\'coming_auctions\']" watched-value="auctionsToScrollTo[\'coming_auctions\']" offset="auctionScrollOffset"> </div>  <promotion-instance class="home-header" position="HOME_HEADER_FIRST" ng-if="viewPort.mobileMedia && !judaicaOnly"></promotion-instance>    <div class="auctions-lists-group">  <div class="title" > <div class="space hidden-xs" ng-if="data.nextAuctions.length && !judaicaOnly && contentType==\'ART\'  && !inIframe "> </div> <h3 class="caption" ng-if="data.nextAuctions.length"> {{:: \'next_auctions\' | i18n}}</h3> <div uib-dropdown class="region-selection btn-group" ng-class="currentLang"  is-open="status.isopen" ng-if="!judaicaOnly && !inIframe && contentType==\'ART\'" > <div type="button" class="default-align selected entry" uib-dropdown-toggle > <div class="float icon {{:: currentRegion | lowercase}}"></div> <div class="float text">{{:: ("region_"+currentRegion) | i18n }}</div> <div class="opposite float caret {{dir}}" ></div> <div class="clearfix"></div> </div> <ul uib-dropdown-menu role="menu"> <li ng-repeat="region in regions" ng-if="region!=currentRegion"> <a class="default-align entry" ng-href="{{regionLink(region)}}" ng-click="onRegionClick(region)"> <div class="float icon {{region | lowercase}}"></div> <div class="float text">{{:: ("region_"+region) | i18n}}</div> <div class="clearfix"></div> </a> </li> </ul>  </div> </div>  <div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.nextAuctions" view="\'next\'" ></bs-auctions-list> </div>  <div ng-if="data.additionalAuctions.length"> <div class="title"> <h3 class="caption">{{\'auctions_list_additional\'  | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.additionalAuctions" view="\'additional\'" ></bs-auctions-list> </div>  <promotion-instance class="home-banner" position="HOME_BANNER_FIRST" ng-if="!judaicaOnly"></promotion-instance>  <div ng-if="autoScrollEnabled" bs-scroll-on="auctionsToScrollTo[\'direct_sale\']" watched-value="auctionsToScrollTo[\'direct_sale\']" offset="auctionScrollOffset"> </div>  <div ng-if="data.postSaleAuctions.length"> <div class="title"> <h3 class="caption">{{\'auctions_list_post_sale\'  | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.postSaleAuctions" view="\'post_sale\'" ></bs-auctions-list> </div>   <div ng-if="data.shops.length"> <div ng-if="viewPort.pcMedia"> <div class="title"> <h3 class="caption">{{\'home_shops_title\'  | i18n}}</h3> </div>  <div class="short-separator"></div>  <bs-shops-list shops="data.shops" > </bs-shops-list> </div>  <div ng-if="viewPort.mobileMedia"> <a href="{{\'/shops\' | uiHref}}"  class="results orange common-button col-lg-4 col-xs-10 {{currentLang}}"> <div class="text"> {{(\'home_shops_title\') | i18n}} </div>  </a> </div> </div>   <div ng-if="recentAuctionsVisible" > <div class="title"> <h3 class="caption">{{(showPastAuctionsResult ? \'auctions_list_recent\' : \'ended_auctions\') | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.recentAuctions" view="\'recent\'"  ></bs-auctions-list> </div>    <promotion-instance class="home-banner" position="HOME_BANNER_SECOND" ng-if="!judaicaOnly"></promotion-instance>  <div ng-if="resultsButtonVisible"> <a href="{{\'/results/all/\' | uiHref}}"  class="results orange common-button col-lg-4 col-xs-10 {{currentLang}}" > <div class="text"> {{(showPastAuctionsResult ? \'home_auctions_results\' : \'ended_auctions_all\') | i18n}} </div>  </a> </div>  <div ng-if="futureAuctionsButtonVisible"> <button class="future orange common-button col-lg-4 col-xs-10" ng-click="showFutureAuctions()"> <div class="text">{{\'auctions_list_show_future\' | i18n}}</div> </button> </div>   <div ng-if="futureAuctionsVisible" bs-scroll-on watched-value="scrollToFutureAuctions" debug-key="future">  <div class="title"> <h3 class="caption">{{\'future_auctions\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.futureAuctions" house-name-as-link="true" view="\'future\'" ></bs-auctions-list>  <div class="center-block future-auctions btn-link" ng-click="showAllFutureAuctions()">{{"all_future_auctions" | i18n}}</div> </div>     </div> </div>  </div> </div> </div>   '), 
+        $templateCache.put("/portal/templates/auctions/catalog/auctionCatalog.html?1.1966", '<div ng-controller="CatalogListController" > <div ng-controller="AuctionCatalogController" > <div class="catalog scene">  <div class="content col-xs-12" >  <div class="catalog-navigation-panel" bs-text-direction> <bs-upper-space-holders> </bs-upper-space-holders>  <bs-auction-info ng-if="auction" auction="auction" auction-lots="data.items"></bs-auction-info>  <div class="catalog-actions viewport_{{viewPort.viewPortWidth}}" bs-text-direction ng-class="{\'no-categories\':filterData.categories.length==0}" > <bs-catalog-list-filter items="data.items" ng-if="auction && data.items"></bs-catalog-list-filter> <bs-auction-start-alert-button  auction="auction" ng-if="auction && viewPort.mobileMedia && pagesData.pageItems.length>0"></bs-auction-start-alert-button> </div>  <div ng-if="pagesData.pageItems.length>0">   <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'upper\'" href-pages="true" ></bs-catalog-list-pagination>  <div  bs-scroll-on watched-value="scrollToPagination" offset="-200"></div>  </div> <bs-content-loader loaded="pagesData.pageItems!=null"></bs-content-loader> </div> <div ng-if="pagesData.pageItems.length>0">  <div ng-if="!displayeItemsLoader"  ng-include src="\'catalogs/list/catalogItems\' | appTemplate"  ></div> <bs-content-loader loaded="!displayeItemsLoader"></bs-content-loader> <bs-catalog-list-pagination pages-data="pagesData"  position-in-page="\'lower\'" href-pages="true"></bs-catalog-list-pagination>  <bs-house-regisration-promotion ng-show="!displayeItemsLoader && (houseApprovalState!=\'APPROVED\' || auction.house.auctionBasedUserApproval)" auction="auction" class="promotion-bottom"> </bs-house-regisration-promotion> <bs-mailing-list-promotion house="::auction.house" class="promotion-bottom"> </bs-mailing-list-promotion>  </div>  </div> </div> </div> </div>  '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionEntryNarrow.html?1.1966", '<div class="frame viewport_{{viewPort.viewPortWidth}} " >  <!--  {{auction.hoursTillAuction}} -->  <auction-badge auction="::auction" is-today="::auction.date==today"></auction-badge>   <div class="float image"  bs-cloudinary-bg="{{::(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:imageSize} "> </div>  <div class="opposite float texts" >  <h2> {{::auction.house.details.name | langField}}  </h2> <div class="number" ng-if="::auction.number"> {{::"auction_label_number" | i18n:{number:auction.number} }}&nbsp; <span class="part" ng-if="::auction.part"> {{::("auction_part_"+auction.part) | i18n}}  </span> </div>  <div class="time" > {{::auction | auctionTime}}  </div>  <div class="name"> <div ng-bind-html="::auction.name | langField : {currentLangOnly:true}"></div> <div ng-if="::auction.shortDetails | langField : {currentLangOnly:true}" style="color:{{::auction.textColors.details}}" ng-bind-html="::auction.shortDetails | langField"></div> </div>  <button class="float common-button {{currentLang}}"   ng-class="auction.displayInfo.buttonClass" ng-if="::auction.state!=\'PENDING\'">  <div class="text"> {{auction.displayInfo.buttonText | i18n}} </div> </button>  <bs-auction-start-alert-button class="opposite float" auction="::auction" ></bs-auction-start-alert-button>  <div ng-if="auction.state==\'PENDING\'" class="pending-label"  ng-if="::view!=\'future\'" ng-class="{blink:auction.clickedRecently}"> <div class="text"> {{auction.displayInfo.buttonText | i18n}} </div> </div>   <div class="clearfix"></div>  </div>  <div class="clearfix"></div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionsList.html?1.1966", '<div class="list" ng-class="[screenView,view]">  <div class="row {{:: screenView}}" bs-text-direction >    <div class="auction-entry col-md-3 col-xs-12"  ng-repeat="auction in auctions" ng-click="onAuctionClick(auction)" bs-log-click="auction-{{:: auction.house.code}}-{{:: (auction.date | date :\'dd.MM.yy\') }}", ng-animate ng-class="{clickable:isAuctionClickable(auction)}" bs-scroll-on="auction.intKey == scrollTo" >   <div  ng-if="screenView==\'wide\'"     ng-include src="\'auctions/lists/auctionEntryWide\' | appTemplate" class="frame"> </div> <div  ng-if="screenView==\'narrow\'"     ng-include src="\'auctions/lists/auctionEntryNarrow\' | appTemplate" class="frame"> </div> </div>   </div>  </div> '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionBadge.html?1.1966", ' <div class="badge-frame" ng-show="shouldShow" > <div class="text">{{:: text}}</div> </div>      '), 
+        $templateCache.put("/portal/templates/auctions/lists/auctionEntryWide.html?1.1966", '<div class="frame" >  <!--  {{::auction.hoursTillAuction}} -->   <div class="image"  bs-cloudinary-bg="{{::(auction.resources[\'topItem\'] || auction.house.resources[\'mainPageLogo\'])}}" ng-class="::{contain:auction.resources[\'topItem\']!=null}"  params="::{size:imageSize} "> <auction-badge auction="::auction" is-today="::auction.date==today"></auction-badge> </div>  <bs-auction-start-alert-button auction="auction"></bs-auction-start-alert-button>   <div class="texts"> <h2> <a class="btn-link" ng-href="{{::(\'/houses/\'+auction.house.code+\',false\') | uiHref" ng-if="isAuctionHouseLink(auction)">{{:: auction.house.details.name | langField}}</a> <span ng-if="!isAuctionHouseLink(auction)">{{:: auction.house.details.name | langField}}</span> <span ng-if="auction.number">- {{::"auction_label_number" | i18n:{number:auction.number} }}</span> </h2> <div class="part" ng-if="auction.part"> {{("auction_part_"+auction.part) | i18n}}  </div>  <div class="time" minutes_till_start="{{::auction.minutesUntilStart}}"> {{::auction | auctionTime}} </div> <div class="short-separator"></div> <div class="name"> <div ng-bind-html="::auction.name | langField : {currentLangOnly:true}"></div> <div ng-if="::auction.shortDetails | langField : {currentLangOnly:true}" style="color:{{::auction.textColors.details}}" ng-bind-html=":: auction.shortDetails | langField"></div> </div> <bs-auction-structured-data auction="auction"></bs-auction-structured-data> </div>   <div class="center-block common-button {{currentLang}}"   ng-class="auction.displayInfo.buttonClass" ng-if="view!=\'future\'"> <div class="text"> <a ng-if="isLinkbutton(auction)" ng-href="{{auction | auctionHref}}">{{auction.displayInfo.buttonText | i18n}}</a> <span  ng-if="!isLinkbutton(auction)" >{{auction.displayInfo.buttonText | i18n}}</span> </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/userDetails/houseApprovalScene.html?1.1966", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{"notice" | i18n}}</H3> <div class="short-separator"></div> </div> <bs-house-approval house-id="$stateParams.houseId"></bs-house-approval>  </div> </div>     '), 
+        $templateCache.put("/portal/templates/userDetails/userDetailsMain.html?1.1966", '<div ng-controller="UserDetailsController" class="userDetails scene" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{"user_details_title" | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>  <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <h4>{{"user_details_message" | i18n}}</h4> <br>  <uib-accordion ng-if="currentUser" > <div uib-accordion-group class="panel-default noselect" ng-repeat="section in sections" is-open="opened[section]" ng-class="section"> <uib-accordion-heading> <div> <div class="section-name    col-sm-4  float">{{sectionNameKey(section) | i18n}}</div> <div class="section-summary col-sm-5 float" ng-bind-html="getSectionSummary(section)"> </div> <div class="edit btn-link   col-sm-3  opposite float opposite-align" ng-show="!opened[section]">{{"edit" | i18n}}</div> <div class="clearfix"></div> </div> </uib-accordion-heading> <div class="section-content col-lg-6 col-md-7 col-sm-8 col-xs-12" ng-class="section"> <div  ng-include src="(\'userDetails/sections/\'+section +\'Section\') | appTemplate" ng-if="opened[section]"> </div> </div> </div> </uib-accordion> </div>   </div> '), 
+        $templateCache.put("/portal/templates/userDetails/sections/nameSection.html?1.1966", '<div class="name-section" >  <form name=\'nameUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'name\')">   <bs-form-group field-name="firstName" label="first_name"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="firstName" class="form-control" ng-model="data.user.firstName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/>  </bs-form-group>  <bs-form-group field-name="lastName" label="last_name"> <label  class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="lastName" class="form-control" ng-model="data.user.lastName" required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha"/> </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="nameUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'name\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/shippingSection.html?1.1966", '<div class="shipping-section" >  <div class="form-group checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="data.userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> <div class="clearfix"></div> </div>   <form name=\'shippingUpdateForm\'  novalidate bs-form  bs-submit="updateShippingAddress()"  > <bs-user-details-address address="data.userDetails.shippingAddress" ng-show="!data.userDetails.shippingAddress.residenceIsShipping"></bs-user-details-address> <div class="buttons-row" > <bs-async-button  button-class="\'float orange common-button\'"  bs-form-controller="shippingUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'shipping\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form>       </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/companySection.html?1.1966", '<div class="company-section" >  <form name=\'companyUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'company\')">   <bs-form-group field-name="company" label="company"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="data.user.company"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="companyUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'company\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/residenceSection.html?1.1966", '<div class="residence-section" >  <form name=\'residenceUpdateForm\'  novalidate bs-form  bs-submit="updateResidenceAddress()">  <bs-user-details-address address="data.userDetails.residenceAddress" ></bs-user-details-address>  <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="residenceUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'residence\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div> </form>   </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/englishSection.html?1.1966", "<div> <bs-edit-eng-details close-fn=\"onUpdateDone('english')\"></bs-edit-eng-details>  </div> "), 
+        $templateCache.put("/portal/templates/userDetails/sections/phoneSection.html?1.1966", '<div class="phone-section" >  <form name=\'phoneUpdateForm\'  novalidate bs-form  bs-submit="updateUserInfo(\'phone\')">   <bs-form-group field-name="phone" label="phone"> <label class="float"></label> <bs-form-validation-message css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  dir="ltr" name="phone" class="form-control" ng-model="data.user.phone" required ng-minlength="8" ng-pattern="bsValidationPatterns.phone"/>  </bs-form-group>   <div class="buttons-row"> <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="phoneUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="onUpdateDone(\'phone\')">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/emailSection.html?1.1966", "<div> <bs-edit-email></bs-edit-email> </div> "), 
+        $templateCache.put("/portal/templates/userDetails/sections/billingSection.html?1.1966", '<div class="billing-section" ng-controller="BillingInfoController"> <div ng-if="data.billingInfoInfoLoaded"> <div ng-if="data.creditCardsInfo.length>0" class="card-details"> <table class="table"> <tr> <th>{{"credit_card_type" | i18n}}</th> <th>{{"number" | i18n}}</th> <th>{{"credit_card_valid_until" | i18n}}</th> <th>{{"credit_card_owner" | i18n}}</th> <th></th> </tr> <tr ng-repeat="creditCardInfo in data.creditCardsInfo"> <td>{{("credit_card_type_"+creditCardInfo.cardCompany.toLowerCase()) | i18n}}</td> <td ><span dir="ltr">{{"************"+creditCardInfo.lastCardDigits}}</span></td> <td>{{creditCardInfo.expiration}}</td> <td>{{creditCardInfo.cardOwnerName}}</td> <td> <div  class="btn-link" ng-click="deleteCreditCardInfo(creditCardInfo.id)" > {{\'user_details_credit_card_remove\' | i18n}} </div> </td>  </tr> </table> </div>  <div ng-if="display.showCreditCardForm"> <bs-edit-credit-card-details></bs-edit-credit-card-details>  </div>  <div class="text-success" ng-if="display.showCreditCardSaved"> {{"user_details_credit_card_saved" | i18n}} </div>  <div class="buttons-row"> <div ng-show="!display.showCreditCardForm  && !display.showCreditCardSaved"  class="btn submit orange" ng-click="showCreditCardForm()" > <div class="text">{{\'user_details_credit_card_add\' | i18n}}</div> </div>    <div class="btn btn-link" ng-click="onUpdateDone(\'billing\')">{{"close" | i18n}}</div>  <div class="clearfix"></div> </div>  </div> <bs-content-loader loaded="data.billingInfoInfoLoaded"></bs-content-loader>  </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/sections/passwordSection.html?1.1966", '<div class="password-section" ng-controller="PasswordUpdateController"> <form name=\'passwordUpdateForm\'  novalidate bs-form  bs-submit="updatePassword()" >  <bs-form-group field-name="existingsPassword" label="user_details_existing_password"> <label class="float"></label> <bs-form-validation-message css-class="float" wrong="wrong_password"  ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="existingsPassword" class="form-control"  ng-model="data.existingPassword" required bs-validate="{wrong : \'!wrongPassword($value)\' }" bs-validate-watch="\'wrongPasswords\'"/>  </bs-form-group>  <bs-form-group field-name="newPassword" label="new_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" minlength="error_bad_password_short" pattern="error_bad_password_pattern" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password" name="newPassword" class="form-control" ng-model="data.newPassword" required ng-minlength="6" ng-pattern="bsValidationPatterns.nonHebrew"/>  </bs-form-group>  <bs-form-group field-name="passwordConfirm" label="confirm_password" > <label class="float"></label> <bs-form-validation-message  css-class="float" match="error_password_mismatch" ></bs-form-validation-message> <div class="clearfix"></div> <input dir="ltr"  type="password"  name="passwordConfirm" class="form-control"  ng-model="data.passwordConfirm"  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'data\'"/>  </bs-form-group>    <div class="buttons-row">  <bs-async-button button-class="\'float orange common-button\'"  bs-form-controller="passwordUpdateForm" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="updateDone()">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>   <div class="clearfix"></div> </form> </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/engDetails/requestEngDetails.html?1.1966", '<div class="default-align"> <div class="text" ng-bind-html="\'user_details_request_in_eng\' | i18n : {house:(options.data.house.details.name | langField), lang:(options.data.user.detailsLang | langName) } "></div>  <br>  <bs-edit-eng-details deferred="options.data.deferred" in-popup="true" close-fn="closePopup()"></bs-edit-eng-details> </div> '), 
+        $templateCache.put("/portal/templates/userDetails/reusableElements/editEmail.html?1.1966", '<div class="edit-email {{currentLang}}">   <div ng-show="stage==\'edit\'" > <label>{{"please_edit_your_mail" | i18n}}:</label> <form novalidate> <div class="form-group" field-name="email" label="email"> <input  dir="ltr"  name="email" class="form-control" ng-model="data.email" ng-click="clearError()"/> </div> <div class="form-error text-danger"> <div class="error-message blinkable" ng-bind-html="errorMessage | capitalize"></div> </div>  <div class="buttons-row"> <bs-async-button  button-class="\'float orange common-button\'"  action-fn="updateEmail()"  name="\'changeEmail\'" label="\'save\'" > </bs-async-button> <div class="float btn-link" ng-click="cancelEdit()">{{"cancel" | i18n}}</div> <div class="clearfix"></div> </div>  </form> </div> <div ng-show="stage==\'not_confirmed\'" > <div class="title">{{notConfirmedTitle | i18n}}.</div> <div class="line" ng-bind-html="\'email_not_confirmed_line_1\' | i18n:{email: getEmail()}"></div> <div class="line">{{"email_not_confirmed_line_2" | i18n}}</div>  <div class="links"> <div class="float"> <div class="btn-link" ng-click="sendEmailConfirmationAgain()" ng-class="{waiting:sendingConfirmationAgain}"> {{"send_again" | i18n}} </div> </div>  <div class="opposite float btn-link" ng-click="stage=\'edit\'">{{"change_email" | i18n}}</div>  <div class="clearfix"></div> <div class="float resent-message" ng-show="sentConfirmationAgain"> {{"another_message_sent" | i18n }} </div> </div>  <div class="sent-message" ng-show="anotherSent"> {{"another_message_sent" | i18n}}</div>  </div>  </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/reusableElements/editCreditCardDetails.html?1.1966", '<div class="credit-card-details" > <bs-content-loader loaded="data.iframeLoaded"></bs-content-loader>  <iframe nf-if="data.iframeUrl"  allowfullscreen=""  style="border:0; overflow-y: hidden;  overflow-x: hidden;"  webkitallowfullscreen="" scrolling="no" frameBorder="0" width="{{data.iframeWidth}}"  ng-visible="data.iframeLoaded" width="data.iframeWidth"  height="{{data.iframeLoaded ? data.iframeHeight : 0}}"  ng-src="{{data.iframeUrl}}"></iframe> <div class="footer-notes" ng-bind-html="\'credit_card_footer_notes\' | i18n"></div>  </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/reusableElements/address.html?1.1966", '<div class="address" >  <div class="row">  <bs-form-group field-name="country" label="country" css-class="col-xs-12  float" > <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  debug="true" css-class="float" minlength="error_mandatory" pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  debug="true" name="country" class="form-control" ng-model="address.country" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>   <div class="row">  <bs-form-group field-name="city" label="city" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"  pattern="error_bad_pattern_with_name"></bs-form-validation-message> <div class="clearfix"></div> <input  name="city" class="form-control" ng-model="address.city" ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="address" label="address" css-class="col-xs-12 float"> <label class="float"></label> <span class="float star">*</span><div><!-- this empty div is needed for ie8 --></div> <bs-form-validation-message  css-class="float" minlength="error_mandatory"></bs-form-validation-message> <div class="clearfix"></div> <input  name="address" class="form-control" ng-model="address.address" ng-minlength="2" required /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>    <div class="row">  <bs-form-group field-name="state" label="state_of_country" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="state" class="form-control" ng-model="address.state" ng-pattern="bsValidationPatterns.alpha" /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="zip" label="zip_code" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="zip" class="form-control" ng-model="address.zipCode"  /><div><!-- this empty div is needed for ie8 --></div>  </bs-form-group> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/userDetails/reusableElements/editEngDetails.html?1.1966", '<div class="edit-eng-details {{currentLang}}">  <div class="col-lg-5 col-sm-10"> <div class="form-group" > <label>{{"user_details_eng_first_name" | i18n }}</label> <input dir="ltr" class="form-control" ng-model="data.engFirstName" /> <div class="text-danger">{{error.engFirstName}}&nbsp;</div> </div> </div>  <div class="clearfix"></div> <div class="col-lg-5 col-sm-10"> <div class="form-group" > <label>{{"user_details_eng_last_name" | i18n }}</label> <input dir="ltr" class="form-control" ng-model="data.engLastName" /> <div class="text-danger">{{error.engLastName}}&nbsp;</div> </div> </div>  <div class="clearfix"></div> <div class="col-lg-5 col-sm-10"> <div class="form-group" > <label>{{"user_details_eng_shipping_address" | i18n }}</label> <textarea dir="ltr" rows="3" class="form-control" ng-model="data.engShippingAddress" /> <div class="text-danger">{{error.engShippingAddress}}&nbsp;</div> </div> </div>  <div class="clearfix"></div> <div class="float btn-toolbar"> <div class="btn submit orange" ng-click="submit()">{{"ok" | i18n}}</div> <div class="btn btn-link" ng-click="cancel()">{{"cancel" | i18n}}</div> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/account/mailingList/mailingListPromotion.html?1.1966", '<div class="mailing-list-promotion" ng-show="visible"> <span class="text" ng-bind-html="\'mailing_list_promotion\' | i18n:{house:(house.details.name | langField)}"> </span> <div class="button" ng-class="{\'disabled waiting\':requestInProgress}" ng-click="confirm()"> <div class="text"> {{\'i_agree\' | i18n}} </div> </div> </div>    '), 
+        $templateCache.put("/portal/templates/account/mailingList/confirmMailingList.html?1.1966", '<div bs-text-direction> <div class="modal-header"> <div class="float modal-title"></div>  <button type="button" class="opposite float close"  ng-click="$close()">&times;</button> <div class="clearfix"></div> </div>   <div class="modal-body"> <div ng-bind-html="message | i18n:{house:house} "></div> </div>   <div class="modal-footer">  <button class="btn btn-primary"  ng-click="confirm()">{{"i_agree" | i18n}}</button>  <button class="btn btn-default" ng-click="$close()">{{"i_dont_agree" | i18n}}</button>  </div> </div>  '), 
+        $templateCache.put("/portal/templates/account/bidApproval/bidApprovalScene.html?1.1966", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{title | i18n}}</H3> <div class="short-separator"></div> </div>  <bs-bid-approval  lot="lot" ></bs-bid-approval>  </div> </div>     '), 
+        $templateCache.put("/portal/templates/account/bidApproval/bidApprovalPopup.html?1.1966", '<div class="approval-popup" bs-text-direction >  <div  class="modal-header"> <label  class="float modal-title">{{title | i18n}}</label>  <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body"> <bs-bid-approval lot="lot" in-popup="true"></bs-bid-approval> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/account/bidApproval/bidApproval.html?1.1966", ' <div  class="approval-message"> <p ng-if="confirmText"> <bs-linkable-text  options="{ textKey:confirmText, textParams:{house:(house.details.name | langField)}, onLinkClick:showHouseTerms }" >  </bs-linkable-text> </p>  <div > <div class="buttons text-center"> <a class="btn btn-link cancel" ng-click="dismiss()">{{"cancel" | i18n}}</a> <bs-async-button ng-if="!requireCreditCard" action-fn="requestBidApproval()"  button-class="\'btn-primary	 common-button \'+currentLang"  label="\'ok\'" > </bs-async-button> </div>  </div> </div> '), 
+        $templateCache.put("/portal/templates/account/accountActions/accountActionsItems.html?1.1966", '<div class="not-found-message" ng-if="noItems">{{notFoundMessage | i18n}} </div>  <div class="list"  ng-class="{\'mobile-list\':viewPort.mobileMedia}">   <div class="row"> <div  ng-repeat="lot in pagesData.pageItems" bs-text-direction class="item with-house-badge" bs-scroll-on="lot.id == scrollTo"  ng-class="{\'pc-item\':viewPort.pcMedia,\'mobile-item\':viewPort.mobileMedia}"> <div>  <div class="item-link" ng-click="gotoLot(lot)"  > <div ng-if="viewPort.pcMedia"      ng-include src="\'catalogs/list/catalogItemWide\' | appTemplate" class="frame"></div> <div ng-if="viewPort.mobileMedia" ng-include src="\'catalogs/list/catalogItemNarrow\' | appTemplate"  ></div> </div> <bs-lot-favorite-flag lot="lot"></bs-lot-favorite-flag> <bs-lot-alert-flag class="float" lot="::lot"></bs-lot-alert-flag>  </div> </div>   <div class="clearfix"></div> </div>   <div class="clearfix"></div> </div>  '), 
+        $templateCache.put("/portal/templates/account/accountActions/accountActionsMain.html?1.1966", '<div ng-controller="AccountActionsController" >  <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 xs-12"> <h1>{{sceneTitle | i18n}}</h1> <div class="short-separator"></div> </div> </div> </div>    <div class="catalog accountActions {{stateParams.actionType}} scene"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders>  <div class="content col-xs-12" >  <div class="install-app-promotion" ng-if="showInstallAppPromostion"> <div ng-if="viewPort.mobileMedia"> <div class="message" ng-bind-html="\'install_app_account_message\' | i18n"></div> <install-app-button ></install-app-button> </div> <div ng-if="viewPort.pcMedia"> <div class="float message" ng-bind-html="\'install_app_account_message\' | i18n"></div>  <div  class="float orange common-button center-block" ng-click="showInstallPopup()">  <div class="text">{{"get_bidspirit_app" | i18n }}</div> </div> <div class="clearfix"></div>  </div> <div class="clearfix"></div> </div>  <div class="filter-row"> <div class="float section"> <form name=\'searchForm\' novalidate  class="global-search-form" bs-text-direction bs-enter-key-action="doSearch()">  <input class="form-control"  ng-model="data.sceneInfo.token" placeholder="{{searchMessage | i18n}}">  <div class="button noselect" ng-click="doSearch()"> </div>  <div class="clearfix"></div>  <div class="result" >{{resultMessage}} <span class="clear-link" ng-if="showClearSearch" ng-click="clearSearch()">{{"search_clear" | i18n}}</span></div>  <div class="clearfix"></div>  </form>    <div class="time-form" ng-if="timeFormVisible"> <div class="radio" ng-click="setSearchTime(\'FUTURE\')"> <label> <input type="radio"  ng-model="data.sceneInfo.time" value="FUTURE"> {{"future_auctions" | i18n }} </label> </div> <div clas="clearfix"></div> <div class="radio" ng-click="setSearchTime(\'PAST\')"> <label> <input type="radio"   ng-model="data.sceneInfo.time" value="PAST"> {{"ended_auctions" | i18n }} </label> </div> </div> </div>     <div class="opposite float house-selection" bs-text-direction ng-if="data.sceneInfo.relevantHouses.length>1"> <houses-dropdown houses="data.sceneInfo.relevantHouses" on-house-selected="onHouseSelected" initial-house-code="{{data.sceneInfo.house.code}}"> </houses-dropdown> </div>  <div class="clearfix"></div> </div>    <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  <div bs-scroll-on watched-value="scrollToPagination" offset="-200"></div>      <div ng-if="loadState!=\'loading\'" ng-include src="\'account/accountActions/accountActionsItems\' | appTemplate"  ></div>   <bs-content-loader loaded="loadState!=\'loading\'"></bs-content-loader>    <bs-catalog-list-pagination  on-current-page-change="onPageChange()" pages-data="pagesData"   href-pages="false" ></bs-catalog-list-pagination>  </div>    </div> </div>   '), 
+        $templateCache.put("/portal/templates/account/houseApproval/houseApprovalPopup.html?1.1966", '<div class="approval-popup" bs-text-direction >  <div  class="modal-header"> <label  class="float modal-title">{{"notice" | i18n}}</label>  <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body"> <bs-house-approval house-id="houseId" in-popup="true"></bs-house-approval> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/account/houseApproval/houseApprovalScene.html?1.1966", ' <div class="info-popup scene" bs-scroll-to-top>  <div class="content container col-lg-6 col-md-6 col-sm-8 col xs-12"> <div ng-if="options.title" class="title center-block container col-lg-7 col-md-7 col-sm-8 col xs-12" > <H3>{{"notice" | i18n}}</H3> <div class="short-separator"></div> </div> <bs-house-approval house-id="$stateParams.houseId"></bs-house-approval>  </div> </div>     '), 
+        $templateCache.put("/portal/templates/account/houseApproval/houseApproval.html?1.1966", ' <div  class="approval-message">  <p ng-bind-html="firstParagraph"></p> <p ng-bind-html="secondParagraph"></p>  <div ng-if="approvalState==\'NOT_REGISTERED\'">  <div class="user-id-request" ng-if="requireStateId"> <p><div class="caption">	{{"house_needs_your_id" | i18n : {house:(house | houseName :"full") } }}</div></p>  <form name=\'requestUserIdForm\'  novalidate bs-form  > <bs-form-group field-name="userStateId" label="approval_request_user_id_label"> <label></label> <input name="userStateId" class="form-control" ng-model="formData.userStateId" />  <bs-form-validation-message></bs-form-validation-message>  </bs-form-group> </form> </div>    <div class="error-message text-danger" ng-if="formData.error">  <p>{{formData.error}}</p> </div>  <div class="clearfix"></div>  <bs-async-button  class="float" ng-if="!requireCreditCard" action-fn="requestApproval()"  button-class="\'btn-primary common-button \'+currentLang"  label="\'request_approval\'" > </bs-async-button>  <button ng-if="!inPopup" class="opposite float back btn btn-link text-danger" bs-back-button ng-class="currentLang"> {{("cancel") | i18n}}</button> <div class="clearfix"></div> </div>   <div  ng-if="(approvalState==\'PENDING\' || approvalState==\'INCOMPLETE_PROFILE\'  || formData.error)" > <br><br> <button ng-if = "inPopup" class="center-block btn btn-primary"  ng-click="dismiss()">{{"close" | i18n}} </button>  <button ng-if = "!inPopup && showOkButton" class="center-block ok btn btn-primary"  ng-click="dismiss()">{{"ok" | i18n}} </button> </div>    </div> '), 
+        $templateCache.put("/portal/templates/houses/housesList.html?1.1966", '<div ng-controller="HousesListController" class="houses scene {{contentType | lowercase}}" bs-scroll-to-top> <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container col-lg-7 col-md-7 col-sm-8 col xs-12"> <h1>{{titleKey | i18nWithRegion  }}</h1> <div class="short-separator"></div>  </div> </div> </div> <div class="content container"> <bs-upper-space-holders class="narrow"> </bs-upper-space-holders> <h4 ng-bind-html="messageKey | i18nWithRegion"></h4> <br> <input class="form-control search-box" ng-keyup="updateFilter()" ng-model="token" placeholder="{{\'auction_houses_search\' | i18n}}">  <div class="container-fluid"> <div class="row text-center"> <div  class="col-xs-12 house-item default-align"  bs-text-direction ng-repeat="house in visibleHouses" ng-if="(devMode  || (!house.hidden))  && house.orderInd>0"  > <div class="house-frame"  ui-sref="app.houseNoComa({houseCode:house.code})">  <div class="frame-top" ng-style="{\'background-color\':(house.details.brandColor || \'#aaa\')}"> <div class="float name"> <h2>{{house.details.name | langField}}</h2> </div>  <div class="opposite float logo" bs-cloudinary-bg="{{house.resources[\'mainPageLogo\']}}"> </div> <div class="clearfix"></div>  </div> </div>  </div> </div>  </div>  </div>   </div> '), 
+        $templateCache.put("/portal/templates/houses/houseContactInfo.html?1.1966", '<div class="house-contact-info">  <div class="caption" ng-if="caption">{{caption | i18n}}</div>  <div class="table"> <div class="labels table-cell"> <div class="contact-label" ng-if="houseTextParams.phone">{{\'phone\' | i18n}}</div>  <div class="contact-label" ng-if="houseTextParams.secondaryPhone">&nbsp;</div> <div class="contact-label" ng-if="houseTextParams.email">{{\'email\' | i18n}}</div> <div class="contact-label" ng-if="houseTextParams.secondaryEmail">&nbsp;</div> <div class="contact-label" ng-if="(house.details.address | langField)  && !hideAddress">{{\'address\' | i18n}}</div> <div class="contact-label" ng-if="houseTextParams.link && !hideWebsite">{{\'auction_house_website\' | i18n}}</div> </div> <div class="separator table-cell"></div> <div class="values table-cell"> <div class="contact-value" ng-if="houseTextParams.phone" dir="ltr" ng-bind-html="houseTextParams.phone"></div> <div class="contact-value" ng-if="houseTextParams.secondaryPhone	" dir="ltr" ng-bind-html="houseTextParams.secondaryPhone	"></div>  <div class="contact-value" ng-if="houseTextParams.email" dir="ltr" ng-bind-html="houseTextParams.email"></div> <div class="contact-value" ng-if="houseTextParams.secondaryEmail" dir="ltr" ng-bind-html="houseTextParams.secondaryEmail"></div> <div class="contact-value" ng-if="house.details.address  && !hideAddress" dir="ltr" ng-bind-html="house.details.address | langField"></div> <div class="contact-value" ng-if="houseTextParams.link && !hideWebsite" dir="ltr" ng-bind-html="houseTextParams.link"></div>  </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/houses/housePage.html?1.1966", '<div ng-controller="HousePageController" class="house-page scene" > <div ng-if="housePic" class="house-page-image" bs-cloudinary-bg="{{housePic}}"> </div> <div ng-if="!housePic" class="house-page-image-space"> </div> <div class="content container">  <div class="house-info"> <div class="house-info-upper"> <div class="float texts"  style="max-width:{{viewPort.contentWidth-280}}px"> <h2 class="house-name"> {{house.details.name | langField}} </h2> <div ng-bind-html="houseTextParams.link"></div>  <div class="address">{{house.details.address | langField}}</div>  </div>   <div class="opposite float logo" bs-cloudinary-bg="{{(house.resources[\'mainPageLogo\'])}}" params="{size:\'188x74\'}"></div>  <div class="clearfix"></div>  </div>  <bs-mailing-list-promotion house="house" > </bs-mailing-list-promotion>  <hr>  <div class="house-info-lower"> <div class="text" ng-bind-html="house.details.info | langField"> </div> <bs-house-contact-info house = "house" hide-address="true"  caption="contactKey"> </bs-house-contact-info>  <br>  <div class="btn btn-link terms" ng-if="house.hasTerms" ng-click="openTerms()" bs-scroll-on="scrollToUpcomingAuctions" >  {{termsTitle}} </div> </div>    <bs-house-alerts-promotion house="house" > </bs-house-alerts-promotion> </div>   <div class="auctions-lists-group">  <div ng-if="data.nextAuctions.length"> <div class="title"> <h3 class="caption">{{\'next_auctions\'  | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.nextAuctions" view="\'next\'" ></bs-auctions-list> </div>  <div ng-if="shop"> <div class="title"> <h3 class="caption">{{\'shop_info_title\'  | i18n:{houseName:(house.details.name | langField)} }}</h3> </div> <div class="short-separator"></div> <div class="next list" ng-class="[screenView]"> <div class="row"  ng-class="[screenView]"> <div class="shop-entry default-align"  bs-text-direction ui-sref="app.shopCatalog({catalogKey:shop.intKey,page:1})" > <div  ng-if="screenView==\'wide\'" ng-include src="\'shops/list/shopEntryWide\' | appTemplate" > </div>  <div  ng-if="screenView==\'narrow\'" ng-include src="\'shops/list/shopEntryNarrow\' | appTemplate" > </div> </div> </div> </div>  </div>   <div ng-if="data.futureAuctions.length"> <div class="title"> <h3 class="caption">{{\'future_auctions\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.futureAuctions" view="\'future\'" ></bs-auctions-list>  </div>  <div ng-if="data.recentAuctions.length"> <div class="title"> <h3 class="caption">{{\'ended_auctions\' | i18n}}</h3> </div>  <div class="short-separator"></div> <bs-auctions-list auctions="data.recentAuctions" view="\'recent\'" ></bs-auctions-list>  </div> </div>   </div> </div> '), 
+        $templateCache.put("/portal/templates/houses/houseAlertsPromotion.html?1.1966", '<div class="house-alerts-promotion" ng-show="shouldDisplay"> {{promostionMessageKey | i18n:{house:(house.details.name | langField)} }}&nbsp <span class="no-break"> <span><span class="orange common-button" ui-sref="app.alerts"> <span class="text">{{\'alerts_promotion_configure_command\' | i18n}}</span></span> <span class="clearfix"></span> </span> </div>    '), 
+        $templateCache.put("/portal/templates/auth/authScene.html?1.1966", '<div  class="auth scene" ng-controller="AuthSceneController" ng-class="{\'logged-in\':currentUser!=null}" >  <div class="narrow upper-part">  <div class="dark overlay">  <div class="message center-block container"> <H1 >{{titleKey() | i18n}}</H1> <div class="short-separator"></div> </div> </div> </div> <div class="content container col-lg-5 col-md-7  col-xs-12" >  <bs-upper-space-holders class="narrow"> </bs-upper-space-holders> <div  bs-text-direction class="auth-view" ng-class="authDisplayInfo.authScene"  ng-if="!isIe8" ng-include 	src="\'auth/elements/\'+authDisplayInfo.authSubScene | appTemplate"> </div> </div>   </div> '), 
+        $templateCache.put("/portal/templates/auth/authModalPopup.html?1.1966", '<div  ng-controller="AuthModalPopupController" bs-text-direction>  <div  class="modal-header">  <label  class="float modal-title">{{ titleKey() | i18n}}</label> <div class="close btn-link" ng-click="$close()">&times;</div> <div class="clearfix"></div>  </div>  <div class="modal-body">  <div class="auth-view"  ng-if= "!isIe8" ng-include  src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div> </div>  </div>  '), 
+        $templateCache.put("/portal/templates/auth/legalApproval/legalApprovalRequired.html?1.1966", '<div class="legal-approval-required"> <bs-linkable-text options="{ textKey:options.legalApprovalMessage, onLinkClick:options.showLegalDoc }" > </bs-linkable-text> </div>  '), 
+        $templateCache.put("/portal/templates/auth/legalApproval/legalTermsRejected.html?1.1966", '<div> <p ng-bind-html="\'legal_reapproval_rejected\' | i18n"></p>  <br><br> <div class="text-danger"	ng-bind-html="\'legal_reapproval_support\' | i18n:{email:BidspiritInfo.emailLink}"> </div>   </div>  '), 
+        $templateCache.put("/portal/templates/auth/authNavBarPopup.html?1.1966", '<div> <div class="close btn-link" ng-click="hidePopup()">x</div>  <div  class="auth-view"   ng-if= "!isIe8"" ng-include 	src="\'auth/elements/\'+authDisplayInfo.popupSubScene | appTemplate"> </div>  <div ng-if="isIe8" ie8-warning></div>   </div> '), 
+        $templateCache.put("/portal/templates/auth/authUpperNavigation.html?1.1966", '   <li ng-repeat="link in [\'login\',\'register\']"  class="btn-link non-logged-in" ng-if="!currentUser"   ng-click="togglePopupView(link)"  ng-class="[currentLang,link]"> <a class="text"> {{ linkText(link) }} </a>  <div class="up-arrow" ng-show="authDisplayInfo.popupScene==link"></div>  </div>    <li ng-if="currentUser" class="white dropdown user-actions" ng-class="{open:authDisplayInfo.menuVisible}"> <div class="float hazard btn-link"  ng-if="currentUser.registrationStage!=\'COMPLETE\'" ng-click="togglePopupView(\'warning\')"> <div class="icon" ng-class="{on:authDisplayInfo.popupScene==\'warning\'}"></div> <div class="up-arrow" ng-show="authDisplayInfo.popupScene==\'warning\'"></div> </div>  <a class="dropdown-toggle"  ng-mouseenter="setMenuVisiblity(true)" ng-mouseleave="hideMenuAfterDelay()"> {{\'hello_user\' | i18n:{userName:currentUser.firstName} }}&nbsp;<span class="caret"></span> </a> <ul class="dropdown-menu"  ng-mouseenter="setMenuVisiblity(true)"  ng-mouseleave="hideMenuAfterDelay()" bs-text-direction> <li><a  ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.accountActions({actionType:\'absenteeBids\'})" >{{\'absentee_bids\' | i18n}}</a></li> <li><a  ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.accountActions({actionType:\'purchases\'})" >{{\'purchases\' | i18n}}</a></li> <li><a  ng-if="currentUser.registrationStage!=\'UNCONFIRMED_EMAIL\'" ui-sref="app.accountActions({actionType:\'favorites\'})">{{\'favorites\' | i18n}}</a></li> <li><a  ui-sref="app.alerts">{{\'alerts\' | i18n}}</a></li> <li><a  ui-sref="app.userDetails">{{\'update_details\' | i18n}}</a></li> <li><a  ng-click="logout()">{{\'logout\' | i18n | capitalize}}</a></li> </ul>  <bs-nudge-navbar-popup></bs-nudge-navbar-popup>  </li>  <div class="auth-navbar-popup" ng-class="[authDisplayInfo.popupScene, currentLang]"  ng-include src="\'auth/authNavBarPopup\' | appTemplate"  ng-if="authDisplayInfo.popupScene!=null">  </div>   '), 
+        $templateCache.put("/portal/templates/auth/elements/recoverPassword.html?1.1966", '<div class="recover-password sub-scene" ng-controller="RecoverPasswordController"> <div class="title"> {{\'recover_password\' | i18n}}</div> <div class="separator"></div>  <div ng-if="stage==1"> <br> <div class="message"> {{\'recover_password_message\' | i18n}}:</div> <br> <form name=\'recoverForm\'  novalidate bs-form  bs-submit="sendPassword()" >  <bs-form-group field-name="email" label="email"> <input type="email" name="email" class="form-control" ng-model="info.email" required ng-change="data.emailUnknown=false" bs-validate="{unknown : \'!data.emailUnknown\' }"  bs-validate-watch="\'data.emailUnknown\'" /> <bs-form-validation-message hidden="true" unknown="error_email_not_exists"> </bs-form-validation-message>  </bs-form-group>  <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error>{{bsFormFirstErrorMessage()}}</div> </div>  <div class="orange common-button opposite float" ng-click="recoverForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div>  <div class="cancel btn-link opposite float" ng-click="setAuthSubScene(\'login\')">{{\'cancel\' | i18n}}</div>  <div class="clearfix"></div>   </form>  </div>  <br><br>  <div ng-if="stage==2"> <div class="message"> {{\'recover_password_success\' | i18n :{email:info.email} }}</div>  <div class="orange finish common-button opposite float"  ng-click="setAuthSubScene(\'login\')" > <div class="text">{{"done" | i18n }}</div> </div>  <div class="clearfix"></div>  </div>  </div> '), 
+        $templateCache.put("/portal/templates/auth/elements/warning.html?1.1966", '<div  class="warning sub-scene {{currentLang}}" >  <bs-edit-email ng-if="currentUser.registrationStage==\'UNCONFIRMED_EMAIL\'"></bs-edit-email>    <div class="incompleteProfile" ng-if="currentUser.registrationStage==\'INCOMPLETE_PROFILE\'"> <div class="message">{{"incomplete_details_message" | i18n}}</div>  <div class="orange common-button" ui-sref="app.auth({authScene:\'postRegistrationDetails\',authSubScene:\'\',args:\'\'})"  > <div class="text">{{"incomplete_details_update" | i18n }}</div> </div> </div>  </div> '), 
+        $templateCache.put("/portal/templates/auth/elements/postRegistrationDetails.html?1.1966", '<div ng-controller="PostRegistrationDetailsController"> <div ng-show="!formSubmitted" class="before-submit" ng-if="userDataLoaded">  <div class="register-success" ng-if="currentUser.justConfirmed">{{"register_success" | i18n}}</div>  <div class="message">{{"post_registration_message" | i18n}}</div> <div class="clearfix"></div> <form name=\'completeRegistrationForm\'  novalidate bs-form  bs-submit="save()" > <div class="form-half-page"> <h4 class="default-align">{{"personal_details" | i18n}}</h4>  <div class="row">  <bs-form-group field-name="phone" label="phone" css-class="col-xs-12 float" debug="true"> <label class="float"></label> <span class="float star">*</span> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div>  <input  name="phone" class="form-control" dir="ltr" ng-model="userDetails.phone"  required  ng-pattern="bsValidationPatterns.phone" ng-minlength="8"/>  </bs-form-group>  </div>  <div class="row">  <bs-form-group field-name="company" label="company" css-class="col-xs-12 float"> <label class="float"></label> <bs-form-validation-message  css-class="float"></bs-form-validation-message> <div class="clearfix"></div> <input  name="company" class="form-control" ng-model="userDetails.company" />  </bs-form-group>  </div>  <h4>{{"residence_address" | i18n}}</h4> <div ng-if="true"> <!--  crazy, but without this line validation stops to work... couldn\'t figure out why --> <ng-form bs-form name="residence"> <bs-user-details-address address="userDetails.residenceAddress" ></bs-user-details-address> </ng-form>  </div>  </div>  <div class="clearfix"></div>  <bs-form-group field-name="residenceIsShipping" css-class="col-xs-12 float checkbox-row"> <input  type="checkbox" class="float" name="residenceIsShipping" ng-model="userDetails.shippingAddress.residenceIsShipping"/> <label class="float">{{\'user_details_shipping_is_residence\' | i18n}}</label> </bs-form-group>  <div class="form-half-page">  <div ng-if="!userDetails.shippingAddress.residenceIsShipping" > <h4>{{"shipping_address" | i18n}}</h4> <ng-form bs-form name="shipping"> <bs-user-details-address  address="userDetails.shippingAddress"></bs-user-details-address> </ng-form>  </div> </div>  <div class="clearfix"></div>  <div class="form-error"> <div class="form-input error-message text-danger" bs-blink-on-form-error ng-show="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> </div>   <div class="orange common-button float" ng-click="completeRegistrationForm.submit()" > <div class="text">{{"send" | i18n }}</div> </div>   </form> </div>  <div class="clearfix"></div>  <div ng-show="formSubmitted" class="post-submit"> <div class="row"> <div class="title">{{"post_registration_details_success" | i18n }}</div> </div> <div class="row"> <div class="message col-xs-9">{{"post_registration_details_success_message" | i18n }}</div> </div>  <div class="row"> <div class="orange common-button  float" ui-sref="app.home" > <div class="text">{{"done" | i18n }}</div> </div>  </div>  </div>  <br><br> </div>  '), 
+        $templateCache.put("/portal/templates/auth/elements/register.html?1.1966", ' <div class="register sub-scene" ng-controller="RegisterController">  <div class="message" bs-scroll-on watched-value="scrollToFisrtLine" debug-key="register"> {{"register_message_line_1"  | i18n }} <br> {{"please_fill_in_the_following_details"  | i18n }} <br>  </div>  <form name=\'registerForm\'  novalidate bs-form  bs-submit="register()" >  <bs-form-group field-name="firstName" label="first_name" css-class="float"> <label></label> <input name="firstName" class="form-control" ng-model="registrationInfo.firstName"  required ng-minlength="2" ng-pattern="bsValidationPatterns.alpha" />  <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="lastName" label="last_name" css-class="float"> <label></label> <input name="lastName" class="form-control" ng-model="registrationInfo.lastName" required  ng-pattern="bsValidationPatterns.alpha" ng-minlength="2"/> <bs-form-validation-message hidden="true" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="email" label="email"> <label></label> <input dir="ltr" class="email form-control"  type="email" name="email"  ng-model="registrationInfo.email" ng-pattern="bsValidationPatterns.email"  required  bs-validate="{exists : \'!emailExists($value)\' }" bs-validate-watch="\'existingEmails\'" /> <bs-form-validation-message hidden="true" exists="error_email_exists" ></bs-form-validation-message>  </bs-form-group> <div class="clearfix"></div>   <bs-form-group field-name="password" label="password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="password" class="form-control" ng-model="registrationInfo.password" required ng-minlength="6"  ng-pattern="bsValidationPatterns.nonHebrew" /> <bs-form-validation-message  css-class="float" minlength="error_bad_password_short" pattern="error_bad_password_pattern" ></bs-form-validation-message>  </bs-form-group>  <div class="float space"></div>  <bs-form-group field-name="passwordConfirm" label="confirm_password" css-class="float"> <label></label> <input  dir="ltr" type="password" name="passwordConfirm" class="form-control"  ng-model="registrationInfo.passwordConfirm" required  bs-validate="{match : \'passwordConfirmedMatch()\' }" bs-validate-watch="\'registrationInfo\'"/> <div class="clearfix"></div>  <bs-form-validation-message hidden="true" match="error_password_mismatch" ></bs-form-validation-message> </bs-form-group>   <bs-form-group field-name="over18" css-class="checkbox-row"> <input  type="checkbox" class="float" name="over18" ng-model="registrationInfo.over18" required/> <bs-checkbox class="float"  bs-model="registrationInfo.over18"></bs-checkbox> <label class="float">{{\'register_over18\' | i18n}}</label> <div class="clearfix"></div> <bs-form-validation-message hidden="true" required="error_over18"></bs-form-validation-message> </bs-form-group>  <div class="clearfix"></div>   <bs-form-group field-name="terms" css-class="checkbox-row"> <input  type="checkbox" name="terms" ng-model="registrationInfo.terms" required/> <bs-checkbox class="float"  bs-model="registrationInfo.terms"></bs-checkbox> <label> <bs-linkable-text  options="{ textKey:\'register_terms_accept\', onLinkClick:showTerms }" >  </bs-linkable-text> </label>  <bs-form-validation-message hidden="true" required="error_accept_terms"></bs-form-validation-message> <div class="clearfix"></div>  </bs-form-group>    <div class="form-error text-danger" > <div class="error-message" bs-blink-on-form-error >{{bsFormFirstErrorMessage()}}</div>  <div class="login link" ng-show="displayLoginLink()" ng-click="setAuthScene(\'login\')" >{{\'login_with_mail\' | i18n}}</div>  <div class="clearfix"></div> </div>    <bs-async-button button-class="\'opposite float orange common-button\'"  bs-form-controller="registerForm"  label="\'send\'" ></bs-async-button>   <div class="clearfix"></div>  </form> </div>  '), 
+        $templateCache.put("/portal/templates/auth/elements/login.html?1.1966", '<div class="login sub-scene" ng-controller="PortalLoginController"> <div class="message" ng-if="authDisplayInfo.args.message">{{ authDisplayInfo.args.message | i18n}}</div> <form name=\'loginForm\'  novalidate bs-form  bs-submit="login()" >  <bs-form-group field-name="email" label="email"> <label></label> <input dir="ltr" type="email" name="email" class="form-control" debug="true" ng-model="loginInfo.email" required  ng-change="hideLoginError()"/>  <bs-form-validation-message hidden="true"  ></bs-form-validation-message>  </bs-form-group>  <bs-form-group field-name="password" label="password" class="password"> <label></label> <div dir="ltr"> <input id="loginPasswordInput" bs-focus-on="focusOnPassword" type="{{passwordVisible ? \'text\' : \'password\'}}" name="password" autocorrect="off" autocapitalize="none" class="form-control" ng-model="loginInfo.password" required ng-change="hideLoginError()"/> </div> <bs-form-validation-message hidden="true" ></bs-form-validation-message> <div id="loginPasswordIcon" class="showPassword" ng-click="togglePasswordVisible()"></div>  </bs-form-group>   <div class="form-error text-danger"> <div class="form-input error-message  bs-blink-on-form-error" ng-if="!loginErrorVisible">{{bsFormFirstErrorMessage()}}</div> <div class="login error-message" ng-if="loginErrorVisible">{{"error_login" | i18n }}.</div> </div>  <bs-form-group field-name="remember" css-class="checkbox-row"> <input type="checkbox" class="float" name="remember" ng-model="loginInfo.remember"/> <bs-checkbox class="float"  bs-model="loginInfo.remember"></bs-checkbox> <label class="float" ng-click="loginInfo.remember=!loginInfo.remember">{{\'remember_me\' | i18n}}</label> <div class="clearfix"></div>  </bs-form-group>     <div class="forgot-password btn-link" ng-click="setAuthSubScene(\'recoverPassword\')">{{"forgot_password" | i18n }}</div>  <div class="orange common-button opposite" ng-click="loginForm.submit()" > <div class="text">{{"login" | i18n | capitalize}}</div> </div>  <div class="goto-register btn-link" ng-click="setAuthScene(\'register\')">{{"login_goto_register" | i18n }}</div>    </form> </div> ');
     });
 }), define("domReady", [], function() {
     function runCallbacks(callbacks) {
@@ -35227,7 +38850,8 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     module.exports.FastClick = FastClick) : window.FastClick = FastClick;
 }(), window.location.hash && -1 != window.location.hash.indexOf("%21") && (window.location.hash = window.location.hash.replace("%21", "!")), 
 define([ "require", "angular", "app", "commonModules", "domReady", "fastClick" ], function(require, ng) {
-    require([ "domReady!", "fastClick" ], function(document, fastClick) {
-        window.BIDSPIRIT_SNAPSHOT || (ng.bootstrap(document, [ "app" ]), fastClick.attach(document.body));
+    require([ "domReady!", "fastClick", "rangy-core" ], function(document, fastClick, rangy) {
+        window.BIDSPIRIT_SNAPSHOT || (ng.bootstrap(document, [ "app" ]), fastClick.attach(document.body), 
+        window.rangy = rangy);
     });
 });
