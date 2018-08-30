@@ -36448,9 +36448,8 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             }, 100), $state.go("app.home")) : window.location.href = PathsService.getPortalUrl(contentType, $rootScope.currentRegion);
         }
 function gotoRegion(region){
-alert(region)
 			if (GlobalConfig.isMobileApp || window.location.href.indexOf("bidspirit")==-1){
-	   			LocalStorageService.store("region",region);
+	   			LocalStorageService.store("region",region.toUpperCase());
 	   			setTimeout(function(){window.location.reload();},100);
 	   		} else {
 	   			window.location.href = PathsService.getPortalUrl($rootScope.contentType, region);            				
@@ -36458,7 +36457,6 @@ alert(region)
 		}
 		
 		function  gotoTagPage(tag){
-alert(tag);
 			if (tag.indexOf("region")==0){
 				gotoRegion(tag.split("_")[1]);
 			} else {
