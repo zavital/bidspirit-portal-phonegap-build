@@ -27907,7 +27907,7 @@ define("portal/js/modules/catalogs/search/searchModule", [ "angular" ], function
                 tag: $scope.data.tag
             }), trackSearch($scope.data.searchToken, $scope.data.tag), verifyArgsPath() && setCurrentPageResults().then(function() {
                 $scope.searching = !1, $scope.data.searchedToken = $scope.data.searchToken;
-            }), document.activeElement.blur(), GlobalConfig.isMobileApp && setTimeout(function() {
+            }), document.activeElement.blur(), GlobalConfig.isMobileApp1 && setTimeout(function() {
                 document.activeElement.blur();
             }, 1e3));
         }, $scope.onPageChange = function() {
