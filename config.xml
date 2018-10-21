@@ -96,6 +96,7 @@
 	 <gap:config-file platform="ios" parent="LSApplicationQueriesSchemes" mode="replace">
 		<array>
 			<string>puffin</string>
+			<string>puffins</string>
 			<string>puffinFree</string>
 		</array>
     </gap:config-file>
