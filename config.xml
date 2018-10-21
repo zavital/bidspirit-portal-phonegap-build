@@ -97,6 +97,7 @@
 		<array>
 			<string>puffin</string>
 			<string>puffins</string>
+			<string>puffinLite</string>
 			<string>puffinFree</string>
 		</array>
     </gap:config-file>

@@ -23911,10 +23911,10 @@ alert("checkign scheme "+scheme);
 			}
 		}
         function checkPuffinExists(onFound, onNotFound) {
-            return checkSchemeExists("puffin://", "com.cloudmosa.puffin", onFound, onNotFound);
+            return checkSchemeExists("puffins://", "com.cloudmosa.puffin", onFound, onNotFound);
         }
         function checkPuffinFreeExists(onFound, onNotFound) {
-            return checkSchemeExists("puffinFree://", "com.cloudmosa.puffinFree", onFound, onNotFound);
+            return checkSchemeExists("puffinLite://", "com.cloudmosa.puffinFree", onFound, onNotFound);
         }
         return {
             tryToLaunchWithPuffin: tryToLaunchWithPuffin
