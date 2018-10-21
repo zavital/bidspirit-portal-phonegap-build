@@ -23881,7 +23881,7 @@ alert("opening url:"+url+" with protocol "+protocol);
             }, openWithProtocol = function(protocol) {
                 window.open(url.replace("https", protocol), "_system");
             }, openWithPuffin = function() {
-                openWithProtocol("puffin");
+                openWithProtocol("puffins");
             }, openWithPuffinFree = function() {
                 openWithProtocol("puffin");
             };
