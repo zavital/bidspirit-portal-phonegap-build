@@ -514,9 +514,9 @@ bs-page-footer {
               font-size: 18px;
               border-radius: 2px;
               width: 275px; }
-          .upper-navigation.pc .pc-only > .container .first-line .searchFormContainer.es {
+          .upper-navigation.pc .pc-only > .container .first-line .searchFormContainer.es, .upper-navigation.pc .pc-only > .container .first-line .searchFormContainer.ru {
             left: 450px; }
-            .upper-navigation.pc .pc-only > .container .first-line .searchFormContainer.es .global-search-form input {
+            .upper-navigation.pc .pc-only > .container .first-line .searchFormContainer.es .global-search-form input, .upper-navigation.pc .pc-only > .container .first-line .searchFormContainer.ru .global-search-form input {
               font-size: 15px; }
       .upper-navigation.pc .pc-only > .container .second-line {
         width: 100%;
@@ -1067,8 +1067,8 @@ th {
     border: 1px solid #ddd !important; } }
 @font-face {
   font-family: 'Glyphicons Halflings';
-  src: url(../fonts/glyphicons-halflings-regular.eot);
-  src: url(../fonts/glyphicons-halflings-regular.eot?#iefix) format("embedded-opentype"), url(../fonts/glyphicons-halflings-regular.woff2) format("woff2"), url(../fonts/glyphicons-halflings-regular.woff) format("woff"), url(../fonts/glyphicons-halflings-regular.ttf) format("truetype"), url(../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular) format("svg"); }
+  src: url(https://bidspirit-portal-static.global.ssl.fastly.net/fonts/glyphicons-halflings-regular.eot);
+  src: url(https://bidspirit-portal-static.global.ssl.fastly.net/fonts/glyphicons-halflings-regular.eot?#iefix) format("embedded-opentype"), url(https://bidspirit-portal-static.global.ssl.fastly.net/fonts/glyphicons-halflings-regular.woff2) format("woff2"), url(https://bidspirit-portal-static.global.ssl.fastly.net/fonts/glyphicons-halflings-regular.woff) format("woff"), url(https://bidspirit-portal-static.global.ssl.fastly.net/fonts/glyphicons-halflings-regular.ttf) format("truetype"), url(https://bidspirit-portal-static.global.ssl.fastly.net/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular) format("svg"); }
 .glyphicon {
   position: relative;
   top: 1px;
@@ -7623,7 +7623,7 @@ button.close {
  * -------------------------- */
 @font-face {
   font-family: 'FontAwesome';
-  src: url(../../common/fonts/fontawesome-webfont.woff?v=4.1.0) format("woff");
+  src: url(https://bidspirit-portal-static.global.ssl.fastly.net/fonts/fontawesome-webfont.woff?v=4.1.0) format("woff");
   font-weight: normal;
   font-style: normal; }
 .fa {
