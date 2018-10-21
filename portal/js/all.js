@@ -23889,11 +23889,27 @@ alert("opening url:"+url+" with protocol "+protocol);
                 checkPuffinFreeExists(openWithPuffinFree, openNormally);
             });
         }
-        function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound) {
+        function checkSche1meExists(iosScheme, androidSceme, onFound, onNotFound) {
             var scheme = null;
             "undefined" != typeof device && ("iOS" === device.platform ? scheme = iosScheme : "Android" === device.platform && (scheme = androidSceme)), 
             scheme && "undefined" != typeof appAvailability ? appAvailability.check(scheme, onFound, onNotFound) : onNotFound();
         }
+function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound){
+			var scheme = null;
+			if (typeof device!="undefined"){
+				if(device.platform === 'iOS') {
+					scheme = iosScheme;
+				} else  if(device.platform === 'Android') {
+					scheme = androidSceme;
+				}
+			}
+			if (scheme && typeof(appAvailability)!="undefined"){
+alert("checkign scheme "+scheme);
+				appAvailability.check(scheme, onFound, onNotFound);
+			} else {
+				onNotFound();
+			}
+		}
         function checkPuffinExists(onFound, onNotFound) {
             return checkSchemeExists("puffin://", "com.cloudmosa.puffin", onFound, onNotFound);
         }
