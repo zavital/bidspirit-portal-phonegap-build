@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="391" versionCode="15699"
+<<<<<<< HEAD
+<widget version="390" versionCode="15698"
+=======
+<widget version="389" versionCode="15697"
+>>>>>>> b308c5f5bc1cab86f7f4801084a6e957e9a51820
     id="com.bidspirit.qa"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"

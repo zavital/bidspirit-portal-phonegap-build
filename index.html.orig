@@ -29,9 +29,15 @@
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
+<<<<<<< HEAD
 					loadedTextsVersion : '2018-10-20_09-28-20',
 					appVersion : '1.2033',
-					mobileAppVersion : '391',					
+					mobileAppVersion : '390',					
+=======
+					loadedTextsVersion : '2018-10-19_17-09-58',
+					appVersion : '1.2032',
+					mobileAppVersion : '389',					
+>>>>>>> b308c5f5bc1cab86f7f4801084a6e957e9a51820
 					envName : "prod",					
 					isMobileApp:true,
 					appName:"portal"
@@ -51,7 +57,7 @@
 					GlobalConfig.envName="qa";
 				}
 				
-				//debugMode = GlobalConfig.envName=="qa";
+				debugMode = GlobalConfig.envName=="qa";
 				
 		        var require = {
 		       		baseUrl: "./",	
@@ -119,7 +125,7 @@
 			   	for (var i=0;i< debugElements.length;i++){
 			   		debugElements[i].style.display="block";
 			   	}
-			   	setInterval(function(){document.getElementById("pgDebugMessage").scrollTop=100000;},1000);	
+			   	setInterval(function(){document.getElementById("pgDebugMessage").scrollTop=100000;},5000);	
 			 }
 		</script>
 		
