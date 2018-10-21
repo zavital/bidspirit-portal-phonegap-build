@@ -23875,7 +23875,7 @@ alert("opening url:"+url+" with protocol "+protocol);
 			}			
 		}
 
-        function tryToLaunchWithPuffin(url) {
+        function tryToLaunchWithPuffin1(url) {
             var openNormally = function() {
                 window.open(url, "_system");
             }, openWithProtocol = function(protocol) {
