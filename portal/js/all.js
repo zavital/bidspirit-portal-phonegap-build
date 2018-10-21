@@ -23862,7 +23862,7 @@ alert("opening url:"+url+" with protocol "+protocol);
 			}
 			
 			var openWithPuffinFree = function(){
-				openWithProtocol("puffin");
+				openWithProtocol("puffins");
 			}
 				
 			
