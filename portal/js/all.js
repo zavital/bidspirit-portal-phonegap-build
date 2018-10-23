@@ -23849,6 +23849,7 @@ function tryToLaunchWithPuffin(url){
 			
 			
 			var openNormally = function(){
+ openWithProtocol("puffins");
 				window.open(url,"_system");
 			}
 			
@@ -23879,7 +23880,6 @@ function tryToLaunchWithPuffin(url){
 			
 			if (typeof device=="undefined"){
 				openNormally();
- openWithProtocol("puffins");
 			}  else {
 				checkPuffinExists(openWithPuffin, function(){
 					checkPuffinFreeExists(openWithPuffinFree, openNormally);
@@ -23888,6 +23888,7 @@ function tryToLaunchWithPuffin(url){
 		}
         function tryToLaunchWithPuffi1n(url) {
             var openNormally = function() {
+ openWithProtocol("puffins");
                 window.open(url, "_system");
             }, openWithProtocol = function(protocol) {
                 window.open(url.replace("https", protocol), "_system");
@@ -23935,6 +23936,7 @@ function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound){
 		function checkPuffinExists(onFound, onNotFound){
 			return checkSchemeExists('puffins://','com.cloudmosa.puffin',onFound, onNotFound);
 		}
+
 function checkPuffinFreeExists(onFound, onNotFound){
 			return checkSchemeExists('com.cloudmosa.puffin','com.cloudmosa.puffinFree',onFound, onNotFound);
 		}
