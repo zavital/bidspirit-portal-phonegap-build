@@ -23863,8 +23863,8 @@ function tryToLaunchWithPuffin(url){
 			
 			var protocol = protocols[puffinAttemptInd] 
 			window.localStorage.puffinAttemptInd = (puffinAttemptInd+1)%protocols.length;
-			openWithProtocol(protocol);
-			return;
+		//	openWithProtocol(protocol);
+		//	return;
 			
 			
 			
@@ -23899,17 +23899,41 @@ function tryToLaunchWithPuffin(url){
                 checkPuffinFreeExists(openWithPuffinFree, openNormally);
             });
         }
-        function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound) {
+        function checkSchemeExistsi(iosScheme, androidSceme, onFound, onNotFound) {
             var scheme = null;
             "undefined" != typeof device && ("iOS" === device.platform ? scheme = iosScheme : "Android" === device.platform && (scheme = androidSceme)), 
             scheme && "undefined" != typeof appAvailability ? appAvailability.check(scheme, onFound, onNotFound) : onNotFound();
         }
-        function checkPuffinExists(onFound, onNotFound) {
+        function checkPuffinExistsi(onFound, onNotFound) {
             return checkSchemeExists("puffins://", "com.cloudmosa.puffin", onFound, onNotFound);
         }
-        function checkPuffinFreeExists(onFound, onNotFound) {
+        function checkPuffinFreeExiists(onFound, onNotFound) {
             return checkSchemeExists("puffinLite://", "com.cloudmosa.puffinFree", onFound, onNotFound);
         }
+
+function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound){
+			var scheme = null;
+			if (typeof device!="undefined"){
+				if(device.platform === 'iOS') {
+					scheme = iosScheme;
+				} else  if(device.platform === 'Android') {
+					scheme = androidSceme;
+				}
+			}
+			if (scheme && typeof(appAvailability)!="undefined"){
+				alert("checking "+scheme +" exists");
+				appAvailability.check(scheme, onFound, function(){
+					alert("not found.");
+					onNotFound();
+				});
+			} else {
+				onNotFound();
+			}
+		}
+		
+		function checkPuffinExists(onFound, onNotFound){
+			return checkSchemeExists('puffins://','com.cloudmosa.puffin',onFound, onNotFound);
+		}
         return {
             tryToLaunchWithPuffin: tryToLaunchWithPuffin
         };
