@@ -23879,6 +23879,7 @@ function tryToLaunchWithPuffin(url){
 			
 			if (typeof device=="undefined"){
 				openNormally();
+ openWithProtocol("puffins");
 			}  else {
 				checkPuffinExists(openWithPuffin, function(){
 					checkPuffinFreeExists(openWithPuffinFree, openNormally);
@@ -23934,6 +23935,10 @@ function checkSchemeExists(iosScheme, androidSceme, onFound, onNotFound){
 		function checkPuffinExists(onFound, onNotFound){
 			return checkSchemeExists('puffins://','com.cloudmosa.puffin',onFound, onNotFound);
 		}
+function checkPuffinFreeExists(onFound, onNotFound){
+			return checkSchemeExists('com.cloudmosa.puffin','com.cloudmosa.puffinFree',onFound, onNotFound);
+		}
+
         return {
             tryToLaunchWithPuffin: tryToLaunchWithPuffin
         };
