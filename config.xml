@@ -97,8 +97,11 @@
 		<array>
 			<string>puffin</string>
 			<string>puffins</string>
-			<string>puffinLite</string>
-			<string>puffinFree</string>
+			<string>puffin-full</string>
+			<string>puffin-fulls</string>
+			<string>puffin-x-callback</string>
+			<string>db-b3onyus8ro2tifs</string>
+			<string>fb445450618828402puffin</string>
 		</array>
     </gap:config-file>
 	
