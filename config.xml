@@ -29,7 +29,9 @@
     <plugin name="cordova-plugin-splashscreen"  />
     <plugin name="cordova-plugin-inappbrowser"  />
     
-    <plugin name="cordova-plugin-appavailability"/>
+    <plugin name="cordova-plugin-appavailability" source="npm" />
+    <plugin spec="https://github.com/ohh2ahh/AppAvailability.git" source="git" />
+	
     
     <plugin name="cordova-plugin-google-analytics"  spec="~1.0.0" />
   
