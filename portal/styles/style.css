@@ -9700,7 +9700,9 @@ footer {
     padding-top: 0;
     margin-top: 100px; }
     .home.scene .content.in-iframe .global-search-form {
-      display: none !important; } }
+      display: none !important; }
+    .home.scene .content.in-iframe .upper-scene-part-space, .home.scene .content.in-iframe .upper-scene-part-space {
+      display: none; } }
 .home.scene .content .upper-scene-part-space {
   height: 450px; }
 @media (min-width: 1200px) {
@@ -9710,7 +9712,9 @@ footer {
       height: 360px; }
     .home.scene .content.in-iframe {
       padding-top: 0;
-      margin-top: 80px; } }
+      margin-top: 80px; }
+      .home.scene .content.in-iframe .upper-scene-part-space, .home.scene .content.in-iframe .upper-scene-part-space {
+        display: none; } }
 .home.scene .content .home-banner {
   cursor: pointer;
   padding-bottom: 40px; }
@@ -11743,6 +11747,9 @@ footer {
     .approval-popup .buttons .cancel.btn {
       color: #b95717;
       margin: 5px 20px; }
+  @media (max-width: 1199px) {
+    .approval-popup .modal-body {
+      max-height: 400px; } }
   .approval-popup .error-message {
     font-size: 14px;
     margin: 20px 0; }
@@ -13286,14 +13293,17 @@ a.install-app-button {
                 .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .info .lot-price-row .lot-price-value {
                   font-weight: bold;
                   display: inline; }
-            .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-view-only {
-              color: red;
+            .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-view-only-message {
               position: absolute;
               right: 0;
               bottom: 10px;
               padding: 5px;
               font-size: 20px;
               font-weight: bold; }
+              .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-view-only-message .internet-enabled {
+                color: green; }
+              .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-view-only-message .view-only {
+                color: red; }
             .catalog.scene .content .list.mobile-list .row .item.mobile-item .item-link .lot-row .lot-badge {
               color: white;
               position: absolute;
@@ -13348,7 +13358,7 @@ a.install-app-button {
           .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .info .lot-text {
             padding-left: 10px;
             padding-right: 0px; }
-        .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .lot-view-only {
+        .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .lot-view-only-message {
           left: 0;
           right: auto; }
         .catalog.scene .content .list.mobile-list .row .item.mobile-item[dir=rtl] .item-link .lot-row .lot-price-row {
@@ -14002,6 +14012,8 @@ a.install-app-button {
             font-size: 15px; }
         .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.ru .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.ru .text {
           font-size: 13px; }
+        .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.pt .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.pt .text {
+          font-size: 14px; }
         .catalog.lotPage.scene .content .bid-form .edit-mode form .common-button.buy-now.es .text, .catalog.lotPage.scene .content .bid-form .direct-bid form .common-button.buy-now.es .text {
           font-size: 13px; }
       .catalog.lotPage.scene .content .bid-form .edit-mode form .cancel.btn-link, .catalog.lotPage.scene .content .bid-form .direct-bid form .cancel.btn-link {
@@ -14014,7 +14026,7 @@ a.install-app-button {
         font-size: 13px;
         font-weight: bold;
         color: red; }
-  .catalog.lotPage.scene .content .bid-form .bids-disabled-on-holyday {
+  .catalog.lotPage.scene .content .bid-form .disabled-on-holyday {
     color: #db403e;
     margin-bottom: 20px; }
   .catalog.lotPage.scene .content .bid-form .lot-price-row {
@@ -14174,11 +14186,16 @@ a.install-app-button {
         font-size: 15px; }
       .catalog.lotPage.scene .content .shop-purchase-form .form .common-button.buy-now.ru .text {
         font-size: 13px; }
+      .catalog.lotPage.scene .content .shop-purchase-form .form .common-button.buy-now.pt .text {
+        font-size: 14px; }
     .catalog.lotPage.scene .content .shop-purchase-form .form .scroll-anchor {
       position: absolute; }
     .catalog.lotPage.scene .content .shop-purchase-form .form .commission-text, .catalog.lotPage.scene .content .shop-purchase-form .form .not-published {
       margin-top: 10px;
       font-size: 15px; }
+    .catalog.lotPage.scene .content .shop-purchase-form .form .disabled-on-holyday {
+      color: #db403e;
+      margin-bottom: 20px; }
   .catalog.lotPage.scene .content .shop-purchase-form .sold-info {
     width: 100%;
     color: white;
