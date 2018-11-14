@@ -23857,8 +23857,9 @@ function tryToLaunchWithPuffin(url){
 var time = new Date().getTime();
 
 					setTimeout(function(){
-alert(new Date().getTime() - time); 
-window.open(url,"_system");
+if(new Date().getTime() - time<2000){
+  window.open(url,"_system");
+}
 },1500);
 				} else {
 					window.open(url,"_system");
