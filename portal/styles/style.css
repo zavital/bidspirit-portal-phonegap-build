@@ -9696,6 +9696,10 @@ footer {
       font-weight: bold; }
     .home.scene .promotion-instance.home-header.second {
       display: none; }
+    .home.scene .promotion-instance.home-header .mobile-app-promition .pic {
+      display: none !important; }
+    .home.scene .promotion-instance.home-header .mobile-app-promition .info {
+      width: 100% !important; }
   .home.scene .content.in-iframe {
     padding-top: 0;
     margin-top: 100px; }
