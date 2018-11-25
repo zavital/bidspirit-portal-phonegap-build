@@ -21406,6 +21406,11 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
         return {
             response: function(response) {
                 if (isApiRequest(response.config)) {
+                	if (window.inReloadingState) {
+                		$q.reject(null);
+                		return;
+                	}
+                	 
                     if (response.data && !angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data), 
                     response.data = {
                         errorType: "INVALID_RESPONSE",
@@ -21439,36 +21444,80 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
                 data: data
             });
         }
-        function callApiWithOptions(options) {
-            var method = options.method;
-            method || (method = "GET");
-            var data = angular.copy(options.data);
-            data || (data = {});
-            var params = {};
-            if ("GET" == method && (params = data, data = null, "object" != typeof params)) return void $log.warn("Bad request: must send object to a get request, but found " + typeof params + " (" + params + ")");
-            options.useCdnCache ? params.cdnSubDomain = window.location.host.split(".")[0].toLowerCase() : SessionInfo.localId && (params.localId = SessionInfo.localId);
-            var isOldIe = -1 != navigator.appVersion.indexOf("MSIE"), apiBase = options.useCdnCache && !isOldIe ? GlobalConfig.cachedApiBase : GlobalConfig.apiBase, apiPath = options.api;
-            "/" == apiPath.charAt(0) && "/" == apiBase.charAt(apiBase.length - 1) && (apiPath = apiPath.substring(1));
-            var url = apiBase + apiPath, request = {
-                method: method,
-                url: url,
-                data: data,
-                params: params
-            };
-            "postForm" == options.method && (request.headers = {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }, request.method = "POST", request.data = serializeData(request.data));
-            var promise = $http(request);
-            return promise.success = function(callback) {
-                return promise.then(function(response) {
-                    callback(response.data);
-                }), promise;
-            }, promise.error = function(callback) {
-                return promise.then(null, function(response) {
-                    callback(response.data);
-                }), promise;
-            }, promise;
-        }
+        
+       function callApiWithOptions(options){
+		    if (window.inReloadingState) return;
+			var method = options.method;
+			if (!method){
+				method = "GET";
+			}
+			var data = angular.copy(options.data);
+			if (!data){
+				data = {};
+			}
+			
+			var params = {};
+			
+			if (method=="GET"){
+				params = data;
+				data = null;
+				if (typeof(params)!="object"){
+					$log.warn("Bad request: must send object to a get request, but found "+typeof(params)+" ("+params+")");
+					return;
+				}
+			}
+			
+				
+			if (options.useCdnCache){
+				params.cdnSubDomain = window.location.host.split(".")[0].toLowerCase(); //make sure we get different request for every region - important for access control headers
+			} else {
+				if (SessionInfo.localId){
+					params.localId = SessionInfo.localId;
+				}
+			}
+			
+			
+			
+			var  isOldIe = navigator.appVersion.indexOf("MSIE")!=-1;
+			var apiBase = options.useCdnCache && !isOldIe ? GlobalConfig.cachedApiBase : GlobalConfig.apiBase;
+			var apiPath = options.api;
+			if (apiPath.charAt(0)=="/" && apiBase.charAt(apiBase.length-1)=="/"){
+				apiPath = apiPath.substring(1);
+			}
+			
+			var url = apiBase + apiPath;
+			
+			var request = {
+					method:method,
+					url:url,
+					data:data,
+					params:params
+			};
+			
+			if (options.method=="postForm"){
+				request.headers = {"Content-Type": 'application/x-www-form-urlencoded'};
+				request.method="POST";
+				request.data = serializeData(request.data);
+			}			
+			var promise =  $http(request);			
+			
+			promise.success = function(callback){
+				promise.then(function(response){
+					callback(response.data);
+				});
+				return promise;
+			}
+			
+			promise.error= function(callback){
+				promise.then(null, function(response){
+					callback(response.data);
+				});
+				return promise;
+			}
+			
+			return promise;
+		}
+		
         function serializeData(data) {
             if (!angular.isObject(data)) return null == data ? "" : data.toString();
             var buffer = [];
@@ -36647,10 +36696,11 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 			if (GlobalConfig.isMobileApp){
 				alert("going to "+contentType);
 				if ($rootScope.contentType != contentType){
+					window.inReloadingState = true;
 					setTimeout(function(){
 						alert("reloading");
 						window.location.reload();
-					},100);
+					},1000);
 				}
 				$state.go("app.home");
 			} else {
