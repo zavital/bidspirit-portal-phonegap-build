@@ -2305,7 +2305,6 @@ window.BidspiritLoader = {
 			if (mErrorInfo){
 				displayDebugIfDev();			
 			}
-			alert("default: "+mUrl);
 			mNode.src = mUrl;
 		}},
 		
@@ -2319,7 +2318,6 @@ window.BidspiritLoader = {
 		
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
-			alert("loadBidspi");
 			mNode = node;
 			mUrl = url;			
 			
@@ -2328,12 +2326,9 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
-					 alert("ready");
 					 try {
 						 initFilesBase(function(){
-							 alert("File base");
 							 readFile("app/data",function(data){
-								 alert("data");
 								 addDebugInfo("got data "+data);
 								 if (data){
 									 var versions = data.split(",");
@@ -2348,11 +2343,9 @@ window.BidspiritLoader = {
 											 defaultLoadOnError("failed to reset");
 										 });
 									 } else {
-										 alert("file");
 										 getFileEntry("app/content."+portalAppVersion,{create: false, exclusive: false}, function(content){
 											 GlobalConfig.templatesCacheVersion = GlobalConfig.appVersion = portalAppVersion;
 											 addDebugInfo("loading content from "+content.toURL());
-											 alert(content.toURL());
 											 mNode.src = content.toURL();
 										 },function(){
 											 defaultLoadOnError("failed to get content file for version "+portalAppVersion);
@@ -2375,6 +2368,4 @@ window.BidspiritLoader = {
 			 }
 		}}
 }
-
-
 

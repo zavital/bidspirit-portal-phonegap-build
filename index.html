@@ -13,7 +13,7 @@
  		<script src="phonegap.js"></script>
 
 		<script>
-				var debugMode = true;
+				var debugMode = false;
 		
 				var ENV_NAME =  'prod';
 				
@@ -43,7 +43,7 @@
 				GlobalConfig.cssCacheVersion = "";
 				GlobalConfig.templatesCacheVersion =  GlobalConfig.appVersion;
 				
-				GlobalConfig.devMode = true;
+				GlobalConfig.devMode = false;
 				
 				
 				if (ENV_NAME=="qa"){
@@ -53,13 +53,10 @@
 				
 				debugMode = GlobalConfig.envName=="qa";
 				
-				debugMode = true;
-				
 		        var require = {
 		       		baseUrl: "./",	
 		       		urlArgs : debugMode ? 'v='+new Date().getTime() : ''
 			    };	
-		        alert("html");
 		</script>
 		
 		<style>
