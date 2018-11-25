@@ -36650,7 +36650,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 					setTimeout(function(){
 						window.reloadInProgress = true;
 						window.location.reload();
-					},500);
+					},1000);
 				}
 				$state.go("app.home");
 			} else {
