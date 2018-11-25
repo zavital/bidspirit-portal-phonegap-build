@@ -21405,6 +21405,9 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
         }
         return {
             response: function(response) {
+            	if (window.reloadInProgress) {
+            		return $q.reject(null);
+            	}
                 if (isApiRequest(response.config)) {
                     if (response.data && !angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data), 
                     response.data = {
@@ -21440,6 +21443,7 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
             });
         }
         function callApiWithOptions(options) {
+        	if (window.reloadInProgress) return;
             var method = options.method;
             method || (method = "GET");
             var data = angular.copy(options.data);
@@ -36644,6 +36648,7 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 			if (GlobalConfig.isMobileApp){
 				if ($rootScope.contentType != contentType){
 					setTimeout(function(){
+						window.reloadInProgress = true;
 						window.location.reload();
 					},500);
 				}
