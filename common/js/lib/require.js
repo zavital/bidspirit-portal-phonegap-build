@@ -2318,6 +2318,7 @@ window.BidspiritLoader = {
 		
 		
 		loadBidspirit:function (context, node, url){with (BidspiritLoader){
+			alert("loadBidspi");
 			mNode = node;
 			mUrl = url;			
 			
@@ -2326,6 +2327,7 @@ window.BidspiritLoader = {
 				defaultLoad();
 			 } else {		
 				 document.addEventListener('deviceready', function () {
+					 alert("ready");
 					 try {
 						 initFilesBase(function(){
 							 readFile("app/data",function(data){
@@ -2368,4 +2370,6 @@ window.BidspiritLoader = {
 			 }
 		}}
 }
+
+alert("reqq");
 
