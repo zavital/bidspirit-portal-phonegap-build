@@ -24662,15 +24662,27 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
             $rootScope.contentType = getContentType(), "ART" == $rootScope.contentType && ($rootScope.showPastAuctionsResult = !0), 
             "1" == PathsService.getQueryParam("inIframe") && ($rootScope.inIframe = !0);
         }
-        function init() {
-            initConfig(), checkFirstVisit(), ViewPortService.bindViewPortSizeToWindowWidth(), 
-            $rootScope.$on("i18n.languageChanged", onLangUpdate), CssLoaderService.loadCss($rootScope.serverFilesBase + GlobalConfig.appName + "/styles/style.css").then(checkAllResourcesLoaded), 
-            PortalInfoService.init(getInitialRegion()).success(function() {
-                I18nService.init(PathsService.getPortalTextsUrl, PathsService.getQueryParam("lang"), !0).then(checkAllResourcesLoaded);
-            }).error(function(error) {
-                error && "BLOCKED" == error.errorType && window.document.write("<h3>You have been blocked.</h3> For support, please contact us at info@bidspirit.com");
-            });
-        }
+         function init(){
+	    	  alert("init");
+    		 initConfig();
+    		 alert("Config initialized");	    		 
+    		 checkFirstVisit();
+    		 ViewPortService.bindViewPortSizeToWindowWidth();
+    		 $rootScope.$on('i18n.languageChanged',onLangUpdate);
+    		 alert("Loading css");	    		 
+    		 CssLoaderService.loadCss($rootScope.serverFilesBase + GlobalConfig.appName + '/styles/style.css').then(checkAllResourcesLoaded);
+    		 
+    		
+    		 PortalInfoService.init(getInitialRegion()).success(function(){	    		    			 
+    			 I18nService.init(PathsService.getPortalTextsUrl, PathsService.getQueryParam("lang"), true).then(checkAllResourcesLoaded)
+    		 }).error(function(error){	    			 
+    			 if (error && error.errorType=="BLOCKED"){
+    				 window.document.write("<h3>You have been blocked.</h3> For support, please contact us at info@bidspirit.com");
+    			 };
+	 		}); 
+    		 
+    	 }
+	    	 
         $rootScope.loadState = "loading", $scope.dataState = "loading", $scope.firstVisit = !1, 
         $rootScope.currentLang = null, $scope.showErrorPopup = function(messageData) {
             DialogsService.showAlert(messageData);
@@ -36629,12 +36641,23 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
             var scenes = getAllPortalScenes();
             return ArraysService.remove(scenes, $rootScope.contentType), scenes;
         }
-        function gotoPortalScene(contentType) {
-            LocalStorageService.store("catalogContentType", contentType), LocalStorageService.store("portalChoiceNeeded", !1), 
-            GlobalConfig.isMobileApp ? ($rootScope.contentType != contentType && setTimeout(function() {
-                window.location.reload();
-            }, 100), $state.go("app.home")) : window.location.href = PathsService.getPortalUrl(contentType, $rootScope.currentRegion);
-        }
+        function  gotoPortalScene(contentType){
+			LocalStorageService.store("catalogContentType", contentType);
+			LocalStorageService.store("portalChoiceNeeded", false);
+			if (GlobalConfig.isMobileApp){
+				alert("going to "+contentType);
+				if ($rootScope.contentType != contentType){
+					setTimeout(function(){
+						alert("reloading");
+						window.location.reload();
+					},100);
+				}
+				$state.go("app.home");
+			} else {
+	   			window.location.href = PathsService.getPortalUrl(contentType, $rootScope.currentRegion);
+			}
+   			
+		}	
         function gotoRegion(region) {
             GlobalConfig.isMobileApp || -1 == window.location.href.indexOf("bidspirit") ? (LocalStorageService.store("region", region), 
             setTimeout(function() {
