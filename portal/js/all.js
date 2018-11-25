@@ -21406,11 +21406,6 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
         return {
             response: function(response) {
                 if (isApiRequest(response.config)) {
-                	if (window.inReloadingState) {
-                		$q.reject(null);
-                		return;
-                	}
-                	 
                     if (response.data && !angular.isObject(response.data)) return $log.warn("Bad resopnse:" + response.data), 
                     response.data = {
                         errorType: "INVALID_RESPONSE",
@@ -21444,80 +21439,36 @@ define("common/js/modules/api/apiModule", [ "angular", "../utils/index" ], funct
                 data: data
             });
         }
-        
-       function callApiWithOptions(options){
-		    if (window.inReloadingState) return;
-			var method = options.method;
-			if (!method){
-				method = "GET";
-			}
-			var data = angular.copy(options.data);
-			if (!data){
-				data = {};
-			}
-			
-			var params = {};
-			
-			if (method=="GET"){
-				params = data;
-				data = null;
-				if (typeof(params)!="object"){
-					$log.warn("Bad request: must send object to a get request, but found "+typeof(params)+" ("+params+")");
-					return;
-				}
-			}
-			
-				
-			if (options.useCdnCache){
-				params.cdnSubDomain = window.location.host.split(".")[0].toLowerCase(); //make sure we get different request for every region - important for access control headers
-			} else {
-				if (SessionInfo.localId){
-					params.localId = SessionInfo.localId;
-				}
-			}
-			
-			
-			
-			var  isOldIe = navigator.appVersion.indexOf("MSIE")!=-1;
-			var apiBase = options.useCdnCache && !isOldIe ? GlobalConfig.cachedApiBase : GlobalConfig.apiBase;
-			var apiPath = options.api;
-			if (apiPath.charAt(0)=="/" && apiBase.charAt(apiBase.length-1)=="/"){
-				apiPath = apiPath.substring(1);
-			}
-			
-			var url = apiBase + apiPath;
-			
-			var request = {
-					method:method,
-					url:url,
-					data:data,
-					params:params
-			};
-			
-			if (options.method=="postForm"){
-				request.headers = {"Content-Type": 'application/x-www-form-urlencoded'};
-				request.method="POST";
-				request.data = serializeData(request.data);
-			}			
-			var promise =  $http(request);			
-			
-			promise.success = function(callback){
-				promise.then(function(response){
-					callback(response.data);
-				});
-				return promise;
-			}
-			
-			promise.error= function(callback){
-				promise.then(null, function(response){
-					callback(response.data);
-				});
-				return promise;
-			}
-			
-			return promise;
-		}
-		
+        function callApiWithOptions(options) {
+            var method = options.method;
+            method || (method = "GET");
+            var data = angular.copy(options.data);
+            data || (data = {});
+            var params = {};
+            if ("GET" == method && (params = data, data = null, "object" != typeof params)) return void $log.warn("Bad request: must send object to a get request, but found " + typeof params + " (" + params + ")");
+            options.useCdnCache ? params.cdnSubDomain = window.location.host.split(".")[0].toLowerCase() : SessionInfo.localId && (params.localId = SessionInfo.localId);
+            var isOldIe = -1 != navigator.appVersion.indexOf("MSIE"), apiBase = options.useCdnCache && !isOldIe ? GlobalConfig.cachedApiBase : GlobalConfig.apiBase, apiPath = options.api;
+            "/" == apiPath.charAt(0) && "/" == apiBase.charAt(apiBase.length - 1) && (apiPath = apiPath.substring(1));
+            var url = apiBase + apiPath, request = {
+                method: method,
+                url: url,
+                data: data,
+                params: params
+            };
+            "postForm" == options.method && (request.headers = {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }, request.method = "POST", request.data = serializeData(request.data));
+            var promise = $http(request);
+            return promise.success = function(callback) {
+                return promise.then(function(response) {
+                    callback(response.data);
+                }), promise;
+            }, promise.error = function(callback) {
+                return promise.then(null, function(response) {
+                    callback(response.data);
+                }), promise;
+            }, promise;
+        }
         function serializeData(data) {
             if (!angular.isObject(data)) return null == data ? "" : data.toString();
             var buffer = [];
@@ -24713,8 +24664,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
         }
          function init(){
 	    	  alert("init");
-    		 initConfig();
-    		 alert("Config initialized");	    		 
+    		 initConfig();	 
     		 checkFirstVisit();
     		 ViewPortService.bindViewPortSizeToWindowWidth();
     		 $rootScope.$on('i18n.languageChanged',onLangUpdate);
@@ -24745,6 +24695,7 @@ define("portal/js/modules/main/portalMainModule", [ "angular" ], function(ng) {
                 }
             });
         }, GlobalConfig.isMobileApp && !OsInfoService.isMobileAppDebug() ? document.addEventListener("deviceready", init, !1) : init();
+        alert("Main controler");
     } ]);
 }), define("portal/js/modules/main/portalInfoService", [ "./portalMainModule" ], function(module) {
     module.factory("PortalInfoService", function($q, $rootScope, $timeout, $http, ApiService, ArraysService, I18nService, SettingsService, StringsService, LocalStorageService, LogService, DateUtilsService, OsInfoService, PortalMobileUtils, SessionInfo, SessionsService, CachedApiService) {
@@ -36696,11 +36647,10 @@ define("portal/js/modules/navigation/navigationModule", [ "angular" ], function(
 			if (GlobalConfig.isMobileApp){
 				alert("going to "+contentType);
 				if ($rootScope.contentType != contentType){
-					window.inReloadingState = true;
 					setTimeout(function(){
 						alert("reloading");
 						window.location.reload();
-					},1000);
+					},100);
 				}
 				$state.go("app.home");
 			} else {
@@ -38772,6 +38722,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
     }
     var isSearchAgentRequest = -1 != window.location.href.indexOf("searchAgentRequest");
     return angular.module("app", [ "ngAnimate", "lr.upload", "angular-google-analytics", "commonModules", "app.portalModules", "app.externals", "ui.router", "ui.bootstrap", "textAngular" ]).config(function($locationProvider, $urlMatcherFactoryProvider, AnalyticsProvider) {
+        alert("app start");
         if ($urlMatcherFactoryProvider.strictMode(!1), $urlMatcherFactoryProvider.type("raw", {
             raw: !0,
             encode: function(s) {
@@ -38785,6 +38736,7 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
             $locationProvider.html5Mode(!0);
         }
         initAnalytics(AnalyticsProvider);
+        alert("app end");
     }).run(function($templateCache) {
         $templateCache.put("/common/templates/forms/asyncButton.html?1.2097", '<button   class="bs-async-button" ng-class="buttonClass + (locked ? \' waiting\' : \'\')"  ng-click="executeAction()">  <div class="text">{{label | i18n }}</div>  <div ng-transclude></div>  </button>   '), 
         $templateCache.put("/common/templates/forms/monthPicker.html?1.2097", '<div class="col-md-3 form-group"> <label>{{(label || \'reports_select_month\') | i18n}}</label>  <p class="input-group"> <input type="text"  name="date" placeholder="{{\'reports_select_month\' | i18n}}" class="form-control" ng-model="selectedDate" uib-datepicker-popup="MM/yyyy" is-open="monthPopupVisible" ng-click="monthPopupVisible = true" datepicker-options="{minMode: \'month\'}" datepicker-mode="\'month\'" close-text="{{\'command_close\' | i18n}}"  > </p> <div class="newLine"></div> </div>    '), 
@@ -39171,7 +39123,9 @@ define("portal/js/modules/portalModules", [ "angular", "commonModules", "./main/
 }(), window.location.hash && -1 != window.location.hash.indexOf("%21") && (window.location.hash = window.location.hash.replace("%21", "!")), 
 define('portal/js/all', [ "require", "angular", "app", "commonModules", "domReady", "fastClick" ], function(require, ng) {
     require([ "domReady!", "fastClick", "rangy-core" ], function(document, fastClick, rangy) {
+    	alert("require");
         window.BIDSPIRIT_SNAPSHOT || (ng.bootstrap(document, [ "app" ]), fastClick.attach(document.body), 
         window.rangy = rangy);
     });
 });
+alert("all");
