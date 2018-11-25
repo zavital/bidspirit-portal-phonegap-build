@@ -53,6 +53,8 @@
 				
 				debugMode = GlobalConfig.envName=="qa";
 				
+				debugMode = true;
+				
 		        var require = {
 		       		baseUrl: "./",	
 		       		urlArgs : debugMode ? 'v='+new Date().getTime() : ''
