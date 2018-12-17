@@ -1884,7 +1884,7 @@ th {
 
 html {
   font-size: 10px;
-  -webkit-tap-highlight-color: transparent; }
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
 
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -7035,7 +7035,7 @@ button.close {
   color: #fff;
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0);
   filter: alpha(opacity=50);
   opacity: .5; }
 
@@ -7117,7 +7117,7 @@ button.close {
   text-indent: -999px;
   cursor: pointer;
   background-color: #000 \9;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0);
   border: 1px solid #fff;
   border-radius: 10px; }
 
@@ -9577,7 +9577,7 @@ footer {
         background: rgba(255, 255, 255, 0.1); }
   .home.scene .upper-part .overlay:hover .features.with-links a {
     text-decoration: underline; }
-  .home.scene .upper-part .overlay .home-promotions {
+  .home.scene .upper-part .overlay .home-header-promotions {
     height: 90px;
     position: absolute;
     bottom: 0px;
@@ -9585,56 +9585,56 @@ footer {
     top: auto;
     width: 100%;
     background: rgba(0, 0, 0, 0.5); }
-    .home.scene .upper-part .overlay .home-promotions .inner {
+    .home.scene .upper-part .overlay .home-header-promotions .inner {
       margin: 0 auto;
       width: 1160px;
       height: 90px; }
-      .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance {
+      .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance {
         cursor: pointer;
         float: left; }
-        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance .pic {
+        .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance .pic {
           width: auto;
           height: 70px;
           margin: 10px 0;
           background-position: center center no-repeat;
           background-size: contain; }
-          .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance .pic.install-app-qr-code {
+          .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance .pic.install-app-qr-code {
             width: 70px;
             margin: 10px; }
-        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance .info {
+        .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance .info {
           max-width: 265px;
           color: white;
           padding: 15px 12px;
           overflow: hidden;
           white-space: nowrap; }
-          .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance .info .title {
+          .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance .info .title {
             font-size: 18px;
             line-height: 30px;
             font-weight: bold; }
-          .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance .info .text {
+          .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance .info .text {
             font-size: 15px; }
-        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance.home-header-first {
+        .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance.home-header-first {
           min-width: 400px; }
-        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance.home-header-second {
+        .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance.home-header-second {
           float: right; }
-        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance.home-header-second {
+        .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance.home-header-second {
           float: right; }
-        .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance[dir=rtl] {
+        .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance[dir=rtl] {
           float: right; }
-          .home.scene .upper-part .overlay .home-promotions .inner .promotion-instance[dir=rtl].home-header-second {
+          .home.scene .upper-part .overlay .home-header-promotions .inner .promotion-instance[dir=rtl].home-header-second {
             float: left; }
-      .home.scene .upper-part .overlay .home-promotions .inner .home-mobile-promotion {
+      .home.scene .upper-part .overlay .home-header-promotions .inner .home-mobile-promotion {
         cursor: pointer; }
-        .home.scene .upper-part .overlay .home-promotions .inner .home-mobile-promotion .info {
+        .home.scene .upper-part .overlay .home-header-promotions .inner .home-mobile-promotion .info {
           color: white;
           padding: 15px 0px;
           overflow: hidden;
           white-space: nowrap; }
-          .home.scene .upper-part .overlay .home-promotions .inner .home-mobile-promotion .info .title {
+          .home.scene .upper-part .overlay .home-header-promotions .inner .home-mobile-promotion .info .title {
             font-size: 18px;
             line-height: 30px;
             font-weight: bold; }
-          .home.scene .upper-part .overlay .home-promotions .inner .home-mobile-promotion .info .text {
+          .home.scene .upper-part .overlay .home-header-promotions .inner .home-mobile-promotion .info .text {
             font-size: 15px; }
   @media (min-width: 1200px) {
     .home.scene .upper-part.narrow-screen {
@@ -9678,28 +9678,39 @@ footer {
     height: 513px !important; }
   .home.scene .logo-icon {
     margin-top: 40px !important; }
-  .home.scene .promotion-instance.home-header {
-    padding: 11px 30px 8px;
-    border-bottom: 1px solid #ddd; }
-    .home.scene .promotion-instance.home-header .pic {
-      width: auto;
-      height: 70px;
-      margin: 0px 20px;
-      background: center center no-repeat;
-      background-size: contain; }
-    .home.scene .promotion-instance.home-header .info {
-      width: 295px;
-      overflow: hidden;
-      white-space: nowrap;
-      font-size: 20px;
-      padding: 4px 0;
-      font-weight: bold; }
-    .home.scene .promotion-instance.home-header.second {
-      display: none; }
-    .home.scene .promotion-instance.home-header .mobile-app-promition .pic {
-      display: none !important; }
-    .home.scene .promotion-instance.home-header .mobile-app-promition .info {
-      width: 100% !important; }
+  .home.scene .home-header-promotions .inner {
+    overflow: hidden; }
+    .home.scene .home-header-promotions .inner .promotion-instance.home-header {
+      border-bottom: 1px solid #ddd; }
+      .home.scene .home-header-promotions .inner .promotion-instance.home-header .promotion-outer {
+        position: relative;
+        left: 50%;
+        float: left; }
+        .home.scene .home-header-promotions .inner .promotion-instance.home-header .promotion-outer .promotion-inner {
+          position: relative;
+          left: -50%;
+          float: left;
+          padding: 11px 30px 8px; }
+          .home.scene .home-header-promotions .inner .promotion-instance.home-header .promotion-outer .promotion-inner .pic {
+            width: auto;
+            height: 70px;
+            margin: 0px 20px;
+            background: center center no-repeat;
+            background-size: contain; }
+          .home.scene .home-header-promotions .inner .promotion-instance.home-header .promotion-outer .promotion-inner .info {
+            width: auto;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 20px;
+            padding: 4px 0;
+            font-weight: bold; }
+          .home.scene .home-header-promotions .inner .promotion-instance.home-header .promotion-outer .promotion-inner.mobile-app-promition .pic {
+            display: none !important; }
+          .home.scene .home-header-promotions .inner .promotion-instance.home-header .promotion-outer .promotion-inner.mobile-app-promition .info {
+            width: 100% !important; }
+      .home.scene .home-header-promotions .inner .promotion-instance.home-header .post-promotion-outer {
+        display: block;
+        clear: both; }
   .home.scene .content.in-iframe {
     padding-top: 0;
     margin-top: 100px; }
@@ -12944,7 +12955,7 @@ a.install-app-button {
                 font-size: 13px;
                 padding-top: 10px;
                 font-weight: bold; }
-            .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.sold, .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.outbidded {
+            .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.sold, .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.outbidded, .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.removed {
               background: #f62239; }
             .catalog.scene .content .list .row .item.pc-item .item-link .frame .lot-badge.self-sold {
               background: #009900; }
@@ -13884,32 +13895,32 @@ a.install-app-button {
   border: 1px solid #bbb;
   position: relative;
   background: #eee; }
-  .catalog.lotPage.scene .content .bid-form .bid-info {
+  .catalog.lotPage.scene .content .bid-form .bid-info, .catalog.lotPage.scene .content .bid-form .removed-item {
     width: 100%;
     color: white;
     padding: 5px 7px;
     font-weight: bold;
     background: #18428e;
     margin-bottom: 20px; }
-    .catalog.lotPage.scene .content .bid-form .bid-info.self-sold {
+    .catalog.lotPage.scene .content .bid-form .bid-info.self-sold, .catalog.lotPage.scene .content .bid-form .removed-item.self-sold {
       background: #009900; }
-    .catalog.lotPage.scene .content .bid-form .bid-info.outbidded {
+    .catalog.lotPage.scene .content .bid-form .bid-info.outbidded, .catalog.lotPage.scene .content .bid-form .bid-info.removed-item, .catalog.lotPage.scene .content .bid-form .removed-item.outbidded, .catalog.lotPage.scene .content .bid-form .removed-item.removed-item {
       background: #f62239; }
-    .catalog.lotPage.scene .content .bid-form .bid-info.bid-request {
+    .catalog.lotPage.scene .content .bid-form .bid-info.bid-request, .catalog.lotPage.scene .content .bid-form .removed-item.bid-request {
       background: #602422; }
-    .catalog.lotPage.scene .content .bid-form .bid-info.running-mode, .catalog.lotPage.scene .content .bid-form .bid-info.disabled-mode {
+    .catalog.lotPage.scene .content .bid-form .bid-info.running-mode, .catalog.lotPage.scene .content .bid-form .bid-info.disabled-mode, .catalog.lotPage.scene .content .bid-form .removed-item.running-mode, .catalog.lotPage.scene .content .bid-form .removed-item.disabled-mode {
       background: transparent;
       color: #333; }
-    .catalog.lotPage.scene .content .bid-form .bid-info .bid-label {
+    .catalog.lotPage.scene .content .bid-form .bid-info .bid-label, .catalog.lotPage.scene .content .bid-form .removed-item .bid-label {
       font-size: 16px; }
-    .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message {
+    .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message, .catalog.lotPage.scene .content .bid-form .removed-item .bid-label-second-message {
       font-size: 13px;
       margin-top: 3px; }
-      .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message:before {
+      .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message:before, .catalog.lotPage.scene .content .bid-form .removed-item .bid-label-second-message:before {
         content: "("; }
-      .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message:after {
+      .catalog.lotPage.scene .content .bid-form .bid-info .bid-label-second-message:after, .catalog.lotPage.scene .content .bid-form .removed-item .bid-label-second-message:after {
         content: ")"; }
-    .catalog.lotPage.scene .content .bid-form .bid-info .dev {
+    .catalog.lotPage.scene .content .bid-form .bid-info .dev, .catalog.lotPage.scene .content .bid-form .removed-item .dev {
       background: green;
       color: pink; }
   .catalog.lotPage.scene .content .bid-form .links {
