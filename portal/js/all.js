@@ -21087,8 +21087,8 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
 function scrollIfConditionMet(){
 					 
 					 if (window.location.hash != originalHash) {
-alert(window.location.hash +"!="+ originalHash);	
-return;
+//alert(window.location.hash +"!="+ originalHash);	
+//return;
 }
 					 if (scope.watchedValue==true || scope.bsScrollOn) {						 
 						 var elementToScroll =  scope.scrollToParent ? element.parent : element; 						 
