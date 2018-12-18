@@ -21084,7 +21084,18 @@ define("common/js/modules/domUtils/domUtilsModule", [ "angular" ], function(ng) 
                 delay: "="
             },
             link: function(scope, element) {
-                function scrollIfConditionMet() {
+function scrollIfConditionMet(){
+					 
+					 if (window.location.hash != originalHash) {
+alert(window.location.hash +"!="+ originalHash);	
+return;
+}
+					 if (scope.watchedValue==true || scope.bsScrollOn) {						 
+						 var elementToScroll =  scope.scrollToParent ? element.parent : element; 						 
+						 DomUtilsService.scrollToElementTop(elementToScroll, scope.offset || -100);
+				     }
+				 }
+                function sczrollIfConditionMet() {
                     if (window.location.hash == originalHash && (1 == scope.watchedValue || scope.bsScrollOn)) {
                         var elementToScroll = scope.scrollToParent ? element.parent : element;
                         DomUtilsService.scrollToElementTop(elementToScroll, scope.offset || -100);
