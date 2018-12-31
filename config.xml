@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget version="416" versionCode="15724"
+<widget version="421" versionCode="15729"
     id="com.bidspirit.qa"
     xmlns="http://www.w3.org/ns/widgets" 
     xmlns:android = "http://schemas.android.com/apk/res/android"
@@ -17,7 +17,12 @@
 
     <content src="index.html" />
     
+    
     <allow-navigation href="*" />
+    
+    <allow-intent href="mailto:*" />
+    <allow-intent href="tel:*" />
+    
     
     <access origin="*" />
     
