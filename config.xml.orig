@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='utf-8'?>
+<<<<<<< HEAD
+<widget version="421" versionCode="15729"
+=======
+<widget version="420" versionCode="15728"
+>>>>>>> 47d4fb457b94620752ae7b6e9da1e2124e6d07cd
+    id="com.bidspirit.qa"
+    xmlns="http://www.w3.org/ns/widgets" 
+    xmlns:android = "http://schemas.android.com/apk/res/android"
+    xmlns:gap="http://phonegap.com/ns/1.0"
+    >
+    
+ 
+    <name>Bidspirit-qa</name>
+    <description>
+        The Bidspirit portal is your gate to the auction houses’ arena  trading in art, collectibles, jewelry, antiques, stamps, coins, old books, judaica, and more
+    </description>
+    <author email="zemer@bidspirit.com" href="http://bidspirit.com">
+        Zemer avital
+    </author>
+
+    <content src="index.html" />
+    
+    
+    <allow-navigation href="*" />
+    
+    <allow-intent href="mailto:*" />
+    <allow-intent href="tel:*" />
+    
+    
+    <access origin="*" />
+    
+    <plugin name="cordova-plugin-console"  />  
+    <plugin name="cordova-plugin-file"  />
+    <plugin name="cordova-plugin-device"  />
+    <plugin name="cordova-plugin-statusbar"  />
+    <plugin name="cordova-plugin-whitelist"  />
+    <plugin name="cordova-plugin-splashscreen"  />
+    <plugin name="cordova-plugin-inappbrowser"  />
+    
+    <plugin name="cordova-plugin-appavailability" source="npm" />
+    <plugin spec="https://github.com/ohh2ahh/AppAvailability.git" source="git" />
+	
+    
+    <plugin name="cordova-plugin-google-analytics"  spec="~1.0.0" />
+  
+    <plugin name="cordova-universal-links-plugin" />
+  
+    <plugin name="phonegap-plugin-push" spec="~1.4.5" source="npm" />
+    
+    <plugin name="https://github.com/mikaoelitiana/cordova-ios-plugin-no-export-compliance.git" />
+    
+    <plugin name="cordova-plugin-dialogs"  />
+    <gap:platform name="android" />
+    <gap:platform name="ios" /> 
+    
+    <preference name="permissions" value="none"/>    
+    <feature name="http://api.phonegap.com/1.0/network" />    
+    <feature name="http://api.phonegap.com/1.0/device" />
+    <feature name="http://api.phonegap.com/1.0/notification"/>  
+    
+    
+               
+    <icon src="icon.png" />
+    
+    `<icon src="icon-android.png" gap:platform="android" />
+    
+    <icon src="icon-android.png" platform="android" qualifier="ldpi" />
+	<icon src="icon-android.png" platform="android" qualifier="mdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="hdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="xhdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="xxhdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="xxxhdpi" />
+	<icon src="icon-android.png" platform="android" qualifier="fr-xxhdpi" />
+    
+  <icon src="icons/ios/ios_40x40.png" gap:platform="ios" width="40" height="40" />
+	<icon src="icons/ios/ios_50x50.png" gap:platform="ios" width="50" height="50" />
+	<icon src="icons/ios/ios_57x57.png" gap:platform="ios" width="57" height="57" />
+	<icon src="icons/ios/ios_58x58.png" gap:platform="ios" width="58" height="58" />
+	<icon src="icons/ios/ios_60x60.png" gap:platform="ios" width="60" height="60" />
+	<icon src="icons/ios/ios_72x72.png" gap:platform="ios" width="72" height="72" />
+	<icon src="icons/ios/ios_76x76.png" gap:platform="ios" width="76" height="76" />
+	<icon src="icons/ios/ios_80x80.png" gap:platform="ios" width="80" height="80" />
+	<icon src="icons/ios/ios_100x100.png" gap:platform="ios" width="100" height="100" />
+	<icon src="icons/ios/ios_114x114.png" gap:platform="ios" width="114" height="114" />
+	<icon src="icons/ios/ios_120x120.png" gap:platform="ios" width="120" height="120" />
+	<icon src="icons/ios/ios_152x152.png" gap:platform="ios" width="152" height="152" />
+        
+  <preference name='phonegap-version' value='cli-7.1.0' />
+  
+  <preference name="EnableViewportScale" value="true" />
+  <preference name="StatusBarBackgroundColor" value="#000000" />
+  
+  <preference name="KeyboardDisplayRequiresUserAction" value="false"/>
+  
+  
+	
+
+  <preference name="android-manifest/application/@android:allowBackup" value="false" />
+	
+	
+	
+	<gap:config-file platform="android" parent="/manifest/application">
+    	<activity android:launchMode="singleTop" />
+	</gap:config-file>
+	
+	 <gap:config-file platform="ios" parent="LSApplicationQueriesSchemes" mode="replace">
+		<array>
+			<string>puffin</string>
+			<string>puffins</string>
+			<string>puffin-full</string>
+			<string>puffin-fulls</string>
+			<string>puffin-x-callback</string>
+			<string>db-b3onyus8ro2tifs</string>
+			<string>fb445450618828402puffin</string>
+		</array>
+    </gap:config-file>
+	
+	
+	<splash src="splash.png"/>
+	
+	
+	
+	<splash src="splashes/android/ldpi_200x320.png" platform="android" qualifier="ldpi" />
+	<splash src="splashes/android/mdpi_320x480.png" platform="android" qualifier="mdpi" />
+	<splash src="splashes/android/hdpi_480x800.png" platform="android" qualifier="hdpi" />
+	<splash src="splashes/android/xhdpi_720x1280.png" platform="android" qualifier="xhdpi" />
+	
+	
+	
+	
+	<platform name="ios"> 
+		<splash src="splashes/ios/iphone_3_320x480.png"  width="320" height="480" />
+		<splash src="splashes/ios/iphone_4_640x960.png"  width="640" height="960" />
+		<splash src="splashes/ios/iphone_5_640x1136.png"  width="640" height="1136" />
+		<splash src="splashes/ios/iphone_6_750x1334.png"  width="750" height="1334" />
+		<splash src="splashes/ios/iphone_6_portrait_1242x2208.png"  width="1242" height="2208" />
+		<splash src="splashes/ios/iphone_6_landscape_2208x1242.png"  width="2208" height="1242" />
+		<splash src="splashes/ios/ipad_768x1024.png"  width="768" height="1024" />
+		<splash src="splashes/ios/ipad_landscape_1024x768.png"  width="1024" height="768" />
+		<splash src="splashes/ios/ipad_retina_1536x2048.png"  width="1536" height="2048" />
+		<splash src="splashes/ios/ipad_retina_landscape_2048x1536.png"  width="2048" height="1536" />
+    </platform>
+    
+    <preference name="SplashMaintainAspectRatio" value="true" />
+	<preference name="SplashShowOnlyFirstTime" value="false" />
+	
+	<preference name="AndroidLaunchMode" value="singleInstance" />
+    
+	<preference name="orientation" value="portrait" />
+	<preference name="AutoHideSplashScreen" value="false" />
+	<preference name="DisallowOverscroll" value="true" />
+	
+	<universal-links>
+		<ios-team-id value="6DTE7S85RT" />
+	    <host name="qa.bidspirit.com" scheme="https" event="bidspirit_universal_link">
+	    	 <path url="/portal/" />
+	    </host>
+	</universal-links>
+	
+	
+	
+	
+	
+	
+	
+	 
+     
+</widget>
