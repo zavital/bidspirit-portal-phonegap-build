@@ -30834,7 +30834,31 @@ define("portal/js/modules/nudges/nudgesModule", [ "angular" ], function(ng) {
                 PortalInfoService.addToPushLog("Failed to init push " + e);
             }
         }
-        function registerForPushNotification() {
+function registerForPushNotification(){		
+			PortalInfoService.addToPushLog("registerForPushNotification.. device:"+mDeviceId+", push plugin:"+mPushPlugin+", "+window.PushNotification);
+			if (!mDeviceId) return;			
+			try {
+				if (mPushPlugin){
+					PortalInfoService.addToPushLog("Unregistering...:");
+					mPushPlugin.unregister();
+				}
+				mPushPlugin = PushNotification.init({ 
+					"android": {},
+					"ios": 	   {"alert": "true", "badge": "true", "sound": "true"}, 
+					"windows": {}
+				});
+				
+				PortalInfoService.addToPushLog("init called");
+					
+				mPushPlugin.on('registration', updateDevicePushRegistration);
+				mPushPlugin.on('notification', handlePushEvent);
+				mPushPlugin.on('error', handleError);
+			} catch (e){
+				PortalInfoService.addToPushLog("registration failed "+e);
+			}
+			
+		}
+        function rqqegisterForPushNotification() {
             if (PortalInfoService.addToPushLog("registerForPushNotification.. device:" + mDeviceId + ", push plugin:" + mPushPlugin), 
             mDeviceId) try {
                 mPushPlugin && (PortalInfoService.addToPushLog("Unregistering...:"), mPushPlugin.unregister()), 
