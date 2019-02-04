@@ -40,8 +40,8 @@
     <plugin spec="https://github.com/ohh2ahh/AppAvailability.git" source="git" />
 	
     
-    <plugin name="cordova-plugin-google-analytics"  spec="1.8.0" />
-
+	<plugin spec="https://github.com/danwilson/google-analytics-plugin" />
+	
   
     <plugin name="cordova-universal-links-plugin" />
   
