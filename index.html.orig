@@ -29,9 +29,15 @@
 					jsFilesBase : "./",
 					templatesBase : "/",
 					pageLoadTime : new Date().getTime(),
+<<<<<<< HEAD
 					loadedTextsVersion : '2019-01-31_12-40-10',
 					appVersion : '1.2188',
 					mobileAppVersion : '423',					
+=======
+					loadedTextsVersion : '2018-12-30_16-59-44',
+					appVersion : '1.2169',
+					mobileAppVersion : '422',					
+>>>>>>> fde7453368b106333480e0b09a03056168fb230a
 					envName : "prod",					
 					isMobileApp:true,
 					appName:"portal"
