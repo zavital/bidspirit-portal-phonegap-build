@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "651744373893",
+    "firebase_url": "https://bidspirit-prod.firebaseio.com",
+    "project_id": "bidspirit-prod",
+    "storage_bucket": "bidspirit-prod.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651744373893:android:38375c8f4df7feaa",
+        "android_client_info": {
+          "package_name": "com.bidspirit.prod"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "651744373893-1rffhc0stvpcmfet31qa8n4259g3p4ds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGceU-hT-aBdNQVrX0n0X229Ea-JKkFd8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-56607963-2"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651744373893:android:a87cbc6f1cb2e1bc",
+        "android_client_info": {
+          "package_name": "com.bidspirit.qa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "651744373893-1rffhc0stvpcmfet31qa8n4259g3p4ds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGceU-hT-aBdNQVrX0n0X229Ea-JKkFd8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
