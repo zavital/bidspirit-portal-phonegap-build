@@ -26,7 +26,6 @@
     
     <access origin="*" />
     
-    <preference name="android-build-tool" value="gradle" />
     
     
     <plugin name="cordova-plugin-console"  />  
