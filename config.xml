@@ -42,6 +42,9 @@
     
 	<plugin spec="https://github.com/cmackay/google-analytics-plugin" />
 	
+	<plugin spec="https://github.com/dpa99c/cordova-android-play-services-gradle-release" />
+	
+	
   
     <plugin name="cordova-universal-links-plugin" />
   
