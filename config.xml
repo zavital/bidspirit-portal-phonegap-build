@@ -39,10 +39,12 @@
     <plugin name="cordova-plugin-appavailability" source="npm" />
     <plugin spec="https://github.com/ohh2ahh/AppAvailability.git" source="git" />
 	
+	
+	<plugin spec="https://github.com/dpa99c/cordova-android-play-services-gradle-release" />
+	
     
 	<plugin spec="https://github.com/cmackay/google-analytics-plugin" />
 	
-	<plugin spec="https://github.com/dpa99c/cordova-android-play-services-gradle-release" />
 	
 	
   
