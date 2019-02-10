@@ -11768,9 +11768,15 @@ footer {
     .approval-popup .buttons .cancel.btn {
       color: #b95717;
       margin: 5px 20px; }
+  .approval-popup input.user-id {
+    width: 200px; }
   @media (max-width: 1199px) {
     .approval-popup .modal-body {
-      max-height: 400px; } }
+      max-height: 470px; }
+      .approval-popup .modal-body input.user-id {
+        width: 100%;
+        height: 50px;
+        font-size: 25px; } }
   .approval-popup .error-message {
     font-size: 14px;
     margin: 20px 0; }
